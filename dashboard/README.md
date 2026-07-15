@@ -1,6 +1,6 @@
 # Cleo｜五個 Skill 積分儀表板
 
-> GitHub Private repository 閱讀版。主管可直接在瀏覽器開啟，不需要下載專案。日期區塊可展開或收合；完整互動版原始檔保存在 [`notion-skill-dashboard.html`](./notion-skill-dashboard.html)。
+> GitHub Private repository 閱讀版。主管可直接在瀏覽器開啟，不需要下載專案。日期區塊可展開或收合；Notion 使用的完整互動版已同步保存為 [`cleo-skill-dashboard.html`](./cleo-skill-dashboard.html)。
 
 ## 目前總覽
 
@@ -49,6 +49,7 @@
 
 ## 閱讀入口
 
+- [查看完整互動式儀表板 HTML](./cleo-skill-dashboard.html)
 - [回到實習日誌首頁](../README.md)
 - [查看積分證據與目標對齊](../SKILL_PROGRESS.md)
 - [開啟 Cleo 日誌裡的 Notion 儀表板](https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08)
