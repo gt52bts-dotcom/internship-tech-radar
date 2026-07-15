@@ -9,6 +9,9 @@
 - 建立 private GitHub repository 與主管閱讀首頁，完成 push 並核對遠端 commit。
 - Mentor 回饋：五個 Skill 指專案中的掃描、比較、評估、驗證與報告；新增五色儀表板、每日整數積分，並檢查每天工作是否能扣回各 Skill 的原始目標。
 - 已新增平日 17:20 才產生正式日誌的規則；7/15 正式日誌暫不發布。
+- GitHub 已新增 Private repository 內可直接閱讀的 `dashboard/README.md`，包含五個 Skill 累積分數、每日趨勢與可展開日期區塊；commit `d42c9b8` 已推送至 `origin/main`。
+- Notion 已在 `Cleo的暑期實習日誌(2026CIP)` 每日資料加入五個 Skill 整數積分與自動加總欄位，並完成 7/13、7/14 分數回填。
+- 原本位於工作區外層的 Notion 儀表板頁已移入 Cleo 日誌資料庫，新增 `📊 儀表板入口` 檢視；原始積分明細資料庫仍保留作為證據來源。
 
 ### 待 17:20 判定
 
