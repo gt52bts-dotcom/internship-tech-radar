@@ -40,40 +40,57 @@ def cmd_draft(args):
     title = f"# 工作日誌 - {date}"
     if args.project:
         title += f"\n\n專案：{args.project}"
-    conclusion = args.conclusion or "今日已整理主要進度與可交付成果，下一步是依部署或 demo 需求完成驗證。"
+    conclusion = args.conclusion or "完成今日主要工作，並整理驗證結果與下一步。"
     text = f"""{title}
 
-## 今日結論
+## 今日主題
 
 {conclusion}
 
-## 完成事項
+## 今日完成事項
 
 {bullets(args.done)}
 
-## 技術決策
+## 執行驗證
 
-{bullets(args.decision)}
+{bullets(as_list(args.verify) + as_list(args.evidence))}
 
-## 產出檔案與證據
+## 當日流程圖
 
-{bullets(args.evidence)}
+```mermaid
+flowchart LR
+    A[開始] --> B[今日主要工作]
+    B --> C[驗證結果]
+    C --> D[完成或待處理]
+```
 
-## 測試與驗證
+## Mentor 討論筆記
 
-{bullets(args.verify)}
+### 第一次討論
 
-## 遇到問題與處理
+- 關鍵字：
+- 小筆記：
+
+### 第二次討論
+
+- 關鍵字：
+- 小筆記：
+
+## 遇到的問題與處理
 
 {bullets(args.blocker)}
 
-## 明日計畫
+## 技術調整紀錄
 
-{bullets(args.next)}
+{bullets(args.decision)}
 
-## 需要主管協助或確認
+## 提醒事項
 
-{bullets(args.ask)}
+{bullets(as_list(args.next) + as_list(args.ask))}
+
+## 今日總結
+
+{conclusion}
 """
     write_or_print(text, args.output)
 

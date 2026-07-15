@@ -25,6 +25,7 @@
 
 ## 日誌分層
 
+- 每日日誌固定使用 `templates/每日實習日誌模板.md`，章節順序與 Notion 的「每日實習日誌模板」相同。
 - 每日日誌：保留成果、驗證、問題、決策與下一步。
 - 雙週誌：從每日紀錄中整理成果與影響、問題與解法、學習成長及下期重點，不逐日抄寫。
 - Final proposal：持續累積專案框架、執行軌跡、成效、成功案例、限制及公司協助成長的證據。
@@ -34,3 +35,12 @@
 - 公司環境不依賴 Notion 作為專案記憶。
 - 另一台電腦 clone repository 後，Codex 依 `AGENTS.md` 自動讀取專案記憶與最新日誌。
 - ZIP、建置輸出、依賴、環境變數與金鑰檔案不進 Git；應同步可重建的原始碼、文件與必要成果。
+
+## Notion 模板來源
+
+- Notion 資料庫：`Cleo的暑期實習日誌(2026CIP)`
+- 資料庫網址：`https://app.notion.com/p/de09d9fba31682c0bc34011ff6a2b176`
+- 預設模板頁：`https://app.notion.com/p/5bc9d9fba3168391a35e01aba17f1979`
+- Git 內文副本：`templates/每日實習日誌模板.md`
+- Git 欄位副本：`templates/Cleo的暑期實習日誌(2026CIP)-欄位規則.md`
+- 即使另一台電腦或公司環境無法使用 Notion，AI PM 仍依 Git 副本產生日誌。

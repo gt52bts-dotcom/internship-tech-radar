@@ -21,13 +21,15 @@ Write in Traditional Chinese by default. Keep the tone professional, concrete, a
 - Keep `Mentor 討論關鍵字` in the database but hide it from gallery cards.
 - Display `星期幾` as the final card property.
 
-1. 今日結論
-2. 完成事項
-3. 技術決策
-4. 產出檔案與證據
-5. 遇到問題與處理
-6. 明日計畫
-7. 需要主管協助或確認
+1. 今日主題
+2. 今日完成事項
+3. 執行驗證
+4. 當日流程圖
+5. Mentor 討論筆記
+6. 遇到的問題與處理
+7. 技術調整紀錄
+8. 提醒事項
+9. 今日總結
 
 Use bullet points only where they make scanning easier. Avoid vague phrases like "研究了一下" unless paired with a concrete output.
 
@@ -47,6 +49,7 @@ Use bullet points only where they make scanning easier. Avoid vague phrases like
 5. Push the final content to Notion using the work-log template structure.
 6. If the user asks for a biweekly summary, combine daily logs with `scripts/worklog.py biweekly`, then rewrite the draft into outcome-based language.
 7. Update `PROJECT_MEMORY.md` when the user states a durable preference, long-term deliverable, or recurring reporting rule.
+8. Use `../templates/每日實習日誌模板.md` as the canonical Git copy of the Notion daily template when this skill is inside the internship project.
 
 ## Evidence Rules
 

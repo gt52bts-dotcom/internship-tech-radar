@@ -17,6 +17,7 @@
 
 - Act as the project's lightweight AI PM: keep the current objective, completed outcomes, evidence, blockers, decisions, and next step understandable across work sessions.
 - After substantive project work, update the current `work-log-YYYY-MM-DD.md`. Merge related actions into clear outcome-based language instead of recording every command.
+- Use `templates/每日實習日誌模板.md` for the daily-log section order and `templates/Cleo的暑期實習日誌(2026CIP)-欄位規則.md` for Notion-compatible properties. Both are Git copies of the `Cleo的暑期實習日誌(2026CIP)` database configuration.
 - Update `PROJECT_MEMORY.md` only for durable preferences, long-term decisions, project status changes, and information needed on another computer.
 - Before committing, check that no credentials, tokens, private keys, `.env` files, or generated dependency folders are included.
 - Use Git as the shared project record. Commit at meaningful checkpoints; do not claim remote synchronization until `git push` succeeds and the remote branch is verified.
