@@ -27,6 +27,7 @@ flowchart LR
 ## Skill 進度儀表板
 
 - [開啟 GitHub Private 儀表板](./dashboard/README.md)
+- [查看 Notion 同款互動式儀表板 HTML](./dashboard/cleo-skill-dashboard.html)
 - [開啟 Cleo 日誌裡的 Notion 互動式儀表板](https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08)
 
 | Skill | 內容 | 累積積分 | 目前狀態 |
