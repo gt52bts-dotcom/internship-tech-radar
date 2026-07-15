@@ -33,14 +33,22 @@
 
 ## 五個 Skill 與積分
 
-- Skill 1：S1 技術來源掃描。
-- Skill 2：S2 公司情境排序。
-- Skill 3：S3 AI 評估。
-- Skill 4：S4 獨立驗證。
-- Skill 5：S5 Top 3 與報告呈現。
-- 積分以可驗證成果計算：小進展 `+5`、完成可用成果 `+10`、完成並驗證里程碑 `+15`。
+- 五個 Skill 是五個獨立專案，不是同一條 pipeline 的 S1–S5。
+- 🔵 Tech Intel Scan：技術雷達掃描與 Top 3 報告。
+- 🟢 Case Study Registry：企業案例庫。
+- 🟠 Pick Experiment Tracker：AI vs 人類判斷實驗。
+- 🟣 AWS Architecture Scout：AWS 架構檢查與落地補強。
+- 🔴 Work Log：AI PM 日誌、跨電腦延續與成果追蹤。
+- 積分只使用整數，依完成度細分：準備或釐清 `+1～2`、完成小成果 `+3～4`、完成可用交付 `+5～7`、完成且有驗證的里程碑 `+8～10`。單一成果最高 10 分，避免灌分。
 - 每項工作標示與原始目標的關係：`直接扣回目標`、`間接支援`、`偏離目標`。偏離目標的工作仍可記錄，但不灌入 Skill 積分。
-- 每日正式日誌同步更新 `SKILL_PROGRESS.md` 與 README 儀表板。
+- 每日正式日誌同步更新 `SKILL_PROGRESS.md`、README、Notion 日誌、Notion 積分資料庫與 Notion 互動式儀表板。
+
+## Notion 同步目標
+
+- 日誌資料庫：`collection://cd79d9fb-a316-8208-9d99-073d0ac114e1`。
+- Skill 積分資料庫：`collection://ed56335a-cd24-4b70-8bf1-6fa25f87d1f0`。
+- 儀表板頁：`https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`。
+- 互動式儀表板來源：`dashboard/skill-score-data.json` 與 `dashboard/notion-skill-dashboard.html`。
 
 ## Git 是主要延續機制
 

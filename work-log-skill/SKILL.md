@@ -47,9 +47,10 @@ Use bullet points only where they make scanning easier. Avoid vague phrases like
 3. Use `scripts/worklog.py draft` to create a structured Markdown log when deterministic formatting is useful.
 4. Refine the draft into supervisor-ready language.
 5. Push the final content to Notion using the work-log template structure.
-6. If the user asks for a biweekly summary, combine daily logs with `scripts/worklog.py biweekly`, then rewrite the draft into outcome-based language.
-7. Update `PROJECT_MEMORY.md` when the user states a durable preference, long-term deliverable, or recurring reporting rule.
-8. Use `../templates/每日實習日誌模板.md` as the canonical Git copy of the Notion daily template when this skill is inside the internship project.
+6. Score the day's evidence across the five independent Skill projects using integer points, then update the Notion Skill score database and embedded dashboard.
+7. If the user asks for a biweekly summary, combine daily logs with `scripts/worklog.py biweekly`, then rewrite the draft into outcome-based language.
+8. Update `PROJECT_MEMORY.md` when the user states a durable preference, long-term deliverable, or recurring reporting rule.
+9. Use `../templates/每日實習日誌模板.md` as the canonical Git copy of the Notion daily template when this skill is inside the internship project.
 
 ## Evidence Rules
 
@@ -74,6 +75,14 @@ For this internship project, the default Notion destination is:
 - Use properties: `名稱`, `date:日期:start`, `date:日期:is_datetime`, `今日備註與總結`
 
 For July through the end of August 2026, push internship work logs into this database unless the user gives another destination.
+
+### Skill dashboard sync
+
+- Treat these as five independent projects: `Tech Intel Scan`, `Case Study Registry`, `Pick Experiment Tracker`, `AWS Architecture Scout`, and `Work Log`.
+- Use integer points only: `+1～2` preparation, `+3～4` small result, `+5～7` usable delivery, `+8～10` verified milestone. Maximum 10 points per result.
+- Score data source: `collection://ed56335a-cd24-4b70-8bf1-6fa25f87d1f0`.
+- Dashboard page: `https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`.
+- Update Git and Notion together; never claim either sync until it is verified.
 
 ## Script Usage
 

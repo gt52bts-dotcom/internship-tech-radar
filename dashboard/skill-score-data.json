@@ -1,0 +1,14 @@
+{
+  "score_unit": 1,
+  "skills": [
+    {"id": "tech", "name": "Tech Intel Scan", "label": "技術雷達掃描", "color": "#2684FF"},
+    {"id": "case", "name": "Case Study Registry", "label": "企業案例庫", "color": "#36B37E"},
+    {"id": "pick", "name": "Pick Experiment Tracker", "label": "AI vs 人類實驗", "color": "#FF991F"},
+    {"id": "arch", "name": "AWS Architecture Scout", "label": "AWS 架構檢查", "color": "#6554C0"},
+    {"id": "log", "name": "Work Log", "label": "AI PM 日誌", "color": "#DE350B"}
+  ],
+  "days": [
+    {"date": "2026-07-13", "scores": {"tech": 10, "case": 0, "pick": 0, "arch": 7, "log": 1}},
+    {"date": "2026-07-14", "scores": {"tech": 6, "case": 0, "pick": 0, "arch": 5, "log": 3}}
+  ]
+}

@@ -11,7 +11,8 @@
 - Write Traditional Chinese unless the user asks otherwise.
 - On weekdays, do not create or finalize the current day's `work-log-YYYY-MM-DD.md` before 17:20 Asia/Taipei. During the day, append evidence to `AI_PM_INBOX.md`; the scheduled 17:20 run synthesizes the formal log.
 - Daily logs may retain implementation details, file paths, decisions, validation, and unresolved questions as source evidence.
-- Each daily log must identify which of the five project Skills the work advanced, award evidence-based points, and label goal alignment as direct, supporting, or off-target.
+- Treat the five Skills as five independent projects: Tech Intel Scan, Case Study Registry, Pick Experiment Tracker, AWS Architecture Scout, and Work Log. Each daily log must award evidence-based integer points and label goal alignment as direct, supporting, or off-target.
+- The weekday 17:20 synthesis must create or update the same daily log in both Git and the Notion journal database, then update the Notion Skill score database and embedded dashboard.
 - Biweekly reports must not read like a chronological diary. Synthesize by outcomes and impact, key problems and solutions, learning and growth, and next-period priorities.
 - Do not claim deployments, tests, Git pushes, Notion updates, or supervisor feedback without evidence.
 

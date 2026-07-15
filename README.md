@@ -28,15 +28,16 @@ flowchart LR
 
 | Skill | 內容 | 累積積分 | 目前狀態 |
 |---|---|---:|---|
-| Skill 1 | S1 技術來源掃描 | 15 | 已完成個人帳戶驗證，持續銜接公司版 |
-| Skill 2 | S2 公司情境排序 | 20 | 已加入公司需求與成本考量 |
-| Skill 3 | S3 AI 評估 | 20 | 已完成評分準則與公司版調整 |
-| Skill 4 | S4 獨立驗證 | 15 | 已有交叉驗證流程，待公司帳戶實測 |
-| Skill 5 | S5 Top 3 與報告呈現 | 25 | 已產出報告，持續改善主管閱讀方式 |
+| 🔵 Tech Intel Scan | 技術雷達掃描與 Top 3 報告 | 16 | 個人 AWS 已驗證，公司版持續落地 |
+| 🟢 Case Study Registry | 企業案例庫 | 0 | 尚無可獨立計分證據 |
+| 🟠 Pick Experiment Tracker | AI vs 人類判斷實驗 | 0 | 尚未開始累積有效實驗資料 |
+| 🟣 AWS Architecture Scout | AWS 架構檢查與落地補強 | 12 | 已完成架構驗證，持續處理公司限制 |
+| 🔴 Work Log | AI PM 日誌與成果追蹤 | 4 | Git／Notion 同步機制建置中 |
 
-目前累積：**95 分**。7/15 分數將在 17:20 依當日證據更新。
+目前累積：**32 分**。7/15 分數將在 17:20 依當日證據更新。
 
 - [查看每日積分與目標對齊明細](./SKILL_PROGRESS.md)
+- [開啟 Notion 互動式儀表板](https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08)
 
 ## 專案閱讀入口
 
