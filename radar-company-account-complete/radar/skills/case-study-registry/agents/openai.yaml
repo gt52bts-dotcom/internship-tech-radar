@@ -1,0 +1,3 @@
+display_name: Case Study Registry
+short_description: Manage enterprise case studies used for Cathay technical evaluation.
+default_prompt: Use this skill to search, add, or update enterprise case studies for the technical radar evidence base.

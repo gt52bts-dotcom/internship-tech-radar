@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><title>v3 技術雷達 AHP-like 評分量度分析報告</title><style>
+@page { size: A4; margin: 14mm 12mm; }
+body { font-family: 'Microsoft JhengHei', 'Noto Sans TC', Arial, sans-serif; color:#111827; line-height:1.55; }
+h1 { text-align:center; font-size:26px; margin:0 0 4px; }
+.subtitle { text-align:center; color:#4b5563; margin-bottom:22px; }
+h2 { font-size:19px; border-left:5px solid #2563eb; padding-left:10px; margin-top:22px; }
+p, li { font-size:12.5px; }
+table { width:100%; border-collapse:collapse; margin:10px 0 16px; page-break-inside:auto; }
+th, td { border:1px solid #d1d5db; padding:6px 7px; font-size:11px; vertical-align:top; }
+th { background:#1f2937; color:white; text-align:center; }
+tr:nth-child(even) td { background:#f9fafb; }
+.formula { background:#f3f4f6; padding:9px 11px; border-radius:6px; font-family:Consolas, monospace; font-size:11px; }
+.note { border:1px solid #bfdbfe; background:#eff6ff; padding:10px 12px; border-radius:6px; font-size:12px; }
+.page-break { page-break-before:always; }
+a { color:#1d4ed8; text-decoration:none; }
+</style></head>
+<body>
+<h1>v3 技術雷達 AHP-like 評分量度分析報告</h1>
+<div class="subtitle">公司帳戶落地版｜rubric fallback 評分方法與文獻佐證｜2026-07-14</div>
+
+<h2>1. 報告目的</h2>
+<p>本報告重整 v3 技術雷達在 LLM 無法使用、API key 尚未設定、或報價超過上限時的評分方法。新版採用 <b>AHP-like multi-criteria decision model</b>：先定義決策目標，再建立五個準則，最後以文獻與企業方法論校準權重與 1-5 分量尺。</p>
+<div class="note">定位：這不是宣稱已完成正式 AHP 專家問卷，而是以 AHP 的層級化、多準則、權重透明精神，建立可解釋的工程落地版評分模型。若後續 mentor 願意參與，可再用 pairwise comparison 問卷重新校準權重。</div>
+
+<h2>2. AHP-like 決策階層</h2>
+<table><tr><th>層級</th><th>內容</th><th>說明</th></tr>
+<tr><td>目標層</td><td>選出每日 AWS 技術雷達 Top 3</td><td>在成熟度、AWS 適配、案例證據、導入難度與風險之間取得平衡。</td></tr>
+<tr><td>準則層</td><td>maturity / aws_fit / case_evidence / effort / risk</td><td>五項準則分別對應技術成熟度、雲端架構適配、外部案例、導入摩擦與治理風險。</td></tr>
+<tr><td>方案層</td><td>每日候選技術或 AWS 新聞項目</td><td>S1/S2 篩選後進入 S3/S4 評分，最後由平均分數排序。</td></tr></table>
+
+<h2>3. 權重設計與文獻參照</h2>
+<p>S3 evaluator 偏重技術成熟度與 AWS 適配，因為第一輪評估要快速判斷「是否值得進一步 PoC」。S4 validator 採五項平均權重，作為獨立複核，避免第一輪權重過度偏向成熟技術而壓低創新項目。</p>
+<table><tr><th>指標</th><th>程式欄位</th><th>S3 權重</th><th>S4 權重</th><th>主要參照來源</th><th>定義</th></tr><tr><td>技術成熟度</td><td>maturity</td><td>0.35</td><td>0.20</td><td>NASA TRL、Thoughtworks Radar</td><td>技術是否已從概念、preview、GA 走到企業可採用階段。</td></tr>
+<tr><td>AWS / 公司情境適配度</td><td>aws_fit</td><td>0.25</td><td>0.20</td><td>AWS Well-Architected、TOE Framework</td><td>是否直接支撐 AWS workload、公司雲端治理與國泰情境。</td></tr>
+<tr><td>企業案例證據</td><td>case_evidence</td><td>0.15</td><td>0.20</td><td>Rogers Diffusion、Thoughtworks Radar</td><td>是否已有企業、金融、保險或受監管產業案例可觀察。</td></tr>
+<tr><td>導入難度</td><td>effort</td><td>0.15</td><td>0.20</td><td>Rogers complexity、TOE、TIME、MCDM</td><td>PoC 或導入所需權限、跨服務整合、組織協調與成本。</td></tr>
+<tr><td>導入風險</td><td>risk</td><td>0.10</td><td>0.20</td><td>NIST AI RMF、ISO 31000、AWS Well-Architected</td><td>資安、合規、營運、資料與 AI 模型風險。</td></tr></table>
+<div class="formula">S3 score = maturity*0.35 + aws_fit*0.25 + case_evidence*0.15 + (6-effort)*0.15 + (6-risk)*0.10<br>S4 score = maturity*0.20 + aws_fit*0.20 + case_evidence*0.20 + (6-effort)*0.20 + (6-risk)*0.20<br>Final score = (S3 score + S4 score) / 2</div>
+
+<h2>4. AHP-like Pairwise Matrix</h2>
+<p>下表以 S3 權重向量反推 pairwise comparison matrix。因為矩陣由同一組權重生成，所以完全一致，λmax = 5，CI = 0.000，CR = 0.000。實務上，這可作為初版 baseline；後續可以請 mentor 直接調整兩兩比較值。</p>
+<table><tr><th>準則</th><th>技術成熟度</th><th>AWS / 公司情境適配度</th><th>企業案例證據</th><th>導入難度</th><th>導入風險</th></tr><tr><td>技術成熟度</td><td>1.000</td><td>1.400</td><td>2.333</td><td>2.333</td><td>3.500</td></tr>
+<tr><td>AWS / 公司情境適配度</td><td>0.714</td><td>1.000</td><td>1.667</td><td>1.667</td><td>2.500</td></tr>
+<tr><td>企業案例證據</td><td>0.429</td><td>0.600</td><td>1.000</td><td>1.000</td><td>1.500</td></tr>
+<tr><td>導入難度</td><td>0.429</td><td>0.600</td><td>1.000</td><td>1.000</td><td>1.500</td></tr>
+<tr><td>導入風險</td><td>0.286</td><td>0.400</td><td>0.667</td><td>0.667</td><td>1.000</td></tr></table>
+
+<h2>5. 1-5 分量尺</h2>
+<table><tr><th>指標</th><th>1 分</th><th>2 分</th><th>3 分</th><th>4 分</th><th>5 分</th></tr><tr><td>技術成熟度</td><td>概念或 preview</td><td>早期服務 / 文件不足</td><td>已 GA 但案例有限</td><td>已有穩定企業採用</td><td>金融或大型企業成熟採用</td></tr>
+<tr><td>AWS / 公司情境適配度</td><td>與 AWS 雷達弱相關</td><td>間接相關</td><td>可放入 AWS 架構但非核心</td><td>明確強化 AWS workload</td><td>直接解決公司 AWS 架構痛點</td></tr>
+<tr><td>企業案例證據</td><td>無企業案例</td><td>有一般技術文章</td><td>有企業案例</td><td>有金融 / 保險相近案例</td><td>有大型金融 / 受監管產業案例</td></tr>
+<tr><td>導入難度</td><td>很容易試，幾乎無新權限</td><td>小型 PoC 可做</td><td>需跨服務整合</td><td>需資安 / 架構 / 權限協調</td><td>高成本或高組織阻力</td></tr>
+<tr><td>導入風險</td><td>低風險</td><td>可控風險</td><td>需一般治理</td><td>高資安 / 合規 / 營運風險</td><td>不建議近期導入</td></tr></table>
+
+<div class="page-break"></div>
+<h2>6. 外部來源與佐證對應</h2>
+<p>本模型參照官方框架、標準、學術理論與企業方法論。正式說明時建議用「參考 / 佐證 / 映射」措辭，而不是說模型直接由單一論文推導。</p>
+<table><tr><th>來源</th><th>類型</th><th>支撐指標</th><th>用途</th><th>連結</th></tr><tr><td>NASA Technology Readiness Levels</td><td>官方成熟度量表</td><td>maturity</td><td>用 TRL 成熟度概念支撐 1-5 成熟度分層。</td><td><a href="https://www.nasa.gov/directorates/somd/space-communications-navigation-program/technology-readiness-levels/">https://www.nasa.gov/directorates/somd/space-communications-navigation-program/technology-readiness-levels/</a></td></tr>
+<tr><td>Thoughtworks Technology Radar</td><td>企業技術雷達方法</td><td>maturity, case_evidence</td><td>用 Adopt / Trial / Assess / Hold 支撐技術雷達採用狀態。</td><td><a href="https://www.thoughtworks.com/radar">https://www.thoughtworks.com/radar</a></td></tr>
+<tr><td>AWS Well-Architected Framework</td><td>AWS 官方架構評估</td><td>aws_fit, effort, risk</td><td>六大支柱支撐 AWS 適配、成本、資安、可靠性與營運風險。</td><td><a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html">https://docs.aws.amazon.com/wellarchitected/latest/framework/the-pillars-of-the-framework.html</a></td></tr>
+<tr><td>NIST AI Risk Management Framework</td><td>官方 AI 風險治理</td><td>risk</td><td>Govern / Map / Measure / Manage 支撐 AI 導入風險治理。</td><td><a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></td></tr>
+<tr><td>ISO 31000 Risk Management</td><td>國際風險管理標準</td><td>risk</td><td>支撐風險識別、分析、評估、處置與監控。</td><td><a href="https://www.iso.org/standard/65694.html">https://www.iso.org/standard/65694.html</a></td></tr>
+<tr><td>TOE Framework</td><td>企業技術採用理論</td><td>aws_fit, effort</td><td>Technology-Organization-Environment 說明採用受技術、組織與環境脈絡影響。</td><td><a href="https://academic-publishing.org/index.php/ejise/article/download/389/352/385">https://academic-publishing.org/index.php/ejise/article/download/389/352/385</a></td></tr>
+<tr><td>Rogers Diffusion of Innovations</td><td>創新擴散理論</td><td>case_evidence, effort</td><td>observability、trialability、complexity 支撐案例證據與導入難度。</td><td><a href="https://open.ncl.ac.uk/theories/8/diffusion-of-innovations/">https://open.ncl.ac.uk/theories/8/diffusion-of-innovations/</a></td></tr>
+<tr><td>MC2 cloud MCDM</td><td>雲端多準則決策文獻</td><td>all</td><td>雲端採用不應只看成本，需同時評估 benefits、opportunities、risks。</td><td><a href="https://arxiv.org/abs/1112.1851">https://arxiv.org/abs/1112.1851</a></td></tr>
+<tr><td>SAP LeanIX TIME model</td><td>企業 portfolio rationalization</td><td>aws_fit, effort, risk</td><td>用 business/technical fit、成本、風險支撐 IT 投資優先級。</td><td><a href="https://help.sap.com/docs/leanix/ea/time">https://help.sap.com/docs/leanix/ea/time</a></td></tr></table>
+
+<h2>7. 統計彙整表</h2>
+<table><tr><th>統計項目</th><th>數值</th><th>說明</th></tr><tr><td>外部來源總數</td><td>9</td><td>官方框架、學術來源、企業方法論合計。</td></tr>
+<tr><td>官方 / 標準來源</td><td>4</td><td>NASA TRL、AWS Well-Architected、NIST AI RMF、ISO 31000。</td></tr>
+<tr><td>學術 / 理論來源</td><td>3</td><td>TOE、Rogers Diffusion、MC2 cloud MCDM。</td></tr>
+<tr><td>企業方法來源</td><td>2</td><td>Thoughtworks Technology Radar、SAP LeanIX TIME。</td></tr>
+<tr><td>AHP-like 準則數</td><td>5</td><td>maturity、aws_fit、case_evidence、effort、risk。</td></tr>
+<tr><td>S3 最大權重</td><td>0.35</td><td>技術成熟度。</td></tr>
+<tr><td>S3 第二權重</td><td>0.25</td><td>AWS / 公司情境適配度。</td></tr>
+<tr><td>S3 反向計分指標</td><td>2</td><td>effort 與 risk 使用 6 - score。</td></tr>
+<tr><td>一致性比率 CR</td><td>0.000</td><td>此矩陣由權重向量反推，完全一致；後續可用 mentor pairwise survey 校準。</td></tr></table>
+
+<h2>8. 結論與使用限制</h2>
+<p>新版評分模型可以更清楚說明：為什麼成熟度、AWS 適配與企業案例會影響 Top 3 排序，也能解釋為什麼導入難度與風險採反向計分。它適合早期技術雷達排序、fallback scoring、mentor 討論與 PoC 候選篩選。</p>
+<p>限制是：此模型仍屬初版 engineering rubric，不應取代正式資安、法遵、採購或架構審查。進入正式導入前，建議由 mentor、架構師、資安與業務單位共同校準權重。</p>
+</body></html>

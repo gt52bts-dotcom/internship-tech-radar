@@ -1,0 +1,38 @@
+{
+  "package": "Cathay Tech Intel Pipeline v3",
+  "variant": "company-account landing version",
+  "region": "ap-southeast-1",
+  "review_date": "2026-07-14",
+  "verdict": "deployable_landing_package",
+  "verified": {
+    "python_compileall": true,
+    "cdk_synth": true
+  },
+  "implemented": [
+    "single_aws_radar_workflow",
+    "quote_gate_before_llm",
+    "s1_to_s5_lambda_handlers",
+    "step_functions_orchestration",
+    "s3_report_and_artifact_storage",
+    "dynamodb_pick_log",
+    "secrets_manager_anthropic_key",
+    "anthropic_api_with_rubric_fallback",
+    "eventbridge_schedule_default_disabled",
+    "optional_cognito_api_gateway",
+    "cloudwatch_logs",
+    "cost_quotation_documents"
+  ],
+  "intentionally_excluded": [
+    "cloudfront",
+    "amazon_bedrock",
+    "bedrock_knowledge_bases",
+    "opensearch",
+    "rds",
+    "ec2"
+  ],
+  "external_requirements": [
+    "company_aws_credentials",
+    "cdk_bootstrap_permission_or_admin_bootstrap",
+    "anthropic_api_key_in_secrets_manager"
+  ]
+}

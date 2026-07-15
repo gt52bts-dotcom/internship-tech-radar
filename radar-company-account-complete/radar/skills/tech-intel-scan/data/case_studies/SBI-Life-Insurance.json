@@ -1,0 +1,49 @@
+{
+  "id": "SBI-Life-Insurance-2024",
+  "customer": "SBI 生命保險株式會社 (SBI Life Insurance, 日本)",
+  "industry_tags": [
+    "insurance",
+    "life-insurance",
+    "highly-regulated",
+    "APAC"
+  ],
+  "region": "Japan",
+  "year": 2024,
+  "system": "客服中心文件檢索系統 + selfbot",
+  "partner": "AWS 直接合作",
+  "aws_services": [
+    "Amazon Bedrock",
+    "Amazon Kendra"
+  ],
+  "matched_technologies": [
+    "bedrock",
+    "dynamodb",
+    "embedding",
+    "knowledge-base",
+    "lambda",
+    "llm",
+    "rag",
+    "serverless"
+  ],
+  "approach": "2023 年 7 月小規模試點 → 2024 年幾乎全員使用",
+  "outcomes": [
+    "客服人員可快速跨多種文件回應客戶",
+    "客服中心營運效率大幅提升、操作員壓力降低",
+    "新進客服訓練時間縮短約 30%",
+    "為後續全面智能化運營奠定基礎"
+  ],
+  "compliance_signals": [
+    "日本金融監管合規",
+    "客戶個資保護"
+  ],
+  "relevance_to_cathay": {
+    "score": 5,
+    "reason": "同為亞洲人壽保險業、同為受金融監管、同樣切入客服文件檢索場景——與 Cathay Life 情境幾乎一對一對應"
+  },
+  "source": "AWS 官方案例研究",
+  "key_takeaways": [
+    "從小規模試點開始，逐步擴大到全員",
+    "客服文件檢索是保險業導入 GenAI 的低風險高價值切入點",
+    "訓練時間縮短的量化指標易於向管理層報告 ROI"
+  ]
+}

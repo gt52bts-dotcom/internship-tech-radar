@@ -1,0 +1,40 @@
+{
+  "sources": [
+    {
+      "name": "AWS News Blog",
+      "url": "https://aws.amazon.com/blogs/aws/feed/",
+      "cloud": "aws",
+      "enabled": true,
+      "max_items": 15
+    },
+    {
+      "name": "AWS Recent Announcements",
+      "url": "https://aws.amazon.com/new/feed/",
+      "cloud": "aws",
+      "enabled": true,
+      "max_items": 20
+    },
+    {
+      "name": "AWS Machine Learning Blog",
+      "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+      "cloud": "aws",
+      "enabled": true,
+      "max_items": 10
+    },
+    {
+      "name": "AWS Architecture Blog",
+      "url": "https://aws.amazon.com/blogs/architecture/feed/",
+      "cloud": "aws",
+      "enabled": true,
+      "max_items": 5
+    },
+    {
+      "name": "AWS Big Data Blog",
+      "url": "https://aws.amazon.com/blogs/big-data/feed/",
+      "cloud": "aws",
+      "enabled": false,
+      "max_items": 5,
+      "note": "如需擴大掃描範圍再啟用"
+    }
+  ]
+}

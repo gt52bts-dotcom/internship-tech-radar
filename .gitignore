@@ -1,0 +1,24 @@
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# AWS CDK generated output and packaged dependencies
+cdk.out/
+**/layer_build/
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Generated packages and reports are retained locally unless intentionally forced
+*.zip
