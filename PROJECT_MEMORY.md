@@ -60,6 +60,7 @@
 - 專案以 Git 作為公司相容的主要延續機制；`AGENTS.md`、`AI_PM_WORKFLOW.md`、本檔與每日工作日誌共同構成 AI PM context。
 - 遠端網址：`https://github.com/gt52bts-dotcom/internship-tech-radar`。
 - AI PM 的每日日誌模板以 Notion 資料庫 `Cleo的暑期實習日誌(2026CIP)` 為準；Git 內保存相同的欄位規則與頁面章節，讓公司環境不連 Notion也能延續。
+- 2026-07-15：主管閱讀方式決定維持 private repository，邀請主管為 Read collaborator；不使用會公開公司日誌內容的個人 GitHub Pages。
 
 ## 公司帳戶部署決策
 
