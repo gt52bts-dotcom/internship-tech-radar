@@ -41,14 +41,15 @@
 - 🔴 Skill 5｜報告 Report：選出 Top 3、整理報告與呈現成果。
 - 積分只使用整數，依完成度細分：準備或釐清 `+1～2`、完成小成果 `+3～4`、完成可用交付 `+5～7`、完成且有驗證的里程碑 `+8～10`。單一成果最高 10 分，避免灌分。
 - 每項工作標示與原始目標的關係：`直接扣回目標`、`間接支援`、`偏離目標`。偏離目標的工作仍可記錄，但不灌入 Skill 積分。
-- 每日正式日誌同步更新 `SKILL_PROGRESS.md`、README、Notion 日誌、Notion 積分資料庫與 Notion 互動式儀表板；同一項工作可分配到多個 Skill，但每個 Skill 必須有不同且可驗證的成果，避免重複灌分。
+- 每日正式日誌同步更新 `SKILL_PROGRESS.md`、GitHub 儀表板、README 與 Notion 日誌中的五個 Skill 積分欄位；同一項工作可分配到多個 Skill，但每個 Skill 必須有不同且可驗證的成果，避免重複灌分。
 
 ## Notion 同步目標
 
 - 日誌資料庫：`collection://cd79d9fb-a316-8208-9d99-073d0ac114e1`。
 - Skill 積分資料庫：`collection://ed56335a-cd24-4b70-8bf1-6fa25f87d1f0`。
-- 儀表板頁：`https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`。
+- 儀表板頁：`https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`，已移入 `Cleo的暑期實習日誌(2026CIP)` 資料庫，從 `📊 儀表板入口` 檢視開啟。
 - 互動式儀表板來源：`dashboard/skill-score-data.json` 與 `dashboard/notion-skill-dashboard.html`。
+- GitHub Private 儀表板入口：`dashboard/README.md`；不啟用會公開公司日誌內容的個人 GitHub Pages。
 
 ## Git 是主要延續機制
 

@@ -29,8 +29,10 @@
 - 五個 Skill 依使用者提供的專案圖定義：🔵 Skill 1 掃描 Scan、🟢 Skill 2 比較 Compare、🟠 Skill 3 評估 Evaluate、🟣 Skill 4 驗證 Validate、🔴 Skill 5 報告 Report。
 - 積分只使用整數：準備或釐清 `+1～2`、完成小成果 `+3～4`、完成可用交付 `+5～7`、完成且有驗證的里程碑 `+8～10`；單一成果最高 10 分。
 - 工作與目標的關係分成：`直接扣回目標`、`間接支援`、`偏離目標`。偏離目標可保留紀錄，但不計入 Skill 積分。
-- `SKILL_PROGRESS.md` 保存 Git 版每日與累積分數；Notion 使用積分資料庫與內嵌互動式儀表板呈現單日圓環、可水平捲動的每日五色堆疊圖，以及五個 Skill 累積橫條圖。
-- Notion 儀表板：`https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`；積分 data source：`collection://ed56335a-cd24-4b70-8bf1-6fa25f87d1f0`。
+- `SKILL_PROGRESS.md` 保存 Git 版每日與累積分數；`dashboard/README.md` 是主管可在 Private GitHub 直接開啟的儀表板入口。
+- Notion 的五項積分已直接加入 `Cleo的暑期實習日誌(2026CIP)` 每日紀錄，並以 `每日總分` 公式加總；7/13、7/14 已完成回填。
+- Notion 儀表板頁已移入 `Cleo的暑期實習日誌(2026CIP)` 資料庫，從 `📊 儀表板入口` 檢視開啟，不再是工作區外層的獨立專案。頁面網址：`https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`。
+- 原始積分 data source `collection://ed56335a-cd24-4b70-8bf1-6fa25f87d1f0` 保留為證據明細；日誌 data source 為 `collection://cd79d9fb-a316-8208-9d99-073d0ac114e1`。
 
 ## 成長素材的蒐集方式
 
@@ -72,6 +74,7 @@
 - 遠端網址：`https://github.com/gt52bts-dotcom/internship-tech-radar`。
 - AI PM 的每日日誌模板以 Notion 資料庫 `Cleo的暑期實習日誌(2026CIP)` 為準；Git 內保存相同的欄位規則與頁面章節，讓公司環境不連 Notion也能延續。
 - 2026-07-15：主管閱讀方式決定維持 private repository，邀請主管為 Read collaborator；不使用會公開公司日誌內容的個人 GitHub Pages。
+- 2026-07-15：新增 `dashboard/README.md` 作為 Private GitHub 內可直接閱讀、可展開日期的 Skill 儀表板；完整 HTML 互動版保留在 repository，但未公開託管。
 
 ## 公司帳戶部署決策
 

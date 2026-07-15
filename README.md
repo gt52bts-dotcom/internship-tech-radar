@@ -26,6 +26,9 @@ flowchart LR
 
 ## Skill 進度儀表板
 
+- [開啟 GitHub Private 儀表板](./dashboard/README.md)
+- [開啟 Cleo 日誌裡的 Notion 互動式儀表板](https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08)
+
 | Skill | 內容 | 累積積分 | 目前狀態 |
 |---|---|---:|---|
 | 🔵 Skill 1｜掃描 | 來源蒐集、清理與候選清單 | 6 | 個人 AWS 已驗證，公司版持續落地 |
@@ -37,7 +40,6 @@ flowchart LR
 目前累積：**35 分**。7/15 分數將在 17:20 依當日證據更新。
 
 - [查看每日積分與目標對齊明細](./SKILL_PROGRESS.md)
-- [開啟 Notion 互動式儀表板](https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08)
 
 ## 專案閱讀入口
 
