@@ -33,15 +33,15 @@
 
 ## 五個 Skill 與積分
 
-- 五個 Skill 是五個獨立專案，不是同一條 pipeline 的 S1–S5。
-- 🔵 Tech Intel Scan：技術雷達掃描與 Top 3 報告。
-- 🟢 Case Study Registry：企業案例庫。
-- 🟠 Pick Experiment Tracker：AI vs 人類判斷實驗。
-- 🟣 AWS Architecture Scout：AWS 架構檢查與落地補強。
-- 🔴 Work Log：AI PM 日誌、跨電腦延續與成果追蹤。
+- 五個 Skill 依專案設計分成五個可獨立追蹤的階段。
+- 🔵 Skill 1｜掃描 Scan：蒐集來源、清理資料與產生候選清單。
+- 🟢 Skill 2｜比較 Compare：依公司需求比較、排序與篩選候選。
+- 🟠 Skill 3｜評估 Evaluate：依評分準則與案例證據進行深度評估。
+- 🟣 Skill 4｜驗證 Validate：獨立重新評分、檢查分歧與驗證結果。
+- 🔴 Skill 5｜報告 Report：選出 Top 3、整理報告與呈現成果。
 - 積分只使用整數，依完成度細分：準備或釐清 `+1～2`、完成小成果 `+3～4`、完成可用交付 `+5～7`、完成且有驗證的里程碑 `+8～10`。單一成果最高 10 分，避免灌分。
 - 每項工作標示與原始目標的關係：`直接扣回目標`、`間接支援`、`偏離目標`。偏離目標的工作仍可記錄，但不灌入 Skill 積分。
-- 每日正式日誌同步更新 `SKILL_PROGRESS.md`、README、Notion 日誌、Notion 積分資料庫與 Notion 互動式儀表板。
+- 每日正式日誌同步更新 `SKILL_PROGRESS.md`、README、Notion 日誌、Notion 積分資料庫與 Notion 互動式儀表板；同一項工作可分配到多個 Skill，但每個 Skill 必須有不同且可驗證的成果，避免重複灌分。
 
 ## Notion 同步目標
 

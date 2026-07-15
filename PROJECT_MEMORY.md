@@ -21,12 +21,12 @@
 - 雙週誌不要流水帳，不依日期逐項重述；改按「核心成果與影響、關鍵問題與解法、學習與成長、下期重點」統整。
 - 只把有意義的內容升級到雙週誌：可交付成果、重要決策、解決的問題、能力成長、風險與明確下一步。
 - 不虛構部署、測試、GitHub、Notion 或主管回饋；沒有驗證就明確標示。
-- 每日日誌需指出工作屬於哪一個獨立 Skill 專案、依證據給予整數積分，並判斷能否扣回該 Skill 的原始目標。
+- 每日日誌需指出工作推進了掃描、比較、評估、驗證、報告中的哪個 Skill，依證據給予整數積分，並判斷能否扣回該 Skill 的原始目標。
 - 平日 17:20 的正式日誌要同時寫入 Git 與 Notion，並同步更新 Notion 儀表板。
 
 ## 五個 Skill 儀表板
 
-- 五個 Skill 是五個獨立專案：🔵 Tech Intel Scan、🟢 Case Study Registry、🟠 Pick Experiment Tracker、🟣 AWS Architecture Scout、🔴 Work Log。
+- 五個 Skill 依使用者提供的專案圖定義：🔵 Skill 1 掃描 Scan、🟢 Skill 2 比較 Compare、🟠 Skill 3 評估 Evaluate、🟣 Skill 4 驗證 Validate、🔴 Skill 5 報告 Report。
 - 積分只使用整數：準備或釐清 `+1～2`、完成小成果 `+3～4`、完成可用交付 `+5～7`、完成且有驗證的里程碑 `+8～10`；單一成果最高 10 分。
 - 工作與目標的關係分成：`直接扣回目標`、`間接支援`、`偏離目標`。偏離目標可保留紀錄，但不計入 Skill 積分。
 - `SKILL_PROGRESS.md` 保存 Git 版每日與累積分數；Notion 使用積分資料庫與內嵌互動式儀表板呈現單日圓環、可水平捲動的每日五色堆疊圖，以及五個 Skill 累積橫條圖。

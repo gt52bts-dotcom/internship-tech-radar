@@ -78,7 +78,7 @@ For July through the end of August 2026, push internship work logs into this dat
 
 ### Skill dashboard sync
 
-- Treat these as five independent projects: `Tech Intel Scan`, `Case Study Registry`, `Pick Experiment Tracker`, `AWS Architecture Scout`, and `Work Log`.
+- Track these five Skills exactly: `掃描 Scan`, `比較 Compare`, `評估 Evaluate`, `驗證 Validate`, and `報告 Report`.
 - Use integer points only: `+1～2` preparation, `+3～4` small result, `+5～7` usable delivery, `+8～10` verified milestone. Maximum 10 points per result.
 - Score data source: `collection://ed56335a-cd24-4b70-8bf1-6fa25f87d1f0`.
 - Dashboard page: `https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`.

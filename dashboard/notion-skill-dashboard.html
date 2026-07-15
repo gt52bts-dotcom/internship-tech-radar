@@ -21,7 +21,7 @@
 </head>
 <body>
 <main class="wrap">
-  <header class="head"><div><h1>五個 Skill 積分儀表板</h1><div class="sub">五個獨立專案｜整數積分｜只採計有證據的成果</div></div><label>查看日期　<select id="dateSelect" class="select"></select></label></header>
+  <header class="head"><div><h1>五個 Skill 積分儀表板</h1><div class="sub">掃描 → 比較 → 評估 → 驗證 → 報告｜整數積分｜只採計有證據的成果</div></div><label>查看日期　<select id="dateSelect" class="select"></select></label></header>
   <section class="grid">
     <article class="card"><div class="title">單日總分與 Skill 分布</div><div class="donut-row"><div id="donut" class="donut"><div class="center"><div id="dayTotal" class="score">0</div><div class="unit">今日總分</div></div></div><div id="legend" class="legend"></div></div></article>
     <article class="card"><div class="title">每日積分趨勢</div><div class="scroll" id="scroll"><div id="dayBars" class="bars"></div></div><div class="hint">← 可水平拖曳日期軸；每根長條由五個 Skill 顏色堆疊組成</div></article>
@@ -30,15 +30,15 @@
 </main>
 <script>
 const skills=[
- {id:'tech',name:'Tech Intel Scan',label:'技術雷達掃描',color:'#2684FF'},
- {id:'case',name:'Case Study Registry',label:'企業案例庫',color:'#36B37E'},
- {id:'pick',name:'Pick Experiment Tracker',label:'AI vs 人類實驗',color:'#FF991F'},
- {id:'arch',name:'AWS Architecture Scout',label:'AWS 架構檢查',color:'#6554C0'},
- {id:'log',name:'Work Log',label:'AI PM 日誌',color:'#DE350B'}
+ {id:'scan',name:'掃描 Scan',label:'Skill 1｜掃描',color:'#2684FF'},
+ {id:'compare',name:'比較 Compare',label:'Skill 2｜比較',color:'#36B37E'},
+ {id:'evaluate',name:'評估 Evaluate',label:'Skill 3｜評估',color:'#FF991F'},
+ {id:'validate',name:'驗證 Validate',label:'Skill 4｜驗證',color:'#6554C0'},
+ {id:'report',name:'報告 Report',label:'Skill 5｜報告',color:'#DE350B'}
 ];
 const scoreData=[
- {date:'2026-07-13',scores:{tech:10,case:0,pick:0,arch:7,log:1}},
- {date:'2026-07-14',scores:{tech:6,case:0,pick:0,arch:5,log:3}}
+ {date:'2026-07-13',scores:{scan:4,compare:4,evaluate:4,validate:4,report:5}},
+ {date:'2026-07-14',scores:{scan:2,compare:3,evaluate:4,validate:3,report:2}}
 ];
 const fmt=n=>Number(n.toFixed(2)).toString();
 const total=d=>skills.reduce((s,k)=>s+(d.scores[k.id]||0),0);
