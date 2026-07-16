@@ -1,67 +1,40 @@
-# Cleo｜五個 Skill 積分儀表板
+# Cleo 的 Skill 進度互動儀錶板
 
-> GitHub Private repository 閱讀版。主管可直接在瀏覽器開啟，不需要下載專案。日期區塊可展開或收合；Notion 使用的完整互動版已同步保存為 [`cleo-skill-dashboard.html`](./cleo-skill-dashboard.html)。
+> 這份 dashboard 是 GitHub private repository 內的可攜式 Skill 進度資料。Notion 版本可嵌入 `cleo-skill-dashboard.html`，Git 版本則作為每日 17:00 AI PM 同步的 source of truth。
 
-## 目前總覽
+## 最新狀態
 
-- 累積總分：**49 分**
-- 最近更新：**2026-07-15**
-- 計分原則：只使用整數，且只採計有證據、能扣回專案目標的成果。
+- 累積總分：70 分
+- 最新日期：2026-07-16
+- 今日重點：公司 AWS 帳戶 Step Functions pipeline 全流程跑通，並把 Anthropic API key 失敗情境改為 API-first with rubric fallback。
 
-| Skill | 定義 | 累積積分 |
-|---|---|---:|
-| 🔵 Skill 1｜掃描 | 來源蒐集、清理與候選清單 | 8 |
-| 🟢 Skill 2｜比較 | 公司需求比較、排序與篩選 | 9 |
-| 🟠 Skill 3｜評估 | 評分準則、案例證據與深度評估 | 10 |
-| 🟣 Skill 4｜驗證 | 獨立重評、分歧檢查與結果驗證 | 10 |
-| 🔴 Skill 5｜報告 | Top 3、技術報告與成果呈現 | 12 |
+| Skill | 說明 | 累積分數 | 最新變化 |
+|---|---|---:|---|
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 8 | 今日無新增，主軸轉向部署驗證。 |
+| Skill 2｜比較 | 候選技術比較、案例對照 | 9 | 今日無新增，既有比較結果被後續 pipeline 使用。 |
+| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 16 | 新增 Anthropic API-first fallback，invalid key 時可回到 rubric-only。 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 17 | 修正 S3、IAM、logging、handler 等部署問題並 redrive 成功。 |
+| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 20 | Step Functions 產出 report，並修正 HR 雙週工作週誌格式。 |
 
-## 選擇日期
+## 每日分數
 
-<details open>
-<summary><strong>2026-07-15｜當日 14 分</strong></summary>
-
-| 🔵 掃描 | 🟢 比較 | 🟠 評估 | 🟣 驗證 | 🔴 報告 |
-|---:|---:|---:|---:|---:|
-| 2 | 2 | 2 | 3 | 5 |
-
-主要推進：建立 GitHub／Notion／日誌儀表板，檢查手動部署包，釐清公司 AWS SCP 與 IAM policy 問題，並推進 Console 手動部署到第 4 章；因 AWS 資源尚未獨立回驗，分數採嚴格低估。
-
-</details>
-
-<details>
-<summary><strong>2026-07-14｜當日 14 分</strong></summary>
-
-| 🔵 掃描 | 🟢 比較 | 🟠 評估 | 🟣 驗證 | 🔴 報告 |
-|---:|---:|---:|---:|---:|
-| 2 | 3 | 4 | 3 | 2 |
-
-主要推進：整理公司帳戶版本、成本控制與評分依據，並持續準備公司環境驗證。
-
-</details>
-
-<details>
-<summary><strong>2026-07-13｜當日 21 分</strong></summary>
-
-| 🔵 掃描 | 🟢 比較 | 🟠 評估 | 🟣 驗證 | 🔴 報告 |
-|---:|---:|---:|---:|---:|
-| 4 | 4 | 4 | 4 | 5 |
-
-主要推進：將 v3 從架構雛形推進至 AWS 端到端執行，並產出可閱讀的成果報告。
-
-</details>
-
-## 每日積分趨勢
-
-| 日期 | 掃描 | 比較 | 評估 | 驗證 | 報告 | 當日總分 |
+| 日期 | 掃描 | 比較 | 評估 | 驗證 | 報告 | 每日總分 |
 |---|---:|---:|---:|---:|---:|---:|
-| 2026-07-13 | 4 | 4 | 4 | 4 | 5 | **21** |
-| 2026-07-14 | 2 | 3 | 4 | 3 | 2 | **14** |
-| 2026-07-15 | 2 | 2 | 2 | 3 | 5 | **14** |
+| 2026-07-13 | 4 | 4 | 4 | 4 | 5 | 21 |
+| 2026-07-14 | 2 | 3 | 4 | 3 | 2 | 14 |
+| 2026-07-15 | 2 | 2 | 2 | 3 | 5 | 14 |
+| 2026-07-16 | 0 | 0 | 6 | 7 | 8 | 21 |
 
-## 閱讀入口
+## 檔案
 
-- [查看完整互動式儀表板 HTML](./cleo-skill-dashboard.html)
-- [回到實習日誌首頁](../README.md)
-- [查看積分證據與目標對齊](../SKILL_PROGRESS.md)
-- [開啟 Cleo 日誌裡的 Notion 儀表板](https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08)
+- [互動儀錶板 HTML](./cleo-skill-dashboard.html)
+- [Notion 可嵌入版 HTML](./notion-skill-dashboard.html)
+- [Skill 分數資料 JSON](./skill-score-data.json)
+- [完整 Skill 進度紀錄](../SKILL_PROGRESS.md)
+- [專案首頁](../README.md)
+
+## 17:00 同步規則
+
+- 每個工作日 17:00 後才更新正式日誌與分數。
+- 只登錄有證據的成果，例如 Step Functions 執行結果、S3 產出、DynamoDB 紀錄、Git diff、文件檔案。
+- Notion 與 dashboard 若尚未完成同步，必須明確標示，不可假裝已同步。

@@ -1,7 +1,7 @@
 """Step 4 Lambda: independently rescore all evaluated concepts."""
 import json
 
-from common import VALIDATOR_MODEL, assert_role_separation, call_anthropic, key, read_json, response, run_id_from_event, step_timer, write_json
+from common import VALIDATOR_MODEL, assert_role_separation, call_anthropic, key, llm_mode_label, read_json, response, run_id_from_event, step_timer, write_json
 from pipeline_lib import VALIDATE_WEIGHTS, validate_article, weighted_score
 
 
@@ -44,7 +44,7 @@ def handler(event, context):
     rescored.sort(key=lambda item: -item["v_score"])
     output = {
         "step": "s4_validate",
-        "mode": "api.anthropic.com-with-rubric-fallback" if llm_approved else "rubric-only (quote gate: over budget)",
+        "mode": llm_mode_label(llm_approved),
         "quote_decision": quote.get("decision"),
         "validator_model": VALIDATOR_MODEL,
         "validator_weights": VALIDATE_WEIGHTS,

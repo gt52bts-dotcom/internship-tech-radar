@@ -1,7 +1,7 @@
 """Step 3 Lambda: evaluate every L1 survivor before any final Top-3 decision."""
 import json
 
-from common import EVALUATOR_MODEL, assert_role_separation, call_anthropic, key, read_json, response, run_id_from_event, step_timer, write_json
+from common import EVALUATOR_MODEL, assert_role_separation, call_anthropic, key, llm_mode_label, read_json, response, run_id_from_event, step_timer, write_json
 from pipeline_lib import EVAL_WEIGHTS, evaluate_article, load_case_studies
 
 
@@ -35,7 +35,6 @@ def handler(event, context):
     llm_approved = quote.get("decision") == "approve"
     cases = load_case_studies()
     evaluated = []
-    mode = "api.anthropic.com-with-rubric-fallback" if llm_approved else "rubric-only (quote gate: over budget)"
     for article in s2["articles"]:
         item = evaluate_article(article, cases)
         override = llm_override(item) if llm_approved else None
@@ -48,9 +47,10 @@ def handler(event, context):
             item["llm_rationale"] = rationale
         evaluated.append(item)
     evaluated.sort(key=lambda item: -item["l2_score"])
+    timing = finish_timer()
     output = {
         "step": "s3_evaluate",
-        "mode": mode,
+        "mode": llm_mode_label(llm_approved),
         "quote_decision": quote.get("decision"),
         "quote_total_usd": quote.get("total_usd"),
         "evaluator_model": EVALUATOR_MODEL,
@@ -60,7 +60,7 @@ def handler(event, context):
         "input_count": len(evaluated),
         "articles": evaluated,
     }
-    output["timing"] = finish_timer()
+    output["timing"] = timing
     out_key = key(run_id, "s3_evaluate.json")
     write_json(out_key, output)
     return response(run_id, "s3_evaluate", out_key, {"evaluated_count": len(evaluated)})

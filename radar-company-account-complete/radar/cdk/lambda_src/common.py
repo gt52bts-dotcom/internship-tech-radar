@@ -100,8 +100,9 @@ def write_text(s3_key, text, content_type="text/plain; charset=utf-8"):
 def anthropic_key():
     if not ANTHROPIC_SECRET_ARN:
         return ""
-    value = sm.get_secret_value(SecretId=ANTHROPIC_SECRET_ARN)["SecretString"]
-    return "" if value == "REPLACE_AFTER_DEPLOY" else value
+    value = sm.get_secret_value(SecretId=ANTHROPIC_SECRET_ARN)["SecretString"].strip()
+    placeholders = {"", "REPLACE_AFTER_DEPLOY", "PLACEHOLDER", "TODO", "changeme"}
+    return "" if value in placeholders else value
 
 
 @lru_cache(maxsize=1)
@@ -112,24 +113,72 @@ def anthropic_client():
 
 
 # 每次 Lambda 執行內累積的 LLM 用量（RQ2：推論時間 + token 都要留痕）
-LLM_USAGE = {"calls": 0, "input_tokens": 0, "output_tokens": 0, "inference_seconds": 0.0}
+LLM_USAGE = {
+    "calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "inference_seconds": 0.0,
+    "fallback_count": 0,
+    "fallback_errors": [],
+}
 
 
 def reset_llm_usage():
-    LLM_USAGE.update(calls=0, input_tokens=0, output_tokens=0, inference_seconds=0.0)
+    LLM_USAGE.update(
+        calls=0,
+        input_tokens=0,
+        output_tokens=0,
+        inference_seconds=0.0,
+        fallback_count=0,
+        fallback_errors=[],
+    )
+
+
+def _record_llm_fallback(error):
+    LLM_USAGE["fallback_count"] += 1
+    message = str(error).replace("\n", " ")
+    if len(message) > 240:
+        message = message[:237] + "..."
+    if len(LLM_USAGE["fallback_errors"]) < 5:
+        LLM_USAGE["fallback_errors"].append(message)
+
+
+def llm_mode_label(llm_approved):
+    if not llm_approved:
+        return "rubric-only (quote gate: over budget)"
+    if not USE_ANTHROPIC:
+        return "rubric-only (USE_ANTHROPIC=false)"
+    if LLM_USAGE["calls"] and LLM_USAGE["fallback_count"]:
+        return "api.anthropic.com-partial-with-rubric-fallback"
+    if LLM_USAGE["calls"]:
+        return "api.anthropic.com"
+    if LLM_USAGE["fallback_count"]:
+        return "rubric-only (anthropic failed; fallback used)"
+    if not anthropic_key():
+        return "rubric-only (missing or placeholder Anthropic key)"
+    return "api.anthropic.com-with-rubric-fallback"
 
 
 def call_anthropic(model, prompt, max_tokens=700):
     if not USE_ANTHROPIC or not anthropic_key():
         return None
+    if LLM_USAGE["fallback_count"]:
+        return None
     import time
 
     start = time.monotonic()
-    response = anthropic_client().messages.create(
-        model=model,
-        max_tokens=max_tokens,
-        messages=[{"role": "user", "content": prompt}],
-    )
+    try:
+        response = anthropic_client().messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+        )
+    except Exception as exc:
+        _record_llm_fallback(exc)
+        # A rotated or corrected secret should be picked up by the next invocation.
+        anthropic_key.cache_clear()
+        anthropic_client.cache_clear()
+        return None
     LLM_USAGE["calls"] += 1
     LLM_USAGE["inference_seconds"] = round(LLM_USAGE["inference_seconds"] + time.monotonic() - start, 2)
     usage = getattr(response, "usage", None)

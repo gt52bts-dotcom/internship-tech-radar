@@ -1,0 +1,179 @@
+{
+  "Comment": "Cathay Tech Intel v3 manual Step Functions definition",
+  "StartAt": "GenerateRunId",
+  "States": {
+    "GenerateRunId": {
+      "Type": "Pass",
+      "Parameters": {
+        "run_id.$": "$$.Execution.StartTime"
+      },
+      "Next": "Task_S1"
+    },
+    "Task_S1": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "cathay-techintel-v3-s1scan",
+        "Payload": {
+          "run_id.$": "$.run_id"
+        }
+      },
+      "ResultPath": "$.s1",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Task_S2"
+    },
+    "Task_S2": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "cathay-techintel-v3-s2compare",
+        "Payload": {
+          "run_id.$": "$.run_id"
+        }
+      },
+      "ResultPath": "$.s2",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Task_Quote"
+    },
+    "Task_Quote": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "cathay-techintel-v3-s2bquote",
+        "Payload": {
+          "run_id.$": "$.run_id"
+        }
+      },
+      "ResultPath": "$.quote",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "QuoteApproved?"
+    },
+    "QuoteApproved?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.quote.Payload.decision",
+          "StringEquals": "approve",
+          "Next": "Task_S3"
+        }
+      ],
+      "Default": "OverBudget_RubricMode"
+    },
+    "OverBudget_RubricMode": {
+      "Type": "Pass",
+      "Comment": "Quote exceeds MAX_RUN_USD: S3/S4 will use zero-token rubric mode when Anthropic is unavailable or over budget.",
+      "Next": "Task_S3"
+    },
+    "Task_S3": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "cathay-techintel-v3-s3evaluate",
+        "Payload": {
+          "run_id.$": "$.run_id"
+        }
+      },
+      "ResultPath": "$.s3",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Task_S4"
+    },
+    "Task_S4": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "cathay-techintel-v3-s4validate",
+        "Payload": {
+          "run_id.$": "$.run_id"
+        }
+      },
+      "ResultPath": "$.s4",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Task_S5"
+    },
+    "Task_S5": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "cathay-techintel-v3-s5report",
+        "Payload": {
+          "run_id.$": "$.run_id"
+        }
+      },
+      "ResultPath": "$.s5",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  }
+}

@@ -1,58 +1,57 @@
-# Cleo 的暑期實習日誌｜2026 CIP
+# Cleo 的暑期實習專案（2026 CIP）
 
-> 這是主管閱讀用首頁。日誌與專案內容保存在 Private GitHub repository，受邀的 collaborator 可直接用瀏覽器閱讀，不需要下載程式或專案封包。
+本 repository 是 Cathay Tech Intel v3 / 技術雷達實習專案的工作紀錄與交付物中心。Git 是 source of truth；Notion 與 dashboard 用於呈現每日進度與 Skill 成長。
 
-## 目前進度
+## 專案狀態
 
-**技術雷達公司帳戶版本已完成程式與架構驗證，目前進行公司帳戶手動部署。**
+目前主線已從本地設計與封包，推進到公司 AWS 帳戶手動部署與端到端驗證。
 
 ```mermaid
 flowchart LR
-    A[需求與評分方法] --> B[個人 AWS PoC 跑通]
-    B --> C[加入成本控制與評分依據]
-    C --> D[完成公司帳戶版本]
-    D --> E[目前：Console 手動部署]
-    E --> F[下一步：公司帳戶完整驗證]
+    A["定義技術雷達流程"] --> B["建立 AWS PoC 架構"]
+    B --> C["整理手動部署封包"]
+    C --> D["公司 AWS 帳戶部署"]
+    D --> E["Step Functions 端到端驗證"]
+    E --> F["報告與 demo 證據整理"]
 ```
 
 ## 每日工作日誌
 
-| 日期 | 今日主題 | 狀態 |
+| 日期 | 今日主軸 | 狀態 |
 |---|---|---|
-| [7/15](./work-log-2026-07-15.md) | 建立 AI PM 追蹤機制，推進公司 AWS 手動部署到第 4 章 | 手動部署進行中 |
-| [7/14](./work-log-2026-07-14.md) | 整理技術雷達公司帳戶版本、成本控制與評分依據 | 手動部署進行中 |
-| [7/13](./work-log-2026-07-13.md) | 將 v3 從架構雛形推進至 AWS 端到端執行 | 個人 AWS 驗證成功 |
+| [7/16](./work-log-2026-07-16.md) | 公司 AWS 帳戶 Step Functions 全流程跑通，完成 API-first fallback 與 HR 雙週誌格式修正 | direct |
+| [7/15](./work-log-2026-07-15.md) | 建立 AI PM、GitHub、Notion、Skill dashboard 與公司帳戶部署準備 | supporting |
+| [7/14](./work-log-2026-07-14.md) | 整理 v3 手動部署包與 AWS 部署限制 | supporting |
+| [7/13](./work-log-2026-07-13.md) | 建立 v3 技術雷達與 AWS pipeline 設計骨架 | direct |
 
-> 7/15 日誌已依 17:20 後的證據統整；公司 AWS 資源狀態仍需待權限允許後核對。
+## Skill 進度
 
-## Skill 進度儀表板
+- [Skill 進度完整紀錄](./SKILL_PROGRESS.md)
+- [互動儀錶板 README](./dashboard/README.md)
+- [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-- [開啟 GitHub Private 儀表板](./dashboard/README.md)
-- [查看 Notion 同款互動式儀表板 HTML](./dashboard/cleo-skill-dashboard.html)
-- [開啟 Cleo 日誌裡的 Notion 互動式儀表板](https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08)
+截至 2026-07-16，累積分數 70 分。
 
-| Skill | 內容 | 累積積分 | 目前狀態 |
-|---|---|---:|---|
-| 🔵 Skill 1｜掃描 | 來源蒐集、清理與候選清單 | 8 | 個人 AWS 已驗證，公司版持續落地 |
-| 🟢 Skill 2｜比較 | 公司需求比較、排序與篩選 | 9 | 已加入公司需求與成本閘門 |
-| 🟠 Skill 3｜評估 | 評分準則、案例證據與深度評估 | 10 | 已完成五項準則與公司版調整 |
-| 🟣 Skill 4｜驗證 | 獨立重評、分歧檢查與結果驗證 | 10 | 個人版已驗證，公司版手動部署至第 4 章但待核對 |
-| 🔴 Skill 5｜報告 | Top 3、技術報告與成果呈現 | 12 | 已產出報告，並完成主管閱讀儀表板 |
+| Skill | 說明 | 累積分數 |
+|---|---|---:|
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 8 |
+| Skill 2｜比較 | 候選技術比較、案例對照 | 9 |
+| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 16 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 17 |
+| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 20 |
 
-目前累積：**49 分**。7/15 依嚴格標準修正為 14 分。
+## 重要交付物
 
-- [查看每日積分與目標對齊明細](./SKILL_PROGRESS.md)
+- [AI PM 工作流程](./AI_PM_WORKFLOW.md)
+- [專案記憶](./PROJECT_MEMORY.md)
+- [公司如何幫助我成長草稿](./final-proposal/公司如何幫助我成長-草稿.md)
+- [簡報架構與執行軌跡](./final-proposal/簡報架構與執行軌跡.md)
+- [AHP scoring report HTML](./v3-tech-radar-ahp-scoring-report.html)
+- [HR 雙週工作週誌格式正確版](./2026CIP_王冠婷_雙週工作週誌1_格式正確版.docx)
 
-## 專案閱讀入口
+## 目前待辦
 
-- [AI PM 工作方式](./AI_PM_WORKFLOW.md)
-- [專案長期記憶與目前決策](./PROJECT_MEMORY.md)
-- [Final proposal 架構與執行軌跡](./final-proposal/簡報架構與執行軌跡.md)
-- [公司如何幫助我成長](./final-proposal/公司如何幫助我成長-草稿.md)
-- [每日實習日誌模板](./templates/每日實習日誌模板.md)
-
-## 閱讀說明
-
-- 日誌以簡單語言整理成果、驗證、問題與下一步。
-- 「已驗證」、「等待公司環境驗證」與「成本估算」會分開標示。
-- 技術細節與原始碼保留在 repository；主管閱讀日誌不需要下載這些檔案。
+- 驗證 S3 `report.html` 的開啟方式，必要時使用 Download 或 presigned URL。
+- 檢查 DynamoDB `cathay-techintel-v3-picks-log` 是否已有 actor=`ai` 的紀錄。
+- 評估是否補正式 Anthropic API key，或改以 AWS Bedrock 做公司環境的 AI 評估路徑。
+- 將 7/16 的部署成功證據整理進 demo checklist 與 final proposal 執行軌跡。
