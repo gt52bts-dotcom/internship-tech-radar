@@ -75,9 +75,13 @@
 - AI PM 的每日日誌模板以 Notion 資料庫 `Cleo的暑期實習日誌(2026CIP)` 為準；Git 內保存相同的欄位規則與頁面章節，讓公司環境不連 Notion也能延續。
 - 2026-07-15：主管閱讀方式決定維持 private repository，邀請主管為 Read collaborator；不使用會公開公司日誌內容的個人 GitHub Pages。
 - 2026-07-15：新增 `dashboard/README.md` 作為 Private GitHub 內可直接閱讀、可展開日期的 Skill 儀表板；完整 HTML 互動版保留在 repository，但未公開託管。
+- 2026-07-16：已補完 2026-07-15 正式日誌與 Notion 同步回驗；Notion 主日誌 `7/15` 五個 Skill 分數為掃描 +3、比較 +3、評估 +3、驗證 +6、報告 +8，原始 Skill 明細資料庫回驗為 5 筆、合計 23 分。
 
 ## 公司帳戶部署決策
 
 - 2026-07-14：因公司帳戶的 SCP／CloudFormation 權限限制，近期落地驗證改採 `雷達-v3-console手動部署包.zip`，完整 CDK／platform-upgrade 版保留為長期主版本。
 - 使用者回報已在 `ap-southeast-1` 完成 S3、DynamoDB 與 Secrets Manager 的手動建立；實際資源名稱、DynamoDB key schema 與 SecretString 格式仍待公司帳戶頁面核對。
 - Anthropic API 採 Claude Console 預付 usage credits；API key 僅存 AWS Secrets Manager，不寫入專案檔案、工作日誌或聊天內容。
+- 2026-07-15：以有效的公司帳戶 CLI 身分實查時，Lambda、Step Functions、IAM、DynamoDB、Secrets Manager 與 S3 列舉／讀取動作皆遭 Organizations SCP `explicit deny`；因此 Console 手動部署也無法靠自行新增 IAM policy 繞過，需由公司 AWS 管理者調整 SCP／提供允許的部署角色或代為部署。
+- 2026-07-15：手動包預期名稱的 S3 bucket 查詢結果為不存在；先前回報的 S3、DynamoDB 與 Secret 尚不能視為已驗證，需待有權限後依 Console 畫面核對實際名稱、Region 與 schema。
+- 2026-07-15：使用者回報已依手動部署第 1 至第 4 章完成 Lambda 用 IAM policy、Lambda execution role、S3 bucket 與 lifecycle rule、DynamoDB table `cathay-techintel-v3-picks-log`；DynamoDB key schema 為 `run_id` (String) + `pick_time` (String)，Capacity mode 為 On-demand，Encryption 使用 DynamoDB owned key。此狀態待公司帳戶權限允許後再驗證。
