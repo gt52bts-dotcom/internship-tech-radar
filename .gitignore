@@ -20,5 +20,8 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Accidental nested repository copies
+internship-tech-radar/
+
 # Generated packages and reports are retained locally unless intentionally forced
 *.zip
