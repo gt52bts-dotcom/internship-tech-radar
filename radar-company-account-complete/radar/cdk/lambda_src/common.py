@@ -1,6 +1,7 @@
 """Shared Lambda utilities for the v3 tech-intel pipeline."""
 import json
 import os
+from decimal import Decimal
 from functools import lru_cache
 
 import boto3
@@ -16,6 +17,16 @@ REGION = os.environ.get("AWS_REGION", "ap-southeast-1")
 s3 = boto3.client("s3", region_name=REGION)
 sm = boto3.client("secretsmanager", region_name=REGION)
 ddb = boto3.resource("dynamodb", region_name=REGION)
+
+
+def _plain_value(value):
+    if isinstance(value, Decimal):
+        return int(value) if value == value.to_integral_value() else float(value)
+    if isinstance(value, list):
+        return [_plain_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _plain_value(item) for key, item in value.items()}
+    return value
 
 
 def log_pick(run_id, actor, payload, ttl_days=365):
@@ -37,6 +48,22 @@ def log_pick(run_id, actor, payload, ttl_days=365):
     }
     ddb.Table(PICKS_TABLE).put_item(Item=item)
     return item
+
+
+def read_pick_logs(limit=500):
+    """Read recent AI/human pick logs for lightweight feedback statistics."""
+    if not PICKS_TABLE:
+        return []
+    table = ddb.Table(PICKS_TABLE)
+    items = []
+    scan_kwargs = {"Limit": min(limit, 500)}
+    while True:
+        response = table.scan(**scan_kwargs)
+        items.extend(response.get("Items", []))
+        if len(items) >= limit or "LastEvaluatedKey" not in response:
+            break
+        scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+    return [_plain_value(item) for item in items[:limit]]
 
 
 def presigned_url(s3_key, expires_seconds=43200):

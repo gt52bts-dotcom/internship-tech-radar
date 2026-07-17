@@ -1,0 +1,1114 @@
+{
+  "run_id": "offline-benchmark",
+  "quality_gate": "pass",
+  "checks": [
+    {
+      "name": "top3_count",
+      "passed": true,
+      "detail": "top3=3"
+    },
+    {
+      "name": "all_candidates_completed_full_flow",
+      "passed": true,
+      "detail": "ledger_candidates=6, final_rows=6"
+    },
+    {
+      "name": "top3_has_source_urls",
+      "passed": true,
+      "detail": "A03, A04, A10"
+    },
+    {
+      "name": "top3_evidence_reviewable",
+      "passed": true,
+      "detail": "A03=high, A04=high, A10=medium"
+    },
+    {
+      "name": "review_packet_requires_human_action",
+      "passed": true,
+      "detail": "awaiting_human_review"
+    },
+    {
+      "name": "no_blocked_bedrock_candidate_survived",
+      "passed": true,
+      "detail": "Bedrock-tagged candidates should be dropped by L0 in this company-account variant."
+    },
+    {
+      "name": "decision_layer_created",
+      "passed": true,
+      "detail": "A03=adopt_candidate_after_review, A04=adopt_candidate_after_review, A02=adopt_candidate_after_review"
+    },
+    {
+      "name": "feedback_stats_honest_about_sample_size",
+      "passed": true,
+      "detail": "insufficient_for_ml_training"
+    },
+    {
+      "name": "audit_packet_created",
+      "passed": true,
+      "detail": "awaiting_human_review"
+    }
+  ],
+  "top3": [
+    {
+      "id": "A03",
+      "title": "S3 條件式寫入（conditional writes）支援 ETag 比對，多寫入者免自建鎖（GA）",
+      "average_score": 5.0
+    },
+    {
+      "id": "A04",
+      "title": "Step Functions 支援 JSONata 與工作流變數，狀態間傳值不再需要 Pass 疊疊樂（GA）",
+      "average_score": 4.55
+    },
+    {
+      "id": "A10",
+      "title": "EventBridge Scheduler 新增排程群組配額提升與失敗重試指標（GA）",
+      "average_score": 4.2
+    }
+  ],
+  "evidence_ledger": {
+    "ledger_version": "1.0",
+    "run_id": "offline-benchmark",
+    "purpose": "Auditable evidence ledger for AI-assisted technology radar decisions.",
+    "controls": {
+      "single_entry_flow": true,
+      "top3_after_full_flow": true,
+      "human_review_required_for_top3": true,
+      "review_actions": [
+        "approve",
+        "reject",
+        "override",
+        "comment"
+      ]
+    },
+    "pipeline_counts": {
+      "s1_input": 12,
+      "s1_kept": 10,
+      "s2_kept": 6,
+      "s3_evaluated": 6,
+      "s4_validated": 6
+    },
+    "candidates": [
+      {
+        "id": "A03",
+        "title": "S3 條件式寫入（conditional writes）支援 ETag 比對，多寫入者免自建鎖（GA）",
+        "source": "AWS Recent Announcements",
+        "source_url": "https://aws.amazon.com/about-aws/whats-new/s3-conditional-writes",
+        "source_date": "2026-07-03",
+        "summary": "If-None-Match 與 If-Match 條件寫入讓分散式管線避免覆寫衝突，Step Functions 平行分支寫同一桶時特別有用。",
+        "tags": [
+          "s3",
+          "stepfunctions"
+        ],
+        "status": "GA",
+        "evidence_confidence": "high",
+        "radar_ring": "Adopt",
+        "scores": {
+          "l1_relevance": 4.0,
+          "l2_evaluator": 5.0,
+          "validator": 5.0,
+          "average": 5.0
+        },
+        "rationale": {
+          "rubric_reason": "AWS fit is high for the current Cathay-oriented radar. Maturity is enough for PoC planning. Enterprise evidence found: PayU (印度金融服務).",
+          "llm_rationale": "",
+          "validator_flags": [],
+          "governance_flags": []
+        },
+        "evidence": {
+          "matched_enterprise_cases": [
+            {
+              "id": "PayU-Enterprise-AI-2024",
+              "customer": "PayU (印度金融服務)",
+              "overlap_tags": [
+                "s3"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "GSA-Pegasys-2025",
+              "customer": "美國總務署 (U.S. General Services Administration, GSA)",
+              "overlap_tags": [
+                "s3",
+                "stepfunctions"
+              ],
+              "relevance_to_cathay": 4
+            }
+          ],
+          "cross_cloud_equivalents": [
+            {
+              "capability": "s3",
+              "aws": "Amazon S3 / S3 Tables / S3 Metadata",
+              "gcp": "Cloud Storage / BigLake",
+              "azure": "Blob Storage / OneLake"
+            },
+            {
+              "capability": "stepfunctions",
+              "aws": "AWS Step Functions",
+              "gcp": "Workflows",
+              "azure": "Durable Functions"
+            }
+          ],
+          "signals": {
+            "maturity": 5,
+            "aws_fit": 5,
+            "effort": 1,
+            "risk": 1,
+            "case_evidence": 5
+          }
+        },
+        "trace": {
+          "s1_scan": {
+            "source_mode": "fixtures",
+            "kept_count": 10
+          },
+          "s2_compare": {
+            "kept_count": 6,
+            "l1_ranked": true
+          },
+          "s3_evaluate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric"
+          },
+          "s4_validate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric-independent-weights"
+          },
+          "s5_report": {
+            "selection_rule": "Top 3 by average evaluator/validator score after all five steps"
+          }
+        }
+      },
+      {
+        "id": "A04",
+        "title": "Step Functions 支援 JSONata 與工作流變數，狀態間傳值不再需要 Pass 疊疊樂（GA）",
+        "source": "AWS News Blog",
+        "source_url": "https://aws.amazon.com/blogs/aws/sfn-jsonata-variables",
+        "source_date": "2026-07-05",
+        "summary": "JSONata 表達式與 variables 讓資料轉換直接寫在狀態機定義內，減少膠水 Lambda 數量，五步管線可精簡 payload 傳遞。",
+        "tags": [
+          "stepfunctions",
+          "orchestration",
+          "serverless"
+        ],
+        "status": "GA",
+        "evidence_confidence": "high",
+        "radar_ring": "Adopt",
+        "scores": {
+          "l1_relevance": 6.5,
+          "l2_evaluator": 4.5,
+          "validator": 4.6,
+          "average": 4.55
+        },
+        "rationale": {
+          "rubric_reason": "AWS fit is high for the current Cathay-oriented radar. Maturity is enough for PoC planning. Enterprise evidence found: SBI 生命保險株式會社 (SBI Life Insurance, 日本).",
+          "llm_rationale": "",
+          "validator_flags": [],
+          "governance_flags": []
+        },
+        "evidence": {
+          "matched_enterprise_cases": [
+            {
+              "id": "SBI-Life-Insurance-2024",
+              "customer": "SBI 生命保險株式會社 (SBI Life Insurance, 日本)",
+              "overlap_tags": [
+                "serverless"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "GSA-Pegasys-2025",
+              "customer": "美國總務署 (U.S. General Services Administration, GSA)",
+              "overlap_tags": [
+                "stepfunctions"
+              ],
+              "relevance_to_cathay": 4
+            },
+            {
+              "id": "InsuranceDekho-2024",
+              "customer": "InsuranceDekho (印度保險科技平台)",
+              "overlap_tags": [
+                "serverless"
+              ],
+              "relevance_to_cathay": 4
+            }
+          ],
+          "cross_cloud_equivalents": [
+            {
+              "capability": "stepfunctions",
+              "aws": "AWS Step Functions",
+              "gcp": "Workflows",
+              "azure": "Durable Functions"
+            },
+            {
+              "capability": "serverless",
+              "aws": "AWS Lambda / Step Functions",
+              "gcp": "Cloud Run / Workflows",
+              "azure": "Functions / Logic Apps"
+            }
+          ],
+          "signals": {
+            "maturity": 4,
+            "aws_fit": 5,
+            "effort": 2,
+            "risk": 1,
+            "case_evidence": 5
+          }
+        },
+        "trace": {
+          "s1_scan": {
+            "source_mode": "fixtures",
+            "kept_count": 10
+          },
+          "s2_compare": {
+            "kept_count": 6,
+            "l1_ranked": true
+          },
+          "s3_evaluate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric"
+          },
+          "s4_validate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric-independent-weights"
+          },
+          "s5_report": {
+            "selection_rule": "Top 3 by average evaluator/validator score after all five steps"
+          }
+        }
+      },
+      {
+        "id": "A10",
+        "title": "EventBridge Scheduler 新增排程群組配額提升與失敗重試指標（GA）",
+        "source": "AWS Recent Announcements",
+        "source_url": "https://aws.amazon.com/about-aws/whats-new/eventbridge-scheduler-metrics",
+        "source_date": "2026-07-11",
+        "summary": "Scheduler 提供更細的 CloudWatch 失敗重試指標，每日定時管線的可觀測性提升。",
+        "tags": [
+          "eventbridge",
+          "scheduler",
+          "orchestration"
+        ],
+        "status": "GA",
+        "evidence_confidence": "medium",
+        "radar_ring": "Trial",
+        "scores": {
+          "l1_relevance": 4.0,
+          "l2_evaluator": 4.2,
+          "validator": 4.2,
+          "average": 4.2
+        },
+        "rationale": {
+          "rubric_reason": "AWS fit is high for the current Cathay-oriented radar. Maturity is enough for PoC planning. No strong enterprise case evidence yet.",
+          "llm_rationale": "",
+          "validator_flags": [],
+          "governance_flags": [
+            "Weak enterprise case evidence; require reviewer confirmation."
+          ]
+        },
+        "evidence": {
+          "matched_enterprise_cases": [],
+          "cross_cloud_equivalents": [
+            {
+              "capability": "eventbridge",
+              "aws": "Amazon EventBridge Scheduler",
+              "gcp": "Cloud Scheduler",
+              "azure": "Azure Logic Apps / Scheduler"
+            }
+          ],
+          "signals": {
+            "maturity": 4,
+            "aws_fit": 5,
+            "effort": 1,
+            "risk": 1,
+            "case_evidence": 2
+          }
+        },
+        "trace": {
+          "s1_scan": {
+            "source_mode": "fixtures",
+            "kept_count": 10
+          },
+          "s2_compare": {
+            "kept_count": 6,
+            "l1_ranked": true
+          },
+          "s3_evaluate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric"
+          },
+          "s4_validate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric-independent-weights"
+          },
+          "s5_report": {
+            "selection_rule": "Top 3 by average evaluator/validator score after all five steps"
+          }
+        }
+      },
+      {
+        "id": "A05",
+        "title": "Lambda SnapStart 支援 Python 3.12+，冷啟動降至次秒級（GA）",
+        "source": "AWS Compute Blog",
+        "source_url": "https://aws.amazon.com/blogs/compute/lambda-snapstart-python",
+        "source_date": "2026-07-06",
+        "summary": "SnapStart 以快照還原取代初始化，Python 函式冷啟動大幅縮短，對載入大型依賴（如 SDK layer）的管線函式受益明顯，另有快取費用需評估。",
+        "tags": [
+          "lambda",
+          "serverless",
+          "cost"
+        ],
+        "status": "GA",
+        "evidence_confidence": "high",
+        "radar_ring": "Trial",
+        "scores": {
+          "l1_relevance": 4.5,
+          "l2_evaluator": 4.15,
+          "validator": 4.2,
+          "average": 4.18
+        },
+        "rationale": {
+          "rubric_reason": "AWS fit is high for the current Cathay-oriented radar. Maturity is enough for PoC planning. Enterprise evidence found: PayU (印度金融服務).",
+          "llm_rationale": "",
+          "validator_flags": [],
+          "governance_flags": []
+        },
+        "evidence": {
+          "matched_enterprise_cases": [
+            {
+              "id": "PayU-Enterprise-AI-2024",
+              "customer": "PayU (印度金融服務)",
+              "overlap_tags": [
+                "lambda"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "SBI-Life-Insurance-2024",
+              "customer": "SBI 生命保險株式會社 (SBI Life Insurance, 日本)",
+              "overlap_tags": [
+                "lambda",
+                "serverless"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "GSA-Pegasys-2025",
+              "customer": "美國總務署 (U.S. General Services Administration, GSA)",
+              "overlap_tags": [
+                "cost",
+                "lambda"
+              ],
+              "relevance_to_cathay": 4
+            },
+            {
+              "id": "InsuranceDekho-2024",
+              "customer": "InsuranceDekho (印度保險科技平台)",
+              "overlap_tags": [
+                "lambda",
+                "serverless"
+              ],
+              "relevance_to_cathay": 4
+            }
+          ],
+          "cross_cloud_equivalents": [
+            {
+              "capability": "lambda",
+              "aws": "AWS Lambda (SnapStart)",
+              "gcp": "Cloud Run functions",
+              "azure": "Azure Functions"
+            },
+            {
+              "capability": "serverless",
+              "aws": "AWS Lambda / Step Functions",
+              "gcp": "Cloud Run / Workflows",
+              "azure": "Functions / Logic Apps"
+            }
+          ],
+          "signals": {
+            "maturity": 4,
+            "aws_fit": 4,
+            "effort": 2,
+            "risk": 2,
+            "case_evidence": 5
+          }
+        },
+        "trace": {
+          "s1_scan": {
+            "source_mode": "fixtures",
+            "kept_count": 10
+          },
+          "s2_compare": {
+            "kept_count": 6,
+            "l1_ranked": true
+          },
+          "s3_evaluate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric"
+          },
+          "s4_validate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric-independent-weights"
+          },
+          "s5_report": {
+            "selection_rule": "Top 3 by average evaluator/validator score after all five steps"
+          }
+        }
+      },
+      {
+        "id": "A02",
+        "title": "Amazon S3 Metadata：自動產生物件中繼資料表，加速資料探索（GA）",
+        "source": "AWS News Blog",
+        "source_url": "https://aws.amazon.com/blogs/aws/s3-metadata",
+        "source_date": "2026-07-02",
+        "summary": "S3 Metadata 近乎即時把物件中繼資料寫入 Iceberg 表，可用 SQL 查詢桶內資產，免自建索引管線。",
+        "tags": [
+          "s3",
+          "serverless"
+        ],
+        "status": "GA",
+        "evidence_confidence": "high",
+        "radar_ring": "Trial",
+        "scores": {
+          "l1_relevance": 3.5,
+          "l2_evaluator": 4.15,
+          "validator": 4.2,
+          "average": 4.18
+        },
+        "rationale": {
+          "rubric_reason": "AWS fit is high for the current Cathay-oriented radar. Maturity is enough for PoC planning. Enterprise evidence found: PayU (印度金融服務).",
+          "llm_rationale": "",
+          "validator_flags": [],
+          "governance_flags": []
+        },
+        "evidence": {
+          "matched_enterprise_cases": [
+            {
+              "id": "PayU-Enterprise-AI-2024",
+              "customer": "PayU (印度金融服務)",
+              "overlap_tags": [
+                "s3"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "SBI-Life-Insurance-2024",
+              "customer": "SBI 生命保險株式會社 (SBI Life Insurance, 日本)",
+              "overlap_tags": [
+                "serverless"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "GSA-Pegasys-2025",
+              "customer": "美國總務署 (U.S. General Services Administration, GSA)",
+              "overlap_tags": [
+                "s3"
+              ],
+              "relevance_to_cathay": 4
+            },
+            {
+              "id": "InsuranceDekho-2024",
+              "customer": "InsuranceDekho (印度保險科技平台)",
+              "overlap_tags": [
+                "serverless"
+              ],
+              "relevance_to_cathay": 4
+            }
+          ],
+          "cross_cloud_equivalents": [
+            {
+              "capability": "s3",
+              "aws": "Amazon S3 / S3 Tables / S3 Metadata",
+              "gcp": "Cloud Storage / BigLake",
+              "azure": "Blob Storage / OneLake"
+            },
+            {
+              "capability": "serverless",
+              "aws": "AWS Lambda / Step Functions",
+              "gcp": "Cloud Run / Workflows",
+              "azure": "Functions / Logic Apps"
+            }
+          ],
+          "signals": {
+            "maturity": 4,
+            "aws_fit": 4,
+            "effort": 2,
+            "risk": 2,
+            "case_evidence": 5
+          }
+        },
+        "trace": {
+          "s1_scan": {
+            "source_mode": "fixtures",
+            "kept_count": 10
+          },
+          "s2_compare": {
+            "kept_count": 6,
+            "l1_ranked": true
+          },
+          "s3_evaluate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric"
+          },
+          "s4_validate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric-independent-weights"
+          },
+          "s5_report": {
+            "selection_rule": "Top 3 by average evaluator/validator score after all five steps"
+          }
+        }
+      },
+      {
+        "id": "A06",
+        "title": "DynamoDB 全域表支援多區域強一致性（GA）",
+        "source": "AWS Database Blog",
+        "source_url": "https://aws.amazon.com/blogs/database/dynamodb-mrsc",
+        "source_date": "2026-07-07",
+        "summary": "Global Tables 新增 multi-Region strong consistency 模式，跨區讀取保證最新資料，金融級工作負載可達 RPO 零。",
+        "tags": [
+          "dynamodb",
+          "compliance"
+        ],
+        "status": "GA",
+        "evidence_confidence": "high",
+        "radar_ring": "Trial",
+        "scores": {
+          "l1_relevance": 3.5,
+          "l2_evaluator": 4.0,
+          "validator": 4.0,
+          "average": 4.0
+        },
+        "rationale": {
+          "rubric_reason": "AWS fit is high for the current Cathay-oriented radar. Maturity is enough for PoC planning. Enterprise evidence found: PayU (印度金融服務).",
+          "llm_rationale": "",
+          "validator_flags": [],
+          "governance_flags": []
+        },
+        "evidence": {
+          "matched_enterprise_cases": [
+            {
+              "id": "PayU-Enterprise-AI-2024",
+              "customer": "PayU (印度金融服務)",
+              "overlap_tags": [
+                "compliance"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "SBI-Life-Insurance-2024",
+              "customer": "SBI 生命保險株式會社 (SBI Life Insurance, 日本)",
+              "overlap_tags": [
+                "dynamodb"
+              ],
+              "relevance_to_cathay": 5
+            },
+            {
+              "id": "GSA-Pegasys-2025",
+              "customer": "美國總務署 (U.S. General Services Administration, GSA)",
+              "overlap_tags": [
+                "compliance"
+              ],
+              "relevance_to_cathay": 4
+            },
+            {
+              "id": "InsuranceDekho-2024",
+              "customer": "InsuranceDekho (印度保險科技平台)",
+              "overlap_tags": [
+                "dynamodb"
+              ],
+              "relevance_to_cathay": 4
+            }
+          ],
+          "cross_cloud_equivalents": [
+            {
+              "capability": "dynamodb",
+              "aws": "Amazon DynamoDB",
+              "gcp": "Firestore / Bigtable",
+              "azure": "Cosmos DB"
+            }
+          ],
+          "signals": {
+            "maturity": 4,
+            "aws_fit": 4,
+            "effort": 3,
+            "risk": 2,
+            "case_evidence": 5
+          }
+        },
+        "trace": {
+          "s1_scan": {
+            "source_mode": "fixtures",
+            "kept_count": 10
+          },
+          "s2_compare": {
+            "kept_count": 6,
+            "l1_ranked": true
+          },
+          "s3_evaluate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric"
+          },
+          "s4_validate": {
+            "mode": "offline-rubric-benchmark",
+            "model": "rubric-independent-weights"
+          },
+          "s5_report": {
+            "selection_rule": "Top 3 by average evaluator/validator score after all five steps"
+          }
+        }
+      }
+    ]
+  },
+  "review_packet": {
+    "review_packet_version": "1.0",
+    "run_id": "offline-benchmark",
+    "status": "awaiting_human_review",
+    "review_goal": "Approve, reject, override, or comment on the AI Top 3 before treating it as an implementation recommendation.",
+    "ai_top3": [
+      {
+        "rank": 1,
+        "id": "A03",
+        "title": "S3 條件式寫入（conditional writes）支援 ETag 比對，多寫入者免自建鎖（GA）",
+        "average_score": 5.0,
+        "radar_ring": "Adopt",
+        "evidence_confidence": "high",
+        "governance_flags": []
+      },
+      {
+        "rank": 2,
+        "id": "A04",
+        "title": "Step Functions 支援 JSONata 與工作流變數，狀態間傳值不再需要 Pass 疊疊樂（GA）",
+        "average_score": 4.55,
+        "radar_ring": "Adopt",
+        "evidence_confidence": "high",
+        "governance_flags": []
+      },
+      {
+        "rank": 3,
+        "id": "A10",
+        "title": "EventBridge Scheduler 新增排程群組配額提升與失敗重試指標（GA）",
+        "average_score": 4.2,
+        "radar_ring": "Trial",
+        "evidence_confidence": "medium",
+        "governance_flags": [
+          "Weak enterprise case evidence; require reviewer confirmation."
+        ]
+      }
+    ],
+    "required_reviewer_actions": {
+      "approve": "Accept AI Top 3 as the current daily recommendation.",
+      "reject": "Reject the AI Top 3 and record why.",
+      "override": "Provide a replacement picked_ids list and rationale.",
+      "comment": "Keep decision pending but add reviewer feedback."
+    },
+    "record_human_pick_payload_example": {
+      "run_id": "offline-benchmark",
+      "reviewer": "reviewer-name",
+      "decision": "approve",
+      "picked_ids": [
+        "A03",
+        "A04",
+        "A10"
+      ],
+      "human_minutes": 15,
+      "blind": false,
+      "note": "Reviewed evidence ledger and accepted current Top 3."
+    },
+    "artifacts": {
+      "report_key": "runs/offline-benchmark/report.html",
+      "evidence_ledger_key": "runs/offline-benchmark/evidence-ledger.json"
+    }
+  },
+  "decision_layer": {
+    "decision_layer_version": "1.0",
+    "run_id": "offline-benchmark",
+    "method": "interpretable weighted decision policy",
+    "method_note": "This is an explainable algorithmic decision layer, not a trained ML model. It combines evaluator/validator scores, evidence confidence, enterprise cases, governance flags, and available human feedback signals.",
+    "policy": {
+      "base": "average evaluator/validator score",
+      "positive_signals": [
+        "evidence confidence",
+        "enterprise case evidence",
+        "evaluator-validator agreement",
+        "historical human approval"
+      ],
+      "negative_signals": [
+        "governance flags",
+        "high risk",
+        "low maturity",
+        "historical rejection"
+      ],
+      "actions": [
+        "adopt_candidate_after_review",
+        "trial_with_human_review",
+        "assess_with_human_review",
+        "assess_watchlist",
+        "hold"
+      ]
+    },
+    "top3": [
+      {
+        "id": "A03",
+        "title": "S3 條件式寫入（conditional writes）支援 ETag 比對，多寫入者免自建鎖（GA）",
+        "average_score": 5.0,
+        "decision_score": 5.47,
+        "radar_ring": "Adopt",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 5.0,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.12,
+            "cross_validator_agreement": 0.15,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "evaluator and validator both placed this candidate in Top 3",
+          "high evidence confidence",
+          "2 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      },
+      {
+        "id": "A04",
+        "title": "Step Functions 支援 JSONata 與工作流變數，狀態間傳值不再需要 Pass 疊疊樂（GA）",
+        "average_score": 4.55,
+        "decision_score": 5.08,
+        "radar_ring": "Adopt",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 4.55,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.18,
+            "cross_validator_agreement": 0.15,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "evaluator and validator both placed this candidate in Top 3",
+          "high evidence confidence",
+          "3 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      },
+      {
+        "id": "A02",
+        "title": "Amazon S3 Metadata：自動產生物件中繼資料表，加速資料探索（GA）",
+        "average_score": 4.18,
+        "decision_score": 4.62,
+        "radar_ring": "Trial",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 4.18,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.24,
+            "cross_validator_agreement": 0,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "high evidence confidence",
+          "4 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      }
+    ],
+    "all_decisions": [
+      {
+        "id": "A03",
+        "title": "S3 條件式寫入（conditional writes）支援 ETag 比對，多寫入者免自建鎖（GA）",
+        "average_score": 5.0,
+        "decision_score": 5.47,
+        "radar_ring": "Adopt",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 5.0,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.12,
+            "cross_validator_agreement": 0.15,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "evaluator and validator both placed this candidate in Top 3",
+          "high evidence confidence",
+          "2 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      },
+      {
+        "id": "A04",
+        "title": "Step Functions 支援 JSONata 與工作流變數，狀態間傳值不再需要 Pass 疊疊樂（GA）",
+        "average_score": 4.55,
+        "decision_score": 5.08,
+        "radar_ring": "Adopt",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 4.55,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.18,
+            "cross_validator_agreement": 0.15,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "evaluator and validator both placed this candidate in Top 3",
+          "high evidence confidence",
+          "3 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      },
+      {
+        "id": "A02",
+        "title": "Amazon S3 Metadata：自動產生物件中繼資料表，加速資料探索（GA）",
+        "average_score": 4.18,
+        "decision_score": 4.62,
+        "radar_ring": "Trial",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 4.18,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.24,
+            "cross_validator_agreement": 0,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "high evidence confidence",
+          "4 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      },
+      {
+        "id": "A05",
+        "title": "Lambda SnapStart 支援 Python 3.12+，冷啟動降至次秒級（GA）",
+        "average_score": 4.18,
+        "decision_score": 4.62,
+        "radar_ring": "Trial",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 4.18,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.24,
+            "cross_validator_agreement": 0,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "high evidence confidence",
+          "4 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      },
+      {
+        "id": "A06",
+        "title": "DynamoDB 全域表支援多區域強一致性（GA）",
+        "average_score": 4.0,
+        "decision_score": 4.44,
+        "radar_ring": "Trial",
+        "evidence_confidence": "high",
+        "recommended_action": "adopt_candidate_after_review",
+        "score_components": {
+          "base_average_score": 4.0,
+          "bonuses": {
+            "evidence": 0.2,
+            "enterprise_case": 0.24,
+            "cross_validator_agreement": 0,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.0,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "high evidence confidence",
+          "4 matched enterprise evidence item(s)",
+          "no blocking governance flag",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      },
+      {
+        "id": "A10",
+        "title": "EventBridge Scheduler 新增排程群組配額提升與失敗重試指標（GA）",
+        "average_score": 4.2,
+        "decision_score": 4.33,
+        "radar_ring": "Trial",
+        "evidence_confidence": "medium",
+        "recommended_action": "assess_with_human_review",
+        "score_components": {
+          "base_average_score": 4.2,
+          "bonuses": {
+            "evidence": 0.1,
+            "enterprise_case": 0.0,
+            "cross_validator_agreement": 0.15,
+            "historical_human_approval": 0
+          },
+          "penalties": {
+            "governance_flags": 0.12,
+            "risk_gate": 0,
+            "maturity_gate": 0
+          }
+        },
+        "why": [
+          "evaluator and validator both placed this candidate in Top 3",
+          "Weak enterprise case evidence; require reviewer confirmation.",
+          "human feedback sample is still descriptive, not enough for ML training"
+        ]
+      }
+    ]
+  },
+  "feedback_stats": {
+    "feedback_stats_version": "1.0",
+    "sample_status": "insufficient_for_ml_training",
+    "sample_note": "This is descriptive feedback telemetry, not a trained ML model. Use it for trend evidence now; promote to ML calibration only after enough labeled human reviews accumulate.",
+    "counts": {
+      "runs_with_logs": 0,
+      "ai_pick_logs": 0,
+      "human_review_logs": 0,
+      "approvals": 0,
+      "rejections": 0,
+      "overrides": 0,
+      "comment_only": 0,
+      "blind_reviews": 0
+    },
+    "metrics": {
+      "approval_rate": null,
+      "override_rate": null,
+      "average_human_review_minutes": null,
+      "average_ai_human_top3_overlap": null
+    },
+    "signals": {
+      "approved_ids": {},
+      "rejected_ids": {}
+    }
+  },
+  "audit_packet": {
+    "audit_packet_version": "1.0",
+    "run_id": "offline-benchmark",
+    "status": "awaiting_human_review",
+    "trust_summary": {
+      "quote_decision": "benchmark_offline",
+      "quoted_usd": null,
+      "actual_llm_usd": 0,
+      "llm_tokens": {
+        "input": 0,
+        "output": 0
+      },
+      "top3_overlap": 3,
+      "feedback_sample_status": "insufficient_for_ml_training",
+      "recommended_actions": [
+        "adopt_candidate_after_review",
+        "adopt_candidate_after_review",
+        "adopt_candidate_after_review"
+      ]
+    },
+    "artifact_keys": {
+      "summary_key": "runs/offline-benchmark/s5_report.json",
+      "report_key": "runs/offline-benchmark/report.html",
+      "evidence_ledger_key": "runs/offline-benchmark/evidence-ledger.json",
+      "review_packet_key": "runs/offline-benchmark/review-packet.json",
+      "decision_layer_key": "runs/offline-benchmark/decision-layer.json",
+      "feedback_stats_key": "runs/offline-benchmark/feedback-stats.json",
+      "audit_packet_key": "runs/offline-benchmark/audit-packet.json",
+      "cost_key": "runs/offline-benchmark/cost-estimate.yaml"
+    },
+    "checks": [
+      {
+        "name": "evidence_ledger_created",
+        "passed": true
+      },
+      {
+        "name": "review_packet_created",
+        "passed": true
+      },
+      {
+        "name": "decision_layer_created",
+        "passed": true
+      },
+      {
+        "name": "feedback_stats_created",
+        "passed": true
+      },
+      {
+        "name": "quote_gate_allows_run",
+        "passed": false
+      },
+      {
+        "name": "human_review_pending",
+        "passed": true
+      }
+    ],
+    "blocking_flags": [
+      {
+        "id": "A10",
+        "flags": [
+          "Weak enterprise case evidence; require reviewer confirmation."
+        ]
+      }
+    ],
+    "next_actions": [
+      "Record approve/reject/override/comment through recordhumanpick Lambda.",
+      "Use feedback-stats.json after multiple days to quantify agreement and override trends.",
+      "Treat decision-layer recommendations as explainable guidance until human review is complete."
+    ]
+  }
+}

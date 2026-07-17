@@ -66,11 +66,21 @@
     {
       "date": "2026-07-16",
       "scores": {
-        "scan": 0,
-        "compare": 0,
-        "evaluate": 6,
+        "scan": 3,
+        "compare": 3,
+        "evaluate": 5,
         "validate": 7,
-        "report": 8
+        "report": 5
+      }
+    },
+    {
+      "date": "2026-07-17",
+      "scores": {
+        "scan": 4,
+        "compare": 5,
+        "evaluate": 8,
+        "validate": 9,
+        "report": 7
       }
     }
   ]

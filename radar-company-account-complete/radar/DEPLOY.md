@@ -131,7 +131,7 @@ Secrets Manager 初始值是佔位字串。部署後請更新成真正 key：
 aws secretsmanager put-secret-value `
   --profile intern `
   --secret-id cathay-techintel-v3/anthropic-api-key `
-  --secret-string "sk-ant-YOUR_REAL_KEY" `
+  --secret-string "REPLACE_WITH_APPROVED_ANTHROPIC_KEY" `
   --region ap-southeast-1
 ```
 
@@ -171,6 +171,11 @@ aws stepfunctions list-executions `
 ```text
 s3://<bucket>/runs/<run_id>/quotation.json
 s3://<bucket>/runs/<run_id>/quotation.html
+s3://<bucket>/runs/<run_id>/evidence-ledger.json
+s3://<bucket>/runs/<run_id>/review-packet.json
+s3://<bucket>/runs/<run_id>/decision-layer.json
+s3://<bucket>/runs/<run_id>/feedback-stats.json
+s3://<bucket>/runs/<run_id>/audit-packet.json
 s3://<bucket>/runs/<run_id>/report.html
 s3://<bucket>/runs/<run_id>/cost-estimate.yaml
 s3://<bucket>/reports/latest.html
@@ -193,6 +198,26 @@ aws s3 cp s3://cathay-techintel-v3-data-<COMPANY_ACCOUNT_ID>/runs/company-landin
   --region ap-southeast-1
 
 aws s3 cp s3://cathay-techintel-v3-data-<COMPANY_ACCOUNT_ID>/runs/company-landing-001/report.html ./report.html `
+  --profile intern `
+  --region ap-southeast-1
+
+aws s3 cp s3://cathay-techintel-v3-data-<COMPANY_ACCOUNT_ID>/runs/company-landing-001/evidence-ledger.json ./evidence-ledger.json `
+  --profile intern `
+  --region ap-southeast-1
+
+aws s3 cp s3://cathay-techintel-v3-data-<COMPANY_ACCOUNT_ID>/runs/company-landing-001/review-packet.json ./review-packet.json `
+  --profile intern `
+  --region ap-southeast-1
+
+aws s3 cp s3://cathay-techintel-v3-data-<COMPANY_ACCOUNT_ID>/runs/company-landing-001/decision-layer.json ./decision-layer.json `
+  --profile intern `
+  --region ap-southeast-1
+
+aws s3 cp s3://cathay-techintel-v3-data-<COMPANY_ACCOUNT_ID>/runs/company-landing-001/feedback-stats.json ./feedback-stats.json `
+  --profile intern `
+  --region ap-southeast-1
+
+aws s3 cp s3://cathay-techintel-v3-data-<COMPANY_ACCOUNT_ID>/runs/company-landing-001/audit-packet.json ./audit-packet.json `
   --profile intern `
   --region ap-southeast-1
 ```
@@ -227,18 +252,22 @@ API endpoint：
 POST <ControlApiUrl>/runs
 ```
 
-## 11. RQ1 人工 Pick 記錄
+## 11. Human Review Gate / RQ1 人工 Pick 記錄
 
 建立 `pick.json`：
 
 ```json
 {
   "run_id": "company-landing-001",
-  "picked_ids": ["A03"],
+  "decision": "approve",
+  "picked_ids": ["A03", "A04", "A10"],
   "reviewer": "grace",
   "human_minutes": 18,
-  "blind": true,
-  "note": "人工盲測選題紀錄"
+  "blind": false,
+  "review_packet_key": "runs/company-landing-001/review-packet.json",
+  "evidence_ledger_key": "runs/company-landing-001/evidence-ledger.json",
+  "rationale": "已檢查 evidence ledger，接受本次 AI Top 3。",
+  "note": "human review gate 決策紀錄"
 }
 ```
 
@@ -263,7 +292,41 @@ aws dynamodb scan `
   --region ap-southeast-1
 ```
 
-## 12. 常見卡點
+`decision` 支援：
+
+- `approve`：接受 AI Top 3。
+- `reject`：拒絕本次推薦，需在 `rationale` 說明原因。
+- `override`：以 `picked_ids` 提供人類改選結果。
+- `comment`：只留言，決策維持 pending。
+
+## 12. 本地 Evaluation Harness
+
+若要在沒有 AWS credential 或 API key 的情況下檢查核心品質：
+
+```powershell
+python tools/evaluation_harness.py --out tools/out/benchmark
+```
+
+通過時會產生：
+
+```text
+tools/out/benchmark/benchmark-report.md
+tools/out/benchmark/benchmark-report.json
+```
+
+目前品質閘門檢查：
+
+- Top 3 是否存在。
+- 每個 final row 是否完成 full flow。
+- Top 3 是否有 source URL。
+- Top 3 是否具備中高等級 evidence confidence。
+- `review-packet.json` 是否要求人類 approve / reject / override / comment。
+- `decision-layer.json` 是否產出 `decision_score` 與 `recommended_action`。
+- `feedback-stats.json` 是否誠實標註樣本量不足，避免誤稱已完成 ML 訓練。
+- `audit-packet.json` 是否彙整本次 run 的治理檢查。
+- 公司帳戶版 blocked 的 Bedrock 候選是否已在 L0 被排除。
+
+## 13. 常見卡點
 
 | 問題 | 常見原因 | 處理方式 |
 |---|---|---|
@@ -273,8 +336,11 @@ aws dynamodb scan `
 | S3/S4 沒有真的呼叫 LLM | Secret 仍是佔位字串或 key 無效 | 更新 Secrets Manager key |
 | 報價超過上限 | `MAX_RUN_USD` 太低或候選數增加 | 確認預算後用 `-c max_run_usd=...` 調整 |
 | 找不到報告 URL | 公司版不用 CloudFront | 從 S3 下載，或看 S5 output 的 presigned URL |
+| report 顯示 awaiting_human_review | 這是新版 human review gate 的預期狀態 | 呼叫 `recordhumanpick` 記錄 approve / reject / override / comment |
+| feedback-stats 顯示 `insufficient_for_ml_training` | human review log 還太少 | 這是正確揭露；累積多日 review 後再討論 ML calibration |
+| evaluation harness 失敗 | fixtures、scoring、review packet 或 L0 規則被改壞 | 查看 `tools/out/benchmark/benchmark-report.md` 的 FAIL 項目 |
 
-## 13. 清理資源
+## 14. 清理資源
 
 落地驗證後若不保留環境：
 

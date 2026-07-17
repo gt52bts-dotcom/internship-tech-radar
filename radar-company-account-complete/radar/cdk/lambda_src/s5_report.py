@@ -1,8 +1,8 @@
 """Step 5 Lambda: produce the final report and select Top-3 by average score."""
 from decimal import Decimal
 
-from common import key, log_pick, presigned_url, read_json, response, run_id_from_event, step_timer, write_html, write_json, write_text
-from pipeline_lib import build_report, cost_estimate_yaml, final_rows
+from common import key, log_pick, presigned_url, read_json, read_pick_logs, response, run_id_from_event, step_timer, write_html, write_json, write_text
+from pipeline_lib import build_audit_packet, build_decision_layer, build_evidence_ledger, build_feedback_stats, build_report, build_review_packet, cost_estimate_yaml, final_rows
 
 
 def handler(event, context):
@@ -18,6 +18,14 @@ def handler(event, context):
         quote = None
 
     rows = final_rows(s3, s4)
+    evidence_key = key(run_id, "evidence-ledger.json")
+    review_key = key(run_id, "review-packet.json")
+    decision_key = key(run_id, "decision-layer.json")
+    feedback_key = key(run_id, "feedback-stats.json")
+    audit_key = key(run_id, "audit-packet.json")
+    report_key = key(run_id, "report.html")
+    evidence_ledger = build_evidence_ledger(run_id, s1, s2, s3, s4, rows)
+    review_packet = build_review_packet(run_id, rows, evidence_key, report_key)
 
     # --- RQ2：AI 端處理時間彙整（誠實量測：wall-clock + 推論 + token）---
     step_timings = {name: data.get("timing", {}) for name, data in [("s1", s1), ("s2", s2), ("s3", s3), ("s4", s4)]}
@@ -66,10 +74,23 @@ def handler(event, context):
         "evaluator_model": s3.get("evaluator_model", ""),
         "validator_model": s4.get("validator_model", ""),
     }
+    feedback_stats = build_feedback_stats(read_pick_logs())
+    decision_layer = build_decision_layer(run_id, rows, evidence_ledger, agreement=agreement, feedback_stats=feedback_stats)
+    artifact_keys = {
+        "summary_key": key(run_id, "s5_report.json"),
+        "report_key": report_key,
+        "evidence_ledger_key": evidence_key,
+        "review_packet_key": review_key,
+        "decision_layer_key": decision_key,
+        "feedback_stats_key": feedback_key,
+        "audit_packet_key": audit_key,
+        "cost_key": key(run_id, "cost-estimate.yaml"),
+    }
+    audit_packet = build_audit_packet(run_id, artifact_keys, quote or {}, rq2, agreement, evidence_ledger, review_packet, decision_layer, feedback_stats)
 
     summary = {
         "step": "s5_report",
-        "selection_rule": "Top 3 by average evaluator/validator score after all five steps",
+        "selection_rule": "Top 3 by average evaluator/validator score after all five steps; decision-layer recommendations are attached for governance review",
         "rq2_timing": rq2,
         "agreement": agreement,
         "top3": [
@@ -83,6 +104,13 @@ def handler(event, context):
             }
             for item in rows[:3]
         ],
+        "evidence_ledger_key": evidence_key,
+        "review_packet_key": review_key,
+        "decision_layer_key": decision_key,
+        "feedback_stats_key": feedback_key,
+        "audit_packet_key": audit_key,
+        "decision_top3": decision_layer["top3"],
+        "human_review_status": "awaiting_human_review",
         "all_scores": [
             {
                 "id": item["id"],
@@ -95,13 +123,29 @@ def handler(event, context):
             for item in rows
         ],
     }
-    summary_key = key(run_id, "s5_report.json")
-    report_key = key(run_id, "report.html")
-    cost_key = key(run_id, "cost-estimate.yaml")
+    summary_key = artifact_keys["summary_key"]
+    cost_key = artifact_keys["cost_key"]
     latest_key = "reports/latest.html"
     latest_cost_key = "reports/cost-estimate.yaml"
-    html = build_report(run_id, s1, s2, s3, s4, research={"agreement": agreement, "rq2_timing": rq2})
+    html = build_report(
+        run_id,
+        s1,
+        s2,
+        s3,
+        s4,
+        research={"agreement": agreement, "rq2_timing": rq2},
+        evidence_ledger=evidence_ledger,
+        review_packet=review_packet,
+        decision_layer=decision_layer,
+        feedback_stats=feedback_stats,
+        audit_packet=audit_packet,
+    )
     cost_yaml = cost_estimate_yaml()
+    write_json(evidence_key, evidence_ledger)
+    write_json(review_key, review_packet)
+    write_json(decision_key, decision_layer)
+    write_json(feedback_key, feedback_stats)
+    write_json(audit_key, audit_packet)
     write_json(summary_key, summary)
     write_html(report_key, html)
     write_html(latest_key, html)
@@ -127,6 +171,12 @@ def handler(event, context):
         "evaluator_model": s3.get("evaluator_model", ""),
         "validator_model": s4.get("validator_model", ""),
         "report_key": report_key,
+        "evidence_ledger_key": evidence_key,
+        "review_packet_key": review_key,
+        "decision_layer_key": decision_key,
+        "feedback_stats_key": feedback_key,
+        "audit_packet_key": audit_key,
+        "review_status": "awaiting_human_review",
     })
 
     report_url = presigned_url(report_key)
@@ -134,5 +184,17 @@ def handler(event, context):
         run_id,
         "s5_report",
         report_key,
-        {"summary_key": summary_key, "cost_key": cost_key, "latest_key": latest_key, "latest_cost_key": latest_cost_key, "report_url": report_url},
+        {
+            "summary_key": summary_key,
+            "evidence_ledger_key": evidence_key,
+            "review_packet_key": review_key,
+            "decision_layer_key": decision_key,
+            "feedback_stats_key": feedback_key,
+            "audit_packet_key": audit_key,
+            "cost_key": cost_key,
+            "latest_key": latest_key,
+            "latest_cost_key": latest_cost_key,
+            "report_url": report_url,
+            "human_review_status": "awaiting_human_review",
+        },
     )

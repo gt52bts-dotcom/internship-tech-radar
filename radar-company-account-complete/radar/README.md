@@ -65,10 +65,48 @@ v3 技術雷達把每日雲端技術情報流程拆成三層：
 ```text
 s3://<bucket>/runs/<run_id>/quotation.json
 s3://<bucket>/runs/<run_id>/quotation.html
+s3://<bucket>/runs/<run_id>/evidence-ledger.json
+s3://<bucket>/runs/<run_id>/review-packet.json
+s3://<bucket>/runs/<run_id>/decision-layer.json
+s3://<bucket>/runs/<run_id>/feedback-stats.json
+s3://<bucket>/runs/<run_id>/audit-packet.json
 s3://<bucket>/runs/<run_id>/report.html
 s3://<bucket>/runs/<run_id>/cost-estimate.yaml
 s3://<bucket>/reports/latest.html
 s3://<bucket>/reports/cost-estimate.yaml
+```
+
+## Decision Intelligence 升級
+
+v3 現在不只是產生每日 Top 3，而是把 AI 推薦升級成可審查的技術決策流程：
+
+- Evidence Ledger：`evidence-ledger.json` 會替每個候選保存來源、摘要、L1/L2/validator 分數、企業案例、cross-cloud 對照、治理旗標與完整流程 trace。
+- Human Review Gate：`review-packet.json` 將 AI Top 3 標記為 `awaiting_human_review`，要求 reviewer 以 approve / reject / override / comment 留下決策紀錄。
+- Evaluation Harness：`tools/evaluation_harness.py` 可用 packaged fixtures 離線 replay，檢查 Top 3、證據完整度、review packet 與 Bedrock-blocking 規則是否仍然正常。
+- Algorithmic Decision Layer：`decision-layer.json` 使用可解釋加權政策整合平均分、證據強度、企業案例、治理旗標與 human feedback signal，輸出 `decision_score` 與 `recommended_action`。這不是已訓練 ML 模型。
+- Feedback Statistics：`feedback-stats.json` 彙整 DynamoDB 的 AI/human decision logs，計算 approval / override / review time / AI-human overlap；資料量不足時會標示 `insufficient_for_ml_training`。
+- Audit Packet：`audit-packet.json` 彙整本次 run 的 artifact keys、quote gate、LLM token、decision layer、feedback sample status 與待審查事項。
+
+本地離線驗證：
+
+```powershell
+python tools/evaluation_harness.py --out tools/out/benchmark
+```
+
+公司帳戶執行後的人類審查 payload 範例：
+
+```json
+{
+  "run_id": "company-landing-001",
+  "reviewer": "reviewer-name",
+  "decision": "approve",
+  "picked_ids": ["A03", "A04", "A10"],
+  "human_minutes": 15,
+  "blind": false,
+  "review_packet_key": "runs/company-landing-001/review-packet.json",
+  "evidence_ledger_key": "runs/company-landing-001/evidence-ledger.json",
+  "rationale": "已檢查 evidence ledger，接受本次 AI Top 3。"
+}
 ```
 
 ## 部署摘要
@@ -93,7 +131,7 @@ cdk deploy cathay-techintel-v3-data cathay-techintel-v3-secrets cathay-techintel
 aws secretsmanager put-secret-value `
   --profile intern `
   --secret-id cathay-techintel-v3/anthropic-api-key `
-  --secret-string "sk-ant-YOUR_REAL_KEY" `
+  --secret-string "REPLACE_WITH_APPROVED_ANTHROPIC_KEY" `
   --region ap-southeast-1
 ```
 

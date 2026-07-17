@@ -4,17 +4,17 @@
 
 ## 最新狀態
 
-- 累積總分：70 分
-- 最新日期：2026-07-16
-- 今日重點：公司 AWS 帳戶 Step Functions pipeline 全流程跑通，並把 Anthropic API key 失敗情境改為 API-first with rubric fallback。
+- 累積總分：105 分
+- 最新日期：2026-07-17
+- 今日重點：純 CloudFormation 公司帳戶部署成功，Step Functions `company-cfn-001` 端到端成功，並補上 evidence/review/decision/audit artifacts。
 
 | Skill | 說明 | 累積分數 | 最新變化 |
 |---|---|---:|---|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 8 | 今日無新增，主軸轉向部署驗證。 |
-| Skill 2｜比較 | 候選技術比較、案例對照 | 9 | 今日無新增，既有比較結果被後續 pipeline 使用。 |
-| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 16 | 新增 Anthropic API-first fallback，invalid key 時可回到 rubric-only。 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 17 | 修正 S3、IAM、logging、handler 等部署問題並 redrive 成功。 |
-| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 20 | Step Functions 產出 report，並修正 HR 雙週工作週誌格式。 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 15 | CloudFormation 版流程完成真實 RSS 掃描輸出。 |
+| Skill 2｜比較 | 候選技術比較、案例對照 | 17 | S2 比較、Quote gate 與 Decision Layer 串接。 |
+| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 23 | 新增 Evidence Ledger、Human Review、Decision Layer、Feedback Stats 與 Audit Packet。 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 26 | CloudFormation stack `CREATE_COMPLETE` 且 Step Functions `company-cfn-001` 成功。 |
+| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 24 | 新版報告 artifact、7 頁部會簡報與 AI 執行軌跡完成整理。 |
 
 ## 每日分數
 
@@ -23,7 +23,8 @@
 | 2026-07-13 | 4 | 4 | 4 | 4 | 5 | 21 |
 | 2026-07-14 | 2 | 3 | 4 | 3 | 2 | 14 |
 | 2026-07-15 | 2 | 2 | 2 | 3 | 5 | 14 |
-| 2026-07-16 | 0 | 0 | 6 | 7 | 8 | 21 |
+| 2026-07-16 | 3 | 3 | 5 | 7 | 5 | 23 |
+| 2026-07-17 | 4 | 5 | 8 | 9 | 7 | 33 |
 
 ## 檔案
 

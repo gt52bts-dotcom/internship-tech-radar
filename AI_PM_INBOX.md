@@ -101,7 +101,7 @@
 - 積分：當日總分 +23，累積總分 72。
 - 目標對齊：直接扣回五個 Skill 目標。
 
-## 2026-07-17｜17:00 前暫存
+## 2026-07-17｜已統整至 `logs/daily/work-log-2026-07-17.md`
 
 - 使用者決定因 CDK deploy 卡在公司 Organizations SCP（`ssm:GetParameter` 讀取 `/cdk-bootstrap/hnb659fds/version` 被 explicit deny），改採純 CloudFormation 方案以避開 CDK bootstrap / asset publishing roles。
 - 已新增 `radar-company-account-complete/radar/manual-cloudformation/cathay-techintel-v3.yaml`，作為 `ap-southeast-1` 專用 CloudFormation template；內容建立 S3 data bucket、DynamoDB pick log、可選 Secrets Manager secret、Lambda execution role、Lambda layer、7 個 Lambda function、Step Functions state machine、CloudWatch log groups 與預設 disabled 的 EventBridge Scheduler。
@@ -123,8 +123,37 @@
 - 驗證：不寫 `.pyc` 的 source compile 通過 `pipeline_lib.py`、`s5_report.py`、`record_human_pick.py`、`evaluation_harness.py`；`python radar-company-account-complete/radar/tools/evaluation_harness.py --out radar-company-account-complete/radar/tools/out/benchmark` 通過，quality gate=pass，Top 3 為 A03、A04、A10。
 - 使用者回報在 S3 Console 看不到報告；依截圖判斷 `report.html` 與 `evidence-ledger.json` 已成功產出於 `runs/2026-07-17T01-08-13.216Z/`，但目前停在 S3 object Properties 頁，且 bucket 為 private，直接開 Object URL 會受 bucket policy / Block Public Access 影響。處理建議：使用 Console 的 `Open` 或 `Download`，不要為了看報告改成 public；後續 human review payload 的 run_id 應改用實際 run id `2026-07-17T01-08-13.216Z`。
 - 使用者提供下載後的 `C:\Users\youhs\Downloads\report.html`；已確認新版報告成功包含 `Evidence Ledger`、`Human Review Gate`、`awaiting_human_review`、Budget Quotation、Pipeline Funnel 與 Research disclosure。此 run 使用 RSS 真實來源，run id 為 `2026-07-17T01-08-13.216Z`，Top 3 IDs 為 `R-493965E0`、`R-07FA8EA4`、`R-28074DF1`。報告顯示 quote gate approve、估價 $0.0892，但實際 LLM token 為 0，代表本次仍是 fallback/rubric 路徑，不可敘述成真實 Anthropic API 評分已完成。
+- 使用者追問「Algorithmic Decision Layer」與「多日 human feedback 統計」後，已實作第二批 Decision Intelligence 升級：`decision-layer.json`、`feedback-stats.json`、`audit-packet.json`。
+- 已修改 `common.py` 新增 `read_pick_logs()` 與 Decimal 轉換，讓 S5 能掃描 DynamoDB `cathay-techintel-v3-picks-log` 的既有 AI/human logs 做輕量統計；已確認手動 Lambda policy 具備 `dynamodb:Scan`。
+- 已修改 `pipeline_lib.py`：新增 `build_feedback_stats()`、`build_decision_layer()`、`build_audit_packet()`；決策層採可解釋 weighted policy，整合 average score、evidence confidence、enterprise case、evaluator/validator agreement、governance flags 與 human feedback signal，並明確標示這不是已訓練 ML 模型。
+- 已修改 `s5_report.py`：每次 S5 會額外輸出 `decision-layer.json`、`feedback-stats.json`、`audit-packet.json`，並在 `s5_report.json` 與 Step Functions response 回傳對應 key。
+- 已更新 `README.md`、`DEPLOY.md` 與 `evaluation_harness.py`；離線 harness 現在會驗證 decision layer、feedback sample size honesty 與 audit packet。
+- 驗證：source compile 通過 `common.py`、`pipeline_lib.py`、`s5_report.py`、`evaluation_harness.py`；`python radar-company-account-complete/radar/tools/evaluation_harness.py --out radar-company-account-complete/radar/tools/out/benchmark` 通過，quality gate=pass。benchmark 顯示 decision layer Top 3 可與 raw average Top 3 不同，這是設計上用「可解釋決策分數」補強 raw score 的結果。
+- 已重新產生 `manual-lambda-zips/` 下 7 個 zip，並驗證 `s5_report.zip` 含 `decision_layer_key`、`feedback_stats_key`、`audit_packet_key`。下一步若要在公司 AWS 驗證第二批升級，需重新上傳新版 `s5_report.zip` 後重跑 Step Functions。
 - 使用者新增長期偏好：自 2026-07-17 起，AI 也要維護自己的每日執行軌跡，使用 Markdown，且不要寫成流水帳。已更新 `PROJECT_MEMORY.md` 與 `AI_PM_WORKFLOW.md`，並建立 `ai-execution-trace/daily/2026-07-17.md` 作為今日起始紀錄。
 - 使用者進一步指定今日 AI 執行軌跡需每小時記錄一次，且這是 AI 自身的執行軌跡，不需要寫專案前情提要；同時要求把使用者日誌與 AI 執行軌跡分不同目錄保存，並推送到同一個 GitHub 專案。目錄規劃更新為 `logs/daily/` 保存正式每日實習日誌，`ai-execution-trace/daily/` 保存 AI 每小時執行軌跡。
 - 已建立今天限定的每小時 heartbeat automation `2026-07-17-ai`，用於追加 `ai-execution-trace/daily/2026-07-17.md` 的當小時 AI 執行軌跡。
 - 已將根目錄巢狀 `internship-tech-radar/` 加入 `.gitignore`，避免後續 commit 誤納入重複 repository。
 - 目錄調整與 AI 執行軌跡已提交並推送到 GitHub `origin/main`，commit 為 `b2fdbb5 Organize logs and add AI execution trace`；遠端 `refs/heads/main` 已回報同一 commit hash。
+- 使用者在專案根目錄重新執行 `aws cloudformation validate-template --profile intern --region ap-southeast-1 --template-body file://cloudformation/cathay-techintel-v3.yaml`；第一次仍顯示 SCP explicit deny，但第二次成功回傳 template Parameters，表示目前 CloudFormation template 已通過 AWS 端 validate-template。下一步需處理 artifact zip 上傳與既有同名資源衝突風險。
+- 純 CloudFormation 部署第一次嘗試失敗，根因為 `PythonDependenciesLayer` 讀不到 `s3://cathay-techintel-v3-data-092211181371/artifacts/cathay-techintel-v3/lambda-layer.zip`（NoSuchKey），CloudFormation rollback 後已刪除 failed stack。
+- 已從 `radar-company-account-complete/radar/cdk` 產出並上傳 `lambda-code.zip` 與 `lambda-layer.zip` 至 `s3://cathay-techintel-v3-data-092211181371/artifacts/cathay-techintel-v3/`。
+- 重新部署 `cathay-techintel-v3-cfn` 成功，CloudFormation stack resources 全部 `CREATE_COMPLETE`，輸出包含 data bucket `cathay-techintel-v3-cfn-data-092211181371`、DynamoDB table `cathay-techintel-v3-cfn-picks-log` 與 state machine `arn:aws:states:ap-southeast-1:092211181371:stateMachine:cathay-techintel-v3-cfn-pipeline`。
+- 已啟動 Step Functions execution `company-cfn-001`；狀態 `SUCCEEDED`，S1 kept_count=27，S2 kept_count=6，Quote decision=approve、total_usd=0.0892，S3 evaluated_count=6，S4 validated_count=6，S5 產出 `report.html`、`s5_report.json`、`evidence-ledger.json`、`review-packet.json`、`decision-layer.json`、`feedback-stats.json`、`audit-packet.json` 與 `cost-estimate.yaml`。未在日誌保存 presigned URL 或 token。
+- 依使用者需求完成下週部會自我介紹簡報模板版，輸出 `outputs/部會自我介紹_王冠婷_模板版.pptx`，共 4 頁：個人背景、CIP 實習計畫摘要、下班後日常、基隆口袋地圖。
+- 使用者要求不要 AI 圖，因此最終模板版只沿用 `C:\Users\youhs\Downloads\IT簡報模板_v2.6_fin.pptx` 的公司模板風格與內建視覺元素，未插入先前生成的 AI 圖片。
+- 驗證：以純英文暫存檔重跑 `slides_test.py`，結果 `Test passed. No overflow detected.`；正式 PPTX 也已用 `render_slides.py` 渲染，並人工檢視第 1 至第 4 頁，確認中文字、模板 logo、卡片與頁面版面正常。模板內建 EMF 圖像曾在 artifact-tool 匯出時提示 unsupported，但正式渲染結果可見模板 logo 與視覺元素。
+- 候選分類：偏報告／對外溝通支援；主要支援 CIP 部會 onboarding 與個人介紹，不直接計入技術雷達核心五 Skill，正式 17:00 統整時再決定是否記為支援性成果。
+- 使用者更新下週部會自我介紹簡報需求：改為 7 頁，風格參考 `C:\Users\youhs\Downloads\Teal and grey Modern Pitch Deck Presentation.pdf`，首頁參考 `C:\Users\youhs\Downloads\Cleo.pdf`，並加入 AI PM、human-AI 角色定義、agentic organization 與人的工作軌跡／AI 執行軌跡。
+- 已完成新版 7 頁簡報 `outputs/部會自我介紹_王冠婷_AI_PM_7頁版.pptx`：第 1 頁首頁、第 2 頁個人背景、第 3 頁實習專案目標、第 4 頁 AI PM 角色、第 5 頁人與 AI 角色邊界、第 6 頁 agentic organization、第 7 頁下班後生活與基隆口袋地圖。
+- 內容壓縮策略：把 `AGENTS.md` 與 `AI_PM_WORKFLOW.md` 的工程規則轉成中文簡報語言，將 AI PM 定義為「質詢者、協作者、紀錄者、協調者」，並強調人類與 AI 互補、不互相取代。
+- 視覺處理：將 `Cleo.pdf` 首頁照片裁成左右視覺欄，其他頁採 teal/grey pitch deck 的大標、灰綠幾何背景、圓角資訊框與低密度排版。
+- 驗證：以純英文暫存檔執行 `slides_test.py` 通過，結果 `Test passed. No overflow detected.`；再用 `render_slides.py` 渲染 7 頁並人工檢視第 1、3、4、5、6、7 頁，修正第 3 頁 `Compare` 英文換行後重新匯出。
+- 候選分類：對外溝通／報告支援，支援 CIP 部會 onboarding 與 AI PM 概念說明；除非 17:00 統整時另有專案核心證據，不建議計入技術雷達核心五 Skill 分數。
+
+### 17:00 後判定結果
+
+- 對應 Skill：掃描 +4、比較 +5、評估 +8、驗證 +9、報告 +7。
+- 積分：當日總分 +33，累積總分 105。
+- 目標對齊：直接扣回五個 Skill 目標；部會自我介紹簡報屬報告／溝通支援，不單獨提高核心 Skill 分數。
+- 同步項目：已建立 Git 正式日誌、補回 7/13 至 7/16 AI 執行軌跡日總結，並更新 Git 版 Skill 儀表板資料。

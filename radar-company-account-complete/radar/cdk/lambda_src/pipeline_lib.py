@@ -285,7 +285,411 @@ def final_rows(s3_eval, s4_validate):
     return sorted(rows, key=lambda item: (-item["average_score"], -item["l2_score"]))
 
 
-def build_report(run_id, s1, s2, s3, s4, research=None):
+def governance_flags(article, validator_flags=None):
+    """Attach decision-governance flags that can be audited later."""
+    flags = list(validator_flags or [])
+    signals = article.get("signals", {})
+    if not article.get("url"):
+        flags.append("Missing source URL; evidence trace is incomplete.")
+    if not article.get("matched_cases"):
+        flags.append("Weak enterprise case evidence; require reviewer confirmation.")
+    if signals.get("risk", 0) >= 4:
+        flags.append("High risk score; human approval required before PoC.")
+    if signals.get("maturity", 5) <= 2:
+        flags.append("Low maturity; keep in Assess/Hold until stronger evidence appears.")
+    return sorted(set(flags))
+
+
+def evidence_confidence(article):
+    score = 0
+    if article.get("url"):
+        score += 1
+    if article.get("summary"):
+        score += 1
+    if article.get("matched_cases"):
+        score += 1
+    if article.get("reason") or article.get("llm_rationale"):
+        score += 1
+    if article.get("signals"):
+        score += 1
+    if score >= 5:
+        return "high"
+    if score >= 3:
+        return "medium"
+    return "low"
+
+
+def radar_ring(article):
+    """Map final scores to a familiar tech-radar decision language."""
+    flags = governance_flags(article, article.get("flags", []))
+    avg = article.get("average_score", 0)
+    if any("High risk" in flag or "Low maturity" in flag for flag in flags):
+        return "Assess"
+    if avg >= 4.3:
+        return "Adopt"
+    if avg >= 3.8:
+        return "Trial"
+    if avg >= 3.0:
+        return "Assess"
+    return "Hold"
+
+
+def build_evidence_ledger(run_id, s1, s2, s3, s4, rows):
+    """Build a machine-readable evidence chain for every surviving candidate."""
+    l1_by_id = {item["id"]: item for item in s2.get("articles", [])}
+    validator_by_id = {item["id"]: item for item in s4.get("rescored", [])}
+    candidates = []
+    for article in rows:
+        validator = validator_by_id.get(article["id"], {})
+        flags = governance_flags(article, validator.get("flags", []))
+        candidates.append(
+            {
+                "id": article["id"],
+                "title": article["title"],
+                "source": article.get("source", ""),
+                "source_url": article.get("url", ""),
+                "source_date": article.get("date", ""),
+                "summary": article.get("summary", ""),
+                "tags": article.get("tags", []),
+                "status": article.get("status", "unknown"),
+                "evidence_confidence": evidence_confidence(article),
+                "radar_ring": radar_ring({**article, "flags": flags}),
+                "scores": {
+                    "l1_relevance": l1_by_id.get(article["id"], {}).get("l1_score"),
+                    "l2_evaluator": article.get("l2_score"),
+                    "validator": validator.get("v_score"),
+                    "average": article.get("average_score"),
+                },
+                "rationale": {
+                    "rubric_reason": article.get("reason", ""),
+                    "llm_rationale": article.get("llm_rationale", ""),
+                    "validator_flags": validator.get("flags", []),
+                    "governance_flags": flags,
+                },
+                "evidence": {
+                    "matched_enterprise_cases": article.get("matched_cases", []),
+                    "cross_cloud_equivalents": article.get("cross_cloud", []),
+                    "signals": article.get("signals", {}),
+                },
+                "trace": {
+                    "s1_scan": {"source_mode": s1.get("source_mode"), "kept_count": s1.get("kept_count")},
+                    "s2_compare": {"kept_count": s2.get("kept_count"), "l1_ranked": article["id"] in l1_by_id},
+                    "s3_evaluate": {"mode": s3.get("mode"), "model": s3.get("evaluator_model")},
+                    "s4_validate": {"mode": s4.get("mode"), "model": s4.get("validator_model")},
+                    "s5_report": {"selection_rule": "Top 3 by average evaluator/validator score after all five steps"},
+                },
+            }
+        )
+    return {
+        "ledger_version": "1.0",
+        "run_id": run_id,
+        "purpose": "Auditable evidence ledger for AI-assisted technology radar decisions.",
+        "controls": {
+            "single_entry_flow": True,
+            "top3_after_full_flow": True,
+            "human_review_required_for_top3": True,
+            "review_actions": ["approve", "reject", "override", "comment"],
+        },
+        "pipeline_counts": {
+            "s1_input": s1.get("input_count"),
+            "s1_kept": s1.get("kept_count"),
+            "s2_kept": s2.get("kept_count"),
+            "s3_evaluated": s3.get("input_count"),
+            "s4_validated": len(s4.get("rescored", [])),
+        },
+        "candidates": candidates,
+    }
+
+
+def build_review_packet(run_id, rows, evidence_ledger_key, report_key):
+    top3 = rows[:3]
+    return {
+        "review_packet_version": "1.0",
+        "run_id": run_id,
+        "status": "awaiting_human_review",
+        "review_goal": "Approve, reject, override, or comment on the AI Top 3 before treating it as an implementation recommendation.",
+        "ai_top3": [
+            {
+                "rank": idx,
+                "id": item["id"],
+                "title": item["title"],
+                "average_score": item["average_score"],
+                "radar_ring": radar_ring(item),
+                "evidence_confidence": evidence_confidence(item),
+                "governance_flags": governance_flags(item, item.get("flags", [])),
+            }
+            for idx, item in enumerate(top3, 1)
+        ],
+        "required_reviewer_actions": {
+            "approve": "Accept AI Top 3 as the current daily recommendation.",
+            "reject": "Reject the AI Top 3 and record why.",
+            "override": "Provide a replacement picked_ids list and rationale.",
+            "comment": "Keep decision pending but add reviewer feedback.",
+        },
+        "record_human_pick_payload_example": {
+            "run_id": run_id,
+            "reviewer": "reviewer-name",
+            "decision": "approve",
+            "picked_ids": [item["id"] for item in top3],
+            "human_minutes": 15,
+            "blind": False,
+            "note": "Reviewed evidence ledger and accepted current Top 3.",
+        },
+        "artifacts": {
+            "report_key": report_key,
+            "evidence_ledger_key": evidence_ledger_key,
+        },
+    }
+
+
+def _as_id_list(value):
+    if not value:
+        return []
+    if isinstance(value, list):
+        ids = []
+        for item in value:
+            if isinstance(item, dict):
+                ids.append(str(item.get("id", "")))
+            else:
+                ids.append(str(item))
+        return [item for item in ids if item]
+    return [str(value)]
+
+
+def build_feedback_stats(pick_items):
+    """Summarize AI/human decision logs without pretending we have enough ML labels."""
+    by_run = {}
+    for item in pick_items or []:
+        run_id = str(item.get("run_id", ""))
+        if not run_id:
+            continue
+        by_run.setdefault(run_id, []).append(item)
+
+    ai_runs = 0
+    human_reviews = 0
+    approvals = 0
+    rejections = 0
+    overrides = 0
+    comment_only = 0
+    blind_reviews = 0
+    human_minutes = []
+    overlaps = []
+    approved_ids = {}
+    rejected_ids = {}
+
+    for items in by_run.values():
+        ai_items = [item for item in items if item.get("actor") == "ai"]
+        human_items = [item for item in items if item.get("actor") == "human"]
+        ai_runs += len(ai_items)
+        human_reviews += len(human_items)
+        for human in human_items:
+            decision = str(human.get("decision", "")).lower()
+            approvals += 1 if decision == "approve" else 0
+            rejections += 1 if decision == "reject" else 0
+            overrides += 1 if decision == "override" else 0
+            comment_only += 1 if decision == "comment" or human.get("review_status") == "comment_only" else 0
+            blind_reviews += 1 if human.get("blind") is True else 0
+            if human.get("human_minutes") not in (None, ""):
+                try:
+                    human_minutes.append(float(human.get("human_minutes", 0)))
+                except Exception:
+                    pass
+            picked_ids = _as_id_list(human.get("picked_ids"))
+            target = rejected_ids if decision == "reject" else approved_ids
+            for item_id in picked_ids:
+                target[item_id] = target.get(item_id, 0) + 1
+        if ai_items and human_items:
+            ai_top = set(_as_id_list(ai_items[-1].get("top3")))
+            for human in human_items:
+                human_top = set(_as_id_list(human.get("picked_ids")))
+                if ai_top and human_top:
+                    overlaps.append(round(len(ai_top & human_top) / min(3, len(ai_top)), 2))
+
+    avg_minutes = round(sum(human_minutes) / len(human_minutes), 2) if human_minutes else None
+    avg_overlap = round(sum(overlaps) / len(overlaps), 2) if overlaps else None
+    sample_status = "sufficient_for_trend" if human_reviews >= 5 else "insufficient_for_ml_training"
+    return {
+        "feedback_stats_version": "1.0",
+        "sample_status": sample_status,
+        "sample_note": (
+            "This is descriptive feedback telemetry, not a trained ML model. "
+            "Use it for trend evidence now; promote to ML calibration only after enough labeled human reviews accumulate."
+        ),
+        "counts": {
+            "runs_with_logs": len(by_run),
+            "ai_pick_logs": ai_runs,
+            "human_review_logs": human_reviews,
+            "approvals": approvals,
+            "rejections": rejections,
+            "overrides": overrides,
+            "comment_only": comment_only,
+            "blind_reviews": blind_reviews,
+        },
+        "metrics": {
+            "approval_rate": round(approvals / human_reviews, 2) if human_reviews else None,
+            "override_rate": round(overrides / human_reviews, 2) if human_reviews else None,
+            "average_human_review_minutes": avg_minutes,
+            "average_ai_human_top3_overlap": avg_overlap,
+        },
+        "signals": {
+            "approved_ids": approved_ids,
+            "rejected_ids": rejected_ids,
+        },
+    }
+
+
+def build_decision_layer(run_id, rows, evidence_ledger, agreement=None, feedback_stats=None):
+    """Explainable algorithmic decision layer above raw average score."""
+    agreement = agreement or {}
+    feedback_stats = feedback_stats or {}
+    candidates = {item["id"]: item for item in evidence_ledger.get("candidates", [])}
+    evaluator_top3 = set(agreement.get("evaluator_top3", []))
+    validator_top3 = set(agreement.get("validator_top3", []))
+    approved_ids = feedback_stats.get("signals", {}).get("approved_ids", {})
+    rejected_ids = feedback_stats.get("signals", {}).get("rejected_ids", {})
+    decisions = []
+
+    for row in rows:
+        evidence = candidates.get(row["id"], {})
+        flags = evidence.get("rationale", {}).get("governance_flags", [])
+        confidence = evidence.get("evidence_confidence", "low")
+        matched_cases = evidence.get("evidence", {}).get("matched_enterprise_cases", [])
+        bonuses = {}
+        penalties = {}
+        bonuses["evidence"] = {"high": 0.2, "medium": 0.1, "low": -0.25}.get(confidence, 0)
+        bonuses["enterprise_case"] = min(0.25, 0.06 * len(matched_cases))
+        bonuses["cross_validator_agreement"] = 0.15 if row["id"] in evaluator_top3 and row["id"] in validator_top3 else 0
+        if approved_ids.get(row["id"]):
+            bonuses["historical_human_approval"] = 0.2
+        elif rejected_ids.get(row["id"]):
+            bonuses["historical_human_approval"] = -0.2
+        else:
+            bonuses["historical_human_approval"] = 0
+        penalties["governance_flags"] = 0.12 * len(flags)
+        if any("High risk" in flag for flag in flags):
+            penalties["risk_gate"] = 0.45
+        else:
+            penalties["risk_gate"] = 0
+        if any("Low maturity" in flag for flag in flags):
+            penalties["maturity_gate"] = 0.35
+        else:
+            penalties["maturity_gate"] = 0
+
+        decision_score = round(row["average_score"] + sum(bonuses.values()) - sum(penalties.values()), 2)
+        if flags and decision_score >= 3.0:
+            recommended_action = "assess_with_human_review"
+        elif decision_score >= 4.35:
+            recommended_action = "adopt_candidate_after_review"
+        elif decision_score >= 3.75:
+            recommended_action = "trial_with_human_review"
+        elif decision_score >= 3.0:
+            recommended_action = "assess_watchlist"
+        else:
+            recommended_action = "hold"
+
+        why = []
+        if bonuses["cross_validator_agreement"]:
+            why.append("evaluator and validator both placed this candidate in Top 3")
+        if confidence == "high":
+            why.append("high evidence confidence")
+        if matched_cases:
+            why.append(f"{len(matched_cases)} matched enterprise evidence item(s)")
+        if not flags:
+            why.append("no blocking governance flag")
+        else:
+            why.extend(flags[:3])
+        if feedback_stats.get("sample_status") == "insufficient_for_ml_training":
+            why.append("human feedback sample is still descriptive, not enough for ML training")
+
+        decisions.append(
+            {
+                "id": row["id"],
+                "title": row["title"],
+                "average_score": row["average_score"],
+                "decision_score": decision_score,
+                "radar_ring": evidence.get("radar_ring", radar_ring(row)),
+                "evidence_confidence": confidence,
+                "recommended_action": recommended_action,
+                "score_components": {
+                    "base_average_score": row["average_score"],
+                    "bonuses": bonuses,
+                    "penalties": penalties,
+                },
+                "why": why,
+            }
+        )
+
+    decisions.sort(key=lambda item: (-item["decision_score"], item["id"]))
+    return {
+        "decision_layer_version": "1.0",
+        "run_id": run_id,
+        "method": "interpretable weighted decision policy",
+        "method_note": (
+            "This is an explainable algorithmic decision layer, not a trained ML model. "
+            "It combines evaluator/validator scores, evidence confidence, enterprise cases, governance flags, and available human feedback signals."
+        ),
+        "policy": {
+            "base": "average evaluator/validator score",
+            "positive_signals": ["evidence confidence", "enterprise case evidence", "evaluator-validator agreement", "historical human approval"],
+            "negative_signals": ["governance flags", "high risk", "low maturity", "historical rejection"],
+            "actions": ["adopt_candidate_after_review", "trial_with_human_review", "assess_with_human_review", "assess_watchlist", "hold"],
+        },
+        "top3": decisions[:3],
+        "all_decisions": decisions,
+    }
+
+
+def build_audit_packet(run_id, keys, quote, rq2, agreement, evidence_ledger, review_packet, decision_layer, feedback_stats):
+    top_actions = [item.get("recommended_action") for item in decision_layer.get("top3", [])]
+    blocking_flags = [
+        {"id": item["id"], "flags": item.get("rationale", {}).get("governance_flags", [])}
+        for item in evidence_ledger.get("candidates", [])
+        if item.get("rationale", {}).get("governance_flags")
+    ]
+    return {
+        "audit_packet_version": "1.0",
+        "run_id": run_id,
+        "status": "awaiting_human_review",
+        "trust_summary": {
+            "quote_decision": quote.get("decision") if quote else None,
+            "quoted_usd": quote.get("total_usd") if quote else None,
+            "actual_llm_usd": rq2.get("quote", {}).get("actual_llm_usd"),
+            "llm_tokens": rq2.get("tokens", {}),
+            "top3_overlap": agreement.get("top3_overlap"),
+            "feedback_sample_status": feedback_stats.get("sample_status"),
+            "recommended_actions": top_actions,
+        },
+        "artifact_keys": keys,
+        "checks": [
+            {"name": "evidence_ledger_created", "passed": bool(keys.get("evidence_ledger_key"))},
+            {"name": "review_packet_created", "passed": bool(keys.get("review_packet_key"))},
+            {"name": "decision_layer_created", "passed": bool(keys.get("decision_layer_key"))},
+            {"name": "feedback_stats_created", "passed": bool(keys.get("feedback_stats_key"))},
+            {"name": "quote_gate_allows_run", "passed": quote.get("decision") == "approve" if quote else False},
+            {"name": "human_review_pending", "passed": review_packet.get("status") == "awaiting_human_review"},
+        ],
+        "blocking_flags": blocking_flags,
+        "next_actions": [
+            "Record approve/reject/override/comment through recordhumanpick Lambda.",
+            "Use feedback-stats.json after multiple days to quantify agreement and override trends.",
+            "Treat decision-layer recommendations as explainable guidance until human review is complete.",
+        ],
+    }
+
+
+def build_report(
+    run_id,
+    s1,
+    s2,
+    s3,
+    s4,
+    research=None,
+    evidence_ledger=None,
+    review_packet=None,
+    decision_layer=None,
+    feedback_stats=None,
+    audit_packet=None,
+):
     rows = final_rows(s3, s4)
     if research:
         agr = research.get("agreement", {})
@@ -354,6 +758,87 @@ def build_report(run_id, s1, s2, s3, s4, research=None):
         for item in COST_ESTIMATE["services"]
     )
     excluded = "".join(f"<li>{html.escape(name)}</li>" for name in COST_ESTIMATE["excluded_services"])
+    if evidence_ledger:
+        evidence_rows = "".join(
+            "<tr>"
+            f"<td>{html.escape(c['id'])}</td>"
+            f"<td>{html.escape(c['evidence_confidence'])}</td>"
+            f"<td>{html.escape(c['radar_ring'])}</td>"
+            f"<td>{html.escape('; '.join(c['rationale']['governance_flags']) or 'No blocking flag')}</td>"
+            "</tr>"
+            for c in evidence_ledger.get("candidates", [])[:6]
+        )
+        evidence_block = (
+            "<h2>Evidence Ledger</h2>"
+            "<p>Every candidate now carries an auditable chain from source article to L1 relevance, L2 evaluator score, independent validator score, governance flags, and final radar-ring recommendation.</p>"
+            f"<table><tr><th>ID</th><th>Evidence</th><th>Ring</th><th>Governance flags</th></tr>{evidence_rows}</table>"
+        )
+    else:
+        evidence_block = ""
+    if review_packet:
+        review_rows = "".join(
+            "<tr>"
+            f"<td>{item['rank']}</td>"
+            f"<td>{html.escape(item['id'])}</td>"
+            f"<td>{html.escape(item['title'])}</td>"
+            f"<td>{item['average_score']}</td>"
+            f"<td>{html.escape(item['radar_ring'])}</td>"
+            "</tr>"
+            for item in review_packet.get("ai_top3", [])
+        )
+        review_block = (
+            "<h2>Human Review Gate</h2>"
+            "<p>Status: <b>awaiting_human_review</b>. A reviewer should record approve, reject, override, or comment through the human-pick Lambda before this becomes an implementation recommendation.</p>"
+            f"<table><tr><th>Rank</th><th>ID</th><th>Concept</th><th>Average</th><th>Ring</th></tr>{review_rows}</table>"
+        )
+    else:
+        review_block = ""
+    if decision_layer:
+        decision_rows = "".join(
+            "<tr>"
+            f"<td>{html.escape(item['id'])}</td>"
+            f"<td>{item['decision_score']}</td>"
+            f"<td>{html.escape(item['recommended_action'])}</td>"
+            f"<td>{html.escape('; '.join(item.get('why', [])[:3]))}</td>"
+            "</tr>"
+            for item in decision_layer.get("top3", [])
+        )
+        decision_block = (
+            "<h2>Algorithmic Decision Layer</h2>"
+            "<p>This layer applies an interpretable weighted decision policy above raw average score. It is not a trained ML model yet; human feedback logs are still being accumulated for future calibration.</p>"
+            f"<table><tr><th>ID</th><th>Decision score</th><th>Recommended action</th><th>Why</th></tr>{decision_rows}</table>"
+        )
+    else:
+        decision_block = ""
+    if feedback_stats:
+        counts = feedback_stats.get("counts", {})
+        metrics = feedback_stats.get("metrics", {})
+        feedback_block = (
+            "<h2>Human Feedback Statistics</h2>"
+            f"<p>Sample status: <b>{html.escape(str(feedback_stats.get('sample_status', 'unknown')))}</b>. "
+            "These are descriptive statistics for now, not ML training evidence.</p>"
+            "<table><tr><th>Metric</th><th>Value</th></tr>"
+            f"<tr><td>AI pick logs</td><td>{counts.get('ai_pick_logs', 0)}</td></tr>"
+            f"<tr><td>Human review logs</td><td>{counts.get('human_review_logs', 0)}</td></tr>"
+            f"<tr><td>Approvals / rejections / overrides</td><td>{counts.get('approvals', 0)} / {counts.get('rejections', 0)} / {counts.get('overrides', 0)}</td></tr>"
+            f"<tr><td>Average review minutes</td><td>{html.escape(str(metrics.get('average_human_review_minutes')))}</td></tr>"
+            f"<tr><td>Average AI-human Top3 overlap</td><td>{html.escape(str(metrics.get('average_ai_human_top3_overlap')))}</td></tr>"
+            "</table>"
+        )
+    else:
+        feedback_block = ""
+    if audit_packet:
+        checks = "".join(
+            f"<li>{html.escape(check['name'])}: {'PASS' if check.get('passed') else 'CHECK'}</li>"
+            for check in audit_packet.get("checks", [])
+        )
+        audit_block = (
+            "<h2>Audit Packet</h2>"
+            "<p>The audit packet summarizes whether this run has the artifacts needed for governance review.</p>"
+            f"<ul>{checks}</ul>"
+        )
+    else:
+        audit_block = ""
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -386,6 +871,11 @@ def build_report(run_id, s1, s2, s3, s4, research=None):
   {''.join(cards)}
   <h2>System Scoring Report</h2>
   <table><tr><th>ID</th><th>Concept</th><th>Evaluator</th><th>Validator</th><th>Average</th></tr>{all_rows}</table>
+  {decision_block}
+  {evidence_block}
+  {review_block}
+  {feedback_block}
+  {audit_block}
   <h2>Budget Quotation</h2>
   <p>This implementation is designed to stay within the USD {COST_ESTIMATE['budget_usd']} company-account landing-validation budget. Estimated monthly AWS cost for light usage is USD {COST_ESTIMATE['estimated_monthly_usd_range'][0]}-{COST_ESTIMATE['estimated_monthly_usd_range'][1]}. Amazon Bedrock and CloudFront are intentionally excluded, and Anthropic API calls are controlled by the per-run quote gate.</p>
   <table><tr><th>Service</th><th>Purpose</th><th>Estimate USD/month</th></tr>{cost_rows}</table>

@@ -1,0 +1,704 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Cathay Tech Intel v3 - pure CloudFormation deployment for ap-southeast-1"
+
+Rules:
+  SingaporeOnly:
+    Assertions:
+      - Assert: !Equals [!Ref "AWS::Region", "ap-southeast-1"]
+        AssertDescription: "Deploy this stack only in ap-southeast-1 (Singapore)."
+
+Parameters:
+  Prefix:
+    Type: String
+    Default: cathay-techintel-v3
+    Description: Resource name prefix.
+    AllowedPattern: "^[a-z0-9-]+$"
+
+  ArtifactBucket:
+    Type: String
+    Description: Existing S3 bucket that contains the Lambda code zip and Lambda layer zip.
+
+  LambdaCodeS3Key:
+    Type: String
+    Default: artifacts/cathay-techintel-v3/lambda-code.zip
+    Description: S3 key for the Lambda source code zip.
+
+  LambdaLayerS3Key:
+    Type: String
+    Default: artifacts/cathay-techintel-v3/lambda-layer.zip
+    Description: S3 key for the Lambda dependency layer zip. The zip must contain a top-level python/ folder.
+
+  ExistingAnthropicSecretArn:
+    Type: String
+    Default: ""
+    Description: Optional existing Secrets Manager secret ARN. Leave empty to let this stack create Prefix/anthropic-api-key.
+
+  InitialAnthropicSecretString:
+    Type: String
+    Default: "PLACEHOLDER_REPLACE_IN_SECRETS_MANAGER"
+    NoEcho: true
+    Description: Initial secret value only used when ExistingAnthropicSecretArn is empty.
+
+  MaxRunUsd:
+    Type: String
+    Default: "0.50"
+    Description: Per-run LLM budget limit in USD.
+
+  UseAnthropic:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: Whether Lambda should try api.anthropic.com before rubric fallback.
+
+  EnableSchedule:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: Enable the daily 08:00 Asia/Taipei EventBridge Scheduler run.
+
+Conditions:
+  UseExistingSecret: !Not [!Equals [!Ref ExistingAnthropicSecretArn, ""]]
+  CreateManagedSecret: !Equals [!Ref ExistingAnthropicSecretArn, ""]
+  ScheduleEnabled: !Equals [!Ref EnableSchedule, "true"]
+
+Resources:
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${Prefix}-data-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-run-artifacts
+            Status: Enabled
+            Prefix: runs/
+            ExpirationInDays: 90
+
+  PicksLogTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${Prefix}-picks-log"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: run_id
+          AttributeType: S
+        - AttributeName: pick_time
+          AttributeType: S
+      KeySchema:
+        - AttributeName: run_id
+          KeyType: HASH
+        - AttributeName: pick_time
+          KeyType: RANGE
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: expire_at
+        Enabled: true
+
+  AnthropicSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: CreateManagedSecret
+    Properties:
+      Name: !Sub "${Prefix}/anthropic-api-key"
+      Description: "Anthropic API key for Cathay Tech Intel v3. Replace this value after deployment."
+      SecretString: !Ref InitialAnthropicSecretString
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Prefix}-lambda-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${Prefix}-lambda-inline"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: AllowLambdaCloudWatchLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+              - Sid: AllowListDataBucket
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt DataBucket.Arn
+              - Sid: AllowReadWritePipelineObjects
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource: !Sub "${DataBucket.Arn}/*"
+              - Sid: AllowPickLogTableAccess
+                Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource: !GetAtt PicksLogTable.Arn
+              - Sid: AllowReadAnthropicSecret
+                Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !If
+                  - UseExistingSecret
+                  - !Ref ExistingAnthropicSecretArn
+                  - !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${Prefix}/anthropic-api-key-*"
+
+  PythonDependenciesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: !Sub "${Prefix}-deps"
+      Description: "anthropic + feedparser dependencies for Cathay Tech Intel v3"
+      CompatibleRuntimes:
+        - python3.12
+      Content:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaLayerS3Key
+
+  S1ScanLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-s1scan"
+      RetentionInDays: 14
+
+  S2CompareLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-s2compare"
+      RetentionInDays: 14
+
+  S2bQuoteLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-s2bquote"
+      RetentionInDays: 14
+
+  S3EvaluateLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-s3evaluate"
+      RetentionInDays: 14
+
+  S4ValidateLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-s4validate"
+      RetentionInDays: 14
+
+  S5ReportLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-s5report"
+      RetentionInDays: 14
+
+  RecordHumanPickLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-recordhumanpick"
+      RetentionInDays: 14
+
+  S1ScanFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: S1ScanLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-s1scan"
+      Runtime: python3.12
+      Handler: s1_scan.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Layers:
+        - !Ref PythonDependenciesLayer
+      MemorySize: 512
+      Timeout: 120
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DataBucket
+          PICKS_TABLE: !Ref PicksLogTable
+          ANTHROPIC_SECRET_ARN: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+          EVALUATOR_MODEL: claude-sonnet-4-5
+          VALIDATOR_MODEL: claude-haiku-4-5
+          USE_ANTHROPIC: !Ref UseAnthropic
+          MAX_RUN_USD: !Ref MaxRunUsd
+
+  S2CompareFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: S2CompareLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-s2compare"
+      Runtime: python3.12
+      Handler: s2_compare.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Layers:
+        - !Ref PythonDependenciesLayer
+      MemorySize: 512
+      Timeout: 120
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DataBucket
+          PICKS_TABLE: !Ref PicksLogTable
+          ANTHROPIC_SECRET_ARN: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+          EVALUATOR_MODEL: claude-sonnet-4-5
+          VALIDATOR_MODEL: claude-haiku-4-5
+          USE_ANTHROPIC: !Ref UseAnthropic
+          MAX_RUN_USD: !Ref MaxRunUsd
+
+  S2bQuoteFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: S2bQuoteLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-s2bquote"
+      Runtime: python3.12
+      Handler: s2b_quote.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Layers:
+        - !Ref PythonDependenciesLayer
+      MemorySize: 256
+      Timeout: 60
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DataBucket
+          PICKS_TABLE: !Ref PicksLogTable
+          ANTHROPIC_SECRET_ARN: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+          EVALUATOR_MODEL: claude-sonnet-4-5
+          VALIDATOR_MODEL: claude-haiku-4-5
+          USE_ANTHROPIC: !Ref UseAnthropic
+          MAX_RUN_USD: !Ref MaxRunUsd
+
+  S3EvaluateFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: S3EvaluateLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-s3evaluate"
+      Runtime: python3.12
+      Handler: s3_evaluate.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Layers:
+        - !Ref PythonDependenciesLayer
+      MemorySize: 512
+      Timeout: 600
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DataBucket
+          PICKS_TABLE: !Ref PicksLogTable
+          ANTHROPIC_SECRET_ARN: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+          EVALUATOR_MODEL: claude-sonnet-4-5
+          VALIDATOR_MODEL: claude-haiku-4-5
+          USE_ANTHROPIC: !Ref UseAnthropic
+          MAX_RUN_USD: !Ref MaxRunUsd
+
+  S4ValidateFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: S4ValidateLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-s4validate"
+      Runtime: python3.12
+      Handler: s4_validate.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Layers:
+        - !Ref PythonDependenciesLayer
+      MemorySize: 512
+      Timeout: 600
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DataBucket
+          PICKS_TABLE: !Ref PicksLogTable
+          ANTHROPIC_SECRET_ARN: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+          EVALUATOR_MODEL: claude-sonnet-4-5
+          VALIDATOR_MODEL: claude-haiku-4-5
+          USE_ANTHROPIC: !Ref UseAnthropic
+          MAX_RUN_USD: !Ref MaxRunUsd
+
+  S5ReportFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: S5ReportLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-s5report"
+      Runtime: python3.12
+      Handler: s5_report.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Layers:
+        - !Ref PythonDependenciesLayer
+      MemorySize: 512
+      Timeout: 120
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DataBucket
+          PICKS_TABLE: !Ref PicksLogTable
+          ANTHROPIC_SECRET_ARN: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+          EVALUATOR_MODEL: claude-sonnet-4-5
+          VALIDATOR_MODEL: claude-haiku-4-5
+          USE_ANTHROPIC: !Ref UseAnthropic
+          MAX_RUN_USD: !Ref MaxRunUsd
+
+  RecordHumanPickFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: RecordHumanPickLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-recordhumanpick"
+      Runtime: python3.12
+      Handler: record_human_pick.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ArtifactBucket
+        S3Key: !Ref LambdaCodeS3Key
+      Layers:
+        - !Ref PythonDependenciesLayer
+      MemorySize: 256
+      Timeout: 30
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref DataBucket
+          PICKS_TABLE: !Ref PicksLogTable
+          ANTHROPIC_SECRET_ARN: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+          EVALUATOR_MODEL: claude-sonnet-4-5
+          VALIDATOR_MODEL: claude-haiku-4-5
+          USE_ANTHROPIC: !Ref UseAnthropic
+          MAX_RUN_USD: !Ref MaxRunUsd
+
+  StateMachineLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/vendedlogs/states/${Prefix}-pipeline"
+      RetentionInDays: 14
+
+  StepFunctionsExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Prefix}-sfn-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${Prefix}-sfn-inline"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: InvokeTechIntelPipelineLambdas
+                Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource:
+                  - !GetAtt S1ScanFunction.Arn
+                  - !Sub "${S1ScanFunction.Arn}:*"
+                  - !GetAtt S2CompareFunction.Arn
+                  - !Sub "${S2CompareFunction.Arn}:*"
+                  - !GetAtt S2bQuoteFunction.Arn
+                  - !Sub "${S2bQuoteFunction.Arn}:*"
+                  - !GetAtt S3EvaluateFunction.Arn
+                  - !Sub "${S3EvaluateFunction.Arn}:*"
+                  - !GetAtt S4ValidateFunction.Arn
+                  - !Sub "${S4ValidateFunction.Arn}:*"
+                  - !GetAtt S5ReportFunction.Arn
+                  - !Sub "${S5ReportFunction.Arn}:*"
+              - Sid: AllowStepFunctionsLogging
+                Effect: Allow
+                Action:
+                  - logs:CreateLogDelivery
+                  - logs:GetLogDelivery
+                  - logs:UpdateLogDelivery
+                  - logs:DeleteLogDelivery
+                  - logs:ListLogDeliveries
+                  - logs:PutResourcePolicy
+                  - logs:DescribeResourcePolicies
+                  - logs:DescribeLogGroups
+                Resource: "*"
+
+  PipelineStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: !Sub "${Prefix}-pipeline"
+      RoleArn: !GetAtt StepFunctionsExecutionRole.Arn
+      LoggingConfiguration:
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt StateMachineLogGroup.Arn
+        IncludeExecutionData: true
+        Level: ALL
+      DefinitionString: !Sub |
+        {
+          "Comment": "Cathay Tech Intel v3 pure CloudFormation Step Functions definition",
+          "StartAt": "RunIdProvided?",
+          "States": {
+            "RunIdProvided?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.run_id",
+                  "IsPresent": true,
+                  "Next": "Task_S1"
+                }
+              ],
+              "Default": "GenerateRunId"
+            },
+            "GenerateRunId": {
+              "Type": "Pass",
+              "Parameters": {
+                "run_id.$": "$$.Execution.StartTime"
+              },
+              "Next": "Task_S1"
+            },
+            "Task_S1": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "${Prefix}-s1scan",
+                "Payload": {
+                  "run_id.$": "$.run_id"
+                }
+              },
+              "ResultPath": "$.s1",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Task_S2"
+            },
+            "Task_S2": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "${Prefix}-s2compare",
+                "Payload": {
+                  "run_id.$": "$.run_id"
+                }
+              },
+              "ResultPath": "$.s2",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Task_Quote"
+            },
+            "Task_Quote": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "${Prefix}-s2bquote",
+                "Payload": {
+                  "run_id.$": "$.run_id"
+                }
+              },
+              "ResultPath": "$.quote",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "QuoteApproved?"
+            },
+            "QuoteApproved?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.quote.Payload.decision",
+                  "StringEquals": "approve",
+                  "Next": "Task_S3"
+                }
+              ],
+              "Default": "OverBudget_RubricMode"
+            },
+            "OverBudget_RubricMode": {
+              "Type": "Pass",
+              "Comment": "Quote exceeds MAX_RUN_USD: S3/S4 will use rubric fallback.",
+              "Next": "Task_S3"
+            },
+            "Task_S3": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "${Prefix}-s3evaluate",
+                "Payload": {
+                  "run_id.$": "$.run_id"
+                }
+              },
+              "ResultPath": "$.s3",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Task_S4"
+            },
+            "Task_S4": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "${Prefix}-s4validate",
+                "Payload": {
+                  "run_id.$": "$.run_id"
+                }
+              },
+              "ResultPath": "$.s4",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "Next": "Task_S5"
+            },
+            "Task_S5": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName": "${Prefix}-s5report",
+                "Payload": {
+                  "run_id.$": "$.run_id"
+                }
+              },
+              "ResultPath": "$.s5",
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "End": true
+            }
+          }
+        }
+
+  SchedulerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Prefix}-scheduler-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "${Prefix}-scheduler-inline"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: states:StartExecution
+                Resource: !Ref PipelineStateMachine
+
+  DailySchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: !Sub "${Prefix}-daily"
+      ScheduleExpression: "cron(0 8 * * ? *)"
+      ScheduleExpressionTimezone: Asia/Taipei
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      State: !If [ScheduleEnabled, ENABLED, DISABLED]
+      Target:
+        Arn: !Ref PipelineStateMachine
+        RoleArn: !GetAtt SchedulerExecutionRole.Arn
+        Input: '{"scheduled": true}'
+
+Outputs:
+  DataBucketName:
+    Description: Private S3 bucket for pipeline inputs, run artifacts, and reports.
+    Value: !Ref DataBucket
+
+  PicksTableName:
+    Description: DynamoDB human/AI pick log table.
+    Value: !Ref PicksLogTable
+
+  AnthropicSecretId:
+    Description: Existing secret ARN or stack-managed secret id.
+    Value: !If [UseExistingSecret, !Ref ExistingAnthropicSecretArn, !Ref AnthropicSecret]
+
+  StateMachineArn:
+    Description: Step Functions state machine ARN.
+    Value: !Ref PipelineStateMachine
+
+  StartCommand:
+    Description: Manual command to start one pipeline execution in Singapore.
+    Value: !Sub "aws stepfunctions start-execution --state-machine-arn ${PipelineStateMachine} --input '{\"run_id\":\"company-cfn-001\"}' --region ap-southeast-1"
+
+  RecordHumanPickFunctionName:
+    Description: Lambda function for approve/reject/override/comment human review records.
+    Value: !Ref RecordHumanPickFunction
