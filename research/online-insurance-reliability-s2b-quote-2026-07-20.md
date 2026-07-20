@@ -92,3 +92,5 @@ S2b 報價通過後，S3 應評估：
 - 是否能取得一條不付款、不出單、不碰 PII 的測試 journey。
 - 是否能建立最少 2 至 6 個 alarm，並定義通知對象與 runbook。
 - 是否需要公司安全或法遵確認 canary 測試資料與執行頻率。
+
+已完成 S3 評估文件：`research/online-insurance-reliability-s3-evaluate-2026-07-20.md`。
