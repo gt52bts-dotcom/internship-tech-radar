@@ -171,3 +171,4 @@
 - 使用者進一步定義技術雷達的第一層級：先由 GUI / 需求表單輸入應用端問題、舊方法限制、條件與成功標準，再啟動 S1-S5。已更新 `PROJECT_MEMORY.md` 與 `research/online-insurance-reliability-radar-poc.md`，將 S0 定義為 `Demand Input`，避免雷達無邊界掃描造成白做。
 - 使用者指出自己不一定知道公司實際遇到什麼問題；已將技術雷達前置層補為 `S-1 Problem Discovery`，先以低侵入、非敏感來源整理問題候選，待人類確認後才進入 S0 需求卡，避免把推測當成公司真實痛點。
 - 使用者詢問 S0 是否需要導入 LLM API key 對外搜尋；已決定 S0 不直接外搜，只可選擇性用 LLM 協助需求整理、追問缺漏與敏感資訊檢查。真正外部搜尋與技術蒐集放在 S1，且需等 S0 需求卡經人類確認後才啟動；API key 必須只放後端或 Secrets Manager。
+- 已執行線上投保穩定性 S1 網路掃描，查找 AWS Blog、AWS 官方文件與 GitHub 類似案例；新增 `research/online-insurance-reliability-s1-scan-2026-07-20.md`。初步判斷最值得借鏡的是 CloudWatch Synthetics / Playwright canary + incident evidence，Application Signals / Resilience Hub / FIS 作為後續有內部架構權限時的第二階段。
