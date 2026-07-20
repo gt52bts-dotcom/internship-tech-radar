@@ -157,3 +157,11 @@
 - 積分：當日總分 +33，累積總分 105。
 - 目標對齊：直接扣回五個 Skill 目標；部會自我介紹簡報屬報告／溝通支援，不單獨提高核心 Skill 分數。
 - 同步項目：已建立 Git 正式日誌、補回 7/13 至 7/16 AI 執行軌跡日總結，並更新 Git 版 Skill 儀表板資料。
+
+## 2026-07-20｜17:00 前暫存
+
+- 使用者要求延續今日建議的三項工作：整理 final proposal 的 7/17 成果素材、補專案執行軌跡圖、建立 demo checklist。
+- 已新增 `final-proposal/7-17成果素材.md`，把 7/17 CloudFormation stack、Step Functions `company-cfn-001`、Evidence/Review/Decision/Audit artifacts、evaluation harness、fallback/rubric 限制整理成可直接放進 final proposal 的素材。
+- 已更新 `final-proposal/簡報架構與執行軌跡.md`，將原本停在公司帳戶手動部署的狀態，改成 CloudFormation 可重建部署、`company-cfn-001 SUCCEEDED` 與治理 artifacts 的最新軌跡。
+- 已新增 `final-proposal/demo-checklist.md`，整理 demo 前檢查、展示路線、要打開的檔案、已驗證與待驗證限制；明確標示本次仍是 fallback/rubric 路徑，不可宣稱正式 Anthropic API 評分完成。
+- 已建立 `ai-execution-trace/daily/2026-07-20.md`，記錄本小時 AI 執行軌跡。
