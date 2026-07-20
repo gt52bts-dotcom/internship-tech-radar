@@ -109,3 +109,5 @@ S2 分數是中間比較，不是最終採用分數。最終 Top 3 應在 S2b Qu
 - `frontend_js_error` 可定位到前端錯誤。
 
 下一步進入 S2b Quote：估算若正式 AWS 化，依 canary 頻率、保留報告、CloudWatch alarms、Lambda incident packet 執行次數所需的基本成本。
+
+已完成 S2b 報價文件：`research/online-insurance-reliability-s2b-quote-2026-07-20.md`。
