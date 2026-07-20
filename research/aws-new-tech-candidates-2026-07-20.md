@@ -4,15 +4,19 @@
 
 先挑出可以接到目前 Tech Radar / AI PM 專案的 AWS 新技術與範例報導，並把「今天能不能實際驗證一次」講清楚。優先選擇能產生可截圖、可寫進 final proposal、可放進 demo checklist 的材料。
 
+## 選題限制
+
+公司目前無法使用 Amazon Bedrock / Bedrock AgentCore，因此後續不把 Bedrock 系列列為推薦實作題目。相關報導只保留為產業趨勢或「不採用原因」參考。
+
 ## 候選清單
 
 | 候選 | 來源 | 可以學什麼 | 跟目前專案的關聯 | 今日驗證可行性 |
 |---|---|---|---|---|
 | Kiro CLI + CloudWatch / AWS / Support MCP 的支援案件流程 | AWS Cloud Operations Blog：Transform AWS Support case workflows with Kiro CLI | 用 AI CLI 先查 logs/metrics/docs，再產生含證據的 Support case | 很像目前的 Evidence Ledger、Human Review Gate、AI PM inbox：把散落證據整理成可審查的案件包 | 高。可先做 dry-run evidence packet；完整 Kiro 需安裝 Kiro CLI 與 `uv/uvx` |
 | AWS MCP Server GA | AWS News Blog：The AWS MCP Server is now generally available | 讓 agent 用既有 IAM 身分呼叫 AWS API、讀文件、執行沙盒 Python script，並有 CloudTrail / CloudWatch 可觀測性 | 可以把目前「人手查 AWS 狀態」升級成 agent-assisted 的 read-only 驗證流程 | 中高。此環境目前有 AWS CLI，但沒有 `uv/uvx`；可先驗證 read-only AWS CLI 等價流程 |
-| Bedrock AgentCore Support Companion | AWS Machine Learning Blog：Build an AI-powered AWS Support Companion with Amazon Bedrock AgentCore | 用 AgentCore、Strands Agents、MCP、Guardrails 做支援助理 | 是 Kiro 支援流程的服務化版本，可作為 final proposal 的下一階段架構參照 | 中。完整部署成本較高；今天適合做架構對照與小型 evidence packet |
-| AgentOps on Bedrock AgentCore | AWS Machine Learning Blog：AgentOps: operationalize agentic AI at scale | 治理、安全、版本化部署、評估、可觀測性四大面向 | 可強化 final proposal 中 AI PM / Agentic workflow 的治理論述 | 高。今天可把它整理成專案評估 rubric，不一定要部署 |
-| Bedrock AgentCore Web Search | AWS News Blog：Announcing Web Search on Amazon Bedrock AgentCore | 讓 agent 取得即時網路知識，透過 AgentCore Gateway 以 MCP target 使用 | 可作為 Skill 1 Scan 的未來升級方向，解決資料新鮮度與 grounding 問題 | 中。需要 AgentCore 設定；今天適合做設計提案，不適合急著部署 |
+| Bedrock AgentCore Support Companion | AWS Machine Learning Blog：Build an AI-powered AWS Support Companion with Amazon Bedrock AgentCore | 用 AgentCore、Strands Agents、MCP、Guardrails 做支援助理 | 與支援助理概念相近，但公司目前不能用 Bedrock | 排除。不列為今日或日後推薦實作題目 |
+| AgentOps on Bedrock AgentCore | AWS Machine Learning Blog：AgentOps: operationalize agentic AI at scale | 治理、安全、版本化部署、評估、可觀測性四大面向 | 可作為治理概念參考，但不能作為落地技術路線 | 排除。不列為實作題目；只保留概念對照 |
+| Bedrock AgentCore Web Search | AWS News Blog：Announcing Web Search on Amazon Bedrock AgentCore | 讓 agent 取得即時網路知識，透過 AgentCore Gateway 以 MCP target 使用 | 可提醒 Skill 1 Scan 需要資料新鮮度，但不採用 AgentCore | 排除。後續若做 Web Search，改找非 Bedrock 路線 |
 | Kiro + MCP 做 RDS log analysis | AWS Database Blog：Amazon RDS log analysis with Kiro and MCP | 用自然語言查 CloudWatch 裡的 RDS logs | 可當作「CloudWatch evidence gathering」的同類範例 | 中。若沒有 RDS log 資料，今天只能做模式驗證 |
 | Kiro + MCP 做 EC2 到 EKS Auto Mode migration | AWS Containers Blog：Migrate Amazon EC2 to EKS Auto Mode using Kiro CLI and MCP servers | 用 agent 協助 Dockerfile、Kubernetes manifest、EKS Auto Mode 部署 | 技術很新，但和目前 Tech Radar / evidence workflow 連結較間接 | 低。今天不建議優先玩 |
 

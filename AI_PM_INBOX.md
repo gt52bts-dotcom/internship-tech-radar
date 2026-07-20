@@ -166,3 +166,4 @@
 - 已新增 `final-proposal/demo-checklist.md`，整理 demo 前檢查、展示路線、要打開的檔案、已驗證與待驗證限制；明確標示本次仍是 fallback/rubric 路徑，不可宣稱正式 Anthropic API 評分完成。
 - 已建立 `ai-execution-trace/daily/2026-07-20.md`，記錄本小時 AI 執行軌跡。
 - 已整理 AWS Kiro CLI / MCP / Bedrock AgentCore 相關範例報導候選，新增 `research/aws-new-tech-candidates-2026-07-20.md`；建議優先驗證 Kiro CLI + MCP 支援案件流程，因為可直接對應目前專案的 Evidence Ledger、Human Review Gate、Audit Packet 與 final proposal demo。
+- 使用者新增長期限制：公司目前無法使用 Bedrock，因此日後新技術選題不主動推薦 Bedrock / Bedrock AgentCore 系列。已更新 `PROJECT_MEMORY.md` 與 `research/aws-new-tech-candidates-2026-07-20.md`，後續只保留 Bedrock 內容作為不採用原因或概念對照。
