@@ -74,6 +74,8 @@ Application Signals、Resilience Hub、FIS 也值得列入比較，但更偏向�
 - 是否可估算成本。
 - 是否可從 mock PoC 延伸到 AWS 正式方案。
 
+已依此比較邏輯整理 S2 文件：`research/online-insurance-reliability-s2-compare-2026-07-20.md`。
+
 ## 掃描來源
 
 - CloudWatch Synthetics canaries：<https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Synthetics_Canaries.html>

@@ -173,3 +173,4 @@
 - 使用者詢問 S0 是否需要導入 LLM API key 對外搜尋；已決定 S0 不直接外搜，只可選擇性用 LLM 協助需求整理、追問缺漏與敏感資訊檢查。真正外部搜尋與技術蒐集放在 S1，且需等 S0 需求卡經人類確認後才啟動；API key 必須只放後端或 Secrets Manager。
 - 已執行線上投保穩定性 S1 網路掃描，查找 AWS Blog、AWS 官方文件與 GitHub 類似案例；新增 `research/online-insurance-reliability-s1-scan-2026-07-20.md`。初步判斷最值得借鏡的是 CloudWatch Synthetics / Playwright canary + incident evidence，Application Signals / Resilience Hub / FIS 作為後續有內部架構權限時的第二階段。
 - 已完成線上投保穩定性黑箱 PoC 第一版：新增 `poc/online-insurance-reliability/`，包含 mock 線上投保服務、synthetic canary、README 操作步驟與本機驗證輸出；驗證矩陣確認 `normal=PASS`，`quote_500`、`confirmation_timeout`、`frontend_js_error` 均為預期 `FAIL`，並產出 Markdown report 與 incident packet JSON。
+- 使用者確認 S2 比較標準「是否可黑箱驗證、不碰 PII、不需完整內部架構、能產 incident packet、可估成本、可延伸 AWS」方向可用；已新增 `research/online-insurance-reliability-s2-compare-2026-07-20.md`，將候選技術評分並選出第一階段主方案：CloudWatch Synthetics / Playwright journey canary、multi-step API canary、EventBridge + Lambda incident packet。
