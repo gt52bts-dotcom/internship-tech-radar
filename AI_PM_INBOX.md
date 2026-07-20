@@ -168,3 +168,4 @@
 - 已整理 AWS Kiro CLI / MCP / Bedrock AgentCore 相關範例報導候選，新增 `research/aws-new-tech-candidates-2026-07-20.md`；建議優先驗證 Kiro CLI + MCP 支援案件流程，因為可直接對應目前專案的 Evidence Ledger、Human Review Gate、Audit Packet 與 final proposal demo。
 - 使用者新增長期限制：公司目前無法使用 Bedrock，因此日後新技術選題不主動推薦 Bedrock / Bedrock AgentCore 系列。已更新 `PROJECT_MEMORY.md` 與 `research/aws-new-tech-candidates-2026-07-20.md`，後續只保留 Bedrock 內容作為不採用原因或概念對照。
 - 使用者釐清線上投保穩定性 PoC 應建立在既有雲端技術雷達之上：由雷達先搜尋與比較候選雲端技術、評估是否適合線上投保、產出報價，再進入測試與報告。已更新 `PROJECT_MEMORY.md`，並新增 `research/online-insurance-reliability-radar-poc.md` 作為設計草案。
+- 使用者進一步定義技術雷達的第一層級：先由 GUI / 需求表單輸入應用端問題、舊方法限制、條件與成功標準，再啟動 S1-S5。已更新 `PROJECT_MEMORY.md` 與 `research/online-insurance-reliability-radar-poc.md`，將 S0 定義為 `Demand Input`，避免雷達無邊界掃描造成白做。
