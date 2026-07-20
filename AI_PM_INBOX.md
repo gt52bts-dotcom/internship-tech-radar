@@ -158,7 +158,7 @@
 - 目標對齊：直接扣回五個 Skill 目標；部會自我介紹簡報屬報告／溝通支援，不單獨提高核心 Skill 分數。
 - 同步項目：已建立 Git 正式日誌、補回 7/13 至 7/16 AI 執行軌跡日總結，並更新 Git 版 Skill 儀表板資料。
 
-## 2026-07-20｜17:00 前暫存
+## 2026-07-20｜已統整至 `logs/daily/work-log-2026-07-20.md`
 
 - 使用者要求延續今日建議的三項工作：整理 final proposal 的 7/17 成果素材、補專案執行軌跡圖、建立 demo checklist。
 - 已新增 `final-proposal/7-17成果素材.md`，把 7/17 CloudFormation stack、Step Functions `company-cfn-001`、Evidence/Review/Decision/Audit artifacts、evaluation harness、fallback/rubric 限制整理成可直接放進 final proposal 的素材。
@@ -183,3 +183,11 @@
 - 使用者建立 S3 Files service role trust policy 時，PowerShell 將 `"arn:aws:s3files:$Region:$AccountId:file-system/*"` 中的 `$Region:` 誤判為無效變數語法，且 JSON 暫存檔可能因編碼被 AWS CLI 拒讀；已修正教學書，改用 `"arn:aws:s3files:${Region}:${AccountId}:file-system/*"`，並將 JSON policy 寫檔統一改為 UTF-8 no BOM。
 - 使用者要求直接重寫一版 S3 Files CLI 教學書，並包含「開啟過去登入好的 AWS intern 帳號」；已整份重寫 `poc/s3-files-cli-poc/S3-Files-CLI教學書-2026-07-20.md`，新增 Console 登入確認、專案目錄執行、接續半成品或從零重跑、穩定版 JSON/PowerShell 寫法、A 段 CLI 建資源、B 段 EC2 mount、cleanup、半成品 cleanup 與回報格式。
 - 使用者要求將 AWS News Blog「Launching S3 Files, making S3 buckets accessible as file systems」轉成可直接執行的 CloudFormation 內容；已新增 `cloudformation/s3-files-minimal.yaml`，內容建立 versioning/encryption S3 bucket、S3 Files service role、`AWS::S3Files::FileSystem`、mount target security group、`AWS::S3Files::MountTarget`、`AWS::S3Files::AccessPoint`、file system policy 與 client IAM inline policy。已用 `aws cloudformation validate-template --profile intern --region ap-southeast-1 --template-body file://cloudformation/s3-files-minimal.yaml` 驗證通過，回傳 `CAPABILITY_NAMED_IAM`；目前尚未部署 stack、尚未建立 AWS 資源。
+- 使用者確認過去登入過 `intern` profile 且 CLI 可用；已用 `aws sts get-caller-identity --profile intern` 驗證目前 CLI 身分可用。進一步查詢 `ap-southeast-1` 發現目前沒有 default VPC/subnet/security group，也查不到任何 VPC/subnet/security group，因此新增真正 self-contained 的 `cloudformation/s3-files-self-contained.yaml`：自建 VPC、public subnet、Internet Gateway、route table、client security group、mount target security group、S3 bucket、S3 Files file system、mount target、access point、client instance role/profile，並可選擇建立一台 Amazon Linux test EC2 自動 mount。已用 `aws cloudformation validate-template --profile intern --region ap-southeast-1 --template-body file://cloudformation/s3-files-self-contained.yaml` 驗證通過，回傳 `CAPABILITY_IAM`；同時確認 `AmazonS3FilesClientFullAccess` managed policy 存在，移除查不到的 `AmazonElasticFileSystemUtils` managed policy，避免部署失敗。目前仍未部署 stack、未建立 AWS 資源。
+
+### 17:00 後判定結果
+
+- 對應 Skill：掃描 +6、比較 +4、評估 +6、驗證 +7、報告 +6。
+- 積分：當日總分 +29，累積總分 134。
+- 目標對齊：直接扣回五個 Skill 目標；線上投保穩定性 PoC 屬支援性探索，因 mentor 決定暫停，後續不主動延伸為近期主線。
+- 同步項目：已建立 Git 正式日誌，並更新 Git 版 Skill 進度與 dashboard 資料。

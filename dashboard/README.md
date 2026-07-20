@@ -4,17 +4,17 @@
 
 ## 最新狀態
 
-- 累積總分：105 分
-- 最新日期：2026-07-17
-- 今日重點：純 CloudFormation 公司帳戶部署成功，Step Functions `company-cfn-001` 端到端成功，並補上 evidence/review/decision/audit artifacts。
+- 累積總分：134 分
+- 最新日期：2026-07-20
+- 今日重點：整理 final proposal/demo 素材，完成 S3 Files 新聞截斷評估、CLI 教學書與兩份 CloudFormation template validation；保單穩定性 PoC 保留為支援素材。
 
 | Skill | 說明 | 累積分數 | 最新變化 |
 |---|---|---:|---|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 15 | CloudFormation 版流程完成真實 RSS 掃描輸出。 |
-| Skill 2｜比較 | 候選技術比較、案例對照 | 17 | S2 比較、Quote gate 與 Decision Layer 串接。 |
-| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 23 | 新增 Evidence Ledger、Human Review、Decision Layer、Feedback Stats 與 Audit Packet。 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 26 | CloudFormation stack `CREATE_COMPLETE` 且 Step Functions `company-cfn-001` 成功。 |
-| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 24 | 新版報告 artifact、7 頁部會簡報與 AI 執行軌跡完成整理。 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 21 | 完成 AWS 候選、保單穩定性與 S3 Files 官方資料掃描，並排除近期不採用的 Bedrock 路線。 |
+| Skill 2｜比較 | 候選技術比較、案例對照 | 21 | 完成保單穩定性候選比較，並把 S3 Files 新聞轉成可驗證實作路線。 |
+| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 29 | 完成 CloudWatch Synthetics 報價、S3 Evaluate 與 S3 Files 限制判斷。 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 33 | 完成本機 canary 故障矩陣、AWS CLI schema 查證與兩份 CloudFormation template validation。 |
+| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 30 | 整理 final proposal/demo 素材、AWS/S3 Files 教學書與今日正式日誌。 |
 
 ## 每日分數
 
@@ -25,6 +25,7 @@
 | 2026-07-15 | 2 | 2 | 2 | 3 | 5 | 14 |
 | 2026-07-16 | 3 | 3 | 5 | 7 | 5 | 23 |
 | 2026-07-17 | 4 | 5 | 8 | 9 | 7 | 33 |
+| 2026-07-20 | 6 | 4 | 6 | 7 | 6 | 29 |
 
 ## 檔案
 
