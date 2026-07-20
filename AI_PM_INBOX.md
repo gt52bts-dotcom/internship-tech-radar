@@ -165,3 +165,4 @@
 - 已更新 `final-proposal/簡報架構與執行軌跡.md`，將原本停在公司帳戶手動部署的狀態，改成 CloudFormation 可重建部署、`company-cfn-001 SUCCEEDED` 與治理 artifacts 的最新軌跡。
 - 已新增 `final-proposal/demo-checklist.md`，整理 demo 前檢查、展示路線、要打開的檔案、已驗證與待驗證限制；明確標示本次仍是 fallback/rubric 路徑，不可宣稱正式 Anthropic API 評分完成。
 - 已建立 `ai-execution-trace/daily/2026-07-20.md`，記錄本小時 AI 執行軌跡。
+- 已整理 AWS Kiro CLI / MCP / Bedrock AgentCore 相關範例報導候選，新增 `research/aws-new-tech-candidates-2026-07-20.md`；建議優先驗證 Kiro CLI + MCP 支援案件流程，因為可直接對應目前專案的 Evidence Ledger、Human Review Gate、Audit Packet 與 final proposal demo。
