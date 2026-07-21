@@ -20,6 +20,7 @@
 - 使用者釐清目前有兩張國泰表單，後續另補學校表單；已建立虛擬評分表集合 `evaluation-forms/`，先納入 `國泰｜實習生評鑑表單`、`國泰｜Mentor實習生狀況觀察表`，並預留學校表單入口。主 `README.md` 已新增 `查看評分表集合` 按鈕。
 - 使用者提供兩張學校表單 Word 檔：`國立臺灣海洋大學 學生校外實習成效問卷(實習機構).docx`、`學生校外實習成績考核表(實習機構主管用).docx`。已抽出欄位並新增 GitHub 可讀頁：`evaluation-forms/ntou-internship-effectiveness-questionnaire.md` 與 `evaluation-forms/ntou-internship-performance-evaluation.md`；學校成績考核表目前 AI 模擬實習機構主管評分為 91/100。
 - Notion 主管評分摘要頁與細則頁已同步補上學校表單加入狀態與學校成績考核表 AI 模擬分數。
+- 使用者指出學校表單索引頁多餘；已刪除多餘索引頁，評分表集合改為直接列出兩張海大表單。
 
 ## 2026-07-15｜已統整至 `logs/daily/work-log-2026-07-15.md`
 

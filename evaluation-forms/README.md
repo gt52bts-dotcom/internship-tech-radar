@@ -9,7 +9,6 @@
 |---|---|---|---|
 | [國泰｜實習生評鑑表單](./cathay-intern-evaluation-form.md) | 國泰 CIP 表單填寫系統 | 已建立 | 評估積極自發、團隊合作、創新求變、組織認同、誠信正直，並填寫優點／可改善處與綜合回饋。 |
 | [國泰｜Mentor實習生狀況觀察表](./cathay-mentor-observation-form.md) | `2026 國泰 CIP 實習手冊_mentor` | 已建立 | Mentor 於實習最後一週填寫，依 15 項行為觀察以 1-5 分評估。 |
-| [學校｜評分表索引](./school-evaluation-form-placeholder.md) | 國立臺灣海洋大學 | 已建立 | 管理學校端兩張表單入口。 |
 | [學校｜學生校外實習成效問卷（實習機構）](./ntou-internship-effectiveness-questionnaire.md) | 國立臺灣海洋大學 | 已建立 | 實習機構回饋實習流程與實習生工作表現滿意度。 |
 | [學校｜學生校外實習成績考核表（實習機構主管用）](./ntou-internship-performance-evaluation.md) | 國立臺灣海洋大學 | 已建立 | 實習機構主管評核平時表現、心得報告、考勤並給出主管評核成績。 |
 
@@ -34,6 +33,5 @@
 
 - [主管評分表自評追蹤](../MENTOR_EVALUATION_PROGRESS.md)
 - [主管評分細則與表單回覆](../dashboard/mentor-evaluation-details.md)
-- [學校評分表索引](./school-evaluation-form-placeholder.md)
 - [主管評分摘要（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350)
 - [主管評分表細則與回覆（Notion）](https://app.notion.com/p/3a49d9fba316814e923ad82718952a71)
