@@ -208,6 +208,7 @@
 - 使用者已完成 S3 Files 端到端 PoC：EC2 Amazon Linux 成功安裝 `amazon-efs-utils 3.1.3`，以 `sudo mount -t s3files ... /mnt/s3files` 掛載 S3 Files；EC2 mount path 可讀到原 S3 檔案 `hello-from-s3.txt`，並從 mount path 寫入 `hello-from-mount.txt` 後於 S3 bucket 讀回內容。已新增 `poc/s3-files-cli-poc/S3-Files端到端驗證報告-2026-07-21.md`，以去識別化方式保存證據與 S1-S5 意義；下一步需 cleanup，避免 EC2 / S3 Files / VPC 資源持續產生成本。
 - 使用者確認 AI 自主執行 AWS 新聞 PoC 的操作邊界：可用 `intern` profile 與 `ap-southeast-1` 建立必要 AWS 資源並產生成本，但排除 Bedrock；login/MFA 過期由使用者協助；IAM `AccessDenied` 時 AI 需先嘗試替代降權路線；建立 EC2/VPC/IAM 前需白話說明用途、成本與 cleanup；cleanup 前後需確認。已更新 `PROJECT_MEMORY.md`，作為後續 S1-S5 自主驗證的長期規則。
 - 使用者詢問 CLI 建立成功的 S3 Files PoC 是否能在 CloudFormation 看流程圖；已新增 `poc/s3-files-cli-poc/S3-Files-CLI實作流程圖-2026-07-21.md`，明確說明 CLI 資源不會出現在 CloudFormation stack，並補上控制線、資料線、Console 分服務查看位置與端到端驗證 sequence diagram。
+- 使用者決定先暫停重新以 CloudFormation 複刻新聞架構，改為保留剛剛手動 CLI 部署成功的證據。已新增 `poc/s3-files-cli-poc/S3-Files手動部署證據蒐集清單-2026-07-21.md`，列出必截證據、可用 CLI 輸出、遮蔽規則與給 mentor 的一句話；重點證據鏈為 S3 Files resource available、EC2 mount 成功、S3 到 mount 可讀、mount 到 S3 可寫回，以及 cleanup 前資源盤點。
 
 ### 17:00 後判定結果
 
