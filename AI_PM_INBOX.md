@@ -5,12 +5,14 @@
 ## 2026-07-21｜17:00 前暫存
 
 - 使用者提供實習主管評分表截圖，要求在日誌中加入這些項目的評分功能，並先估算截至目前的分數。
-- 已新增 `MENTOR_EVALUATION_PROGRESS.md`，把主管表單拆成四大項目與 15 項行為觀察，採 1-5 分、證據導向、主管正式分數另行確認的口徑。
-- 截至 2026-07-20 的自評建議：四大項目平均 4.5/5；15 項行為觀察平均 4.47/5；若表單只能填整數，保守建議以 4/5 為底，有主管口頭佐證時再爭取 5/5。
+- 已新增 `MENTOR_EVALUATION_PROGRESS.md`，把主管表單拆成四大項目與 Mentor 15 項觀察表，採證據導向、主管正式分數另行確認的口徑。
+- 使用者指出 Mentor 15 項行為觀察先前寫得過滿，屬於為寫而寫；已修正為暫不評分、不計平均，等使用者或 mentor 補實際觀察後再填。
+- 截至 2026-07-20 的自評建議：四大項目平均 4.5/5；Mentor 15 項行為觀察暫不評分；若四大項目表單只能填整數，保守建議以 4/5 為底，有主管口頭佐證時再爭取 5/5。
+- 已在 Notion 主管評分摘要頁與細則頁置頂補上 2026-07-21 更正：撤回 Mentor 15 項由 AI 推估的平均分數，改為暫不評分、不計平均。
 - 已更新 `templates/每日實習日誌模板.md`，新增「主管評分表自評」區塊，日後每日只填新增證據，避免日誌變長。
 - 已更新 `PROJECT_MEMORY.md` 與 `AI_PM_WORKFLOW.md`，把主管評分表自評列為長期日誌規則。
 - 使用者確認 `MENTOR_EVALUATION_PROGRESS.md` 要保留，日後每天持續評分；已清理 `outputs/` 中不用的部會自我介紹 `AI_PM_7頁版` 與 `模板版` PPTX / inspect 輸出，並刪除空的 `outputs/部會自我介紹_王冠婷` 資料夾；保留原始 `部會自我介紹_王冠婷.pptx`、inspect 檔與 `self-intro-assets` 素材。
-- 已在 Notion `Cleo的暑期實習日誌(2026CIP)` 同一資料庫新增 `Cleo｜主管評分自評儀表板`：`https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350`，內容包含四大項目、15 項行為觀察、目前分數與每日更新規則；也已把此入口加到原本 Skill 積分儀表板底部。
+- 已在 Notion `Cleo的暑期實習日誌(2026CIP)` 同一資料庫新增 `Cleo｜主管評分自評儀表板`：`https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350`，內容包含四大項目、Mentor 15 項待補狀態、目前分數與每日更新規則；也已把此入口加到原本 Skill 積分儀表板底部。
 - 使用者要求 GitHub README 也放主管容易看到的主管評分入口，並新增可點進去看的細則；已更新 `README.md`、`dashboard/README.md`，新增 `dashboard/mentor-evaluation-details.md` 作為細則頁。
 - 依使用者新增的「實習生表現評核」截圖，補上第二張表單建議評分與優缺點回覆：積極自發／持續學習建議 `優異`、團隊合作 `良好`、創新求變 `優異`、組織認同 `認同`、誠信正直 `是`。
 - Notion 主管評分摘要頁因封存區塊無法追加內容，已改新增 Notion 細則頁 `Cleo｜主管評分表細則與回覆`：`https://app.notion.com/p/3a49d9fba316814e923ad82718952a71`，並把 URL 補回 Git 版 README 與自評檔。
@@ -52,7 +54,7 @@
 - 依 `logs/daily/work-log-2026-07-13.md`、`logs/daily/work-log-2026-07-14.md`、`logs/daily/work-log-2026-07-15.md` 與本檔待統整證據，完成 `2026CIP_biweekly_worklog1_draft.docx` 雙週工作週誌草稿；措辭保留「個人 AWS 已驗證」、「公司帳戶使用者回報完成」、「仍待權限允許後核對」的區分，避免把尚未完成端到端測試的內容寫得過滿。
 - 依使用者補充，將雙週誌第三項改為「專案進度同步、AI PM 儀表板與成果整理」，並寫入「為了同步專案進度，建立 AI PM 紀錄機制，串接 Git／GitHub、Notion 與本機日誌」；已另存 `2026CIP_OOO_雙週工作週誌1_草稿_AI_PM.docx`，避免覆蓋目前被 Word 開啟的舊草稿。
 - 釐清手動部署第 5 章 Secrets Manager：若 7/14 舊版手動部署已建立同名 secret `cathay-techintel-v3/anthropic-api-key`，且位於同一帳號與 `ap-southeast-1`，目前不需要重建；可直接沿用同一 secret ARN，必要時只更新 secret value 為佔位符或正式 API key。若該 secret 已排程刪除，建議優先 Restore 取消刪除後沿用，避免同名 secret 在 recovery window 期間無法重新建立。未記錄任何 secret value。
-- 使用者提供 AWS Secrets Manager 截圖作為第 5 章證據：Secret `cathay-techintel-v3/anthropic-api-key` 已存在於 `ap-southeast-1`，KMS key 為 `aws/secretsmanager`，ARN 顯示為 `arn:aws:secretsmanager:ap-southeast-1:092211181371:secret:cathay-techintel-v3/anthropic-api-key-Lhnx13`。畫面未顯示刪除排程；第 5 章可視為已找到既有 secret，後續只需確認 secret value 為佔位符或正式 API key，且不得在日誌中記錄密鑰值。
+- 使用者提供 AWS Secrets Manager 截圖作為第 5 章證據：Secret `cathay-techintel-v3/anthropic-api-key` 已存在於 `ap-southeast-1`，KMS key 為 `aws/secretsmanager`，ARN 已遮蔽不寫入日誌。畫面未顯示刪除排程；第 5 章可視為已找到既有 secret，後續只需確認 secret value 為佔位符或正式 API key，且不得在日誌中記錄密鑰值。
 - 針對 Secrets Manager 範例程式碼與已完成部署步驟進行概念說明：範例區塊是給應用程式讀取 secret 的不同方式（Lambda extension、SDK、快取客戶端、EKS 等），不是手動部署時必須執行的額外步驟。已完成資源的角色可整理為：IAM policy/role 定義 Lambda 能做什麼、S3 保存輸入與輸出檔、DynamoDB 保存挑選紀錄、Secrets Manager 保存 Anthropic API key 且避免寫入程式碼或日誌。此說明可作為後續 final proposal「從照步驟部署進步到理解安全與資料流」的成長素材。
 - 使用者完成第 6 章 Lambda Layer，AWS Console 顯示 `Successfully created layer cathay-techintel-v3-deps version 1`。使用者提供 Lambda Functions 清單，現有 3 個 function 為 `MAP_tagging-Function`、`aws-controltower-NotificationForwarder`、`StackSet-Password-Policy-CXL--PasswordPolicyLambda-...`，名稱均非 `cathay-techintel-v3-*` 前綴，判斷不屬於本專案第 7 章目標函式，且其中 Control Tower / StackSet 類名稱可能為公司治理資源，不應刪除。第 7 章應建立 7 個本專案 Lambda：S1/S2/S2b/S3/S4/S5/RecordHumanPick，並沿用 `cathay-techintel-v3-lambda-role` 與第 6 章 layer。
 - 為支援第 7 章 Console 手動建立 Lambda，從 `radar-company-account-complete/radar/cdk/lambda_src` 產出 7 個可上傳 zip，位置為 `radar-company-account-complete/radar/manual-lambda-zips/`：`s1_scan.zip`、`s2_compare.zip`、`s2b_quote.zip`、`s3_evaluate.zip`、`s4_validate.zip`、`s5_report.zip`、`record_human_pick.zip`。已確認 `s1_scan.zip` 內容含 `s1_scan.py`、`common.py`、`pipeline_lib.py` 且不含 `__pycache__`，可供 `cathay-techintel-v3-s1scan` 上傳使用。
@@ -62,7 +64,7 @@
 - 第 9 章 Step Functions checkpoint：本機封包未找到現成 `step-functions-definition.json`，已依 `radar-company-account-complete/radar/cdk/stacks/pipeline_stack.py` 的流程邏輯產出手動部署用 `radar-company-account-complete/radar/manual-step-functions/step-functions-definition.json`。已用 PowerShell `ConvertFrom-Json` 驗證 JSON 可解析，且確認無 `ACCOUNT_ID_HERE`；流程包含 `GenerateRunId`、`Task_S1`、`Task_S2`、`Task_Quote`、`QuoteApproved?`、`OverBudget_RubricMode`、`Task_S3`、`Task_S4`、`Task_S5`，引用 6 個主流程 Lambda，不含 `recordhumanpick`。另補產 `stepfunctions-execution-policy.json`，包含 Lambda invoke 與 Step Functions logging 所需 CloudWatch Logs 權限。
 - 使用者建立 Step Functions state machine 時，Design 圖已正確顯示主流程與 quote choice 分支，但按 Create 後出現 `AccessDeniedException: The state machine IAM Role is not authorized to access the Log Destination`。判斷為 `cathay-techintel-v3-sfn-role` 尚缺 CloudWatch Logs delivery/resource policy 相關權限；下一步需更新或新增 inline policy，補上 `logs:CreateLogDelivery`、`logs:PutResourcePolicy`、`logs:DescribeLogGroups` 等權限後再重試建立。
 - 第 10 章第一次手動執行：State machine `cathay-techintel-v3-pipeline` 可啟動，`GenerateRunId` 成功，但 `Task_S1` 失敗並顯示 `ParamValidationError`。初步判斷高機率是 S1 Lambda 的環境變數，尤其 `BUCKET_NAME` 參數格式錯誤（例如填成 S3 ARN、空值或 key/value 放反），導致 S1 寫入 S3 `put_object` 時參數驗證失敗。下一步需查看 Cause 並核對 `cathay-techintel-v3-s1scan` 的 environment variables。
-- 第 10 章第二次手動執行 `manual-demo-002`：`BUCKET_NAME` 格式問題已修到可通過參數驗證，但 `Task_S1` 在寫入 `s1_scan.json` 時出現 `AccessDenied`，原因為 `cathay-techintel-v3-lambda-role` 沒有 `s3:PutObject` 到 `arn:aws:s3:::cathay-techintel-v3-data-092211181371/runs/...` 的 identity-based policy。已產出 `radar-company-account-complete/radar/manual-step-functions/lambda-execution-policy.json`，包含 S3 讀寫、DynamoDB pick log、Secrets Manager read 與 CloudWatch Logs 權限，供更新 Lambda execution role 使用。
+- 第 10 章第二次手動執行 `manual-demo-002`：`BUCKET_NAME` 格式問題已修到可通過參數驗證，但 `Task_S1` 在寫入 `s1_scan.json` 時出現 `AccessDenied`，原因為 `cathay-techintel-v3-lambda-role` 沒有 `s3:PutObject` 到專案 data bucket `runs/...` 路徑的 identity-based policy。已產出 `radar-company-account-complete/radar/manual-step-functions/lambda-execution-policy.json`，包含 S3 讀寫、DynamoDB pick log、Secrets Manager read 與 CloudWatch Logs 權限，供更新 Lambda execution role 使用。
 - 第 10 章 redrive 後，使用者貼出 Step Functions output：`Task_S1`、`Task_S2`、`Task_Quote` 均成功，S1 kept_count 29，S2 kept_count 6，Quote decision 為 `approve`，total_usd 為 `0.0892`，max_run_usd 為 `0.5`；目前已通過檢查清單中的 Quote 閘門 approve 與估價約 $0.089。實際 run_id 被 `GenerateRunId` 轉為 `2026-07-16T06-45-13.905Z` / S3 key 使用 `2026-07-16T06-45-13.905Z`（冒號轉 hyphen），後續驗證 S3 路徑應查 `runs/2026-07-16T06-45-13.905Z/`。
 
 ### 2026-07-16 15:01 Step Functions redrive 部分通過證據
@@ -151,9 +153,9 @@
 - 已將根目錄巢狀 `internship-tech-radar/` 加入 `.gitignore`，避免後續 commit 誤納入重複 repository。
 - 目錄調整與 AI 執行軌跡已提交並推送到 GitHub `origin/main`，commit 為 `b2fdbb5 Organize logs and add AI execution trace`；遠端 `refs/heads/main` 已回報同一 commit hash。
 - 使用者在專案根目錄重新執行 `aws cloudformation validate-template --profile intern --region ap-southeast-1 --template-body file://cloudformation/cathay-techintel-v3.yaml`；第一次仍顯示 SCP explicit deny，但第二次成功回傳 template Parameters，表示目前 CloudFormation template 已通過 AWS 端 validate-template。下一步需處理 artifact zip 上傳與既有同名資源衝突風險。
-- 純 CloudFormation 部署第一次嘗試失敗，根因為 `PythonDependenciesLayer` 讀不到 `s3://cathay-techintel-v3-data-092211181371/artifacts/cathay-techintel-v3/lambda-layer.zip`（NoSuchKey），CloudFormation rollback 後已刪除 failed stack。
-- 已從 `radar-company-account-complete/radar/cdk` 產出並上傳 `lambda-code.zip` 與 `lambda-layer.zip` 至 `s3://cathay-techintel-v3-data-092211181371/artifacts/cathay-techintel-v3/`。
-- 重新部署 `cathay-techintel-v3-cfn` 成功，CloudFormation stack resources 全部 `CREATE_COMPLETE`，輸出包含 data bucket `cathay-techintel-v3-cfn-data-092211181371`、DynamoDB table `cathay-techintel-v3-cfn-picks-log` 與 state machine `arn:aws:states:ap-southeast-1:092211181371:stateMachine:cathay-techintel-v3-cfn-pipeline`。
+- 純 CloudFormation 部署第一次嘗試失敗，根因為 `PythonDependenciesLayer` 讀不到專案 artifact bucket 中的 `lambda-layer.zip`（NoSuchKey），CloudFormation rollback 後已刪除 failed stack。
+- 已從 `radar-company-account-complete/radar/cdk` 產出並上傳 `lambda-code.zip` 與 `lambda-layer.zip` 至專案 artifact bucket。
+- 重新部署 `cathay-techintel-v3-cfn` 成功，CloudFormation stack resources 全部 `CREATE_COMPLETE`，輸出包含專案 data bucket、DynamoDB table `cathay-techintel-v3-cfn-picks-log` 與 state machine；帳號識別資訊不寫入日誌。
 - 已啟動 Step Functions execution `company-cfn-001`；狀態 `SUCCEEDED`，S1 kept_count=27，S2 kept_count=6，Quote decision=approve、total_usd=0.0892，S3 evaluated_count=6，S4 validated_count=6，S5 產出 `report.html`、`s5_report.json`、`evidence-ledger.json`、`review-packet.json`、`decision-layer.json`、`feedback-stats.json`、`audit-packet.json` 與 `cost-estimate.yaml`。未在日誌保存 presigned URL 或 token。
 - 依使用者需求完成下週部會自我介紹簡報模板版，輸出 `outputs/部會自我介紹_王冠婷_模板版.pptx`，共 4 頁：個人背景、CIP 實習計畫摘要、下班後日常、基隆口袋地圖。
 - 使用者要求不要 AI 圖，因此最終模板版只沿用 `C:\Users\youhs\Downloads\IT簡報模板_v2.6_fin.pptx` 的公司模板風格與內建視覺元素，未插入先前生成的 AI 圖片。
