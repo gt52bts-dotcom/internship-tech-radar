@@ -1,0 +1,84 @@
+# 主管評分表自評追蹤
+
+更新日期：2026-07-21  
+用途：依實習主管評分表項目，從每日工作日誌、AI PM inbox、Git 產出與驗證證據中預估目前自評分數。正式成績仍以主管評分為準。
+
+Notion 入口：`Cleo｜主管評分自評儀表板`  
+https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350
+
+Notion 細則頁：`Cleo｜主管評分表細則與回覆`  
+https://app.notion.com/p/3a49d9fba316814e923ad82718952a71
+
+## 計分口徑
+
+- `5`：已有多次可檢查證據，且成果品質、主動性或影響力明確超出基本要求。
+- `4`：已有穩定證據，能支持「表現良好」，但仍有公司環境驗證、跨團隊互動或主管回饋不足等限制。
+- `3`：有部分證據，但成果仍偏初步、零散或待確認。
+- `2`：只有少量跡象，尚不足以支持穩定表現。
+- `1`：目前沒有足夠證據，或表現明顯未達期待。
+
+> 截圖解析度有限，下列表述保留主管表單原意；若之後拿到清晰 PDF 或原始表單，需再校正文案。
+
+## 四大評分項目
+
+| 項目 | 目前自評 | 判斷依據 | 補強方向 |
+|---|---:|---|---|
+| 組織認同／組織承諾 | 4 | 能依 mentor 方向調整專案主線，完成部會自我介紹與雙週誌，並把 Git／Notion／dashboard 作為公司相容的交付紀錄。 | 補更多部門活動、主管回饋或跨部門互動證據。 |
+| 盡責 | 5 | 7/16 手動 Step Functions、7/17 CloudFormation、7/20 S3 Files 評估都留下可回驗證據；遇到 AWS 權限、handler、API key、S3 路徑等問題有持續排查與收斂。 | 維持「未驗證不宣稱」與清楚 next step。 |
+| 團隊合作 | 4 | 依 mentor 討論修正方向，能把使用者／主管需求轉成 checkpoint、文件、demo checklist 與回報語言。 | 目前跨同事或跨團隊協作證據較少，後續可記錄會議回饋與協作交付。 |
+| 創新求變 | 5 | 建立 AI PM、Skill 積分、Evidence Ledger、Human Review Gate、Decision Layer、evaluation harness、互動儀表板等方法，能把 AI 工具整合進可驗證工作流程。 | 補公司環境或主管實際採用後的成效證據。 |
+
+四大項目目前平均：`4.5 / 5`
+
+## 行為觀察 15 項
+
+| # | 行為觀察 | 目前自評 | 證據摘要 |
+|---:|---|---:|---|
+| 1 | 能在實習期間持續交付符合任務與目標的成果品質 | 4 | 已交付 radar PoC、CloudFormation、報告、簡報、日誌與 dashboard；仍有部分公司環境驗證待完成。 |
+| 2 | 能主動負責主管交辦事項 | 5 | 多次依 mentor／使用者新方向立即調整主線，例如暫停保單題目、改做 S3 Files 新聞截斷測試。 |
+| 3 | 遇到困難時會主動尋求解決方案與支援 | 5 | AWS SCP、IAM policy、Lambda handler、API key fallback、S3 Files CLI/CloudFormation 問題皆有定位與解法。 |
+| 4 | 能展現團隊合作精神，與主管及同事互相合作、彼此信任 | 4 | 已能依 mentor 期待重排目標並整理主管可讀材料；跨同事互動證據仍較少。 |
+| 5 | 願意主動提供或分享個人觀點、經驗、評論及心得 | 4 | final proposal 成長素材、AI PM 角色定義、雙週誌與部會自我介紹皆有整理個人觀察。 |
+| 6 | 能全心投入實習活動並展現高度學習意願 | 5 | 從 AWS 架構、部署、成本、治理、報告、簡報到日誌制度皆有主動延伸學習。 |
+| 7 | 能遵守實習規範並完成相關流程或訓練要求 | 4 | 已遵守 17:00 日誌規則、密鑰不入檔、Git source of truth；正式 HR/主管表單仍待最後提交證據。 |
+| 8 | 遇到不懂或不清楚處會主動反思、查找與確認 | 5 | 多次查官方文件、CLI schema、AWS validate-template、價格 API 與本機驗證，不只依直覺判斷。 |
+| 9 | 能規劃並實踐實習活動設定的學習目標 | 5 | 已將 S1-S5、AI PM、final proposal、demo checklist 與 Skill 積分串成持續追蹤路線。 |
+| 10 | 能將實習活動中所學應用在實習任務 | 5 | 將 AWS serverless、CloudFormation、Step Functions、治理 artifacts、evaluation harness 實際用於 radar 專案。 |
+| 11 | 會檢視過去階段與學習狀態，調整自己的實習節奏 | 4 | 已重算 Skill 分數、修正過鬆日誌與 Notion 紀錄；後續可補更多自我反思文字。 |
+| 12 | 會主動尋求正式或非正式回饋，以協助學習成長與達成目標 | 5 | 已依使用者與 mentor 回饋改變評分口徑、專案主線、日誌密度、demo 材料與評分追蹤。 |
+| 13 | 整體而言，對實習內容與態度表現積極且有品質 | 4 | 積極度與產出密度高，但部分成果仍是 PoC 或待公司環境驗證，不宜直接給滿分。 |
+| 14 | 整體而言，實習成果帶來成效與滿意度 | 4 | 已有可展示 PoC、dashboard、文件與簡報；實際主管滿意度仍需正式回饋佐證。 |
+| 15 | 整體而言，能達到部門輔導員或主管期待，並主動向主管反映 | 4 | 已能主動同步進度與限制，但最終是否達標仍需主管正式確認。 |
+
+15 項目前平均：`4.47 / 5`（67 / 15）
+
+## 目前建議填表分數
+
+- 若表單只能填整數：建議填 `4 / 5` 或 `5 / 5` 需依主管實際觀感決定；保守對外口徑可用 `4 / 5`，有充分口頭佐證時可爭取 `5 / 5`。
+- 若表單允許小數：目前建議總自評為 `4.5 / 5`。
+- 最需要補強的不是技術能力，而是「跨團隊合作、主管實際滿意度、公司採用後效果」這三類正式外部證據。
+
+## 第二張表單：實習生表現評核
+
+| 表單項目 | 建議評等 | 優點摘要 | 可改善處 |
+|---|---|---|---|
+| 積極自發、持續學習 | 優異 | 能主動發現問題、查證資料、排查 AWS／CLI／部署問題，並把結果整理成可驗證成果。 | 將探索成果更快對應到主管期待或部門需求。 |
+| 團隊合作 | 良好 | 能依 mentor 回饋調整方向，整理主管可讀材料並協助同步資訊。 | 補更多跨同事或跨團隊協作證據。 |
+| 創新求變 | 優異 | 將 AI PM、Skill 積分、Evidence Ledger、Human Review Gate、Decision Layer 與 evaluation harness 整合成可追蹤流程。 | 補公司環境實際採用後的成效證據。 |
+| 組織認同 | 認同 | 遵守 Git／Notion 同步、17:00 日誌統整、密鑰不入檔與 private repository 等規範。 | 補更多部門活動參與與公司文化連結證據。 |
+| 誠信正直 | 是 | 持續區分已驗證、待驗證與估算結果；不記錄或提交 API key、AWS credentials、secret value。 | 持續在對外報告與 final proposal 保留驗證狀態標籤。 |
+
+可直接貼入第二張表單的完整文字整理於 `dashboard/mentor-evaluation-details.md`。
+Notion 版細則頁同步保存在 `Cleo｜主管評分表細則與回覆`。
+
+## 可引用證據
+
+- `SKILL_PROGRESS.md`：截至 2026-07-20，五個 Skill 累積 91 分。
+- `logs/daily/work-log-2026-07-16.md`：公司帳戶手動 Step Functions 全流程跑通。
+- `logs/daily/work-log-2026-07-17.md`：CloudFormation 部署與 `company-cfn-001` 成功。
+- `logs/daily/work-log-2026-07-20.md`：S3 Files 新聞截斷測試、CLI 查證、CloudFormation template validation。
+- `final-proposal/7-17成果素材.md`、`final-proposal/demo-checklist.md`：final proposal 與 demo 證據。
+- `dashboard/README.md`、`dashboard/skill-score-data.json`：可攜式 Skill 分數儀表板。
+- `dashboard/mentor-evaluation-details.md`：主管可讀的評分細則與第二張表單回覆。
+- Notion `Cleo｜主管評分自評儀表板`：主管評分表自評入口與每日更新規則。
+- Notion `Cleo｜主管評分表細則與回覆`：第二張表單評分、優點／可改善處與綜合回饋。

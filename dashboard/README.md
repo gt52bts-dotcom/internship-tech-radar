@@ -2,6 +2,17 @@
 
 > 這份 dashboard 是 GitHub private repository 內的可攜式 Skill 進度資料。Notion 版本可嵌入 `cleo-skill-dashboard.html`，Git 版本則作為每日 17:00 AI PM 同步的 source of truth。
 
+## 主管快速入口
+
+| 入口 | 用途 |
+|---|---|
+| [查看主管評分摘要（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350) | 給主管快速看目前自評分數、四大項目、15 項行為觀察與每日更新規則。 |
+| [Cleo｜主管評分表細則與回覆（GitHub）](./Cleo-主管評分表細則與回覆.md) | 主管可在 GitHub 直接點開的細則入口。 |
+| [查看評分細則與表單回覆](./mentor-evaluation-details.md) | 查看完整評分依據，以及「實習生表現評核」表單的建議勾選、優點／可改善處與綜合回饋。 |
+| [查看細則頁（Notion）](https://app.notion.com/p/3a49d9fba316814e923ad82718952a71) | Notion 版細則頁，方便在 Notion 裡和摘要頁分開查看。 |
+
+目前主管評分自評摘要：四大項目平均 `4.5 / 5`，15 項行為觀察平均 `4.47 / 5`。正式成績仍以主管評分為準。
+
 ## 最新狀態
 
 - 累積總分：91 分
@@ -33,6 +44,8 @@
 - [Notion 可嵌入版 HTML](./notion-skill-dashboard.html)
 - [Skill 分數資料 JSON](./skill-score-data.json)
 - [完整 Skill 進度紀錄](../SKILL_PROGRESS.md)
+- [Cleo｜主管評分表細則與回覆](./Cleo-主管評分表細則與回覆.md)
+- [主管評分細則與表單回覆](./mentor-evaluation-details.md)
 - [專案首頁](../README.md)
 
 ## 17:00 同步規則

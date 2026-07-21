@@ -2,6 +2,20 @@
 
 此檔只保存 17:00 前的原始證據，不是正式日誌。平日 17:00 排程完成統整後，將當日內容標記為已整理。
 
+## 2026-07-21｜17:00 前暫存
+
+- 使用者提供實習主管評分表截圖，要求在日誌中加入這些項目的評分功能，並先估算截至目前的分數。
+- 已新增 `MENTOR_EVALUATION_PROGRESS.md`，把主管表單拆成四大項目與 15 項行為觀察，採 1-5 分、證據導向、主管正式分數另行確認的口徑。
+- 截至 2026-07-20 的自評建議：四大項目平均 4.5/5；15 項行為觀察平均 4.47/5；若表單只能填整數，保守建議以 4/5 為底，有主管口頭佐證時再爭取 5/5。
+- 已更新 `templates/每日實習日誌模板.md`，新增「主管評分表自評」區塊，日後每日只填新增證據，避免日誌變長。
+- 已更新 `PROJECT_MEMORY.md` 與 `AI_PM_WORKFLOW.md`，把主管評分表自評列為長期日誌規則。
+- 使用者確認 `MENTOR_EVALUATION_PROGRESS.md` 要保留，日後每天持續評分；已清理 `outputs/` 中不用的部會自我介紹 `AI_PM_7頁版` 與 `模板版` PPTX / inspect 輸出，並刪除空的 `outputs/部會自我介紹_王冠婷` 資料夾；保留原始 `部會自我介紹_王冠婷.pptx`、inspect 檔與 `self-intro-assets` 素材。
+- 已在 Notion `Cleo的暑期實習日誌(2026CIP)` 同一資料庫新增 `Cleo｜主管評分自評儀表板`：`https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350`，內容包含四大項目、15 項行為觀察、目前分數與每日更新規則；也已把此入口加到原本 Skill 積分儀表板底部。
+- 使用者要求 GitHub README 也放主管容易看到的主管評分入口，並新增可點進去看的細則；已更新 `README.md`、`dashboard/README.md`，新增 `dashboard/mentor-evaluation-details.md` 作為細則頁。
+- 依使用者新增的「實習生表現評核」截圖，補上第二張表單建議評分與優缺點回覆：積極自發／持續學習建議 `優異`、團隊合作 `良好`、創新求變 `優異`、組織認同 `認同`、誠信正直 `是`。
+- Notion 主管評分摘要頁因封存區塊無法追加內容，已改新增 Notion 細則頁 `Cleo｜主管評分表細則與回覆`：`https://app.notion.com/p/3a49d9fba316814e923ad82718952a71`，並把 URL 補回 Git 版 README 與自評檔。
+- 使用者要求 `Cleo｜主管評分表細則與回覆` 也要放在 GitHub 上，並在 README 做可點按鈕；已新增 `dashboard/Cleo-主管評分表細則與回覆.md` 作為 GitHub 入口頁，並在主 `README.md` 與 `dashboard/README.md` 用按鈕式連結呈現。
+
 ## 2026-07-15｜已統整至 `logs/daily/work-log-2026-07-15.md`
 
 - 建立 Codex＋Git 的 AI PM 與跨電腦同步機制。
