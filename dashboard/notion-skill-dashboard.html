@@ -73,12 +73,12 @@ const skills=[
   {id:'report',name:'報告 Report',label:'Skill 5｜報告',color:'#DE350B'}
 ];
 const scoreData=[
-  {date:'2026-07-13',scores:{scan:4,compare:4,evaluate:4,validate:4,report:5}},
-  {date:'2026-07-14',scores:{scan:2,compare:3,evaluate:4,validate:3,report:2}},
-  {date:'2026-07-15',scores:{scan:2,compare:2,evaluate:2,validate:3,report:5}},
-  {date:'2026-07-16',scores:{scan:3,compare:3,evaluate:5,validate:7,report:5}},
-  {date:'2026-07-17',scores:{scan:4,compare:5,evaluate:8,validate:9,report:7}},
-  {date:'2026-07-20',scores:{scan:6,compare:4,evaluate:6,validate:7,report:6}}
+  {date:'2026-07-13',scores:{scan:3,compare:3,evaluate:3,validate:5,report:3}},
+  {date:'2026-07-14',scores:{scan:2,compare:2,evaluate:2,validate:2,report:2}},
+  {date:'2026-07-15',scores:{scan:1,compare:1,evaluate:1,validate:2,report:3}},
+  {date:'2026-07-16',scores:{scan:2,compare:2,evaluate:4,validate:6,report:4}},
+  {date:'2026-07-17',scores:{scan:3,compare:4,evaluate:6,validate:7,report:4}},
+  {date:'2026-07-20',scores:{scan:3,compare:2,evaluate:3,validate:4,report:2}}
 ];
 const fmt=n=>Number(n.toFixed(2)).toString();
 const total=d=>skills.reduce((s,k)=>s+(d.scores[k.id]||0),0);
