@@ -373,7 +373,7 @@ Resources:
           python3 -m pip install --user botocore || true
           mkdir -p /mnt/s3files
           for i in $(seq 1 20); do
-            if mount -t s3files -o accesspoint=${S3FilesAccessPoint.AccessPointId} ${S3FileSystem.FileSystemId} /mnt/s3files; then
+            if mount -t s3files ${S3FileSystem.FileSystemId}:/ /mnt/s3files; then
               echo "mounted at $(date -Iseconds)" > /mnt/s3files/cloudformation-mounted.txt
               sync
               break
@@ -430,6 +430,10 @@ Outputs:
 
   MountCommand:
     Description: Run on a Linux client with amazon-efs-utils 3.0.0 or later.
+    Value: !Sub "sudo mkdir -p /mnt/s3files && sudo mount -t s3files ${S3FileSystem.FileSystemId}:/ /mnt/s3files"
+
+  AccessPointMountCommand:
+    Description: Optional access-point mount command for stricter POSIX access-point testing.
     Value: !Sub
       - "sudo mkdir -p /mnt/s3files && sudo mount -t s3files -o accesspoint=${AccessPointId} ${FileSystemId} /mnt/s3files"
       - AccessPointId: !GetAtt S3FilesAccessPoint.AccessPointId

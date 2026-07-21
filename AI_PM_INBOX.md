@@ -214,6 +214,7 @@
 - 使用者詢問 CLI 建立成功的 S3 Files PoC 是否能在 CloudFormation 看流程圖；已新增 `poc/s3-files-cli-poc/S3-Files-CLI實作流程圖-2026-07-21.md`，明確說明 CLI 資源不會出現在 CloudFormation stack，並補上控制線、資料線、Console 分服務查看位置與端到端驗證 sequence diagram。
 - 使用者決定先暫停重新以 CloudFormation 複刻新聞架構，改為保留剛剛手動 CLI 部署成功的證據。已新增 `poc/s3-files-cli-poc/S3-Files手動部署證據蒐集清單-2026-07-21.md`，列出必截證據、可用 CLI 輸出、遮蔽規則與給 mentor 的一句話；重點證據鏈為 S3 Files resource available、EC2 mount 成功、S3 到 mount 可讀、mount 到 S3 可寫回，以及 cleanup 前資源盤點。
 - 使用者提供完整 PowerShell / EC2 terminal 原始輸出作為 S3 Files 手動部署證據；原始內容含 private key、IP、account id、ARN 與 resource IDs，判定不可進 Git 或報告。已新增去識別化摘錄 `poc/s3-files-cli-poc/S3-Files手動部署去識別化證據摘錄-2026-07-21.md`，保留成功證據鏈：S3 Files available、EC2 running/ok、Amazon Linux 2023、`amazon-efs-utils 3.1.3`、`/mnt/s3files` nfs4 mount、`hello-from-s3.txt` 可讀、`hello-from-mount.txt` 可從 S3 讀回；並標示 exposed private key 應於 cleanup 後刪除 key pair 與本機 `.pem`。
+- 使用者確認可建立新 AWS 資源，要求用技術雷達架構快速做 S3 Files 新聞 PoC。已以 `cloudformation/s3-files-self-contained.yaml` 建立新的 CloudFormation-managed stack，狀態 `CREATE_COMPLETE`；EC2 status `running / ok / passed`；S3 Files file system 與 mount target `available`。UserData access point mount 可成功掛載但寫檔遇到 POSIX `Permission denied`，已用 SSM 執行 file system direct mount 修正驗證，`findmnt` 顯示 `nfs4`，從 mount path 寫入 `cloudformation-direct-mounted.txt` 後，等待同步並由 S3 讀回 `hello from cfn direct mount ...`。已新增 `poc/s3-files-cli-poc/S3-Files雷達式PoC報告-2026-07-21.md`，並修正 `cloudformation/s3-files-self-contained.yaml` 讓下次 UserData 預設使用 direct mount 寫回證據檔；本次新 stack 與前次手動 CLI 資源皆待 cleanup。
 
 ### 17:00 後判定結果
 
