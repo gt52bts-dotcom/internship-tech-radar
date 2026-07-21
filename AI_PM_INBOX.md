@@ -202,6 +202,10 @@
 - 使用者要求將 AWS News Blog「Launching S3 Files, making S3 buckets accessible as file systems」轉成可直接執行的 CloudFormation 內容；已新增 `cloudformation/s3-files-minimal.yaml`，內容建立 versioning/encryption S3 bucket、S3 Files service role、`AWS::S3Files::FileSystem`、mount target security group、`AWS::S3Files::MountTarget`、`AWS::S3Files::AccessPoint`、file system policy 與 client IAM inline policy。已用 `aws cloudformation validate-template --profile intern --region ap-southeast-1 --template-body file://cloudformation/s3-files-minimal.yaml` 驗證通過，回傳 `CAPABILITY_NAMED_IAM`；目前尚未部署 stack、尚未建立 AWS 資源。
 - 使用者確認過去登入過 `intern` profile 且 CLI 可用；已用 `aws sts get-caller-identity --profile intern` 驗證目前 CLI 身分可用。進一步查詢 `ap-southeast-1` 發現目前沒有 default VPC/subnet/security group，也查不到任何 VPC/subnet/security group，因此新增真正 self-contained 的 `cloudformation/s3-files-self-contained.yaml`：自建 VPC、public subnet、Internet Gateway、route table、client security group、mount target security group、S3 bucket、S3 Files file system、mount target、access point、client instance role/profile，並可選擇建立一台 Amazon Linux test EC2 自動 mount。已用 `aws cloudformation validate-template --profile intern --region ap-southeast-1 --template-body file://cloudformation/s3-files-self-contained.yaml` 驗證通過，回傳 `CAPABILITY_IAM`；同時確認 `AmazonS3FilesClientFullAccess` managed policy 存在，移除查不到的 `AmazonElasticFileSystemUtils` managed policy，避免部署失敗。目前仍未部署 stack、未建立 AWS 資源。
 
+## 2026-07-21｜17:00 前暫存
+
+- 使用者要求把 AWS News Blog 的 S3 Files 架構圖完整流程做完，並教後續如何從已建立的 S3 Files mount target 補到 EC2 client mount。已新增 `poc/s3-files-cli-poc/S3-Files-完整流程圖教學書-2026-07-21.md`，內容包含目前狀態盤點、VPC/SG/mount target 找回、補 Internet Gateway / route / SSH、建立 EC2 role/profile/key pair、啟動 Amazon Linux EC2、`sudo mount -t s3files`、S3 到 mount 與 mount 到 S3 雙向同步驗證，以及完整 cleanup。官方來源已核對 AWS News Blog、S3 Files user guide、EC2 mount docs 與 prerequisites/policies。
+
 ### 17:00 後判定結果
 
 - 對應 Skill：掃描 +3、比較 +2、評估 +3、驗證 +4、報告 +2。
