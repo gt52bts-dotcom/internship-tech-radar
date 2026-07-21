@@ -1,36 +1,34 @@
-# Cleo 的 Skill 進度互動儀錶板
+# Cleo Skill 積分儀表板
 
-> 這份 dashboard 是 GitHub private repository 內的可攜式 Skill 進度資料。Notion 版本可嵌入 `cleo-skill-dashboard.html`，Git 版本則作為每日 17:00 AI PM 同步的 source of truth。
+> GitHub 是專案 source of truth。此頁整理主管可讀入口、五個 Skill 累積分數與每日趨勢；正式日誌仍以 `logs/daily/` 為準。
 
 ## 主管快速入口
 
-| 入口 | 用途 |
+| 入口 | 說明 |
 |---|---|
-| [查看評分表集合](../evaluation-forms/README.md) | 可選不同評分表：國泰實習生評鑑表單、國泰 Mentor 觀察表、學校成效問卷與成績考核表。 |
-| [查看主管評分摘要（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350) | 給主管快速看目前四大項目自評、AI 模擬 mentor 15 項評分與每日更新規則。 |
-| [Cleo｜主管評分表細則與回覆（GitHub）](./Cleo-主管評分表細則與回覆.md) | 主管可在 GitHub 直接點開的細則入口。 |
-| [查看評分細則與表單回覆](./mentor-evaluation-details.md) | 查看完整評分依據，以及「實習生表現評核」表單的建議勾選、優點／可改善處與綜合回饋。 |
-| [查看細則頁（Notion）](https://app.notion.com/p/3a49d9fba316814e923ad82718952a71) | Notion 版細則頁，方便在 Notion 裡和摘要頁分開查看。 |
+| [查看評分表集合](../evaluation-forms/README.md) | 集中查看國泰評分表、Mentor 觀察表與海大實習表單。 |
+| [主管評分自評儀表板（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350) | 主管可快速查看自評摘要與每日更新規則。 |
+| [Cleo 主管評分表細則與回覆（GitHub）](./Cleo-主管評分表細則與回覆.md) | Git 版主管評分細則與可填寫回覆。 |
+| [主管評分表細則與回覆（Notion）](https://app.notion.com/p/3a49d9fba316814e923ad82718952a71) | Notion 版主管評分細則頁。 |
+| [Mentor 評分細則](./mentor-evaluation-details.md) | 依證據整理四大項目與 Mentor 15 項觀察。 |
 
-目前主管評分自評摘要：四大項目平均 `4.5 / 5`；AI 模擬 mentor 15 項平均 `4.40 / 5`。正式成績仍以主管評分為準。
+目前主管評分建議：四大項目平均 `4.5 / 5`；AI 模擬 Mentor 15 項平均 `4.40 / 5`。正式分數仍以 mentor 最終填寫為準。
 
-## 最新狀態
+## 累積分數
 
-- 累積總分：91 分
-- 最新日期：2026-07-20
-- 今日重點：改採硬審核口徑重算所有日期；7/20 只計研究、CLI 查證、本機 PoC 與 template validation，尚未部署 S3 Files，因此降為 14 分。
+截至 2026-07-21，嚴格審核後累積總分為 `114`。
 
-| Skill | 說明 | 累積分數 | 最新變化 |
-|---|---|---:|---|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 14 | 只保留已支撐 pipeline 或 PoC 的掃描成果；一般研究降為低分。 |
-| Skill 2｜比較 | 候選技術比較、案例對照 | 14 | 已完成比較邏輯與候選篩選，但非正式驗證的比較不給高分。 |
-| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 19 | 評估治理與 fallback 設計有進展；真實 LLM/API 與 human feedback 仍有限。 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 26 | 最高分集中於公司帳戶端到端與 CloudFormation PoC 驗證。 |
-| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 18 | 只把核心報告 artifact 算高一點，簡報與日誌支援不拉高核心分數。 |
+| Skill | 累積分數 | 狀態 |
+|---|---:|---|
+| Skill 1 - Scan | 17 | 已能從 AWS 新聞與官方文件抽出可驗證候選。 |
+| Skill 2 - Compare | 17 | 已能比較替代技術、部署方式與適用限制。 |
+| Skill 3 - Evaluate | 24 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
+| Skill 4 - Validate | 33 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC。 |
+| Skill 5 - Report | 23 | 已能產出教學書、報告、證據包與主管可讀入口。 |
 
-## 每日分數
+## 每日趨勢
 
-| 日期 | 掃描 | 比較 | 評估 | 驗證 | 報告 | 每日總分 |
+| 日期 | Scan | Compare | Evaluate | Validate | Report | 當日總分 |
 |---|---:|---:|---:|---:|---:|---:|
 | 2026-07-13 | 3 | 3 | 3 | 5 | 3 | 17 |
 | 2026-07-14 | 2 | 2 | 2 | 2 | 2 | 10 |
@@ -38,20 +36,22 @@
 | 2026-07-16 | 2 | 2 | 4 | 6 | 4 | 18 |
 | 2026-07-17 | 3 | 4 | 6 | 7 | 4 | 24 |
 | 2026-07-20 | 3 | 2 | 3 | 4 | 2 | 14 |
+| 2026-07-21 | 3 | 3 | 5 | 7 | 5 | 23 |
 
-## 檔案
+## 今日判定
 
-- [互動儀錶板 HTML](./cleo-skill-dashboard.html)
-- [Notion 可嵌入版 HTML](./notion-skill-dashboard.html)
-- [Skill 分數資料 JSON](./skill-score-data.json)
-- [評分表集合](../evaluation-forms/README.md)
-- [完整 Skill 進度紀錄](../SKILL_PROGRESS.md)
-- [Cleo｜主管評分表細則與回覆](./Cleo-主管評分表細則與回覆.md)
-- [主管評分細則與表單回覆](./mentor-evaluation-details.md)
+2026-07-21 的核心成果是 S3 Files 新聞 PoC：從手動 CLI 端到端驗證，推進到 CloudFormation-managed stack，再用 SSM direct mount 完成 S3 read-back。分數給到 `+23`，但因尚未 cleanup、多節點驗證、效能測試與長時間穩定性觀察，Skill 4 不給 8 分以上。
+
+## 相關檔案
+
+- [正式日誌](../logs/daily/work-log-2026-07-21.md)
+- [Skill 積分明細](../SKILL_PROGRESS.md)
+- [Skill JSON 資料](./skill-score-data.json)
+- [互動式 Skill dashboard](./cleo-skill-dashboard.html)
+- [Notion 內嵌 dashboard](./notion-skill-dashboard.html)
 - [專案首頁](../README.md)
 
-## 17:00 同步規則
+## 待修正流程
 
-- 每個工作日 17:00 後才更新正式日誌與分數。
-- 只登錄有證據的成果，例如 Step Functions 執行結果、S3 產出、DynamoDB 紀錄、Git diff、文件檔案。
-- Notion 與 dashboard 若尚未完成同步，必須明確標示，不可假裝已同步。
+- 17:00 AI PM 日誌整理本日沒有準時自動啟動，需檢查或重建 automation。
+- S3 Files 手動 CLI PoC 與 CloudFormation-managed PoC 均尚待 cleanup，避免 EC2 / S3 Files / VPC 持續產生成本。

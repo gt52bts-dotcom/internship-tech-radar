@@ -4,31 +4,31 @@
     {
       "id": "scan",
       "name": "掃描 Scan",
-      "label": "Skill 1｜掃描",
+      "label": "Skill 1 - Scan",
       "color": "#2684FF"
     },
     {
       "id": "compare",
       "name": "比較 Compare",
-      "label": "Skill 2｜比較",
+      "label": "Skill 2 - Compare",
       "color": "#36B37E"
     },
     {
       "id": "evaluate",
       "name": "評估 Evaluate",
-      "label": "Skill 3｜評估",
+      "label": "Skill 3 - Evaluate",
       "color": "#FF991F"
     },
     {
       "id": "validate",
       "name": "驗證 Validate",
-      "label": "Skill 4｜驗證",
+      "label": "Skill 4 - Validate",
       "color": "#6554C0"
     },
     {
       "id": "report",
       "name": "報告 Report",
-      "label": "Skill 5｜報告",
+      "label": "Skill 5 - Report",
       "color": "#DE350B"
     }
   ],
@@ -91,6 +91,16 @@
         "evaluate": 3,
         "validate": 4,
         "report": 2
+      }
+    },
+    {
+      "date": "2026-07-21",
+      "scores": {
+        "scan": 3,
+        "compare": 3,
+        "evaluate": 5,
+        "validate": 7,
+        "report": 5
       }
     }
   ]
