@@ -16,15 +16,15 @@
 
 ## 累積分數
 
-截至 2026-07-21，嚴格審核後累積總分為 `114`。
+截至 2026-07-21，嚴格審核後累積總分為 `107`。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 17 | 已能從 AWS 新聞與官方文件抽出可驗證候選。 |
-| Skill 2 - Compare | 17 | 已能比較替代技術、部署方式與適用限制。 |
-| Skill 3 - Evaluate | 24 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 33 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC。 |
-| Skill 5 - Report | 23 | 已能產出教學書、報告、證據包與主管可讀入口。 |
+| Skill 1 - Scan | 16 | 已能從 AWS 新聞與官方文件抽出可驗證候選。 |
+| Skill 2 - Compare | 16 | 已能比較替代技術、部署方式與適用限制。 |
+| Skill 3 - Evaluate | 22 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
+| Skill 4 - Validate | 32 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC。 |
+| Skill 5 - Report | 21 | 已能產出教學書、報告、證據包與主管可讀入口。 |
 
 ## 每日趨勢
 
@@ -36,11 +36,11 @@
 | 2026-07-16 | 2 | 2 | 4 | 6 | 4 | 18 |
 | 2026-07-17 | 3 | 4 | 6 | 7 | 4 | 24 |
 | 2026-07-20 | 3 | 2 | 3 | 4 | 2 | 14 |
-| 2026-07-21 | 3 | 3 | 5 | 7 | 5 | 23 |
+| 2026-07-21 | 2 | 2 | 3 | 6 | 3 | 16 |
 
 ## 今日判定
 
-2026-07-21 的核心成果是 S3 Files 新聞 PoC：從手動 CLI 端到端驗證，推進到 CloudFormation-managed stack，再用 SSM direct mount 完成 S3 read-back。分數給到 `+23`，但因尚未 cleanup、多節點驗證、效能測試與長時間穩定性觀察，Skill 4 不給 8 分以上。
+2026-07-21 的核心成果是 S3 Files 新聞 PoC：從手動 CLI 端到端驗證，推進到 CloudFormation-managed stack，再用 SSM direct mount 完成 S3 read-back。硬審核後分數調整為 `+16`：實機驗證值得加分，但掃描、比較與報告都集中在單一服務，且尚未 cleanup、多節點驗證、效能測試與長時間穩定性觀察。
 
 ## 相關檔案
 

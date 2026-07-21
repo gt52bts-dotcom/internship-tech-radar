@@ -50,15 +50,15 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-截至 2026-07-21，改採硬審核口徑後累積分數 114 分。
+截至 2026-07-21，改採硬審核口徑後累積分數 107 分。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 17 |
-| Skill 2｜比較 | 候選技術比較、案例對照 | 17 |
-| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 24 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 33 |
-| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 23 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 16 |
+| Skill 2｜比較 | 候選技術比較、案例對照 | 16 |
+| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 22 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 32 |
+| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 21 |
 
 ## 重要交付物
 

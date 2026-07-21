@@ -26,17 +26,17 @@
 | 2026-07-16 | 2 | 2 | 4 | 6 | 4 | 18 | direct |
 | 2026-07-17 | 3 | 4 | 6 | 7 | 4 | 24 | direct |
 | 2026-07-20 | 3 | 2 | 3 | 4 | 2 | 14 | direct |
-| 2026-07-21 | 3 | 3 | 5 | 7 | 5 | 23 | direct |
-| **累積** | **17** | **17** | **24** | **33** | **23** | **114** |  |
+| 2026-07-21 | 2 | 2 | 3 | 6 | 3 | 16 | direct |
+| **累積** | **16** | **16** | **22** | **32** | **21** | **107** |  |
 
 ## 2026-07-21 評分理由
 
-- Scan +3：聚焦 S3 Files AWS News、官方文件、CLI schema 與使用條件，屬明確但非廣泛掃描。
-- Compare +3：比較 CLI direct resource 與 CloudFormation-managed resource、direct mount 與 access point mount、S3 API 與檔案系統存取。
-- Evaluate +5：把 IAM、POSIX 權限、AWS 成本、cleanup、去識別化證據與 exposed private key 風險納入判斷。
-- Validate +7：手動 CLI PoC 與 CloudFormation-managed PoC 都完成實機雙向驗證；未做效能、多節點、長時間穩定性與 cleanup 後回驗，因此不給 8 分以上。
-- Report +5：產出教學書、流程圖、證據摘錄、雷達式 PoC 報告與正式日誌。
+- Scan +2：聚焦 S3 Files AWS News、官方文件、CLI schema 與使用條件；但只處理單一新聞與單一服務，不算廣泛掃描。
+- Compare +2：比較 CLI direct resource 與 CloudFormation-managed resource、direct mount 與 access point mount；但未進一步比較多個替代服務。
+- Evaluate +3：納入 IAM、POSIX 權限、成本、cleanup、去識別化證據與 exposed private key 風險；但缺完整成本估算與正式採用決策。
+- Validate +6：手動 CLI PoC 與 CloudFormation-managed PoC 都完成實機雙向驗證；但未做效能、多節點、長時間穩定性與 cleanup 後回驗。
+- Report +3：產出教學書、流程圖、證據摘錄、雷達式 PoC 報告與正式日誌；尚未濃縮成 final proposal 或主管版結論頁。
 
 ## 當前狀態
 
-截至 2026-07-21，累積總分為 114。Skill 4 仍是最高，代表專案已從文件設計推進到多次可驗證 PoC；下一步要補強的是 cleanup 回驗、automation 準時性與把新聞重點抽取能力寫成可展示案例。
+截至 2026-07-21，累積總分為 107。Skill 4 仍是最高，代表專案已從文件設計推進到多次可驗證 PoC；下一步要補強的是 cleanup 回驗、automation 準時性、成本估算，以及把新聞重點抽取能力寫成可展示案例。

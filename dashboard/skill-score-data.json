@@ -96,11 +96,11 @@
     {
       "date": "2026-07-21",
       "scores": {
-        "scan": 3,
-        "compare": 3,
-        "evaluate": 5,
-        "validate": 7,
-        "report": 5
+        "scan": 2,
+        "compare": 2,
+        "evaluate": 3,
+        "validate": 6,
+        "report": 3
       }
     }
   ]
