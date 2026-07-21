@@ -205,6 +205,7 @@
 ## 2026-07-21｜17:00 前暫存
 
 - 使用者要求把 AWS News Blog 的 S3 Files 架構圖完整流程做完，並教後續如何從已建立的 S3 Files mount target 補到 EC2 client mount。已新增 `poc/s3-files-cli-poc/S3-Files-完整流程圖教學書-2026-07-21.md`，內容包含目前狀態盤點、VPC/SG/mount target 找回、補 Internet Gateway / route / SSH、建立 EC2 role/profile/key pair、啟動 Amazon Linux EC2、`sudo mount -t s3files`、S3 到 mount 與 mount 到 S3 雙向同步驗證，以及完整 cleanup。官方來源已核對 AWS News Blog、S3 Files user guide、EC2 mount docs 與 prerequisites/policies。
+- 使用者已完成 S3 Files 端到端 PoC：EC2 Amazon Linux 成功安裝 `amazon-efs-utils 3.1.3`，以 `sudo mount -t s3files ... /mnt/s3files` 掛載 S3 Files；EC2 mount path 可讀到原 S3 檔案 `hello-from-s3.txt`，並從 mount path 寫入 `hello-from-mount.txt` 後於 S3 bucket 讀回內容。已新增 `poc/s3-files-cli-poc/S3-Files端到端驗證報告-2026-07-21.md`，以去識別化方式保存證據與 S1-S5 意義；下一步需 cleanup，避免 EC2 / S3 Files / VPC 資源持續產生成本。
 
 ### 17:00 後判定結果
 
