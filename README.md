@@ -6,7 +6,7 @@
 
 | 按鈕 | 說明 |
 |---|---|
-| [▶ 查看評分表集合（GitHub）](./evaluation-forms/README.md) | 可選不同評分表：國泰實習生評鑑表單、國泰 Mentor 觀察表、未來學校表單。 |
+| [▶ 查看評分表集合（GitHub）](./evaluation-forms/README.md) | 可選不同評分表：國泰實習生評鑑表單、國泰 Mentor 觀察表、學校成效問卷與成績考核表。 |
 | [▶ 主管評分摘要（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350) | 快速查看目前自評分數與每日更新規則。 |
 | [▶ Cleo｜主管評分表細則與回覆（GitHub）](./dashboard/Cleo-主管評分表細則與回覆.md) | 主管可在 GitHub 直接點開的細則入口。 |
 | [▶ 完整細則與表單回覆（GitHub）](./dashboard/mentor-evaluation-details.md) | 完整評分依據、第二張表單建議與優缺點文字。 |

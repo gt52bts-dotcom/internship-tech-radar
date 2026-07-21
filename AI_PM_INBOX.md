@@ -17,7 +17,9 @@
 - 依使用者新增的「實習生表現評核」截圖，補上第二張表單建議評分與優缺點回覆：積極自發／持續學習建議 `優異`、團隊合作 `良好`、創新求變 `優異`、組織認同 `認同`、誠信正直 `是`。
 - Notion 主管評分摘要頁因封存區塊無法追加內容，已改新增 Notion 細則頁 `Cleo｜主管評分表細則與回覆`：`https://app.notion.com/p/3a49d9fba316814e923ad82718952a71`，並把 URL 補回 Git 版 README 與自評檔。
 - 使用者要求 `Cleo｜主管評分表細則與回覆` 也要放在 GitHub 上，並在 README 做可點按鈕；已新增 `dashboard/Cleo-主管評分表細則與回覆.md` 作為 GitHub 入口頁，並在主 `README.md` 與 `dashboard/README.md` 用按鈕式連結呈現。
-- 使用者釐清目前有兩張國泰表單，之後會再補學校表單；已建立虛擬評分表集合 `evaluation-forms/`，包含 `國泰｜實習生評鑑表單`、`國泰｜Mentor實習生狀況觀察表` 與 `學校｜評分表（待補）`。主 `README.md` 已新增 `查看評分表集合` 按鈕。
+- 使用者釐清目前有兩張國泰表單，後續另補學校表單；已建立虛擬評分表集合 `evaluation-forms/`，先納入 `國泰｜實習生評鑑表單`、`國泰｜Mentor實習生狀況觀察表`，並預留學校表單入口。主 `README.md` 已新增 `查看評分表集合` 按鈕。
+- 使用者提供兩張學校表單 Word 檔：`國立臺灣海洋大學 學生校外實習成效問卷(實習機構).docx`、`學生校外實習成績考核表(實習機構主管用).docx`。已抽出欄位並新增 GitHub 可讀頁：`evaluation-forms/ntou-internship-effectiveness-questionnaire.md` 與 `evaluation-forms/ntou-internship-performance-evaluation.md`；學校成績考核表目前 AI 模擬實習機構主管評分為 91/100。
+- Notion 主管評分摘要頁與細則頁已同步補上學校表單加入狀態與學校成績考核表 AI 模擬分數。
 
 ## 2026-07-15｜已統整至 `logs/daily/work-log-2026-07-15.md`
 

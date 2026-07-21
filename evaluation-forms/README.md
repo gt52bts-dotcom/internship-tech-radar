@@ -9,7 +9,9 @@
 |---|---|---|---|
 | [國泰｜實習生評鑑表單](./cathay-intern-evaluation-form.md) | 國泰 CIP 表單填寫系統 | 已建立 | 評估積極自發、團隊合作、創新求變、組織認同、誠信正直，並填寫優點／可改善處與綜合回饋。 |
 | [國泰｜Mentor實習生狀況觀察表](./cathay-mentor-observation-form.md) | `2026 國泰 CIP 實習手冊_mentor` | 已建立 | Mentor 於實習最後一週填寫，依 15 項行為觀察以 1-5 分評估。 |
-| [學校｜評分表（待補）](./school-evaluation-form-placeholder.md) | 學校表單 | 待提供 | 使用者拿到學校表單後再補欄位、評分規則與建議填答。 |
+| [學校｜評分表索引](./school-evaluation-form-placeholder.md) | 國立臺灣海洋大學 | 已建立 | 管理學校端兩張表單入口。 |
+| [學校｜學生校外實習成效問卷（實習機構）](./ntou-internship-effectiveness-questionnaire.md) | 國立臺灣海洋大學 | 已建立 | 實習機構回饋實習流程與實習生工作表現滿意度。 |
+| [學校｜學生校外實習成績考核表（實習機構主管用）](./ntou-internship-performance-evaluation.md) | 國立臺灣海洋大學 | 已建立 | 實習機構主管評核平時表現、心得報告、考勤並給出主管評核成績。 |
 
 ## 使用規則
 
@@ -17,7 +19,7 @@
 - 不要把兩張國泰表單混成同一張：`實習生評鑑表單` 是表單填寫系統中的分類評核；`Mentor實習生狀況觀察表` 是 mentor 手冊中的 15 項觀察表。
 - 若表單項目需要主觀觀察、mentor 判斷或使用者感受，沒有資料就留白或標示 `暫不評分`；若使用者明確要求「假設 AI 是 mentor 評分」，必須標示為 `AI 模擬 mentor 評分`，不能寫成正式 mentor 分數。
 - 每日 17:00 正式日誌統整時，若有新的評分表證據，更新對應表單檔案與 `MENTOR_EVALUATION_PROGRESS.md`。
-- 目前所有分數都是自評與填答建議，正式成績仍以主管、mentor 或學校正式評分為準。
+- 目前所有分數都是自評、AI 模擬評分或填答建議，正式成績仍以主管、mentor 或學校正式評分為準。
 
 ## 目前填答建議摘要
 
@@ -25,11 +27,13 @@
 |---|---|
 | 國泰｜實習生評鑑表單 | 積極自發／持續學習：優異；團隊合作：良好；創新求變：優異；組織認同：認同；誠信正直：是。 |
 | 國泰｜Mentor實習生狀況觀察表 | AI 模擬 mentor 平均 4.40/5（66/15）；正式分數仍以 mentor 最終填寫為準。 |
-| 學校｜評分表 | 尚未取得，先不推估。 |
+| 學校｜學生校外實習成效問卷 | 實習課程流程題由公司判斷；實習生工作項目建議多落在 `滿意` 至 `非常滿意`。 |
+| 學校｜學生校外實習成績考核表 | AI 模擬實習機構主管評分 `91/100`；若主管保守可落在 `88-91`。 |
 
 ## 相關資料
 
 - [主管評分表自評追蹤](../MENTOR_EVALUATION_PROGRESS.md)
 - [主管評分細則與表單回覆](../dashboard/mentor-evaluation-details.md)
+- [學校評分表索引](./school-evaluation-form-placeholder.md)
 - [主管評分摘要（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350)
 - [主管評分表細則與回覆（Notion）](https://app.notion.com/p/3a49d9fba316814e923ad82718952a71)

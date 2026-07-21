@@ -64,7 +64,9 @@ Notion 版細則頁同步保存在 `Cleo｜主管評分表細則與回覆`。
 
 - `evaluation-forms/cathay-intern-evaluation-form.md`：國泰｜實習生評鑑表單
 - `evaluation-forms/cathay-mentor-observation-form.md`：國泰｜Mentor實習生狀況觀察表
-- `evaluation-forms/school-evaluation-form-placeholder.md`：學校｜評分表（待補）
+- `evaluation-forms/school-evaluation-form-placeholder.md`：學校｜評分表索引
+- `evaluation-forms/ntou-internship-effectiveness-questionnaire.md`：學校｜學生校外實習成效問卷（實習機構）
+- `evaluation-forms/ntou-internship-performance-evaluation.md`：學校｜學生校外實習成績考核表（實習機構主管用）
 
 ## 可引用證據
 
