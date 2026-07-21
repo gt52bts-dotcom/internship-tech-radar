@@ -9,6 +9,8 @@ https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350
 Notion 細則頁：`Cleo｜主管評分表細則與回覆`  
 https://app.notion.com/p/3a49d9fba316814e923ad82718952a71
 
+GitHub 評分表集合：`evaluation-forms/README.md`
+
 ## 計分口徑
 
 - `5`：已有多次可檢查證據，且成果品質、主動性或影響力明確超出基本要求。
@@ -71,6 +73,12 @@ https://app.notion.com/p/3a49d9fba316814e923ad82718952a71
 可直接貼入第二張表單的完整文字整理於 `dashboard/mentor-evaluation-details.md`。
 Notion 版細則頁同步保存在 `Cleo｜主管評分表細則與回覆`。
 
+自 2026-07-21 起，評分表資料改集中管理於 `evaluation-forms/`：
+
+- `evaluation-forms/cathay-intern-evaluation-form.md`：國泰｜實習生評鑑表單
+- `evaluation-forms/cathay-mentor-observation-form.md`：國泰｜Mentor實習生狀況觀察表
+- `evaluation-forms/school-evaluation-form-placeholder.md`：學校｜評分表（待補）
+
 ## 可引用證據
 
 - `SKILL_PROGRESS.md`：截至 2026-07-20，五個 Skill 累積 91 分。
@@ -80,5 +88,6 @@ Notion 版細則頁同步保存在 `Cleo｜主管評分表細則與回覆`。
 - `final-proposal/7-17成果素材.md`、`final-proposal/demo-checklist.md`：final proposal 與 demo 證據。
 - `dashboard/README.md`、`dashboard/skill-score-data.json`：可攜式 Skill 分數儀表板。
 - `dashboard/mentor-evaluation-details.md`：主管可讀的評分細則與第二張表單回覆。
+- `evaluation-forms/README.md`：評分表集合入口。
 - Notion `Cleo｜主管評分自評儀表板`：主管評分表自評入口與每日更新規則。
 - Notion `Cleo｜主管評分表細則與回覆`：第二張表單評分、優點／可改善處與綜合回饋。

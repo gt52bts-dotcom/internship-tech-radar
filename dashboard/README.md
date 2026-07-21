@@ -6,6 +6,7 @@
 
 | 入口 | 用途 |
 |---|---|
+| [查看評分表集合](../evaluation-forms/README.md) | 可選不同評分表：國泰實習生評鑑表單、國泰 Mentor 觀察表、未來學校表單。 |
 | [查看主管評分摘要（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350) | 給主管快速看目前自評分數、四大項目、15 項行為觀察與每日更新規則。 |
 | [Cleo｜主管評分表細則與回覆（GitHub）](./Cleo-主管評分表細則與回覆.md) | 主管可在 GitHub 直接點開的細則入口。 |
 | [查看評分細則與表單回覆](./mentor-evaluation-details.md) | 查看完整評分依據，以及「實習生表現評核」表單的建議勾選、優點／可改善處與綜合回饋。 |
@@ -43,6 +44,7 @@
 - [互動儀錶板 HTML](./cleo-skill-dashboard.html)
 - [Notion 可嵌入版 HTML](./notion-skill-dashboard.html)
 - [Skill 分數資料 JSON](./skill-score-data.json)
+- [評分表集合](../evaluation-forms/README.md)
 - [完整 Skill 進度紀錄](../SKILL_PROGRESS.md)
 - [Cleo｜主管評分表細則與回覆](./Cleo-主管評分表細則與回覆.md)
 - [主管評分細則與表單回覆](./mentor-evaluation-details.md)

@@ -38,6 +38,7 @@
 - 對於較大的工作，先整理計畫型態與時間軸；若目標、驗證方式或主管期待不清楚，AI PM 可以主動反問再繼續。
 - Git 內的正式每日實習日誌放在 `logs/daily/work-log-YYYY-MM-DD.md`；根目錄保留 `AI_PM_INBOX.md` 作為 17:00 前暫存。
 - 2026-07-21 起，日誌增加「主管評分表自評」功能：四大項目為組織認同／組織承諾、盡責、團隊合作、創新求變，另追蹤主管表單 15 項行為觀察；累計檔為 `MENTOR_EVALUATION_PROGRESS.md`，主管可讀細則頁為 `dashboard/mentor-evaluation-details.md`。此分數是實習生自評與補強提醒，正式成績仍以主管評分為準。Notion 摘要頁為 `Cleo｜主管評分自評儀表板`：`https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350`；Notion 細則頁為 `Cleo｜主管評分表細則與回覆`：`https://app.notion.com/p/3a49d9fba316814e923ad82718952a71`。
+- 2026-07-21 起，建立 GitHub 評分表集合 `evaluation-forms/`。目前包含兩張國泰表單：`國泰｜實習生評鑑表單`、`國泰｜Mentor實習生狀況觀察表`，並預留 `學校｜評分表（待補）`。日後使用者問「評分表／評鑑表」時，先讀 `evaluation-forms/README.md` 再判斷要使用哪張表單，不要把不同表單混在一起。
 - 自 2026-07-17 起，AI 也要維護自己的每日執行軌跡 Markdown，位置為 `ai-execution-trace/daily/YYYY-MM-DD.md`；每小時追加一次，只記錄 AI 當小時的目標、關鍵決策、實際產出、驗證證據與待接續事項，不寫專案前情提要，也不可寫成流水帳。
 
 ## 五個 Skill 儀表板
