@@ -31,8 +31,9 @@ flowchart LR
 
 | 日期 | 今日主軸 | 狀態 |
 |---|---|---|
-| [7/17](./logs/daily/work-log-2026-07-17.md) | CloudFormation 公司帳戶部署成功，完成 governance artifacts、7 頁簡報與 AI 執行軌跡 | direct |
+| [7/21](./logs/daily/work-log-2026-07-21.md) | 完成 S3 Files 手動與 CloudFormation-managed PoC 證據整理，建立評分表框架並同步正式日誌 | direct |
 | [7/20](./logs/daily/work-log-2026-07-20.md) | 整理 final proposal 與 demo 材料，完成 S3 Files 新聞截斷測試、CLI 查證與 CloudFormation template validation | direct |
+| [7/17](./logs/daily/work-log-2026-07-17.md) | CloudFormation 公司帳戶部署成功，完成 governance artifacts、7 頁簡報與 AI 執行軌跡 | direct |
 | [7/16](./logs/daily/work-log-2026-07-16.md) | 公司 AWS 帳戶 Step Functions 全流程跑通，完成 API-first fallback 與 HR 雙週誌格式修正 | direct |
 | [7/15](./logs/daily/work-log-2026-07-15.md) | 建立 AI PM、GitHub、Notion、Skill dashboard 與公司帳戶部署準備 | supporting |
 | [7/14](./logs/daily/work-log-2026-07-14.md) | 整理 v3 手動部署包與 AWS 部署限制 | supporting |
@@ -49,15 +50,15 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-截至 2026-07-20，改採硬審核口徑後累積分數 91 分。
+截至 2026-07-21，改採硬審核口徑後累積分數 114 分。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 14 |
-| Skill 2｜比較 | 候選技術比較、案例對照 | 14 |
-| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 19 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 26 |
-| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 18 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集 | 17 |
+| Skill 2｜比較 | 候選技術比較、案例對照 | 17 |
+| Skill 3｜評估 | 評分邏輯、AHP/rubric/LLM 輔助評估 | 24 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 33 |
+| Skill 5｜報告 | Top 3 報告、HTML/文件輸出、週誌 | 23 |
 
 ## 重要交付物
 
