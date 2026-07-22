@@ -37,6 +37,7 @@
 - 使用者將 CloudFormation 匯出成果貼入 `poc/s3-files-cli-poc/S3-Files-CDK部署教學書-2026-07-22.md` 並自行加註解，作為理解 CDK/CloudFormation 資源關係的學習證據。已檢查並修正教學書：補上人工註解版 template 的 code block 說明、改用 `cdk.cmd` 避免 PowerShell `.ps1` 限制、修正 `SourceArn` wildcard、Security Group `IpProtocol` 註解格式、UserData typo、EC2 規格雜訊與 S3 Files `poc/` prefix 對應路徑。同步修改 `poc/s3-files-cdk-poc/s3_files_cdk_poc/stack.py`，讓 EC2 UserData 寫入 `/mnt/s3files/cdk-userdata-mounted.txt`，避免 S3 端再出現 `poc/poc/...` 雙層 prefix；並新增 CDK PoC `.gitignore`，排除 `.local/`、`cdk.out/` 與 Python cache。已用本機 `cdk.cmd synth -c namePrefix=s3files-cdk-doccheck -c createTestInstance=true` 驗證 template 可成功產生；未部署 AWS，未產生成本。
 - 使用者自行執行 CDK PoC 部署，`cdk deploy` 因 CDK bootstrap deploy/cfn-exec role 無法 assume 而失敗；已引導改走 `cdk synth` + `aws cloudformation deploy` 路線。使用者回報 CloudFormation deploy 顯示 `Successfully created/updated stack - s3files-cdk-202607221334`，後續 CLI 也確認 CloudFormation stack 與主要 resources 為 `CREATE_COMPLETE`。
 - 使用者提供 AWS CloudFormation Infrastructure Composer 截圖作為今日成果證明，畫面可見 S3 Files、mount target、access point、VPC、EC2、security group 與 S3 bucket 的資源關係；截圖已保存到 `poc/s3-files-cli-poc/evidence/2026-07-22-cloudformation-infrastructure-composer.png`。這可記為 CloudFormation / Console 視覺化證據，但仍不能記成完整 PoC 成功；還需要 S3 Files / EC2 / S3 Console 狀態、EC2 `/mnt/s3files` mount 與 S3 雙向同步驗證。
+- 使用者要求補記今日有細讀 CloudFormation 匯出的 YAML，每一段 resource 都對照用途和相依關係看過。這可作為「Cleo 自己理解 PoC 原理，而不是只叫 AI 跑」的學習證據；已補進 Git 與 Notion 7/22 正式日誌。
 
 ### 17:00 後判定結果
 
