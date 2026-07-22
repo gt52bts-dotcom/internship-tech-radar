@@ -84,7 +84,7 @@
 
 ## 可引用證據
 
-- `SKILL_PROGRESS.md`：截至 2026-07-20，五個 Skill 累積 91 分。
+- `SKILL_PROGRESS.md`：截至 2026-07-22，五個 Skill 累積 61 分（每日總分最高 10 分的新口徑）。
 - `logs/daily/work-log-2026-07-16.md`：公司帳戶手動 Step Functions 全流程跑通。
 - `logs/daily/work-log-2026-07-17.md`：CloudFormation 部署與 `company-cfn-001` 成功。
 - `logs/daily/work-log-2026-07-20.md`：S3 Files 新聞截斷測試、CLI 查證、CloudFormation template validation。

@@ -59,7 +59,7 @@ aws cloudformation deploy `
   --capabilities CAPABILITY_NAMED_IAM `
   --parameter-overrides `
     ArtifactBucket=$ARTIFACT_BUCKET `
-    ExistingAnthropicSecretArn="arn:aws:secretsmanager:ap-southeast-1:092211181371:secret:cathay-techintel-v3/anthropic-api-key-Lhnx13"
+    ExistingAnthropicSecretArn="arn:aws:secretsmanager:ap-southeast-1:ACCOUNT_ID_HERE:secret:cathay-techintel-v3/anthropic-api-key-SECRET_SUFFIX"
 ```
 
 If no secret exists, omit `ExistingAnthropicSecretArn`; CloudFormation creates

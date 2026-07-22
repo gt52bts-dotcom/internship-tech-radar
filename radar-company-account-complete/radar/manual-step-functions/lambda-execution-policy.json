@@ -9,13 +9,13 @@
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
-      "Resource": "arn:aws:logs:ap-southeast-1:092211181371:*"
+      "Resource": "arn:aws:logs:ap-southeast-1:ACCOUNT_ID_HERE:*"
     },
     {
       "Sid": "AllowListDataBucket",
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "arn:aws:s3:::cathay-techintel-v3-data-092211181371"
+      "Resource": "arn:aws:s3:::cathay-techintel-v3-data-ACCOUNT_ID_HERE"
     },
     {
       "Sid": "AllowReadWritePipelineObjects",
@@ -25,7 +25,7 @@
         "s3:PutObject",
         "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::cathay-techintel-v3-data-092211181371/*"
+      "Resource": "arn:aws:s3:::cathay-techintel-v3-data-ACCOUNT_ID_HERE/*"
     },
     {
       "Sid": "AllowPickLogTableAccess",
@@ -37,13 +37,13 @@
         "dynamodb:Query",
         "dynamodb:Scan"
       ],
-      "Resource": "arn:aws:dynamodb:ap-southeast-1:092211181371:table/cathay-techintel-v3-picks-log"
+      "Resource": "arn:aws:dynamodb:ap-southeast-1:ACCOUNT_ID_HERE:table/cathay-techintel-v3-picks-log"
     },
     {
       "Sid": "AllowReadAnthropicSecret",
       "Effect": "Allow",
       "Action": "secretsmanager:GetSecretValue",
-      "Resource": "arn:aws:secretsmanager:ap-southeast-1:092211181371:secret:cathay-techintel-v3/anthropic-api-key-*"
+      "Resource": "arn:aws:secretsmanager:ap-southeast-1:ACCOUNT_ID_HERE:secret:cathay-techintel-v3/anthropic-api-key-*"
     }
   ]
 }

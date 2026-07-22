@@ -15,35 +15,36 @@
 
 ## 累積分數
 
-截至 2026-07-21，嚴格審核後累積總分為 `107`。
+截至 2026-07-22，嚴格審核後累積總分為 `61`。每日總分最高 10 分，舊版 107 分不再作為正式累積值。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 16 | 已能從 AWS 新聞與官方文件抽出可驗證候選。 |
-| Skill 2 - Compare | 16 | 已能比較替代技術、部署方式與適用限制。 |
-| Skill 3 - Evaluate | 22 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 32 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC。 |
-| Skill 5 - Report | 21 | 已能產出教學書、報告、證據包與主管可讀入口。 |
+| Skill 1 - Scan | 9 | 已能從 AWS 新聞、官方文件與帳號資源盤點抽出可驗證候選。 |
+| Skill 2 - Compare | 9 | 已能比較替代技術、部署方式與適用限制。 |
+| Skill 3 - Evaluate | 13 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
+| Skill 4 - Validate | 20 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並開始補 cleanup 回驗。 |
+| Skill 5 - Report | 10 | 已能產出教學書、報告、證據包與主管可讀入口。 |
 
 ## 每日趨勢
 
 | 日期 | Scan | Compare | Evaluate | Validate | Report | 當日總分 |
 |---|---:|---:|---:|---:|---:|---:|
-| 2026-07-13 | 3 | 3 | 3 | 5 | 3 | 17 |
-| 2026-07-14 | 2 | 2 | 2 | 2 | 2 | 10 |
-| 2026-07-15 | 1 | 1 | 1 | 2 | 3 | 8 |
-| 2026-07-16 | 2 | 2 | 4 | 6 | 4 | 18 |
-| 2026-07-17 | 3 | 4 | 6 | 7 | 4 | 24 |
-| 2026-07-20 | 3 | 2 | 3 | 4 | 2 | 14 |
-| 2026-07-21 | 2 | 2 | 3 | 6 | 3 | 16 |
+| 2026-07-13 | 1 | 2 | 1 | 3 | 1 | 8 |
+| 2026-07-14 | 1 | 1 | 1 | 2 | 1 | 6 |
+| 2026-07-15 | 1 | 1 | 1 | 1 | 1 | 5 |
+| 2026-07-16 | 1 | 1 | 2 | 3 | 1 | 8 |
+| 2026-07-17 | 1 | 1 | 2 | 4 | 2 | 10 |
+| 2026-07-20 | 2 | 1 | 2 | 1 | 1 | 7 |
+| 2026-07-21 | 1 | 1 | 2 | 4 | 1 | 9 |
+| 2026-07-22 | 1 | 1 | 2 | 2 | 2 | 8 |
 
 ## 今日判定
 
-2026-07-21 的核心成果是 S3 Files 新聞 PoC：從手動 CLI 端到端驗證，推進到 CloudFormation-managed stack，再用 SSM direct mount 完成 S3 read-back。硬審核後分數調整為 `+16`：實機驗證值得加分，但掃描、比較與報告都集中在單一服務，且尚未 cleanup、多節點驗證、效能測試與長時間穩定性觀察。
+2026-07-22 的核心成果是把 S3 Files 從一次性實作改成 CDK／CloudFormation 可視化、可由本人重做的流程，並完成昨天兩組 PoC 的 cleanup 回驗。今日分數為 `+8`：本機 template 合成、cleanup、新 CloudFormation stack 狀態與 Infrastructure Composer 資源圖已驗證，但尚未完成 EC2 mount 檢查與 S3 雙向同步。
 
 ## 相關檔案
 
-- [正式日誌](../logs/daily/work-log-2026-07-21.md)
+- [正式日誌](../logs/daily/work-log-2026-07-22.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)
 - [Skill JSON 資料](./skill-score-data.json)
 - [互動式 Skill dashboard](./cleo-skill-dashboard.html)
@@ -52,5 +53,5 @@
 
 ## 待修正流程
 
-- 17:00 AI PM 日誌整理本日沒有準時自動啟動，需檢查或重建 automation。
-- S3 Files 手動 CLI PoC 與 CloudFormation-managed PoC 均尚待 cleanup，避免 EC2 / S3 Files / VPC 持續產生成本。
+- 新 CDK stack 已補 CloudFormation Infrastructure Composer 截圖證據；仍待 S3 Files / EC2 / S3 Console 狀態確認、EC2 mount 檢查與雙向檔案同步，完成後需 cleanup，避免 EC2 / S3 Files / VPC 持續產生成本。
+- `cdk deploy` 仍受 bootstrap role 權限限制，目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑。

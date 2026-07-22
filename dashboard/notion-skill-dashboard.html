@@ -56,7 +56,7 @@
     <article class="card">
       <div class="title">每日分數趨勢</div>
       <div class="scroll" id="scroll"><div id="dayBars" class="bars"></div></div>
-      <div class="hint">分數代表可驗證進展；高分日通常對應端到端整合、部署驗證或正式交付。</div>
+      <div class="hint">分數代表可驗證進展；每日五個 Skill 加總最高 10 分。</div>
     </article>
   </section>
   <section class="card bottom">
@@ -73,12 +73,14 @@ const skills=[
   {id:'report',name:'報告 Report',label:'Skill 5｜報告',color:'#DE350B'}
 ];
 const scoreData=[
-  {date:'2026-07-13',scores:{scan:3,compare:3,evaluate:3,validate:5,report:3}},
-  {date:'2026-07-14',scores:{scan:2,compare:2,evaluate:2,validate:2,report:2}},
-  {date:'2026-07-15',scores:{scan:1,compare:1,evaluate:1,validate:2,report:3}},
-  {date:'2026-07-16',scores:{scan:2,compare:2,evaluate:4,validate:6,report:4}},
-  {date:'2026-07-17',scores:{scan:3,compare:4,evaluate:6,validate:7,report:4}},
-  {date:'2026-07-20',scores:{scan:3,compare:2,evaluate:3,validate:4,report:2}}
+  {date:'2026-07-13',scores:{scan:1,compare:2,evaluate:1,validate:3,report:1}},
+  {date:'2026-07-14',scores:{scan:1,compare:1,evaluate:1,validate:2,report:1}},
+  {date:'2026-07-15',scores:{scan:1,compare:1,evaluate:1,validate:1,report:1}},
+  {date:'2026-07-16',scores:{scan:1,compare:1,evaluate:2,validate:3,report:1}},
+  {date:'2026-07-17',scores:{scan:1,compare:1,evaluate:2,validate:4,report:2}},
+  {date:'2026-07-20',scores:{scan:2,compare:1,evaluate:2,validate:1,report:1}},
+  {date:'2026-07-21',scores:{scan:1,compare:1,evaluate:2,validate:4,report:1}},
+  {date:'2026-07-22',scores:{scan:1,compare:1,evaluate:2,validate:2,report:2}}
 ];
 const fmt=n=>Number(n.toFixed(2)).toString();
 const total=d=>skills.reduce((s,k)=>s+(d.scores[k.id]||0),0);

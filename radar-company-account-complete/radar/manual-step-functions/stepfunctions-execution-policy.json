@@ -6,18 +6,18 @@
       "Effect": "Allow",
       "Action": "lambda:InvokeFunction",
       "Resource": [
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s1scan",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s1scan:*",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s2compare",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s2compare:*",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s2bquote",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s2bquote:*",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s3evaluate",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s3evaluate:*",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s4validate",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s4validate:*",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s5report",
-        "arn:aws:lambda:ap-southeast-1:092211181371:function:cathay-techintel-v3-s5report:*"
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s1scan",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s1scan:*",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s2compare",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s2compare:*",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s2bquote",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s2bquote:*",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s3evaluate",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s3evaluate:*",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s4validate",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s4validate:*",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s5report",
+        "arn:aws:lambda:ap-southeast-1:ACCOUNT_ID_HERE:function:cathay-techintel-v3-s5report:*"
       ]
     },
     {

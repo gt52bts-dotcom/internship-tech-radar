@@ -79,7 +79,7 @@ For July through the end of August 2026, push internship work logs into this dat
 ### Skill dashboard sync
 
 - Track these five Skills exactly: `掃描 Scan`, `比較 Compare`, `評估 Evaluate`, `驗證 Validate`, and `報告 Report`.
-- Use integer points only: `+1～2` preparation, `+3～4` small result, `+5～7` usable delivery, `+8～10` verified milestone. Maximum 10 points per result.
+- Use integer points only. The five Skill scores for one day must add up to at most 10 points total; incomplete, unverified, fallback-only, or cleanup-pending work should receive less. Avoid counting the same artifact across multiple Skills just because it appears in several documents.
 - Score data source: `collection://ed56335a-cd24-4b70-8bf1-6fa25f87d1f0`.
 - Dashboard page: `https://app.notion.com/p/39e9d9fba316813c8e68fa80f8f33d08`.
 - Update Git and Notion together; never claim either sync until it is verified.

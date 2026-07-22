@@ -4,6 +4,14 @@
 
 ## 2026-07-22｜17:00 前暫存
 
+### 17:00 後判定結果
+
+- 已統整至 `logs/daily/work-log-2026-07-22.md`。
+- 對應 Skill：掃描 +1、比較 +1、評估 +2、驗證 +2、報告 +2。
+- 積分：當日總分 +8，累積總分 61。
+- 目標對齊：直接扣回五個 Skill 目標；CDK 流程改善可重現性與資源關係理解。使用者已補 CloudFormation Infrastructure Composer 截圖，可作為 Console 視覺化確認；但 S3 Files / EC2 / S3 Console 狀態、EC2 mount 與 S3 雙向同步仍待完成。
+- Git 版日誌、Skill 進度與 dashboard 已同步；Notion 7/22 日誌頁與五筆每日積分明細已建立／更新並回傳成功。
+
 - 使用者指出正式實習日誌應記錄 Cleo 做的事、成果、學習與驗證，不應寫成 AI／Codex 在自述；AI 執行軌跡才記錄使用者指令與 AI 處理過程。
 - 已更新 `PROJECT_MEMORY.md`、`AI_PM_WORKFLOW.md` 與 `templates/每日實習日誌模板.md` 的日誌分層規則；後續 17:00 正式日誌改採 Cleo 視角，AI 指令與動作放入 `ai-execution-trace/daily/YYYY-MM-DD.md`。
 - 已檢視 `logs/daily/work-log-2026-07-21.md`，修正容易被讀成 AI 自述的句子，把它改成實習生／專案成果口吻；流程自動化問題保留為待改進事項。
@@ -13,6 +21,32 @@
 - 使用者指出其他天日誌仍不夠好，第一眼看不懂每天在做什麼，且「執行驗證」太拗口、堆太多專有名詞與檔名；已把正式日誌模板改成「今天在做什麼／今天做了什麼／怎麼確認有做出來／對專案的幫助與分數」，並重寫 2026-07-13 至 2026-07-21 全部正式日誌。
 - 使用者要求主 `README.md` 的主管快速入口只保留 `查看評分表集合（GitHub）`，並清掉 GitHub 內確定不需要保存的累贅檔案；已移除主 README 其他快速入口、刪除重複的 `dashboard/Cleo-主管評分表細則與回覆.md` 跳轉頁，以及舊 AHP 報告輸出與產生腳本。
 - 使用者要求清理本機用不到的檔案，且只能刪 Codex 產出的檔案；已刪除舊版雙週誌草稿、格式錯誤版雙週誌與 4 個空資料夾，保留先前標記要留的自我介紹簡報與圖片素材。
+- 使用者提出 vibe coding 風險，要求 AI 後續更嚴格，不得偽裝美化成果或降低驗證標準；已更新 `PROJECT_MEMORY.md`，要求後續主動區分已驗證、部分驗證、使用者回報待核對與未驗證，並保留 happy path 以外的風險、失敗、回退、資安限制與 cleanup 狀態。
+- 針對目前專案回顧，已初步承認曾出現相關低標準風險：分數與日誌表述偏鬆後才修正、部分部署狀態曾依使用者回報記錄但未獨立核對、教學指令曾缺少 profile/encoding 細節導致錯誤、17:00 automation 未準時觸發。下一步需把這些列入工程品質修正清單，而不是只做文字美化。
+- 使用者要求把過去紀錄全部改成更嚴格分數，且每日五個 Skill 加總最高不能超過 10 分；已重算 2026-07-13 至 2026-07-21，累積總分由 107 下修為 53，並同步修改每日正式日誌、`SKILL_PROGRESS.md`、GitHub dashboard、HTML/JSON dashboard、主管評分引用數字、模板與長期記憶。新的每日分數為：7/13 +8、7/14 +6、7/15 +5、7/16 +8、7/17 +10、7/20 +7、7/21 +9。
+- 已完成 Notion 同步：7/13、7/14、7/15、7/16、7/17、7/20、7/21 的 Notion 日誌分數與正文摘要已改成每日總分最高 10 分的新口徑；Notion Skill 分數資料庫 35 筆分數列、Notion Skill dashboard、主管評分 dashboard 與細節頁也已同步。Notion 搜尋索引可能短暫顯示舊摘要，實際頁面內容已更新。
+- 使用者要求 cleanup 昨天手動 CLI 與 CloudFormation-managed 的 S3 Files 新聞 PoC AWS 資源，因晚點要重做一次；已清除 `s3files-poc-202607201650` 手動 PoC 與 `s3files-news-demo-202607211626` CloudFormation PoC 相關資源：EC2、S3 Files file systems / mount targets / access point、S3 buckets 與 versioned objects、IAM roles / instance profile、EC2 key pair、VPC / subnet / route table / IGW / security groups，並刪除本機 exposed `.pem`。回驗查詢顯示上述 prefix 已無活著的 stack、S3 Files、EC2、bucket、IAM role/profile、key pair、VPC 或 security group；未把帳號、ARN、IP、private key 或敏感 resource ID 寫入紀錄。
+- 使用者補充兩次討論後的長期規則：第一次討論重點是個人工作日誌要讓 AI 代表 Cleo、用 Cleo 角度寫 Cleo 做的事；AI 做了什麼與使用者給什麼指令要放在 AI 執行軌跡。和 mentor 第二次討論重點是 PoC 執行過程與原理必須由 Cleo 自己理解，不能只叫 AI 跑；Cleo 要具備再做一次的能力。驗證方式也要補強：AWS PoC 需手動進 Console 確認檔案上傳、通道或 mount target 建立等成功證據，並在紀錄中區分 Console 人工確認與 CLI 查詢確認。已更新 `PROJECT_MEMORY.md`。
+- 使用者詢問 AWS Console CloudTrail 頁面的兩條 trails 是否需要刪除、是否屬於雷達專案；已用唯讀 CLI 查詢確認 `aws-controltower-BaselineCloudTrail` 與 `management-logs` 為帳號／組織層級的 CloudTrail 稽核紀錄，狀態皆為 logging，主要記錄 management events，不是 S3 Files PoC 殘留，也不是雷達 pipeline 直接依賴的應用資源。建議不要刪除或停止，因為它們用於帳號安全、稽核、追蹤 API 操作與 Control Tower baseline；雷達專案可把 CloudTrail 當作「治理與審計能力」背景，但目前不需要改動。
+- 使用者決定後續重做 S3 Files + EC2 掛載 PoC 時要改用 CDK 方式，由 CDK 產生 CloudFormation stack，再用 CLI 部署；重點是讓 Cleo 在 CloudFormation console 的 stack resources / template / Infrastructure Composer 視覺化介面看懂 bucket、S3 Files file system、mount target、access point、VPC、security group、EC2、IAM role 的關係，而不是只看 AI 跑 CLI。已更新 `PROJECT_MEMORY.md`，後續執行前需先講清楚原理、會建立的資源、成本與 cleanup。
+- 使用者要求先寫本次 CDK 部署教學書；已新增 `poc/s3-files-cli-poc/S3-Files-CDK部署教學書-2026-07-22.md`，內容包含部署目標、資源原理圖、CDK / CloudFormation / Console 分工、部署方式 A（`cdk deploy`）與方式 B（`cdk synth` + `aws cloudformation deploy`，用於 bootstrap 被 SCP 擋時）、CloudFormation / S3 Files / EC2 / S3 Console 人工驗證步驟、雙向同步測試、常見錯誤、cleanup 與給 mentor 的一句話。
+- 使用者指出 CDK 教學書看起來和昨天手動 CLI 差很多，沒有明確保留 SSH 登入 EC2、安裝 mount 套件、執行 mount、看到 `/mnt/s3files`、`cat /mnt/s3files/hello-from-s3.txt` 等核心驗證；已修正教學書，新增「昨天手動 CLI vs 這次 CDK / CloudFormation」對照表，說明 CDK 只是把資源建立交給 CloudFormation，EC2 內的 mount / findmnt / cat 與 S3 Console 雙向同步驗證仍不可省；同時補上 Session Manager 與 SSH 路線差異。
+- 使用者回歸後開始實作 S3 Files CDK PoC；AI 先建立 `poc/s3-files-cdk-poc/` CDK 專案，使用 `BootstraplessSynthesizer` 避免 CDK bootstrap 讀取 `/cdk-bootstrap/.../version` 被 SCP 擋，並以 `aws cloudformation deploy` 部署 stack `s3files-cdk-202607221315`。使用者中斷後回查確認 stack 已 `CREATE_COMPLETE`，S3 Files file system 與 mount target 已可用，EC2 running 且 SSM online；SSM read-only 檢查顯示 EC2 已安裝 `amazon-efs-utils 3.1.3`、`/mnt/s3files` 為 `nfs4` mount，mount path 內有 `poc/cdk-userdata-mounted.txt`。S3 端已同步出 `poc/poc/cdk-userdata-mounted.txt`；雙層 `poc/poc` 來自 file system prefix `poc/` 加上 mount 內部又建立 `poc/` 子資料夾。此部署是 AI 先跑出的示範標本，尚未 cleanup；使用者希望先看做得如何，確認後再清掉並從頭由使用者自己做一次。
+- 使用者確認示範標本可以清掉；已清空 `s3files-cdk-202607221315` stack bucket 內 object 與 versioned object，刪除 CloudFormation stack，並回驗同 prefix 的 stack、bucket、S3 Files file system、EC2、VPC 均已不存在。保留本機 CDK 專案與教學書，供後續 Cleo 自己從頭重做。
+- 使用者提供 `C:\Users\youhs\Downloads\cathay-tech-radar-gui.html` 作為目前 GUI 構想參考。已用原始碼與 headless Chrome 截圖檢視：此原型將 S1-S5 做成「圓圓吃技術方塊、爬階梯」的互動展示，左側為 evaluation trace，支援通過／失敗情境與最後報告彈窗。初步判斷：適合作為 final proposal 或 demo 的故事化展示層，但不宜取代正式操作型 GUI；若要主管可讀，需補 S-1/S0 需求輸入、證據連結、狀態標籤、降低遊戲語氣，並修正桌面 log 對比不足與手機版頂部／場景擠壓問題。
+- 使用者將 CloudFormation 匯出成果貼入 `poc/s3-files-cli-poc/S3-Files-CDK部署教學書-2026-07-22.md` 並自行加註解，作為理解 CDK/CloudFormation 資源關係的學習證據。已檢查並修正教學書：補上人工註解版 template 的 code block 說明、改用 `cdk.cmd` 避免 PowerShell `.ps1` 限制、修正 `SourceArn` wildcard、Security Group `IpProtocol` 註解格式、UserData typo、EC2 規格雜訊與 S3 Files `poc/` prefix 對應路徑。同步修改 `poc/s3-files-cdk-poc/s3_files_cdk_poc/stack.py`，讓 EC2 UserData 寫入 `/mnt/s3files/cdk-userdata-mounted.txt`，避免 S3 端再出現 `poc/poc/...` 雙層 prefix；並新增 CDK PoC `.gitignore`，排除 `.local/`、`cdk.out/` 與 Python cache。已用本機 `cdk.cmd synth -c namePrefix=s3files-cdk-doccheck -c createTestInstance=true` 驗證 template 可成功產生；未部署 AWS，未產生成本。
+- 使用者自行執行 CDK PoC 部署，`cdk deploy` 因 CDK bootstrap deploy/cfn-exec role 無法 assume 而失敗；已引導改走 `cdk synth` + `aws cloudformation deploy` 路線。使用者回報 CloudFormation deploy 顯示 `Successfully created/updated stack - s3files-cdk-202607221334`，後續 CLI 也確認 CloudFormation stack 與主要 resources 為 `CREATE_COMPLETE`。
+- 使用者提供 AWS CloudFormation Infrastructure Composer 截圖作為今日成果證明，畫面可見 S3 Files、mount target、access point、VPC、EC2、security group 與 S3 bucket 的資源關係；截圖已保存到 `poc/s3-files-cli-poc/evidence/2026-07-22-cloudformation-infrastructure-composer.png`。這可記為 CloudFormation / Console 視覺化證據，但仍不能記成完整 PoC 成功；還需要 S3 Files / EC2 / S3 Console 狀態、EC2 `/mnt/s3files` mount 與 S3 雙向同步驗證。
+
+### 17:00 後判定結果
+
+- 已統整至 `logs/daily/work-log-2026-07-22.md`。
+- 對應 Skill：掃描 +1、比較 +1、評估 +2、驗證 +2、報告 +2。
+- 積分：當日總分 +8，硬審核後累積總分 61。
+- 目標對齊：直接扣回五個 Skill 目標；今天主線是讓 S3 Files 新聞 PoC 變成可重做、可解釋、可在 CloudFormation / Console 檢查的流程。
+- 同步項目：已更新 Git 正式日誌、`SKILL_PROGRESS.md`、主 `README.md`、GitHub/HTML dashboard、Notion 7/22 日誌頁、Notion Skill 分數資料庫、Notion Skill dashboard、主管評分摘要頁與細則頁。
+- 嚴格限制：新 `s3files-cdk-202607221334` stack 已由 CLI 確認 CloudFormation `CREATE_COMPLETE`，且使用者已用 CloudFormation Infrastructure Composer 截圖補上 Console 視覺化證據；但 S3 Files / EC2 / S3 Console 狀態、EC2 mount 檢查、S3 雙向同步與 cleanup 尚未完成，不可寫成完整 PoC 成功。
+- 安全補強：提交前掃描發現舊手動部署文件仍含完整 AWS account ID / ARN 範例，已改成 `ACCOUNT_ID_HERE` / placeholder；重新掃描未再命中完整 account ID、AWS access key 或 private key。JSON policy 與 dashboard JSON 解析正常，`git diff --check` 只剩 Windows 換行提示。
 
 ## 2026-07-21｜17:00 前暫存
 
@@ -56,16 +90,16 @@
 
 ### 17:20 後判定結果
 
-- 對應 Skill：掃描 +1、比較 +1、評估 +1、驗證 +2、報告 +3。
-- 積分：當日總分 +8，硬審核重算後累積總分 35。
+- 對應 Skill：掃描 +1、比較 +1、評估 +1、驗證 +1、報告 +1。
+- 積分：當日總分 +5，2026-07-22 新口徑重算後累積總分 19。
 - 目標對齊：直接扣回五個 Skill 目標。
 
 ## 2026-07-16｜已統整至 `logs/daily/work-log-2026-07-16.md`
 
 - 使用者更新 AI PM 規則：自 2026-07-16 起，平日正式日誌統整時間改為 Asia/Taipei 17:00；每日正式日誌後需同步更新 GitHub／HTML 互動儀表板與 Notion 儀表板。
-- 補完 2026-07-15 正式日誌收尾：原先回驗 Notion 主日誌 `7/15` 五個 Skill 分數為掃描 +3、比較 +3、評估 +3、驗證 +6、報告 +8；原始 Skill 明細資料庫回驗為 5 筆、合計 23 分。使用者指出分數偏鬆，後續已改用嚴格標準修正。
+- 補完 2026-07-15 正式日誌收尾：原先回驗 Notion 主日誌 `7/15` 時曾採用一版偏鬆 Skill 分數；使用者指出後已作廢，2026-07-22 新口徑改以每日五個 Skill 加總最高 10 分為準。
 - 準備將 2026-07-15 工作日誌、GitHub 閱讀首頁、Skill 積分檔與 dashboard 資料 commit/push，作為昨日工作成果的 Git checkpoint。
-- 依使用者回饋修正 2026-07-15 Skill 分數：掃描 +2、比較 +2、評估 +2、驗證 +3、報告 +5，合計 14；主要理由是 Console 手動部署第 1 至第 4 章屬於必要但簡單的操作，且公司 AWS 資源狀態仍待權限允許後獨立核對，不應以高分里程碑計算。
+- 依使用者回饋修正 2026-07-15 Skill 分數；2026-07-22 依每日總分最高 10 分的新口徑再重算為掃描 +1、比較 +1、評估 +1、驗證 +1、報告 +1，合計 5。主要理由是 Console 手動部署第 1 至第 4 章屬於必要但簡單的操作，且公司 AWS 資源狀態仍待權限允許後獨立核對，不應以高分里程碑計算。
 - 使用者調整日誌偏好：每天不必刻意寫很多，做到哪寫到哪，避免為了完整感把日誌越寫越多。
 - 依 `logs/daily/work-log-2026-07-13.md`、`logs/daily/work-log-2026-07-14.md`、`logs/daily/work-log-2026-07-15.md` 與本檔待統整證據，完成 `2026CIP_biweekly_worklog1_draft.docx` 雙週工作週誌草稿；措辭保留「個人 AWS 已驗證」、「公司帳戶使用者回報完成」、「仍待權限允許後核對」的區分，避免把尚未完成端到端測試的內容寫得過滿。
 - 依使用者補充，將雙週誌第三項改為「專案進度同步、AI PM 儀表板與成果整理」，並寫入「為了同步專案進度，建立 AI PM 紀錄機制，串接 Git／GitHub、Notion 與本機日誌」；已另存 `2026CIP_OOO_雙週工作週誌1_草稿_AI_PM.docx`，避免覆蓋目前被 Word 開啟的舊草稿。
@@ -130,8 +164,8 @@
 
 ### 17:00 後判定結果
 
-- 對應 Skill：掃描 +2、比較 +2、評估 +4、驗證 +6、報告 +4。
-- 積分：當日總分 +18，硬審核重算後累積總分 53。
+- 對應 Skill：掃描 +1、比較 +1、評估 +2、驗證 +3、報告 +1。
+- 積分：當日總分 +8，2026-07-22 新口徑重算後累積總分 27。
 - 目標對齊：直接扣回五個 Skill 目標。
 
 ## 2026-07-17｜已統整至 `logs/daily/work-log-2026-07-17.md`
@@ -143,7 +177,7 @@
 - 靜態檢查：template 檔案存在，未出現 `CDKToolkit`、`cdk-hnb659fds`、`cdk-bootstrap`、`AWS::CDK`、`us-east-1` 或 tab；明確含 `ap-southeast-1` Region guard。AWS 端 `aws cloudformation validate-template` 因公司 SCP explicit deny `cloudformation:ValidateTemplate`，尚無法由目前 `cleo` 身分完成雲端驗證。
 - 使用者指出 2026-07-16 Notion 日誌過於粗略；已核對 Git 正式日誌 `logs/daily/work-log-2026-07-16.md` 與 Notion 頁面 `7/16`。
 - 修正 Notion `7/16` 主日誌內容：補回今日主題、完成事項、執行驗證、Skill 進度與積分、流程圖、Mentor 討論筆記、問題處理、技術調整、提醒事項與今日總結。
-- 修正 Notion `7/16` 屬性欄位：副標題、今日備註與總結、Mentor 討論關鍵字，以及 Skill 分數。分數改為掃描 +3、比較 +3、評估 +5、驗證 +7、報告 +5，合計 23 分，與 Git 正式日誌一致。
+- 修正 Notion `7/16` 屬性欄位：副標題、今日備註與總結、Mentor 討論關鍵字，以及 Skill 分數。2026-07-22 新口徑下 Git 正式日誌分數已改為掃描 +1、比較 +1、評估 +2、驗證 +3、報告 +1，合計 8 分；Notion 後續需同步此新分數。
 - 回讀 Notion 頁面確認更新已生效；後續若正式統整 2026-07-17 日誌，可把此項列為 AI PM／報告品質修正，不額外計入 7/16 專案執行分數。
 - 回應使用者「目前專案如何從 40/55 分架構推到 95 分」的策略問題：已重讀 `PROJECT_MEMORY.md`、`logs/daily/work-log-2026-07-16.md`、`radar-company-account-complete/radar/architecture-scan/architecture_scan.md` 與 `pipeline-architecture.md`，並查詢 AWS Well-Architected、Serverless Lens、Bedrock Guardrails／Evaluation／Prompt Management／Prompt Routing、Step Functions human approval、Powertools、Cost Anomaly Detection、NIST AI RMF、OWASP LLM Top 10、ISO/IEC 42001、Thoughtworks／Zalando Tech Radar 等資料。初步判斷：核心流程已接近完成，後續高分方向應轉向「決策治理層、可解釋證據圖、human-in-the-loop、評估基準、觀測與成本治理、雷達產品化 UI／API、final proposal 成效證據」。
 - 使用者決定先把三個高分升級加入系統：Evidence Ledger、Human Review Loop、Evaluation Harness。
@@ -186,8 +220,8 @@
 
 ### 17:00 後判定結果
 
-- 對應 Skill：掃描 +3、比較 +4、評估 +6、驗證 +7、報告 +4。
-- 積分：當日總分 +24，硬審核重算後累積總分 77。
+- 對應 Skill：掃描 +1、比較 +1、評估 +2、驗證 +4、報告 +2。
+- 積分：當日總分 +10，2026-07-22 新口徑重算後累積總分 37。
 - 目標對齊：直接扣回五個 Skill 目標；部會自我介紹簡報屬報告／溝通支援，不單獨提高核心 Skill 分數。
 - 同步項目：已建立 Git 正式日誌、補回 7/13 至 7/16 AI 執行軌跡日總結，並更新 Git 版 Skill 儀表板資料。
 
@@ -231,7 +265,7 @@
 ### 17:00 後判定結果
 
 - 已統整至 `logs/daily/work-log-2026-07-21.md`。
-- 對應 Skill：掃描 +2、比較 +2、評估 +3、驗證 +6、報告 +3。
-- 積分：當日總分 +16，硬審核重算後累積總分 107。
+- 對應 Skill：掃描 +1、比較 +1、評估 +2、驗證 +4、報告 +1。
+- 積分：當日總分 +9，2026-07-22 新口徑重算後累積總分 53。
 - 目標對齊：直接扣回五個 Skill 目標；保單系統與 S0 建置仍維持暫停，今日主線為 S1-S5 新聞到 PoC 的能力深化。
 - 同步項目：已建立 Git 正式日誌，並更新 Git 版 Skill 進度與 dashboard 資料；17:00 automation 未準時啟動列為待修正流程風險。
