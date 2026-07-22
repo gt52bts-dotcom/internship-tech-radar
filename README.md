@@ -7,11 +7,6 @@
 | 按鈕 | 說明 |
 |---|---|
 | [▶ 查看評分表集合（GitHub）](./evaluation-forms/README.md) | 可選不同評分表：國泰實習生評鑑表單、國泰 Mentor 觀察表、學校成效問卷與成績考核表。 |
-| [▶ 主管評分摘要（Notion）](https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350) | 快速查看目前自評分數與每日更新規則。 |
-| [▶ Cleo｜主管評分表細則與回覆（GitHub）](./dashboard/Cleo-主管評分表細則與回覆.md) | 主管可在 GitHub 直接點開的細則入口。 |
-| [▶ 完整細則與表單回覆（GitHub）](./dashboard/mentor-evaluation-details.md) | 完整評分依據、第二張表單建議與優缺點文字。 |
-| [▶ 主管評分細則（Notion）](https://app.notion.com/p/3a49d9fba316814e923ad82718952a71) | Notion 版細則頁。 |
-| [▶ Skill 進度儀表板](./dashboard/README.md) | 五個 Skill 累積分數與每日趨勢。 |
 
 ## 專案狀態
 
@@ -68,7 +63,6 @@ flowchart LR
 - [簡報架構與執行軌跡](./final-proposal/簡報架構與執行軌跡.md)
 - [7/17 AI 執行軌跡](./ai-execution-trace/daily/2026-07-17.md)
 - [CloudFormation 手動部署 README](./radar-company-account-complete/radar/manual-cloudformation/README.md)
-- [AHP scoring report HTML](./v3-tech-radar-ahp-scoring-report.html)
 - [HR 雙週工作週誌格式正確版](./2026CIP_王冠婷_雙週工作週誌1_格式正確版.docx)
 
 ## 目前待辦
