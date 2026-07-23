@@ -15,6 +15,7 @@ cdk.out/
 **/layer_build/
 
 # Local/editor files
+.local/
 .DS_Store
 Thumbs.db
 .vscode/
