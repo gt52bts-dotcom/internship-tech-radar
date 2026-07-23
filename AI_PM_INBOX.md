@@ -2,6 +2,37 @@
 
 此檔只保存 17:00 前的原始證據，不是正式日誌。平日 17:00 排程完成統整後，將當日內容標記為已整理。
 
+## 2026-07-23｜17:00 前暫存
+
+### 下週二科會｜AI PM 10 分鐘報告待辦
+
+- 目標：用實際前後差異說明 AI PM 是怎麼當同事協作，不做功能清單式介紹。
+- 必要展示：① 原始 input 指令與 output 成果比較（包含過去紀錄白話化）② 跨事件記憶與事件串聯 ③ 對人類工作的實際幫助與限制 ④ 7/23 國泰人壽總公司共融活動作為組織融入素材 ⑤ 主動反問與待辦機制，頁面標題可用「人類會想太多！」⑥ spec-driven 邊界設定。
+- 待補證據：選 2 至 3 組最有反差的 input/output 截圖或去識別化摘錄；確認報告對象和可展示的專案內容；把 10 分鐘講稿壓到約 7 至 8 張投影片。
+- 原則：不能把 AI 寫成萬能；要保留 AI 造成的錯誤、fallback、權限／key／成本限制與人類最終決策責任。
+- Mentor 討論關鍵字／新增簡報方向：AI PM 是「同事」而非工具清單；用過去白話指令與實際可追溯 output 對照，呈現記憶如何串聯事件、如何把想太多變成可完成的待辦，以及 spec-driven 如何先設邊界再做事。7/23 的總公司共融活動僅作為組織融入與工作情境素材，不包裝成技術成果。
+- 參考範本：已檢視使用者提供的 `國泰實習專案匯報 AI雲端技術情報系統.pptx (1).pdf`（10 頁）。保留其企業感、高留白、單一核心訊息與流程／卡片視覺節奏；內容、封面與敘事全部重新設計，封面不放使用者照片，也不重做 AI 雲端技術雷達專案介紹。
+- 已完成 8 頁科會簡報初稿 `outputs/AI_PM_科會_10分鐘_2026-07-28.pptx`：依序呈現 input/output 差異、事件與記憶串聯、對人類的三項幫助、共融活動的正確定位、「人類會想太多！」的主動反問、spec-driven、human review gate 與收束頁。已逐頁檢視 artifact-tool 匯出 PNG；未發現文字裁切或重疊。正式 PPTX 的外部渲染／overflow 工具在本機因 Windows 編碼失敗，故不可宣稱該項 QA 通過。
+- 使用者指出初稿太抽象、沒有呈現長期協作實際幫助與校正；已另存重做 `outputs/AI_PM_科會_10分鐘_2026-07-28_v2_協作校正主線.pptx`，保留舊檔避免覆蓋。新版以「你每次說這樣不對，工作方式怎麼真的改掉」為主軸，具體納入：日誌模板與 7/13 至 7/21 回溯重寫、積分由 107 嚴格重算為 53、PoC 從 AI 代跑轉為可理解可重做、fallback／待驗證誠實記錄、主動反問與待辦。已逐頁檢視 PNG 並修正第 2、3、5、6 頁標題與副標重疊。
+
+- 使用者要求以已手動部署的完整技術雷達，從指定 AWS News Blog 的 S3 Files 文章實跑 S1 到 S5、CloudFormation PoC 和最終報告。
+- 已確認手動部署的雷達 CloudFormation stack、S1-S5 Lambda、Step Functions、S3、DynamoDB、Secrets、CloudWatch 均為 `CREATE_COMPLETE`。為了讓歷史指定文章能誠實進 S1，新增 `seed_article` 受控輸入分支並更新既有 stack；一般 RSS 路徑保留。
+- 指定文章 run `s3files-news-20260723-0750` 的 Step Functions 為 `SUCCEEDED`。S1 source mode 為 `seed_article`，S2 保留 1 個候選，quote gate 為 USD 0.0232 / approve，S3/S4 的 Anthropic 呼叫失敗後走 rubric-only fallback，S5 最終平均分 4.35，human review status 仍為 `awaiting_human_review`；不可說成 LLM 評分或 Top 3 選拔完成。
+- 已用既有 CloudFormation-managed S3 Files PoC stack 做雙向驗證，未建立新資源：S3 API 寫入可在 EC2 `nfs4` mount 讀取；mount 寫入約 36 秒後可由 S3 API 讀回。PoC stack 仍活著，需先補 Console 人工確認，再 cleanup 避免 EC2/VPC/S3 Files 成本。
+- 已產出 `research/S3-Files完整雷達評估與PoC報告-2026-07-23.md` 與 pipeline 原始產物目錄；已掃描這些輸出，未發現 key、帳號、ARN、IP 或 presigned URL。
+- 第一次 S3/S4 fallback 原因為 Lambda layer 缺 Linux/Python 3.12 的 `pydantic_core` 原生模組；已用 Linux wheel 重建 layer 並更新既有 stack。第二次 run 仍 fallback，但已確認原因是 Anthropic API key 401 invalid key。完整 AWS 流程沒有失敗，外部 LLM 評分仍待持有核准 key 的人更新 Secrets Manager 後重跑。
+- 使用者確認可保留「直接輸入指定新聞」入口，但規則是輸入仍須先經完整評分才可開始 PoC。已加入 S5 `poc_gate`：平均分至少 3.75、證據至少 medium、沒有治理旗標時才可送真人 PoC 審查；`automatic_poc_start` 固定 false。已實跑回驗 Step Functions 成功、gate 為 `awaiting_human_poc_review`、eligible count 1，沒有自動建立資源。
+- 使用者決定先回到 PoC，詢問真人審查閘門的 Console 位置。唯讀核對顯示雷達 stack 為 `UPDATE_COMPLETE`，可從 Step Functions 的 `cathay-techintel-v3-cfn-pipeline` 檢視最新 execution 與 S5 的 `poc_gate`；實際送出 human review 的入口是 Lambda `cathay-techintel-v3-cfn-recordhumanpick` 的 Test 事件，不是 CloudFormation 或已完成的 GUI。該 Lambda 需要 `run_id`、`reviewer`，若 approve 還需 S5 輸出的候選 ID；寫入審查紀錄不會自動建立 PoC 資源。
+- 更正：使用者在 S3 Files execution 的圖形頁找不到 `poc_gate` 是正確的。唯讀回查後確認 `s3files-news-20260723-0750`、`s3files-news-20260723-0800` 兩次真正的指定新聞 execution 都早於閘門整合，S5 output 沒有 `poc_gate`；先前說成可直接在該 execution 找 gate 不精確。後來的 `poc-gate-check-20260723-0830` 是獨立 gate 測試，確有 `awaiting_human_poc_review` 與 1 個測試候選，但不可用來核准 S3 Files 新聞 PoC。要正確走真人核准，需用更新後 pipeline 重跑指定 S3 Files 新聞，產生該新聞自己的 `poc_gate`、候選 ID 與 run ID。
+- 已以現行 pipeline 重跑指定 S3 Files 新聞，run ID `s3files-news-20260723-gate` 為 `SUCCEEDED`，S5 `poc_gate` 為 `awaiting_human_poc_review`，候選 `M-2E486BFB`，`automatic_poc_start=false`。這次結果才可供真人審查；尚未由真人 approve/reject，也沒有因本次 run 建立新 PoC 資源。
+
+### 17:00 後判定結果
+
+- 已統整至 `logs/daily/work-log-2026-07-23.md`。
+- 對應 Skill：掃描 +2、比較 +1、評估 +2、驗證 +3、報告 +2；當日總分 +10，累積 71。
+- Git 日誌、Skill 進度、JSON 與 dashboard 摘要已同步；Notion 7/23 日誌頁與五筆 Skill 每日積分明細已建立並回傳成功。
+- 嚴格限制：外部 LLM 仍因 API key 無效 fallback；S3 Files 指定新聞只到真人審查等待狀態，既有 PoC 的 Console 人工確認與 cleanup 尚待完成。
+
 ## 2026-07-22｜17:00 前暫存
 
 ### 17:00 後判定結果

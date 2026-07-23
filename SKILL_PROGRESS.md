@@ -28,7 +28,8 @@
 | 2026-07-20 | 2 | 1 | 2 | 1 | 1 | 7 | direct |
 | 2026-07-21 | 1 | 1 | 2 | 4 | 1 | 9 | direct |
 | 2026-07-22 | 1 | 1 | 2 | 2 | 2 | 8 | direct |
-| **累積** | **9** | **9** | **13** | **20** | **10** | **61** |  |
+| 2026-07-23 | 2 | 1 | 2 | 3 | 2 | 10 | direct |
+| **累積** | **11** | **10** | **15** | **23** | **12** | **71** |  |
 
 ## 2026-07-21 評分理由
 
@@ -49,3 +50,11 @@
 - Evaluate +2：把成本、cleanup、CloudTrail 稽核、CDK bootstrap 權限限制、S3 prefix 路徑與日誌誠實度納入判斷；但新 stack 仍待 cleanup。
 - Validate +2：完成舊 PoC cleanup 回驗，用 CLI 確認新 CloudFormation stack `CREATE_COMPLETE`，並由使用者截圖確認 Infrastructure Composer 資源關係；但尚未完成 EC2 mount 檢查與 S3 雙向同步驗證。
 - Report +2：重寫日誌規則與歷史日誌，完成 CDK 部署教學書、CloudFormation 註解整理與 dashboard 同步；但 final proposal 仍待整理。
+
+## 2026-07-23 評分理由
+
+- Scan +2：指定 S3 Files 新聞以受控 `seed_article` 入口進入既有 S1–S5；來源方式與一般 RSS 路徑明確區分。
+- Compare +1：釐清 RSS／指定輸入、LLM／rubric fallback，以及舊 execution／最新 gate execution 的差異，避免錯用審查結果。
+- Evaluate +2：PoC gate 以平均分、證據信心與治理旗標做資格判斷；符合條件仍只送人工審查，未自動建立資源。
+- Validate +3：指定新聞最新 execution 成功；既有 S3 Files PoC 完成 S3 API 與 EC2 `nfs4` mount 的雙向檔案回查。外部 LLM 仍因無效 key fallback，不計為 LLM 驗證。
+- Report +2：完成 S3 Files 完整雷達評估與 PoC 報告，並完成以協作校正案例為主的科會簡報第二版；逐頁圖片檢查已完成，外部 render 工具因 Windows 編碼限制待補。
