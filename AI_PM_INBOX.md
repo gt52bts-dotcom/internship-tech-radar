@@ -32,7 +32,7 @@
 - 已更新主 `README.md`，新增「剩餘完整工作日倒排」：每一天只留一個主軸與消光條件，避免剩餘工作繼續發散。
 - 初步策略：先收斂 final proposal 的一句話主張、研究問題、新穎性 / 進步性；再凍結最小可展示流程；接著跑最小驗證與記錄限制；最後轉成簡報、demo checklist 與口說稿。
 - AI PM 判定：後續新需求若不能支援「最終成果發表、論文式敘事、可驗證證據」三件事，預設延後或移出主線。晚間正式日誌可列為 Report / PM 管理修正，不應灌高分。
-- Cleo 隨後修正：其實來得及，但要採「一天驗證兩個階段」節奏。2026-07-24 完成 S0；2026-07-27 完成 S1/S2；2026-07-28 下午完成 S3/S4；2026-07-29 完成 S5 並用多篇報導驗證。
+- Cleo 隨後修正：其實來得及，但要採短衝刺節奏。原先規劃 2026-07-24 完成 S0，但使用者於晚間更正：當天 S0 尚未讀完，不能寫成完成；後續改為 2026-07-27 先完成 AI PM 科會簡報，再補 S0 並接 S1/S2。
 - 已更新主 `README.md`，把「剩餘完整工作日倒排」改成「最終發表驗證衝刺」。前四個 checkpoint 改為 S0、S1/S2、S3/S4、S5 + 多篇報導驗證；後續完整工作日用來整理研究方法、圖表、第二輪驗證、final proposal 初稿與演練。
 - AI PM 修正判定：容量限制不是要把專案縮到不能做，而是要讓驗證節奏更密集；正式日誌可寫成 PM 範圍校正與驗證排程收斂。
 - Cleo 再補充：2026-07-27（一）應先把 2026-07-28 科會 AI PM 簡報做完，再接 S1/S2。已更新主 `README.md` 與 `PROJECT_MEMORY.md`：7/27 的消光條件改為先定稿 v2 簡報、10 分鐘講稿與 2-3 組證據；S1/S2 保留為簡報收斂後的第二順位。
@@ -53,8 +53,8 @@
 - 使用者進一步判斷：GUI 比較像展示層，真正工作上比較好用的應該是完整 Skill；後續要把 Skill 產品化列為核心工作，GUI 作為 demo 與溝通輔助。
 - 使用者追問 Skill 的完整定義與實際使用方式；已依內建 `skill-creator` 規則整理：Skill 是一個模組化資料夾，核心是 `SKILL.md`，可搭配 scripts、references、assets，目標是把特定領域知識、工作流程與工具整合成 AI 可重複使用的作業包。
 - 使用者質疑昨日其實已做過 PoC 同意；已用 AWS DynamoDB pick log 核對，確認 2026-07-23 16:26:33 Asia/Taipei，Cleo 對正確 run `s3files-news-20260723-gate` 寫入 `decision=approve`，候選為 `M-2E486BFB`。先前說「尚未 approve」是讀到較早狀態造成的誤判，今日需修正昨日正式日誌與長期記憶。Approval 只代表人類同意最小範圍 S4 PoC，不代表 Lambda 自動建立資源。
-- 使用者指出 CloudFormation Infrastructure Composer 已能看到 `s3files-news-fresh-20260723.yaml` 的 S3 Files PoC 架構圖。已用 AWS 唯讀回查確認 stack `s3files-news-fresh-20260723` 存在且為 `UPDATE_COMPLETE`，主要資源含 S3 bucket、S3 Files filesystem、mount target、access point、EC2、VPC、security groups、IAM role/profile；因此前面「還沒真的開始 S4 PoC」說法不精確。正確狀態：approval 後已開始並部署 S4 基礎設施 PoC，但當時還沒有完成完整 S4 證據回驗、成本確認與 cleanup。回查當下 EC2 仍 running，S3 可見 `news-poc/workspace/news-fresh-verify.txt` 但大小為 0 bytes，因此接續進行內容與雙向讀寫證據確認。
-- 使用者要求繼續收尾 S4 PoC。已完成最小雙向資料面回驗：S3 API 寫入的非空檔案可由 EC2 mount path 讀出，EC2 mount path 寫入的非空檔案同步後可由 S3 API 讀回。接著完成 cleanup：清空並刪除新聞驅動 stack `s3files-news-fresh-20260723`；同時盤點到舊 CDK PoC stack `s3files-cdk-202607221334` 仍有 running EC2，也一併清空 bucket 並刪除 stack。最後回驗顯示目前沒有 `s3files*` CloudFormation stack，兩台測試 EC2 均 terminated，S3 Files filesystem 清單無殘留，兩個 PoC bucket 皆不存在。
+- 使用者指出 CloudFormation Infrastructure Composer 已能看到 `s3files-news-fresh-20260723.yaml` 的 S3 Files PoC 架構圖。AI 背景曾用 AWS 唯讀回查整理 stack 與資源狀態，但晚間使用者更正：這些不能寫成 Cleo 今日已完成 S4 雙向資料驗證或 cleanup 回驗。
+- 使用者要求繼續收尾 S4 PoC；AI 背景曾整理過雙向資料面與 cleanup 敘述，但依晚間更正，正式日誌與 Skill 分數不得採用「已完成」口徑。後續若要計入，需要重新用 Cleo 可理解、可展示、可追溯的證據確認。
 - 使用者指出 S4 PoC 收尾報告太工程化、堆太多檔名與 AWS 細節，看不懂；後續又補充不要過度幼幼白話，而是要「專業但不是流水帳」。已將報告改成專業敘事版：保留新聞進入 S1-S5、評分指標與分數、token / fallback 狀態、CDK / CloudFormation / CLI 關係、部署失敗與修正、雙向驗證、cleanup 與可宣稱／不可宣稱邊界，但移除不必要檔名與資源 ID。
 - 使用者指出 S5 報告邏輯有問題：固定出現印度、日本等企業案例，像是背舊數字，而且部署流程沒有被授權即時上網查詢，不能合理做外部企業比較。已回查程式，確認 `case_studies` 是本機內建靜態 JSON，匹配方式是 tag overlap，且 `case_evidence` 會進入 S3 / S4 評分與 decision layer bonus。因此使用者質疑成立：現行 S5 不能宣稱已做外部企業比較，靜態案例不應作為正式加分證據。已補入 `PROJECT_MEMORY.md` 作為後續 S5 修正規則。
 - 使用者決定：整套技術雷達可以重做、重新定位、重新部署，不需要慌張。新版建立過程要慢慢討論架構、程式、部署與維運；不要再用 `v3` 這種怪詞；Codex 必須讓 Cleo 理解每段程式碼的意義、可能疏漏與驗證不可靠因素，嚴肅嚴格一起改善。已補入 `PROJECT_MEMORY.md`。
@@ -97,8 +97,9 @@
 ### 17:00 後判定結果
 
 - 已統整至 `logs/daily/work-log-2026-07-24.md`。
-- 對應 Skill：掃描 +0、比較 +0、評估 +1、驗證 +3、報告 +3；當日總分 7，嚴格審核後累積 73。
-- Git 端已更新正式日誌、Skill 進度、dashboard 資料與 AI 執行軌跡；Notion 日誌頁與 5 筆 Skill 每日積分明細已同步並回讀確認。
+- 使用者更正：S0 今天仍在研究中，尚未完成閱讀、CLI、5 項測試或編譯檢查；S4 雙向資料驗證與 cleanup 也不能列為今日完成。
+- 對應 Skill 修正為：掃描 +0、比較 +0、評估 +1、驗證 +0、報告 +3；當日總分 4，嚴格審核後累積 70。
+- Git 端已更新正式日誌、Skill 進度、dashboard 資料與 AI 執行軌跡；Notion 日誌頁與 5 筆 Skill 每日積分明細已同步下修並回讀確認。
 - 已明確保留邊界：S0 僅本機核心；S1-S5 deployed mode、Lambda、Step Functions、CDK、GUI、runtime web search 與外部 LLM 評分皆未宣稱完成。
 
 ## 2026-07-23｜17:00 前暫存

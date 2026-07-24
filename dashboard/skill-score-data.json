@@ -129,7 +129,7 @@
         "scan": 0,
         "compare": 0,
         "evaluate": 1,
-        "validate": 3,
+        "validate": 0,
         "report": 3
       }
     }
