@@ -80,7 +80,9 @@ const scoreData=[
   {date:'2026-07-17',scores:{scan:1,compare:1,evaluate:2,validate:4,report:2}},
   {date:'2026-07-20',scores:{scan:2,compare:1,evaluate:2,validate:1,report:1}},
   {date:'2026-07-21',scores:{scan:1,compare:1,evaluate:2,validate:4,report:1}},
-  {date:'2026-07-22',scores:{scan:1,compare:1,evaluate:2,validate:2,report:2}}
+  {date:'2026-07-22',scores:{scan:1,compare:1,evaluate:2,validate:2,report:2}},
+  {date:'2026-07-23',scores:{scan:1,compare:1,evaluate:1,validate:1,report:1}},
+  {date:'2026-07-24',scores:{scan:0,compare:0,evaluate:1,validate:3,report:3}}
 ];
 const fmt=n=>Number(n.toFixed(2)).toString();
 const total=d=>skills.reduce((s,k)=>s+(d.scores[k.id]||0),0);

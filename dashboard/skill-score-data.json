@@ -130,7 +130,7 @@
         "compare": 0,
         "evaluate": 1,
         "validate": 3,
-        "report": 2
+        "report": 3
       }
     }
   ]
