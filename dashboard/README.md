@@ -15,15 +15,15 @@
 
 ## 累積分數
 
-截至 2026-07-23，嚴格審核後累積總分為 `71`。每日總分最高 10 分，舊版 107 分不再作為正式累積值。
+截至 2026-07-23，嚴格審核後累積總分為 `66`。每日總分最高 10 分，舊版 107 分不再作為正式累積值。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 9 | 已能從 AWS 新聞、官方文件與帳號資源盤點抽出可驗證候選。 |
-| Skill 2 - Compare | 9 | 已能比較替代技術、部署方式與適用限制。 |
-| Skill 3 - Evaluate | 13 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 20 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並開始補 cleanup 回驗。 |
-| Skill 5 - Report | 10 | 已能產出教學書、報告、證據包與主管可讀入口。 |
+| Skill 1 - Scan | 10 | 已能從 AWS 新聞、官方文件與帳號資源盤點抽出可驗證候選。 |
+| Skill 2 - Compare | 10 | 已能比較替代技術、部署方式與適用限制。 |
+| Skill 3 - Evaluate | 14 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
+| Skill 4 - Validate | 21 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並開始補 Console 人工確認與 cleanup 回驗。 |
+| Skill 5 - Report | 11 | 已能產出教學書、報告、證據包與主管可讀入口。 |
 
 ## 每日趨勢
 
@@ -37,11 +37,11 @@
 | 2026-07-20 | 2 | 1 | 2 | 1 | 1 | 7 |
 | 2026-07-21 | 1 | 1 | 2 | 4 | 1 | 9 |
 | 2026-07-22 | 1 | 1 | 2 | 2 | 2 | 8 |
-| 2026-07-23 | 2 | 1 | 2 | 3 | 2 | 10 |
+| 2026-07-23 | 1 | 1 | 1 | 1 | 1 | 5 |
 
 ## 今日判定
 
-2026-07-23 的核心成果是把指定 S3 Files 新聞完整跑至「可送真人 PoC 審查」：S1–S5 execution 成功，並在既有 PoC 環境完成 S3 與 EC2 mount 雙向檔案回查。今日分數為 `+10`；外部 LLM 仍因 API key 無效 fallback，真人核准、Console 人工確認與 cleanup 尚待完成。
+2026-07-23 的核心成果是把指定 S3 Files 新聞完整跑過 S1–S5，釐清外部 LLM fallback 原因，並開始整理 AI PM 科會簡報。今日依使用者回饋下修為 `+5`；既有 PoC 雙向檔案回查、展示型 GUI 與截圖補證據不再列為 Cleo 當天個人日誌核心成果。
 
 ## 相關檔案
 
@@ -54,5 +54,5 @@
 
 ## 待修正流程
 
-- 新 CDK stack 已補 CloudFormation Infrastructure Composer 截圖證據；仍待 S3 Files / EC2 / S3 Console 狀態確認、EC2 mount 檢查與雙向檔案同步，完成後需 cleanup，避免 EC2 / S3 Files / VPC 持續產生成本。
+- S3 Files 指定新聞仍待有效 API key 重跑、真人核准紀錄與 cleanup；既有 PoC 補證據不列為個人日誌核心成果。
 - `cdk deploy` 仍受 bootstrap role 權限限制，目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑。

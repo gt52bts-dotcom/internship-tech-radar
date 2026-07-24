@@ -26,6 +26,7 @@ flowchart LR
 
 | 日期 | 今日主軸 | 狀態 |
 |---|---|---|
+| [7/23](./logs/daily/work-log-2026-07-23.md) | 指定 S3 Files 新聞跑完 S1-S5，釐清 LLM fallback 原因並開始整理 AI PM 科會簡報 | direct |
 | [7/22](./logs/daily/work-log-2026-07-22.md) | 調嚴日誌與 Skill 分數，清理舊 S3 Files PoC，建立 CDK / CloudFormation 可重做部署流程 | direct |
 | [7/21](./logs/daily/work-log-2026-07-21.md) | 完成 S3 Files 手動與 CloudFormation-managed PoC 證據整理，建立評分表框架並同步正式日誌 | direct |
 | [7/20](./logs/daily/work-log-2026-07-20.md) | 整理 final proposal 與 demo 材料，完成 S3 Files 新聞截斷測試、CLI 查證與 CloudFormation template validation | direct |
@@ -46,15 +47,15 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-截至 2026-07-22，改採硬審核口徑後累積分數 61 分。每日五個 Skill 加總最高 10 分，舊版 107 分不再作為正式值。
+截至 2026-07-23，改採硬審核口徑後累積分數 66 分。每日五個 Skill 加總最高 10 分，舊版 107 分不再作為正式值。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 9 |
-| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 9 |
-| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 13 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 20 |
-| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 10 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 10 |
+| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 10 |
+| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 14 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 21 |
+| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 11 |
 
 ## 重要交付物
 
@@ -70,5 +71,6 @@ flowchart LR
 
 - 若要驗證真實 LLM 評分，需更新正式 Anthropic API key 或改走公司核准的 Bedrock 路徑。
 - 繼續累積 human review logs，讓 `feedback-stats.json` 從少量資料變成可說明趨勢。
+- 補有效 API key 重跑、真人 PoC 審查紀錄與 cleanup；既有 PoC 的補證據不列為個人日誌核心成果。
 - 將 7/17 CloudFormation 成功、governance artifacts 與報告畫面整理進 final proposal。
 - 若要正式使用 7 頁部會自我介紹簡報，可再補 speaker notes 或口說稿。

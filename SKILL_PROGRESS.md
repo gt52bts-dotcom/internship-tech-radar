@@ -28,8 +28,8 @@
 | 2026-07-20 | 2 | 1 | 2 | 1 | 1 | 7 | direct |
 | 2026-07-21 | 1 | 1 | 2 | 4 | 1 | 9 | direct |
 | 2026-07-22 | 1 | 1 | 2 | 2 | 2 | 8 | direct |
-| 2026-07-23 | 2 | 1 | 2 | 3 | 2 | 10 | direct |
-| **累積** | **11** | **10** | **15** | **23** | **12** | **71** |  |
+| 2026-07-23 | 1 | 1 | 1 | 1 | 1 | 5 | direct |
+| **累積** | **10** | **10** | **14** | **21** | **11** | **66** |  |
 
 ## 2026-07-21 評分理由
 
@@ -41,7 +41,7 @@
 
 ## 當前狀態
 
-截至 2026-07-22，累積總分為 61。Skill 4 仍是最高，代表專案已從文件設計推進到可驗證 PoC，也完成一輪 cleanup 回驗；今天已補上 CloudFormation Infrastructure Composer 資源關係截圖，下一步是由 Cleo 在 Console / EC2 確認 S3 Files mount 與雙向同步，再做 cleanup。這份分數已改採每日總分最高 10 分的新口徑，舊分數不可再作為正式累積值。
+截至 2026-07-23，累積總分為 66。Skill 4 仍是最高，但 7/23 已依使用者回饋下修：個人日誌只保留指定 S3 Files 新聞跑過 S1-S5、LLM fallback 根因與 AI PM 科會簡報起稿，不再把既有 PoC 雙向檔案回查、展示型 GUI 或截圖補證據列為 Cleo 當天核心進度。下一步是補有效 API key 重跑、真人核准紀錄與科會簡報素材。這份分數已改採每日總分最高 10 分的新口徑，舊分數不可再作為正式累積值。
 
 ## 2026-07-22 評分理由
 
@@ -53,8 +53,8 @@
 
 ## 2026-07-23 評分理由
 
-- Scan +2：指定 S3 Files 新聞以受控 `seed_article` 入口進入既有 S1–S5；來源方式與一般 RSS 路徑明確區分。
-- Compare +1：釐清 RSS／指定輸入、LLM／rubric fallback，以及舊 execution／最新 gate execution 的差異，避免錯用審查結果。
-- Evaluate +2：PoC gate 以平均分、證據信心與治理旗標做資格判斷；符合條件仍只送人工審查，未自動建立資源。
-- Validate +3：指定新聞最新 execution 成功；既有 S3 Files PoC 完成 S3 API 與 EC2 `nfs4` mount 的雙向檔案回查。外部 LLM 仍因無效 key fallback，不計為 LLM 驗證。
-- Report +2：完成 S3 Files 完整雷達評估與 PoC 報告，並完成以協作校正案例為主的科會簡報第二版；逐頁圖片檢查已完成，外部 render 工具因 Windows 編碼限制待補。
+- Scan +1：指定 S3 Files 新聞以受控 `seed_article` 入口進入 S1，並保留與一般 RSS 路徑的差異。
+- Compare +1：釐清手動指定新聞、RSS 掃描、LLM fallback 與 rubric fallback 的差異，避免把不同來源或不同驗證層級混在一起。
+- Evaluate +1：確認 PoC gate 只能送人工審查，不能自動開始 PoC。
+- Validate +1：指定新聞 execution 成功，且 layer 修正後確認 fallback 主因改為 API key 無效；不把外部 LLM 評分寫成成功。
+- Report +1：AI PM 科會簡報開始改成以實際校正案例為主，但仍屬初步整理，不算完成版報告。
