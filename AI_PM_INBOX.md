@@ -2,6 +2,97 @@
 
 此檔只保存 17:00 前的原始證據，不是正式日誌。平日 17:00 排程完成統整後，將當日內容標記為已整理。
 
+## 2026-07-24｜17:00 前暫存
+
+### Mentor 討論｜AI PM README、待辦與交付物校正
+
+- 時間判定：2026-07-24 15:25 Asia/Taipei，尚未到 17:00，故本次 Mentor 討論先記入 inbox，不建立今日正式日誌。
+- Mentor 回饋重點：主 README 的待辦事項目前意義不明；待辦應是需要被解決、且有明確時間要求的事情，需照截止時間安排，最後要能消光。
+- 已調整主 `README.md`：移除原本偏雜項的「目前待辦」，改為「近期待辦（照期限消光）」表格，欄位包含截止日期、待辦、對應目標、消光條件與狀態。
+- 固定時程已列入追蹤：2026-07-28 科會報告 AI PM；2026-07-30（四）上午總公司高管交流會；2026-08-06 至 2026-08-07 信義區集團 AI 競賽，當日不進內湖辦公室；2026-08-17 部會展示最終實習成果報告。
+- 後續補充：Cleo 已提供三段 CIP 雙週工作進度期間、國泰主管評分表與學校評分表日期，主 README 的 `待確認` 已可移除並改為明確期限追蹤。
+- Mentor 回饋交付物：主 README 的重要交付物不要放太多內部支援文件，例如 AI 執行軌跡、一般 README、草稿素材；第一層只放真正要提交、展示、匯出或供評核使用的成果。
+- 已調整主 `README.md` 的重要交付物：聚焦 AI PM 科會報告、下一次雙週進度表、最終部會成果簡報 / 展示、國泰與學校評分表。
+- Final proposal 方向：最終成果簡報可採電梯簡報法，一層層展開並控制時間；前段要說明為什麼值得做這項專案；研究方法要交代參考資料、質化與量化依據；可用論文式架構回答新穎性與進步性。
+- AI PM 判定：這是 durable 的管理規則與近期時程校正，已同步更新 `PROJECT_MEMORY.md` 與 `AI_PM_WORKFLOW.md`；晚間正式日誌可列為 Report / AI PM 管理品質修正，但不應灌高分。
+
+### CIP Journey 與正式文件期限補充
+
+- Cleo 補充 CIP Journey 圖與正式文件期限，要求：日期過去後就從待辦刪掉；還沒到的日期可放在待辦；活動發生後再補進當日 inbox / 正式日誌。
+- 已過日期不放待辦：2026-07-06 至 2026-07-07 集團開訓已過；2026-07-23 人壽 1st 共融活動（總公司）已過，且 7/23 正式日誌已有記錄。
+- CIP Journey 未來行程已補入主 `README.md`：2026-07-30 人壽高管交流活動（總公司）；2026-08-06 至 2026-08-07 集團 AI 競賽（信義區，當日不進內湖）；2026-08-10 人壽 1st 共融活動（六度空間）；2026-08-20 人壽 2nd 共融活動（總公司）；2026-08-31 集團結訓典禮（國泰金融會議中心）。
+- 雙週進度表期限已補入主 `README.md`：CIP 雙週工作進度（7/20-7/31）於 2026-07-31 整理 / 匯出；CIP 雙週工作進度（8/3-8/14）於 2026-08-14 整理 / 匯出；CIP 雙週工作進度（8/17-8/28）於 2026-08-28 整理 / 匯出。
+- 評分表期限已補入主 `README.md`：國泰主管評分表 2026-08-24；學校評分表 2026-08-27。
+- AI PM 判定：這是正式時程追蹤，不是專案技術進度；晚間正式日誌可作為 Report / PM 管理修正證據，但不應灌入技術 Skill 高分。
+
+### 最終發表前剩餘完整工作日校正
+
+- Cleo 判斷：扣掉 2026-07-28 科會上午、公司活動日、集團 AI 競賽、週末與 2026-08-17 發表日，最終成果發表前只剩 10 個完整工作日；但仍需要完成 final proposal、論文式敘事與驗證。
+- AI PM 核對：10 個完整工作日為 2026-07-27、2026-07-29、2026-07-31、2026-08-03、2026-08-04、2026-08-05、2026-08-11、2026-08-12、2026-08-13、2026-08-14。
+- 已更新主 `README.md`，新增「剩餘完整工作日倒排」：每一天只留一個主軸與消光條件，避免剩餘工作繼續發散。
+- 初步策略：先收斂 final proposal 的一句話主張、研究問題、新穎性 / 進步性；再凍結最小可展示流程；接著跑最小驗證與記錄限制；最後轉成簡報、demo checklist 與口說稿。
+- AI PM 判定：後續新需求若不能支援「最終成果發表、論文式敘事、可驗證證據」三件事，預設延後或移出主線。晚間正式日誌可列為 Report / PM 管理修正，不應灌高分。
+- Cleo 隨後修正：其實來得及，但要採「一天驗證兩個階段」節奏。2026-07-24 完成 S0；2026-07-27 完成 S1/S2；2026-07-28 下午完成 S3/S4；2026-07-29 完成 S5 並用多篇報導驗證。
+- 已更新主 `README.md`，把「剩餘完整工作日倒排」改成「最終發表驗證衝刺」。前四個 checkpoint 改為 S0、S1/S2、S3/S4、S5 + 多篇報導驗證；後續完整工作日用來整理研究方法、圖表、第二輪驗證、final proposal 初稿與演練。
+- AI PM 修正判定：容量限制不是要把專案縮到不能做，而是要讓驗證節奏更密集；正式日誌可寫成 PM 範圍校正與驗證排程收斂。
+
+### S0 本機核心驗證
+
+- 依 2026-07-24 當日 checkpoint，回查並執行 `radar-redesign` 的 S0 本機核心。
+- CLI 驗證：`python -m agentic_cloud_radar.cli s0 --input .\samples\s0-url-input.json` 可產生 `schema_version=s0.demand_card.v1`、`stage=S0`、`status=ready_for_confirmation` 的需求卡；輸出包含 default constraints、sensitivity_check passed、human_confirmed=false。
+- 測試驗證：`python -m unittest discover -s tests` 通過 5 個測試；`python -m compileall agentic_cloud_radar tests` 通過。
+- 可宣稱：S0 本機核心已可把輸入標準化成需求卡，並做基本完整性、敏感資訊、限制條件與人工確認狀態檢查。
+- 不可宣稱：尚未完成 S1-S5、Lambda handler、Step Functions、GUI 或 AWS deployed mode。
+
+### S1~S5 原始目標校正
+
+- 使用者補充重要方向：之前專案原始設定目標是把 S1~S5 做成五個 Skill。
+- AI PM 判定：這是長期目標校正，不只是今日進度；已補入 `PROJECT_MEMORY.md`，明確區分「五個 Skill 積分／dashboard 是追蹤管理層」與「五個可重用 Skill 尚需逐步產品化」。
+- 後續影響：final proposal、GUI 展示與待辦盤點要避免只把 S1~S5 寫成流程圖或評分欄位，需說明它們最終要沉澱成 Skill 1 Scan、Skill 2 Compare、Skill 3 Evaluate、Skill 4 Validate、Skill 5 Report。
+- 使用者進一步判斷：GUI 比較像展示層，真正工作上比較好用的應該是完整 Skill；後續要把 Skill 產品化列為核心工作，GUI 作為 demo 與溝通輔助。
+- 使用者追問 Skill 的完整定義與實際使用方式；已依內建 `skill-creator` 規則整理：Skill 是一個模組化資料夾，核心是 `SKILL.md`，可搭配 scripts、references、assets，目標是把特定領域知識、工作流程與工具整合成 AI 可重複使用的作業包。
+- 使用者質疑昨日其實已做過 PoC 同意；已用 AWS DynamoDB pick log 核對，確認 2026-07-23 16:26:33 Asia/Taipei，Cleo 對正確 run `s3files-news-20260723-gate` 寫入 `decision=approve`，候選為 `M-2E486BFB`。先前說「尚未 approve」是讀到較早狀態造成的誤判，今日需修正昨日正式日誌與長期記憶。Approval 只代表人類同意最小範圍 S4 PoC，不代表 Lambda 自動建立資源。
+- 使用者指出 CloudFormation Infrastructure Composer 已能看到 `s3files-news-fresh-20260723.yaml` 的 S3 Files PoC 架構圖。已用 AWS 唯讀回查確認 stack `s3files-news-fresh-20260723` 存在且為 `UPDATE_COMPLETE`，主要資源含 S3 bucket、S3 Files filesystem、mount target、access point、EC2、VPC、security groups、IAM role/profile；因此前面「還沒真的開始 S4 PoC」說法不精確。正確狀態：approval 後已開始並部署 S4 基礎設施 PoC，但當時還沒有完成完整 S4 證據回驗、成本確認與 cleanup。回查當下 EC2 仍 running，S3 可見 `news-poc/workspace/news-fresh-verify.txt` 但大小為 0 bytes，因此接續進行內容與雙向讀寫證據確認。
+- 使用者要求繼續收尾 S4 PoC。已完成最小雙向資料面回驗：S3 API 寫入的非空檔案可由 EC2 mount path 讀出，EC2 mount path 寫入的非空檔案同步後可由 S3 API 讀回。接著完成 cleanup：清空並刪除新聞驅動 stack `s3files-news-fresh-20260723`；同時盤點到舊 CDK PoC stack `s3files-cdk-202607221334` 仍有 running EC2，也一併清空 bucket 並刪除 stack。最後回驗顯示目前沒有 `s3files*` CloudFormation stack，兩台測試 EC2 均 terminated，S3 Files filesystem 清單無殘留，兩個 PoC bucket 皆不存在。
+- 使用者指出 S4 PoC 收尾報告太工程化、堆太多檔名與 AWS 細節，看不懂；後續又補充不要過度幼幼白話，而是要「專業但不是流水帳」。已將報告改成專業敘事版：保留新聞進入 S1-S5、評分指標與分數、token / fallback 狀態、CDK / CloudFormation / CLI 關係、部署失敗與修正、雙向驗證、cleanup 與可宣稱／不可宣稱邊界，但移除不必要檔名與資源 ID。
+- 使用者指出 S5 報告邏輯有問題：固定出現印度、日本等企業案例，像是背舊數字，而且部署流程沒有被授權即時上網查詢，不能合理做外部企業比較。已回查程式，確認 `case_studies` 是本機內建靜態 JSON，匹配方式是 tag overlap，且 `case_evidence` 會進入 S3 / S4 評分與 decision layer bonus。因此使用者質疑成立：現行 S5 不能宣稱已做外部企業比較，靜態案例不應作為正式加分證據。已補入 `PROJECT_MEMORY.md` 作為後續 S5 修正規則。
+- 使用者決定：整套技術雷達可以重做、重新定位、重新部署，不需要慌張。新版建立過程要慢慢討論架構、程式、部署與維運；不要再用 `v3` 這種怪詞；Codex 必須讓 Cleo 理解每段程式碼的意義、可能疏漏與驗證不可靠因素，嚴肅嚴格一起改善。已補入 `PROJECT_MEMORY.md`。
+
+### 新版雷達交付形式補充
+
+- Cleo 明確要求：新版雷達完整後，除了展示用 GUI，也需要拆解成五個 Skill，方便後續公司人員套用。
+- 設計含義：GUI 不是純展示圖，而是要能實際使用並後續部署到 S3 的操作前端；五個 Skill 則是可交接、可維護、可重複使用的核心產物。
+- 後續設計文件需同時描述完整系統流程與各 Skill 的獨立輸入、輸出、責任邊界、驗證限制。
+
+### 新版雷達重做起點
+
+- Cleo 決定正式重新做一次整套 AWS 技術雷達，不急著改舊系統或部署。
+- 本次起點先建立設計基準草案：新版定位為 evidence-first、human-gated、Skill-first 的技術決策輔助系統。
+- 目前已盤點舊系統可沿用部分與需淘汰部分：可沿用 Step Functions、S3/DynamoDB artifacts、human review gate、CDK/CloudFormation 部署經驗；需重做對外命名、S5 證據邏輯、靜態企業案例評分、技術分數與證據信心混用、單一路徑未對齊問題。
+- 下一步不是寫程式，而是與 Cleo 對齊新版正式名稱、第一版範圍、資料來源限制、評分門檻、PoC 成本上限與五個 Skill 的交付形式。
+
+### 新版雷達七項初始決策
+
+- 新版正式名稱：AI Agentic 雲端技術雷達與評估系統。
+- 建議 AWS resource prefix：`agentic-cloud-radar`，環境資源可使用 `agentic-cloud-radar-dev`；不使用中文、空白或版本詞。
+- 第一版先做後端流程與清晰完整架構，GUI 後續要能真的使用並部署到 S3，但先不把視覺包裝放在最前面。
+- S0 需求卡放在 S1 前面，作為使用者需求、限制、成功標準與敏感資訊檢查入口。
+- 允許 runtime web search；但 S5 報告必須標示來源，不能把未查證或內建案例寫成外部證據。
+- S4 PoC 預設成本上限：USD 1。
+- S3 評分指標與門檻待下一步專門討論；五個 Skill 交付形式也需解釋 Python CLI 的用途後再決定。
+- Cleo 補充修正：公司沒有非常限制成本，因此成本不應是 S3 評分中的主要扣分項；但本專案 S4 PoC 只是小型最小驗證，不是正式試點。單次 S4 PoC 預估成本不得超過 USD 3；USD 1 作為低風險提醒線，超過 USD 3 時應拆小、先做本機程式測試或文件驗證作為開發證據，或另案說明並重新取得更高層級核准。
+
+### 新版開發第一步：S0 與後端架構
+
+- Cleo 要求開始重新開發，並先說清楚 S0 要怎麼做、後端架構怎麼設計。
+- 已建立 `radar-redesign/s0-backend-architecture.md`，定位為開發前規格草案，不宣稱已完成後端程式或部署。
+- 文件內容包含：S0 表單欄位、S0 JSON 輸出、完整性檢查、敏感資訊檢查、human confirmation、後端 AWS 元件責任、API 草案、DynamoDB key 設計、S3 artifact path、Step Functions 資料流與開發順序。
+- 關鍵決策：第一階段先不碰 AWS，先定義 S0-S5 schema、Python package、CLI 與測試；第二階段才包 Lambda handler 與 CDK；第三階段接可用 GUI；第四階段接 runtime web search。
+- Cleo 追問 S0 與 S1 的邊界。已補規格：S0 可接收需求、URL、RSS 條件或貼文，但只做完整性、敏感資訊、限制條件與人工確認，不抓網頁、不搜尋新聞；S1 才開始外部資料動作，例如抓指定 URL、讀 RSS、runtime web search、整理官方文件與相關新聞。
+- S0 本機核心已開始實作：新增 Python package `agentic_cloud_radar`、S0 demand-card validator、CLI、範例輸入與 unittest 測試。此階段尚未串外部 LLM、AWS Lambda、Step Functions、CDK 或 GUI。
+- 驗證結果：`python -m agentic_cloud_radar.cli s0 --input .\samples\s0-url-input.json` 成功輸出 `ready_for_confirmation`；`python -m unittest discover -s tests` 通過 5 個測試；`python -m compileall agentic_cloud_radar tests` 通過；新版資料夾未出現舊版命名或舊評分欄位。
+- Cleo 決定正式交付模式只保留 Agent mode 與 Deployed mode；不建立 mock/offline/假資料模式作為產品分支。固定範例與本機測試只保留為開發驗證材料，不放進正式流程敘事、展示主線或評分證據。
+
 ## 2026-07-23｜17:00 前暫存
 
 ### 下週二科會｜AI PM 10 分鐘報告待辦
@@ -24,14 +115,15 @@
 - 使用者確認可保留「直接輸入指定新聞」入口，但規則是輸入仍須先經完整評分才可開始 PoC。已加入 S5 `poc_gate`：平均分至少 3.75、證據至少 medium、沒有治理旗標時才可送真人 PoC 審查；`automatic_poc_start` 固定 false。已實跑回驗 Step Functions 成功、gate 為 `awaiting_human_poc_review`、eligible count 1，沒有自動建立資源。
 - 使用者決定先回到 PoC，詢問真人審查閘門的 Console 位置。唯讀核對顯示雷達 stack 為 `UPDATE_COMPLETE`，可從 Step Functions 的 `cathay-techintel-v3-cfn-pipeline` 檢視最新 execution 與 S5 的 `poc_gate`；實際送出 human review 的入口是 Lambda `cathay-techintel-v3-cfn-recordhumanpick` 的 Test 事件，不是 CloudFormation 或已完成的 GUI。該 Lambda 需要 `run_id`、`reviewer`，若 approve 還需 S5 輸出的候選 ID；寫入審查紀錄不會自動建立 PoC 資源。
 - 更正：使用者在 S3 Files execution 的圖形頁找不到 `poc_gate` 是正確的。唯讀回查後確認 `s3files-news-20260723-0750`、`s3files-news-20260723-0800` 兩次真正的指定新聞 execution 都早於閘門整合，S5 output 沒有 `poc_gate`；先前說成可直接在該 execution 找 gate 不精確。後來的 `poc-gate-check-20260723-0830` 是獨立 gate 測試，確有 `awaiting_human_poc_review` 與 1 個測試候選，但不可用來核准 S3 Files 新聞 PoC。要正確走真人核准，需用更新後 pipeline 重跑指定 S3 Files 新聞，產生該新聞自己的 `poc_gate`、候選 ID 與 run ID。
-- 已以現行 pipeline 重跑指定 S3 Files 新聞，run ID `s3files-news-20260723-gate` 為 `SUCCEEDED`，S5 `poc_gate` 為 `awaiting_human_poc_review`，候選 `M-2E486BFB`，`automatic_poc_start=false`。這次結果才可供真人審查；尚未由真人 approve/reject，也沒有因本次 run 建立新 PoC 資源。
+- 已以現行 pipeline 重跑指定 S3 Files 新聞，run ID `s3files-news-20260723-gate` 為 `SUCCEEDED`，S5 `poc_gate` 為 `awaiting_human_poc_review`，候選 `M-2E486BFB`，`automatic_poc_start=false`。這次結果才可供真人審查；2026-07-24 回查 AWS pick log 後確認 Cleo 已於 2026-07-23 16:26:33 Asia/Taipei 對此 run approve，同意最小範圍 S3 Files PoC。Approval 本身沒有自動建立新 PoC 資源。
 
 ### 17:00 後判定結果
 
 - 已統整至 `logs/daily/work-log-2026-07-23.md`。
-- 對應 Skill：掃描 +2、比較 +1、評估 +2、驗證 +3、報告 +2；當日總分 +10，累積 71。
+- 對應 Skill：原先寫為掃描 +2、比較 +1、評估 +2、驗證 +3、報告 +2；2026-07-24 依 Cleo 回饋下修為掃描 +1、比較 +1、評估 +1、驗證 +1、報告 +1；當日總分 +5，累積 66。
 - Git 日誌、Skill 進度、JSON 與 dashboard 摘要已同步；Notion 7/23 日誌頁與五筆 Skill 每日積分明細已建立並回傳成功。
-- 嚴格限制：外部 LLM 仍因 API key 無效 fallback；S3 Files 指定新聞只到真人審查等待狀態，既有 PoC 的 Console 人工確認與 cleanup 尚待完成。
+- 17:41 使用者補充：已進 CloudFormation Infrastructure Composer 確認新做的架構圖正確、成功；截圖已保存為 `poc/s3-files-cli-poc/evidence/2026-07-23-cloudformation-infrastructure-composer-user-confirmed.png`。
+- 嚴格限制：外部 LLM 仍因 API key 無效 fallback；S3 Files 指定新聞當時已補 CloudFormation Infrastructure Composer 人工確認，但 S3 Files / EC2 / S3 Console 狀態確認與 cleanup 在 7/23 統整時尚待完成。2026-07-24 已補完成雙向資料面回驗與 cleanup，詳見今日暫存紀錄。
 
 ## 2026-07-22｜17:00 前暫存
 
