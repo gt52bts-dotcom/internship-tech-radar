@@ -416,4 +416,3 @@
 - 使用者回報自己跑 S0 CLI 結果 OK，並詢問是否繼續 S1。已確認 `radar-redesign` 目前尚未有新版 S1 程式碼；下一步應做新版 S1 本機切片，而不是直接沿用舊版 company-account S1。建議 S1 第一版責任：讀取 `confirmed` 的 S0 demand card，依 `source_mode` 處理 seed URL / paste / service / rss，本機產出 `s1_scan.json`，明確標示來源、官方性、證據等級與是否為 `seed_article`；第一版可先做 URL/paste 的 deterministic parser，不急著上 AWS 或串 LLM。
 - 使用者新增硬截止：本週五 2026-07-31 要完成專案第一版完整交付，整理出完整 Skills、能完整跑過檢測，並交給 Mentor 確認。AI PM 已將主 README 與專案記憶中的 7/31 目標升級：不再只是雙週進度整理，而是五個 Skills 文件、S0-S5 端到端案例、本機檢測證據、限制清單、Mentor review package 與 CIP 雙週工作進度一起完成。
 - 使用者要求重新整理 AI PM 科會簡報文案，不製作 PPT，只輸出可交給 Claude 排版的逐頁內容。新版主軸改為：日常相處模式、指令轉譯、依事件輕重緩急排序、人類會想太多、嚴格拆分階段目標，以及 AI PM 作為工作夥伴的四項幫助。
-- 使用者指定「把一句模糊需求，變成可交付清單」這張投影片要用 2026-07-24 Mentor 回饋例子呈現。已依要求只匯出文字檔 `final-proposal/AI_PM科會單頁-模糊需求到可交付清單.txt`，內容包含頁面標題、原始輸入、AI PM 轉譯後的待辦規則／時間線／交付物／final proposal 方向、底部結論與口說稿；未製作 PPT。
