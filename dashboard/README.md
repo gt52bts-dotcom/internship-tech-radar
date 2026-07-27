@@ -15,15 +15,15 @@
 
 ## 累積分數
 
-截至 2026-07-24，嚴格審核後累積總分為 `70`。每日總分最高 10 分，舊版 107 分不再作為正式累積值。
+截至 2026-07-27，嚴格審核後累積總分為 `79`。每日總分最高 10 分，舊版 107 分不再作為正式累積值。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 10 | 已能從 AWS 新聞、官方文件與帳號資源盤點抽出可驗證候選。 |
-| Skill 2 - Compare | 10 | 已能比較替代技術、部署方式與適用限制。 |
-| Skill 3 - Evaluate | 15 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 21 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC；7/24 的 S0 測試與 S4 回驗依使用者更正不列入今日完成。 |
-| Skill 5 - Report | 14 | 已能產出教學書、報告、證據包與主管可讀入口，並依 Mentor 回饋收斂時程管理與科會內容。 |
+| Skill 1 - Scan | 12 | 已能從 AWS 新聞、官方文件與帳號資源盤點抽出可驗證候選。 |
+| Skill 2 - Compare | 11 | 已能比較替代技術、部署方式與適用限制。 |
+| Skill 3 - Evaluate | 16 | 已把成本、權限、安全、fallback 與 cleanup 納入判斷。 |
+| Skill 4 - Validate | 24 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC；7/27 新增 S0→S1 真實 URL 本機驗證。 |
+| Skill 5 - Report | 16 | 已能產出教學書、報告、證據包與主管可讀入口，並完成科會協作簡報重寫。 |
 
 ## 每日趨勢
 
@@ -39,14 +39,15 @@
 | 2026-07-22 | 1 | 1 | 2 | 2 | 2 | 8 |
 | 2026-07-23 | 1 | 1 | 1 | 1 | 1 | 5 |
 | 2026-07-24 | 0 | 0 | 1 | 0 | 3 | 4 |
+| 2026-07-27 | 2 | 1 | 1 | 3 | 2 | 9 |
 
 ## 今日判定
 
-2026-07-24 的核心成果是研究新版雷達 S0 需求輸入層、校正待辦與交付物管理，並整理 AI PM 科會 10 分鐘內容稿。今日 `+4`：S0 尚未完成閱讀、CLI、測試或編譯檢查；S4 雙向資料驗證與 cleanup 也不列為今日完成，因此 Validate 不加分。
+2026-07-27 的核心成果是完成科會協作材料，並以真實 AWS 官方 URL 驗證 S0→S1 本機鏈路。今日 `+9`：S1 已可真抓單一人工確認來源，但 RSS／搜尋、S2-S5、AWS deployed mode 與正式 LLM 仍未完成。
 
 ## 相關檔案
 
-- [正式日誌](../logs/daily/work-log-2026-07-24.md)
+- [正式日誌](../logs/daily/work-log-2026-07-27.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)
 - [Skill JSON 資料](./skill-score-data.json)
 - [互動式 Skill dashboard](./cleo-skill-dashboard.html)
