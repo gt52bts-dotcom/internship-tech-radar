@@ -16,6 +16,9 @@ cdk.out/
 
 # Local/editor files
 .local/
+.codex-tmp/
+.tmp/
+tmp/
 .DS_Store
 Thumbs.db
 .vscode/
@@ -26,3 +29,4 @@ internship-tech-radar/
 
 # Generated packages and reports are retained locally unless intentionally forced
 *.zip
+radar-redesign/out/
