@@ -1,45 +1,78 @@
-# AWS 技術雷達重做區
+# Agentic Cloud Radar
 
-這個資料夾保存新版 AWS 技術雷達的重新設計材料。
+這個原型把雲端技術探索拆成五個 Skills：S1 Scan、S2 Compare、S3 Evaluate、S4 Validate、S5 Report。目前本機可執行 S1 與 S2；兩者只使用執行當下取得的公開資料，不使用 demo 文章、假 URL 或人工補寫的技術 metadata。
 
-目前原則：
+## 新入口與流程
 
-- 先討論定位、證據、評分、PoC gate、維運與 Skill 化，再寫程式。
-- 不沿用舊版對外命名。
-- GUI 是可實際使用的操作前端，後續預期部署到 S3 或搭配 CloudFront；五個 Skill 是長期可交接核心。
-- 舊系統只作為經驗來源，不直接當作新版基礎。
+```text
+使用者貼 URL ──────────────────────> S1 URL Import ─> S2 Proposal Cards ─> S3
 
-已確認的新版方向：
-
-- 正式名稱：AI Agentic 雲端技術雷達與評估系統。
-- 建議 AWS resource prefix：`agentic-cloud-radar`。
-- 第一版先完成後端流程與完整架構。
-- S0 需求卡放在 S1 前面。
-- 允許 runtime web search，但報告必須標示來源與證據等級。
-- S4 PoC 預設成本上限為 USD 1。
-
-目前文件：
-
-- `design-baseline.md`：新版設計基準草案。
-- `s0-backend-architecture.md`：S0 需求卡與後端架構設計草案。
-
-目前程式切片：
-
-- `agentic_cloud_radar/s0.py`：S0 需求卡標準化與驗證核心。
-- `agentic_cloud_radar/cli.py`：本機 CLI 入口。
-- `samples/s0-url-input.json`：指定 URL 情境的 S0 範例輸入。
-- `tests/test_s0.py`：S0 單元測試。
-
-本機執行：
-
-```powershell
-cd C:\Users\youhs\Documents\實習專案\radar-redesign
-python -m agentic_cloud_radar.cli s0 --input .\samples\s0-url-input.json
-python -m unittest discover -s tests
+使用者要求掃描最新／GA 技術 ───────> S1 Discovery  ─> S2 Proposal Cards ─> S3
 ```
 
-目前限制：
+S0 不再是入口關卡。過去 S0 想做的事（問題、預期改善、成功條件、限制）已移進 S2，變成每一個 S1 候選各自的提案卡。這樣系統先認識真實技術，再問「它值得解哪個問題」，不會在還不知道候選之前先要求人填空泛需求。
 
-- S0 不向外搜尋、不抓 URL。
-- LLM demand-card assistant 目前先做成 rule-based first implementation，用固定規則標記模糊需求；尚未串接外部 LLM API。
-- 目前只完成 S0 本機核心，尚未完成 S1-S5、Lambda、CDK 或 GUI。
+## S1：真實候選蒐集
+
+`s1` 是掃描入口，可帶可選的 scope hints，但不需要確認卡。它會讀 AWS Blogs 的即時分類目錄與 RSS，並在非 GA-only 模式下使用 GitHub Public Repository Search。
+
+`s1-url` 是直接匯入入口。使用者已明確指定 URL，因此完全不經 S0；但仍檢查 HTTPS、受信任公開網域、redirect 與 HTML content type。目前允許 AWS、GitHub、GitLab、Codeberg。
+
+```powershell
+# 掃描跨領域技術；input 只放掃描範圍與 GA 等可選條件
+python -m agentic_cloud_radar.cli s1 `
+  --input .\out\landscape-request.json `
+  --output .\out\s1-landscape.json
+
+# 直接匯入一篇真正想看的文章；不經 S0
+python -m agentic_cloud_radar.cli s1-url `
+  --url "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/" `
+  --output .\out\s1-s3-files.json
+```
+
+範例 scan request：
+
+```json
+{
+  "discovery_scope": "landscape",
+  "max_source_age_days": 3650,
+  "max_candidates": 12,
+  "maturity_requirement": "ga_evidence_required",
+  "constraints": { "excluded_services": ["Bedrock"] }
+}
+```
+
+## S2：候選提案卡與比較板
+
+S2 不再只是補連結。它將每個可追溯候選做成 `proposal_card`，並建立固定欄位的 `comparison_matrix`：
+
+- 技術範圍、交付型態、來源支持的能力與環境訊號。
+- 改善假設與改善程度：只有來源有量化文字才標示為量化；否則明確標示為待驗證假設。
+- 可能好處、規劃上的利弊、成熟度、文件／定價／區域證據與證據覆蓋率。
+- 每個候選要先量的 before/after 指標、成功證據、stop conditions、下一個人工問題。
+- 新加坡 `ap-southeast-1` 是硬門檻：只有有「特定功能」官方證據明確可在該 Region 使用的候選，才可進 S3 shortlist；只有服務 endpoint、沒有 feature-level 證據時仍不可考慮。
+
+它不自動選冠軍、不假裝已知公司痛點，也不自動開 PoC。人類只能從新加坡合格候選中選最多三項進 S3。
+
+```powershell
+python -m agentic_cloud_radar.cli s2 `
+  --input .\out\s1-landscape.json `
+  --output .\out\s2-landscape-proposals.json
+```
+
+## 檔案
+
+- `agentic_cloud_radar/s1.py`：掃描與 URL 匯入。
+- `agentic_cloud_radar/s2.py`：證據比較、候選提案卡、比較矩陣。
+- `docs/s1-極細註解版.md`：S1 資料流與命令說明。
+- `docs/s2-極細註解版.md`：S2 提案卡欄位與比較指標。
+- `s0-backend-architecture.md`：更新後的 S1/S2 入口架構。
+
+## 驗證
+
+```powershell
+python -m compileall agentic_cloud_radar
+python -m unittest discover -s tests -v
+```
+
+PowerShell 5.1 用 `Set-Content -Encoding utf8` 產生 JSON 時可能加上 BOM；CLI 以 `utf-8-sig` 讀取 input，因此有 BOM 或無 BOM 都可讀取。

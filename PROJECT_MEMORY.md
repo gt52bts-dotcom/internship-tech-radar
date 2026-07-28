@@ -51,8 +51,8 @@
 - 技術雷達後續第一層級應為「應用端需求輸入」：使用者先在 GUI 或需求表單輸入目前遇到的業務／系統問題、舊有方法為何無法解決、限制條件與成功標準；系統再依此啟動 S1-S5，搜尋新技術、比較適配性、報價、驗證並產出給人類審核的改良報告。
 - 若使用者不知道公司實際遇到哪些問題，雷達前面需增加「S-1 問題發現／問題候選蒐集」：用低侵入、非敏感來源整理可能痛點，例如訪談問題清單、公開或內部非敏感文件、常見金融雲端場景、既有日誌中的阻礙、主管指定方向，再由人類確認後進入 S0 需求卡。
 - S0 需求輸入層不應直接負責對外搜尋。S0 可選擇性使用 LLM 協助把使用者描述整理成需求卡、追問缺漏欄位與檢查敏感資訊；真正的外部資料搜尋與技術蒐集應在 S1 Scan，且需等 S0 需求卡經人類確認後才啟動。任何 LLM/API key 都必須放在後端或 Secrets Manager，不可出現在 GUI、repo、日誌或報告中。
-- 2026-07-23 起，技術雷達可接受具備官方 URL、標題、摘要、tags 與評估訊號的受控 `seed_article` 輸入，用於重跑歷史、遮蔽或使用者指定的 AWS 新聞；它必須在 S1 輸出明確標記為 `seed_article`，不可宣稱是當日 RSS 掃描到的內容。一般 RSS 路徑仍需保留。
-- 2026-07-23 起，所有 RSS 或 `seed_article` 候選都必須先完整通過 S1-S5 才能申請 PoC。S5 的 `poc_gate` 要求平均分至少 3.75、證據信心至少 medium、沒有治理旗標；即使符合也只會標記為 `eligible_for_human_poc_review`，`automatic_poc_start` 固定為 false。真人仍需核准範圍、成本、成功標準與 cleanup，雷達不得自行建立付費 PoC 資源。
+- 舊版技術雷達曾使用受控 `seed_article` 重跑歷史新聞；此設計已不適用新版 `radar-redesign`。新版正式 S1 僅保留 2026-07-28 定義的 `url`／`rss` 真實官方資料入口。
+- 所有新版 RSS 或 URL 候選都必須先完整通過 S1-S5 才能申請 PoC。S5 的 `poc_gate` 要求平均分至少 3.75、證據信心至少 medium、沒有治理旗標；即使符合也只會標記為 `eligible_for_human_poc_review`，`automatic_poc_start` 固定為 false。真人仍需核准範圍、成本、成功標準與 cleanup，雷達不得自行建立付費 PoC 資源。
 - 2026-07-24 釐清：若使用者尚未在 human review gate 核准，對外與日誌口徑應說「自動流程完成到 S3 評估／PoC 候選資格判斷」，而不是說「已啟動或完成正式 PoC」。S4 若只產生低風險 validator artifact、rubric fallback 或重用既有驗證證據，需明確標示為非核准 PoC；任何會新建或變更 AWS 付費資源的 S4 PoC 必須等 Cleo 明確同意後才可開始。
 - 2026-07-24 AWS 回查修正：2026-07-23 16:26:33 Asia/Taipei，Cleo 已在 DynamoDB human pick log 對 `s3files-news-20260723-gate` 寫入 `decision=approve`，候選 `M-2E486BFB`，同意最小範圍 S3 Files PoC。此 approval 是正確 run 的人類核准紀錄，但仍不代表 record-human-pick Lambda 會自動建立 PoC 資源；後續 S4 執行仍需依核准範圍、成本、成功標準與 cleanup 做。
 - 2026-07-24 使用者更正：不可在正式日誌或主管可讀文件中寫成「S4 雙向資料驗證與 cleanup 回驗已於今日完成」。若 AI 背景曾做過 AWS 查詢或整理，仍需先和 Cleo 的實際操作、理解程度與可展示證據對齊，才能計入 Cleo 個人日誌或 Skill 分數。
@@ -82,6 +82,7 @@
 - Git 內的正式每日實習日誌放在 `logs/daily/work-log-YYYY-MM-DD.md`；根目錄保留 `AI_PM_INBOX.md` 作為 17:00 前暫存。
 - 2026-07-21 起，日誌增加「主管評分表自評」功能：四大項目為組織認同／組織承諾、盡責、團隊合作、創新求變；另追蹤 Mentor 表單 15 項行為觀察。15 項若缺少實際觀察或使用者補充，必須留白或標示 `暫不評分`，不可為了完整而推論分數；若使用者明確要求「假設 AI 是 mentor 來評分」，可提供 `AI 模擬 mentor 評分`，但必須清楚標示非正式 mentor 分數並附信心與補強方向。累計檔為 `MENTOR_EVALUATION_PROGRESS.md`，主管可讀細則頁為 `dashboard/mentor-evaluation-details.md`。此分數是實習生自評與補強提醒，正式成績仍以主管評分為準。Notion 摘要頁為 `Cleo｜主管評分自評儀表板`：`https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350`；Notion 細則頁為 `Cleo｜主管評分表細則與回覆`：`https://app.notion.com/p/3a49d9fba316814e923ad82718952a71`。
 - 評估團隊合作、溝通及協調能力時，要考慮組織情境。若單位本來只有一個實習職缺或工作安排以個人專案為主，不能把「跨同事／跨團隊互動少」當成主要扣分理由；應改看 mentor 溝通、需求對齊、主動回報、文件同步與依回饋調整方向。
+- 團隊合作亦應採計實際的實習生社群互動：2026-07-23 共融活動時與 11 位實習生共進午餐、建立交流，且平日中午持續與其他 IT 部門實習生一起用餐。後續可將此類融入、交流與合作證據寫入評分自評，但不混入技術 Skill 積分。
 - 2026-07-21 起，建立 GitHub 評分表集合 `evaluation-forms/`。目前包含兩張國泰表單：`國泰｜實習生評鑑表單`、`國泰｜Mentor實習生狀況觀察表`，以及兩張國立臺灣海洋大學表單：`學生校外實習成效問卷（實習機構）`、`學生校外實習成績考核表（實習機構主管用）`。日後使用者問「評分表／評鑑表」時，先讀 `evaluation-forms/README.md` 再判斷要使用哪張表單，不要把不同表單混在一起。
 - 主 `README.md` 的主管快速入口只保留 `查看評分表集合（GitHub）`，其他 Notion、細則或 dashboard 入口不要放在主快速入口，避免主管第一眼看到太多選項。
 - 清理本機檔案時，只能刪 Codex 自己產出且已確認用不到的檔案；使用者提供、下載、或用途不明的檔案先保留並詢問。
@@ -166,3 +167,25 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - 新版開發仍在 S0 研究與切片理解階段。若 repo 中已有 AI 草擬或背景產出的 S0 程式、CLI 或測試，不能直接寫成 Cleo 今日已讀完、已驗證或已完成；需等使用者實際理解並完成可追溯測試後，才能列入正式日誌與 Skill Validate 分數。
 - 2026-07-27 使用者回報已看完 S0 程式碼，主觀判斷「可以」，可作為後續銜接 S1/S2 的基準；但除非另有 CLI、unittest、compileall 或端到端輸入輸出證據，對外仍應寫成「S0 程式碼已由 Cleo 初步閱讀並認可」，不要直接寫成 S0 已完整驗證完成。
 - 正式交付模式只保留兩種：Agent mode（在 Codex/LLM agent 中以 Skills 使用）與 Deployed mode（GUI + AWS backend）。不建立 mock/offline/假資料模式作為產品分支；固定範例與本機測試只作為開發驗證，不作為展示主線、評分證據或交付模式。
+- 2026-07-27 新版 S1 本機切片已改為真實 URL 驗證：只有 S0 demand card 為 `confirmed` 才能跑；URL mode 會實際 fetch 人工確認的官方 URL、解析 title / meta description / 文章前段、標示 `external_fetch_performed`、`official_source`、`seed_article` 與 `rss_discovered=false`。已用 AWS News Blog S3 Files 官方文章真跑 S0→S1 CLI，`s1-scan.json` 狀態為 `scanned`，但這仍是本機 URL-fetch 切片，不代表 RSS/search discovery、LLM 評分或 AWS 部署完成。
+- 2026-07-27 新增 Skill 化設計規則：S1-S5 後續都要設計成 LLM-ready，可由 Agent mode 或 Deployed mode 隨時注入 LLM 摘要、推論或候選 hints；但 LLM 輸出只能作為 hint layer，不可直接當作外部證據、官方 metadata 或評分結論。每個 Skill artifact 都應保留 `llm_*_used`、`trusted_as_evidence=false` 或等價欄位，並由官方 metadata、多來源證據、固定規則或人工確認校正。
+- 2026-07-27 使用者再次強調「不要假資料」。S1 code 與測試已移除測試用 fetcher / `_aws_fetcher` 注入點；URL mode 的 CLI 與 unittest 都必須走 `_fetch_url()` 真抓官方 URL。若網路、URL 或 content type 失敗，應讓測試或 CLI 暴露失敗，不用替身資料讓流程通過。
+- 2026-07-28 新版 S1 的正式資料入口固定為兩種，且都只能使用真實 AWS 官方資料：`url` 模式由 S0 human-confirmed 後實抓一個 `aws.amazon.com` / `docs.aws.amazon.com` 頁面；`rss` 模式由 S1 掃描程式內固定的 AWS 官方 RSS feeds、依 S0 問題與排除服務排序最新項目，再抓入選文章原文。不得再把 paste、service hint、seed article、fixture、手動 service metadata 或 LLM hint 放進正式 S1 artifact；RSS 單一 feed/文章失敗可記 warning 與 data gap，但不得用舊快取或假資料補上。`official_source` 加上 `external_fetch_performed` 只表示當次抓到單一官方頁面，仍不是跨來源驗證或最終推薦。
+- 2026-07-28 規則更新：S1 不得侷限 AWS 官方部落格。`rss` 探索模式必須同時納入可追溯的公開開源專案來源；目前實作為 AWS RSS 加 GitHub Public Repository Search。每個 GitHub 候選需保留 query、repository URL、更新／push 時間、stars、forks、license、topics 與 archived 狀態。`url` 模式可接受 S0 人工確認的 AWS、GitHub、GitLab 或 Codeberg 公開 HTTPS 頁面；不接受任意網域、私有端點、貼文內容或假資料。官方文章與開源 repository 都只是 S1 初篩證據，不等於推薦或公司現況。
+- 2026-07-28 使用者指出 AWS Blogs 下拉本身涵蓋大量分類與新文章；S1 不可把 AWS 情報視為單一 blog。`rss` 模式須依 S0 題目動態選取 AWS Blog／What's New 分類，並在 artifact 的 `source_catalog` 記錄選取分類、選源理由與抓取狀態。目前 catalog 包含 What's New、News、Architecture、Cloud Operations、Compute、Big Data、Artificial Intelligence、Security、Database；例如 CI/CD 題目必須看 Cloud Operations、Compute、Architecture，而非僅依最新公告排序。
+- 2026-07-28 修正上述 catalog 範圍：AWS Blogs 目錄實際可解析 44 個分類，不是手寫的九個分類。S1 現在每次真實抓取 `https://aws.amazon.com/blogs/` 的分類選單，從動態目錄選取 S0 相關 feed；顯性 topic mapping 之外，也會以分類名稱和 S0 字詞比對，因此 Robotics、Open Source、Storage、Web3 等不需要重新硬編來源 URL 才能被選到。`source_catalog.aws_blog_directory` 要保留 directory fetch status 與 category_count，來源暫時不可用時才可退回少量 baseline feeds 並留下 warning。
+- 2026-07-28 使用者補充真正目標是先了解全方位的新技術，不限 CI/CD，近期至一年內皆可。S1 新增 `discovery_scope`：`focused` 用於一條明確問題；`landscape` 用於跨領域雷達盤點，會掃完整 AWS Blogs directory、What's New 與 GitHub public sources，再從每個 feed 的最新項目中選近期候選。S0 artifact 新增 `max_source_age_days`（預設 365）與 `max_candidates`（預設 20）。RSS 每個 feed 目前只讀最新 20 項，因此 365 天是候選時間上限，不可誤稱已讀完完整年度 archive。真跑 landscape：44 categories、45 feeds 都抓取成功，輸出 12 個跨領域 AWS 候選；此仍只是 S1 Scan，不是推薦或 S2-S5 完成。
+- 2026-07-28 選題標準再校正：使用者真正優先的是「已正式可用（GA）」的 AWS 技術，不是最新文章。S0 的 `maturity_requirement=ga_evidence_required` 必須讓 S1 只保留本次抓到的 AWS 官方來源中有明確 `generally available`／`general availability` 字樣的候選，並在 artifact 留下原文摘錄。沒有字樣只能說本次來源未能證明 GA，不能猜成 preview 或非 GA；GitHub 開源 metadata 也不能證明 AWS GA，故該模式不納入 GitHub 候選。此為初篩證據門檻，不可稱完整 AWS GA／release archive 搜尋。
+- GA 初篩需排除假陽性：文章若是 Preview／只提到未來才會 GA，即使出現 `generally available` 也不能納入；標題屬 monthly／weekly roundup、歷史熱門文章回顧或 recap 的來源，不可整篇當成一項技術候選。多項技術月報可作為發現線索，但後續比較需回到它引用的單一官方公告，不能以彙整文代替原子技術的證據。
+- S2 Compare 的固定界線：只讀 S1 的可回查候選，整理技術路線、官方／GA 證據、導入前提與待確認問題；若 S0 只是全方位技術地圖、未指定公司痛點，S2 不得自動排名或推薦。成本、USD 3 PoC 可行性、公司環境可用性與業務適配性在沒有官方價格及人類脈絡前必須標示未確認；由人類最多挑三項再進 S3。
+- 2026-07-28 使用者決定 S2 交由 Claude 協作設計。Codex 先產生的 `radar-redesign/agentic_cloud_radar/s2.py`、`tests/test_s2.py` 與 CLI `s2` 分支是未共同閱讀的草稿，不可算為 S2 完成，也可由 Claude 改寫；交接文件為 `radar-redesign/docs/S0-S1現況與S2-Claude交接.md`。
+- 2026-07-28 Claude 無法繼續後，使用者要求 Codex 接手 S2。S2 現在為 evidence-first 本機實作：只讀 S1 artifact，重新抓 S1 官方來源，從文章實際連出的且 candidate-relevant AWS docs／pricing／Region URL 收集最多 3 筆補充證據；沒有連結就保留 `not_found` data gap，不可自行拼接官方 URL 或估價。S2 不自動排名、推薦、選 Top 3 或啟動 PoC；本次 6 項 GA 候選真跑輸出為 `ready_for_human_shortlist`，需由 Cleo 最多挑三項進 S3。
+- 使用者希望每個新增 Skill 都有可逐段閱讀的超詳細說明；S2 已新增 `radar-redesign/docs/s2-極細註解版.md`，作為程式碼、真實 artifact、測試與限制的閱讀地圖。
+- Windows PowerShell 相容規則：PowerShell 5.1 的 `Set-Content -Encoding utf8` 會寫 BOM；S0/S1 CLI input 必須用 `utf-8-sig` 讀取以同時接受 BOM／無 BOM JSON。CLI 產出的 UTF-8 無 BOM JSON 在 PowerShell 5.1 應以 `Get-Content -Encoding utf8 -Raw | ConvertFrom-Json` 讀取，否則中文可能被系統字碼誤解而使 JSON parser 失敗。
+
+## 2026-07-28 Radar 架構決策
+
+- S0 已從入口移除；使用者直接匯入公開 URL 時走 `S1 URL Import`，想探索技術時走 `S1 Discovery`。兩者都不需要 S0 confirmation。
+- 原 S0 的問題定義、預期改善、成功條件與限制，改由 S2 對每個真實候選建立 `proposal_card`：來源支持的能力、待確認的問題與使用者、改善假設與程度、好處、規劃利弊、before/after 量測、stop conditions、下一步問題。
+- 新加坡 `ap-southeast-1` 是 shortlist 硬門檻。只有候選功能本身的官方正文或候選相關官方文件明確同時支持功能與 Singapore/ap-southeast-1，才可進 S3；僅服務 endpoint 或通用導覽文字不構成證據。
+- S2 必須區分 source-backed fact、planning inference、unknown；不得用自動總分取代人類 shortlist。
