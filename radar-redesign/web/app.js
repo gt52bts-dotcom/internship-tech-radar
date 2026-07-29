@@ -19,8 +19,8 @@ var radarStages = [
     code: "S3", name: "評估", en: "EVALUATE", title: "Skill 3 Evaluate", sub: "真人 shortlist 與固定 rubric",
     hint: "真人先選候選，再用固定 rubric 評估，不讓權重隨候選改變。",
     labels: ["PROBLEM", "ENV", "BOUNDARY"],
-    focus: "由真人說明問題、可用環境與不可碰的資料或權限。",
-    checklist: ["技術價值 0.35", "導入前提 0.25", "停損條件必填"]
+    focus: "真人選擇候選即可評估；問題、環境與邊界可在知道後再補充。",
+    checklist: ["真人選擇候選", "脈絡欄位選填", "停損條件必填"]
   },
   {
     code: "S4", name: "驗證", en: "VALIDATE", title: "Skill 4 Validate", sub: "受控驗證與完整 PoC Gate",
@@ -181,9 +181,9 @@ function radarShowCandidates() {
   radarSetStage(1,
     ["<span class=\"h\">$ compare -- " + radarEscape(candidates.length) + " 張候選證據卡可供人工檢視</span>", "<span class=\"ok\">✓</span> Region：" + radarEscape(region.status || "unknown"), "<span class=\"num\">!</span> 定價、公司環境與 cleanup 必須另行證實。"],
     [{ label: "候選", value: String(candidates.length) }, { label: "Region", value: region.status === "available_ap_southeast_1" ? "ready" : "check" }],
-    candidates.length ? "請選擇最多三項候選，並補上真正的業務與環境脈絡。" : "沒有可比較候選，請回到 Skill 1 檢查來源。"
+    candidates.length ? "先選候選即可評估；問題、環境與資料邊界都可在知道後再補。" : "沒有可比較候選，請回到 Skill 1 檢查來源。"
   );
-  var content = candidates.length ? "<form class=\"radar-form\" id=\"radar-shortlist-form\"><div class=\"candidate-pick\"><label><input type=\"radio\" name=\"candidate\" value=\"" + radarEscape(candidate.candidate_id) + "\" checked><span><b>" + radarEscape(candidate.title) + "</b><small>" + radarEscape((facts[0] || "官方來源尚未提供足夠的候選機制說明。").slice(0, 170)) + "</small></span></label></div><label>想解決的問題<textarea name=\"problem\" required placeholder=\"請填寫真實技術問題\"></textarea></label><label>可用環境<textarea name=\"environment\" required placeholder=\"例如：non-production 帳號與可用權限\"></textarea></label><label>不可碰的資料與權限<textarea name=\"boundary\" required placeholder=\"例如：PII、production data、production role\"></textarea></label><button type=\"submit\">確認 shortlist，前往評估</button></form>" : "<div class=\"radar-empty\">此來源沒有可供 Skill 3 評估的候選。</div>";
+  var content = candidates.length ? "<form class=\"radar-form\" id=\"radar-shortlist-form\"><div class=\"candidate-pick\"><label><input type=\"radio\" name=\"candidate\" value=\"" + radarEscape(candidate.candidate_id) + "\" checked><span><b>" + radarEscape(candidate.title) + "</b><small>" + radarEscape((facts[0] || "官方來源尚未提供足夠的候選機制說明。").slice(0, 170)) + "</small></span></label></div><div class=\"radar-optional-note\">以下資訊都是選填。尚未知道時可直接開始評估，系統會在 artifact 中標示資料缺口。</div><label>想解決的問題 <small>選填</small><textarea name=\"problem\" placeholder=\"例如：想改善的作業、風險或使用情境\"></textarea></label><label>可用環境 <small>選填</small><textarea name=\"environment\" placeholder=\"例如：non-production 帳號與可用權限\"></textarea></label><label>不可碰的資料與權限 <small>選填</small><textarea name=\"boundary\" placeholder=\"例如：PII、production data、production role\"></textarea></label><button type=\"submit\">確認 shortlist，開始評估</button></form>" : "<div class=\"radar-empty\">此來源沒有可供 Skill 3 評估的候選。</div>";
   document.getElementById("log").insertAdjacentHTML("beforeend", content);
   var form = document.getElementById("radar-shortlist-form");
   if (form) form.addEventListener("submit", radarEvaluate);

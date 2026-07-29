@@ -130,6 +130,8 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
             "status": "missing",
             "required_inputs": [
                 "selected_candidate_ids, at most three",
+            ],
+            "optional_context_fields": [
                 "problem_to_solve",
                 "available_environment",
                 "forbidden_data_and_permissions",
@@ -147,6 +149,8 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
             "selected_candidate_ids": [],
             "required_inputs": [
                 "selected_candidate_ids, at most three",
+            ],
+            "optional_context_fields": [
                 "problem_to_solve",
                 "available_environment",
                 "forbidden_data_and_permissions",
@@ -155,33 +159,27 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
         }
 
     selected_ids = [str(item).strip() for item in shortlist_request.get("selected_candidate_ids") or [] if str(item).strip()]
-    missing = [
-        field
-        for field in ("problem_to_solve", "available_environment", "forbidden_data_and_permissions")
-        if not str(shortlist_request.get(field) or "").strip()
-    ]
     if not selected_ids:
-        missing.append("selected_candidate_ids")
+        return {
+            "status": "invalid",
+            "selected_candidate_ids": selected_ids,
+            "missing_inputs": ["selected_candidate_ids"],
+            "message": "Human shortlist must include at least one candidate.",
+        }
     if len(selected_ids) > MAX_SHORTLIST_SIZE:
         return {
             "status": "invalid",
             "selected_candidate_ids": selected_ids,
             "message": f"Human shortlist may contain at most {MAX_SHORTLIST_SIZE} candidates.",
-            "missing_inputs": missing,
+            "missing_inputs": [],
         }
-    if missing:
-        return {
-            "status": "missing_required_context",
-            "selected_candidate_ids": selected_ids,
-            "message": "S3 requires problem, environment, and forbidden-boundary context before evaluation.",
-            "missing_inputs": missing,
-        }
+    context_fields = ("problem_to_solve", "available_environment", "forbidden_data_and_permissions")
+    context = {field: str(shortlist_request.get(field) or "").strip() for field in context_fields}
     return {
         "status": "provided",
         "selected_candidate_ids": selected_ids,
-        "problem_to_solve": str(shortlist_request.get("problem_to_solve")),
-        "available_environment": str(shortlist_request.get("available_environment")),
-        "forbidden_data_and_permissions": str(shortlist_request.get("forbidden_data_and_permissions")),
+        **context,
+        "optional_context_provided": {field: bool(context[field]) for field in context_fields},
         "selected_by": str(shortlist_request.get("selected_by") or "human_unspecified"),
         "selection_reason": str(shortlist_request.get("selection_reason") or "Human selected these candidates for S3 evaluation."),
     }

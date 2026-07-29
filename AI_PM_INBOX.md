@@ -6,6 +6,12 @@
 - Rebuilt the left panel as a readable task-control surface with stage progress, current goal, completion criteria, status metrics, and the action form; removed the previous empty terminal-like area and increased the reading size.
 - Restored real block-eating progression: after an artifact transition, the current stage's three blocks are eaten in order, score/count update, and Yuan jumps to the next station. Verified S1 to S2 and S2 to Skill 3 with the Lambda self-managed code storage official URL; no AWS resources were created.
 
+## 2026-07-29 Optional Skill 3 Context
+
+- Cleo decided that `problem_to_solve`, `available_environment`, and `forbidden_data_and_permissions` must be optional for exploratory technology evaluation. Human candidate selection remains required.
+- Updated Skill 3 gate to evaluate a selected candidate without those fields, recording empty optional context and explicit `optional_context_provided` flags instead of fabricating content. Missing context naturally lowers adoption/risk evidence without blocking exploration.
+- Verified through the GUI with all three fields blank: the Lambda article reached Skill 3 at 3.75/5 and medium confidence; all 19 unit tests passed. No AWS resources were created.
+
 ## 2026-07-29 Original Cute GUI Shell Wired to Real Artifacts
 
 - Per Cleo's instruction, the visual base is `C:\\Users\\youhs\\Downloads\\cathay-tech-radar-gui (2).html`; its character, five platforms, blocks, side terminal, and report popup remain intact.

@@ -118,6 +118,16 @@ class S3S4Tests(unittest.TestCase):
         self.assertTrue(evaluated["region_status"]["blocks_paid_poc"])
         self.assertEqual(evaluated["s4_validation_path"], "low_risk_validation_only")
 
+    def test_s3_allows_a_shortlist_without_optional_business_context(self):
+        request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
+
+        result = build_evaluate(_sample_s2(), request).to_dict()
+
+        self.assertEqual(result["status"], "evaluated")
+        gate = result["human_shortlist_gate"]
+        self.assertEqual(gate["problem_to_solve"], "")
+        self.assertFalse(gate["optional_context_provided"]["available_environment"])
+
     def test_s4_downgrades_region_unknown_candidate_to_low_risk_validation(self):
         request = _shortlist()
         s3 = build_evaluate(_sample_s2(), request).to_dict()

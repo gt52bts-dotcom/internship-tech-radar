@@ -8,6 +8,7 @@
 
 - The web demo title is `AI Agentic 雲端技術雷達與評估系統`.
 - Preserve the original cute game scene and its block-eating, score, and platform-jump feedback. The side panel should be a larger, designed task-control panel showing stage progress, current goal, completion criteria, status metrics, and the human action required, rather than a sparse terminal log.
+- In the GUI, `problem_to_solve`, `available_environment`, and `forbidden_data_and_permissions` are optional context. A human candidate selection remains required for Skill 3, while omitted context must be represented as a data gap rather than fabricated.
 
 ## Web Delivery Decision
 
