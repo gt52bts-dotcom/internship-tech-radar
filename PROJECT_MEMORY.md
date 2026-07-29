@@ -17,6 +17,7 @@
 ## Presentation Schedule
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.
+- AI PM 的簡報與 10 分鐘講稿已完成；8/11 直接沿用原訂 2026-07-28 報告版本，不需重新製作。
 - Cleo will attend the 2026-08-03, 10:30 department meeting as a listener only; no presentation is required.
 
 ## 2026-07-29 Active S4 PoC

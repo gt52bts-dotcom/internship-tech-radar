@@ -15,6 +15,7 @@
 ## 2026-07-29 AI PM Presentation Reschedule
 
 - The AI PM deck was not presented in the previous team meeting due to time. Cleo will present it at the 2026-08-11, 15:30 team meeting.
+- AI PM 簡報與 10 分鐘講稿已完成；8/11 將直接沿用原訂 2026-07-28 科會版本，現階段不需另行修改簡報。
 - Cleo will attend the 2026-08-03, 10:30 department meeting as a listener only; no presentation is required.
 
 ## 2026-07-29 Original Cute GUI Shell Wired to Real Artifacts
