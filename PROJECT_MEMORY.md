@@ -189,3 +189,4 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - 原 S0 的問題定義、預期改善、成功條件與限制，改由 S2 對每個真實候選建立 `proposal_card`：來源支持的能力、待確認的問題與使用者、改善假設與程度、好處、規劃利弊、before/after 量測、stop conditions、下一步問題。
 - 新加坡 `ap-southeast-1` 是 shortlist 硬門檻。只有候選功能本身的官方正文或候選相關官方文件明確同時支持功能與 Singapore/ap-southeast-1，才可進 S3；僅服務 endpoint 或通用導覽文字不構成證據。
 - S2 必須區分 source-backed fact、planning inference、unknown；不得用自動總分取代人類 shortlist。
+- 2026-07-29 S2 已補上 `official_region_lookup`：AWS 公開搜尋索引只用於發現候選相關官方 URL，隨後必須重新抓取 `aws.amazon.com`／`docs.aws.amazon.com` 正文；搜尋 snippet、rank 與通用 endpoint 均不可作為 Region 證據。只有實抓同段同時出現候選功能詞與 `Singapore`／`ap-southeast-1` 才可通過功能級硬門檻。當日 GA landscape 真跑 5 項候選及額外 AWS DevOps Agent GA URL Import 均仍無合格者；這代表本次查找未能證明，不可寫成該功能必定不支援新加坡。

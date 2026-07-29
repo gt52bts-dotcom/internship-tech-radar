@@ -2,6 +2,20 @@
 
 此檔只保存 17:00 前的原始證據，不是正式日誌。平日 17:00 排程完成統整後，將當日內容標記為已整理。
 
+## 2026-07-29｜17:00 前暫存
+
+### 新版 S2｜功能級新加坡證據補查與 S1／S2 詳細說明
+
+- 發現原本 S2 只追原始文章直接連出的最多 3 頁官方資料；若 launch article 沒連 Region 文件，容易把「當次連結不足」誤當成「功能沒有新加坡證據」。
+- 已在 `radar-redesign/agentic_cloud_radar/s2.py` 增加受控的 `official_region_lookup`：先以 AWS 公開搜尋索引發現候選功能相關的官方頁，再逐頁重新抓取 `aws.amazon.com`／`docs.aws.amazon.com` 正文。搜尋結果的 title、snippet 與 rank 只記錄發現來源，絕不直接當 Region 證據。
+- 放行規則不變：只有同一段實抓官方正文同時出現候選功能詞與 `Singapore`／`ap-southeast-1`，才標記 `feature_level_region_verified`；服務通用 endpoint、導覽文字、搜尋摘要與不相干 Region 頁仍不得放行。
+- 補上搜尋精準度保護：先以候選功能詞搜尋，再排除 title／URL 缺少候選功能詞的結果，避免加入 Singapore 後回傳 Tokyo、SageMaker 等不相干頁面。
+- 新增真實網路測試檢查 Region lookup artifact；`python -m compileall agentic_cloud_radar` 成功，`python -m unittest discover -s tests -v` 共 6 項通過。
+- 新增可重跑的 GA landscape request：`radar-redesign/samples/landscape-ga-singapore-request.json`；真跑輸出由 CLI 產生於忽略的 `radar-redesign/out/`。S1 找到 5 項當期官方 GA 候選，S2 對每項完成官方搜尋與頁面實抓，結果仍為 `no_target_region_eligible_candidates`、合格數 0、comparison issues 0。
+- 額外以 AWS DevOps Agent 的官方 GA 公告走 S1 URL Import → S2，結果同樣未找到功能級 Singapore 官方正文，維持不放行。這不能推論技術不支援，只能說本次已查官方頁面仍不足以證明。
+- 已補強 `radar-redesign/docs/s1-極細註解版.md` 與 `radar-redesign/docs/s2-極細註解版.md`：增加資料流、程式閱讀順序、真實／推論／未知邊界、S2 Region lookup artifact、重跑與人工審核方式。
+- 目前階段判定：S1 Scan、S2 Compare 的本機 evidence-first 流程已擴充並測試；S3-S5、AWS deployed mode 與付費 PoC 尚未開始。下一步是找有明確候選功能與新加坡正文的官方原子來源，或由 Mentor 確認是否調整 Region gate 的業務規則；不得為了往下跑而放寬證據條件。
+
 ## 2026-07-24｜17:00 前暫存
 
 ### Mentor 討論｜AI PM README、待辦與交付物校正

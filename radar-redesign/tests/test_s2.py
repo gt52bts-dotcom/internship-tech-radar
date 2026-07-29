@@ -38,6 +38,14 @@ class S2CompareTests(unittest.TestCase):
             result["shortlist_policy"]["target_region"],
             "ap-southeast-1",
         )
+        lookup = result["candidates"][0]["linked_evidence"]["official_region_lookup"]
+        self.assertEqual(lookup["method"], "aws_official_search_then_fetch")
+        self.assertNotIn("ap-southeast-1", lookup["query"])
+        self.assertEqual(lookup["target_region"], "ap-southeast-1")
+        self.assertIn(
+            lookup["status"],
+            {"search_completed", "search_completed_no_new_official_pages"},
+        )
 
 
 if __name__ == "__main__":

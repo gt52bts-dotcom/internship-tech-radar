@@ -1,0 +1,12 @@
+{
+  "discovery_scope": "landscape",
+  "max_source_age_days": 365,
+  "max_candidates": 12,
+  "maturity_requirement": "ga_evidence_required",
+  "target_region": "ap-southeast-1",
+  "constraints": {
+    "excluded_services": [
+      "Bedrock"
+    ]
+  }
+}

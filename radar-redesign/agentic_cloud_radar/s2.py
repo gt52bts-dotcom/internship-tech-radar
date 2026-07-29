@@ -13,6 +13,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from html.parser import HTMLParser
+import json
 import re
 from typing import Any
 from urllib.parse import urljoin, urlparse
@@ -24,9 +25,13 @@ GA_REQUIRED = "ga_evidence_required"
 AWS_HOST_SUFFIXES = ("aws.amazon.com", "docs.aws.amazon.com")
 FETCH_TIMEOUT_SECONDS = 15
 MAX_LINKED_EVIDENCE_PER_CANDIDATE = 3
+MAX_REGION_LOOKUP_RESULTS = 5
 MAX_SOURCE_EXCERPTS_PER_DIMENSION = 3
 DEFAULT_TARGET_REGION = "ap-southeast-1"
 TARGET_REGION_LABELS = {"ap-southeast-1": "Asia Pacific (Singapore)"}
+# This AWS-owned search API is only a discovery mechanism. Its result snippets
+# never count as evidence; S2 separately fetches and validates every result URL.
+AWS_OFFICIAL_SEARCH_ENDPOINT = "https://prod.search.marketing.aws.dev/api/v1/search"
 
 
 @dataclass(frozen=True)
@@ -256,10 +261,16 @@ def _compare_candidate(
 def _collect_source_evidence(
     candidate: dict[str, Any], target_region: str, issues: list[CompareIssue]
 ) -> dict[str, Any]:
-    """Collect additional links only where the primary source proves their relation.
+    """Collect source-linked and official-search evidence for one AWS candidate.
 
     A direct open-source import is already a traceable primary source. S2 does
     not pretend that a GitHub project has AWS pricing or GA evidence.
+
+    The second path deliberately fixes a coverage limitation in the first S2
+    version: a launch article need not link to its feature's Region document.
+    AWS search supplies discovery URLs only. A result can affect the Region gate
+    only after its official page is fetched and a candidate-specific passage
+    explicitly names the target Region.
     """
 
     if not candidate.get("official_source"):
@@ -273,56 +284,51 @@ def _collect_source_evidence(
         }
 
     source_url = str(candidate.get("source_url") or "")
+    linked_sources: list[dict[str, Any]] = []
+    region_matches: list[str] = []
+    data_gaps: list[str] = []
+    primary_source: dict[str, Any] = {"url": source_url, "status": "refetch_pending"}
+    seen_urls = {source_url}
     try:
         source = _fetch_official_page(source_url)
     except Exception as exc:
         issues.append(CompareIssue("s2_source_refetch_failed", f"{source_url}: {exc}", "warning"))
-        return {
-            "primary_source": {"url": source_url, "status": "refetch_failed"},
-            "linked_sources": [],
-            "target_region_evidence": _no_region_evidence(target_region, "The official primary source could not be re-fetched."),
-            "data_gaps": ["S2 could not re-fetch the official S1 source to discover source-linked evidence."],
+        primary_source["status"] = "refetch_failed"
+        data_gaps.append("S2 could not re-fetch the official S1 source to discover source-linked evidence.")
+    else:
+        primary_source = {
+            "url": source_url,
+            "final_url": source["final_url"],
+            "title": source["title"],
+            "status": "refetched",
         }
+        seen_urls.add(source["final_url"])
+        region_matches.extend(_target_region_matches(source["text"], target_region, candidate))
+        for link in _select_linked_evidence(source["links"], candidate):
+            evidence = _fetch_evidence_record(link, candidate, target_region, "source_link", issues)
+            linked_sources.append(evidence)
+            seen_urls.add(link["url"])
+            if evidence.get("final_url"):
+                seen_urls.add(evidence["final_url"])
+            region_matches.extend(evidence.get("target_region_matches") or [])
 
-    linked_sources: list[dict[str, Any]] = []
-    region_matches = _target_region_matches(source["text"], target_region, candidate)
-    for link in _select_linked_evidence(source["links"], candidate):
-        try:
-            linked = _fetch_official_page(link["url"])
-        except Exception as exc:
-            issues.append(CompareIssue("linked_evidence_fetch_failed", f"{link['url']}: {exc}", "warning"))
-            linked_sources.append({**link, "status": "fetch_failed"})
-            continue
-        linked_sources.append(
-            {
-                **link,
-                "status": "fetched",
-                "final_url": linked["final_url"],
-                "title": linked["title"],
-                "description": linked["description"],
-                "text_excerpt": linked["text"][:1_200],
-                "target_region_matches": _target_region_matches(linked["text"], target_region, candidate),
-            }
-        )
-        region_matches.extend(linked_sources[-1]["target_region_matches"])
+    lookup_sources, lookup = _lookup_candidate_region_evidence(candidate, target_region, seen_urls, issues)
+    linked_sources.extend(lookup_sources)
+    for evidence in lookup_sources:
+        region_matches.extend(evidence.get("target_region_matches") or [])
 
     found_types = {item.get("evidence_type") for item in linked_sources if item.get("status") == "fetched"}
-    data_gaps = []
     for evidence_type, label in (
         ("aws_docs", "documentation"),
         ("aws_pricing", "pricing"),
         ("region_availability", "Region or availability"),
     ):
         if evidence_type not in found_types:
-            data_gaps.append(f"No candidate-relevant official AWS {label} page was linked from the fetched source in this S2 run.")
+            data_gaps.append(f"No candidate-relevant official AWS {label} page was fetched in this S2 run.")
     return {
-        "primary_source": {
-            "url": source_url,
-            "final_url": source["final_url"],
-            "title": source["title"],
-            "status": "refetched",
-        },
+        "primary_source": primary_source,
         "linked_sources": linked_sources,
+        "official_region_lookup": lookup,
         "target_region_evidence": {
             "target_region": target_region,
             "target_region_label": TARGET_REGION_LABELS.get(target_region, target_region),
@@ -331,6 +337,108 @@ def _collect_source_evidence(
         },
         "data_gaps": data_gaps,
     }
+
+
+def _fetch_evidence_record(
+    source: dict[str, Any], candidate: dict[str, Any], target_region: str, discovery_method: str, issues: list[CompareIssue]
+) -> dict[str, Any]:
+    """Fetch one discovered official URL and preserve how S2 found it."""
+
+    try:
+        fetched = _fetch_official_page(str(source["url"]))
+    except Exception as exc:
+        issues.append(CompareIssue("linked_evidence_fetch_failed", f"{source['url']}: {exc}", "warning"))
+        return {**source, "discovery_method": discovery_method, "status": "fetch_failed"}
+    return {
+        **source,
+        "discovery_method": discovery_method,
+        "evidence_type": source.get("evidence_type") or _evidence_type_for_url(fetched["final_url"]) or "candidate_feature_page",
+        "status": "fetched",
+        "final_url": fetched["final_url"],
+        "title": fetched["title"],
+        "description": fetched["description"],
+        "text_excerpt": fetched["text"][:1_200],
+        "target_region_matches": _target_region_matches(fetched["text"], target_region, candidate),
+    }
+
+
+def _lookup_candidate_region_evidence(
+    candidate: dict[str, Any], target_region: str, seen_urls: set[str], issues: list[CompareIssue]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Use AWS's public search index to find official pages S1 did not link.
+
+    The returned records contain the query, rank, provider and URL for audit.
+    The search API response is never copied into evidence excerpts or used by
+    the gate; only the fetched final AWS page can produce a Region match.
+    """
+
+    target_label = TARGET_REGION_LABELS.get(target_region, target_region)
+    query_terms = _candidate_region_terms(str(candidate.get("title") or ""))[:8]
+    # Search for the feature first. Adding a Region marker here makes AWS's
+    # broad public index over-rank unrelated Singapore and endpoint pages.
+    # Region eligibility is deliberately decided only from fetched page text.
+    query = " ".join(query_terms).strip()
+    lookup: dict[str, Any] = {
+        "method": "aws_official_search_then_fetch",
+        "search_endpoint": AWS_OFFICIAL_SEARCH_ENDPOINT,
+        "query": query,
+        "target_region": target_region,
+        "query_purpose": "Find candidate-specific official pages before checking the target Region in fetched text.",
+        "search_result_count": 0,
+        "selected_result_count": 0,
+        "status": "pending",
+        "evidence_rule": "Search snippets are discovery metadata only. Only a separately fetched AWS official page with a candidate-specific Region passage can pass the gate.",
+    }
+    if not query_terms:
+        lookup["status"] = "skipped_no_candidate_terms"
+        return [], lookup
+
+    body = json.dumps(
+        {
+            "query": {"text": query, "locale": "en-US", "pagination": {"offset": 0, "limit": MAX_REGION_LOOKUP_RESULTS}},
+            "providers": [{"name": "docs"}, {"name": "pages"}, {"name": "blogs"}],
+        }
+    ).encode("utf-8")
+    request = Request(
+        AWS_OFFICIAL_SEARCH_ENDPOINT,
+        data=body,
+        headers={"Content-Type": "application/json", "User-Agent": "agentic-cloud-radar/1.0 (S2 Region evidence lookup)"},
+        method="POST",
+    )
+    try:
+        with urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:
+        issues.append(CompareIssue("official_region_lookup_failed", f"{candidate.get('title')}: {exc}", "warning"))
+        lookup["status"] = "search_failed"
+        return [], lookup
+
+    results = payload.get("results") or []
+    lookup["search_result_count"] = len(results)
+    selected: list[dict[str, Any]] = []
+    for rank, result in enumerate(results, start=1):
+        url = str(result.get("url") or "")
+        result_title = str(result.get("title") or "")
+        if (
+            not _is_official_aws_url(url)
+            or url in seen_urls
+            or not _is_feature_specific_region_passage(f"{result_title} {url}".lower(), query_terms)
+        ):
+            continue
+        selected.append(
+            {
+                "url": url,
+                "link_text": str(result.get("title") or ""),
+                "search_rank": rank,
+                "search_provider": str(result.get("provider") or "unknown"),
+            }
+        )
+        seen_urls.add(url)
+    lookup["selected_result_count"] = len(selected)
+    lookup["status"] = "search_completed" if selected else "search_completed_no_new_official_pages"
+    return [
+        _fetch_evidence_record(result, candidate, target_region, "official_aws_search", issues) for result in selected
+    ], lookup
 
 
 def _no_region_evidence(target_region: str, reason: str) -> dict[str, Any]:
