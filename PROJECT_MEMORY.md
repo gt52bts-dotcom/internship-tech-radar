@@ -1,6 +1,6 @@
 # 實習專案記憶
 
-更新日期：2026-07-28
+更新日期：2026-07-29
 
 這份檔案記錄會跨工作階段持續沿用的偏好、目標與決策。開始工作前先讀取；使用者提出新的長期規則時再更新。不得把密碼、Token、AWS 金鑰或其他敏感資訊寫入此檔。
 
@@ -175,6 +175,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - 2026-07-28 規則更新：S1 不得侷限 AWS 官方部落格。`rss` 探索模式必須同時納入可追溯的公開開源專案來源；目前實作為 AWS RSS 加 GitHub Public Repository Search。每個 GitHub 候選需保留 query、repository URL、更新／push 時間、stars、forks、license、topics 與 archived 狀態。`url` 模式可接受 S0 人工確認的 AWS、GitHub、GitLab 或 Codeberg 公開 HTTPS 頁面；不接受任意網域、私有端點、貼文內容或假資料。官方文章與開源 repository 都只是 S1 初篩證據，不等於推薦或公司現況。
 - 2026-07-28 使用者指出 AWS Blogs 下拉本身涵蓋大量分類與新文章；S1 不可把 AWS 情報視為單一 blog。`rss` 模式須依 S0 題目動態選取 AWS Blog／What's New 分類，並在 artifact 的 `source_catalog` 記錄選取分類、選源理由與抓取狀態。目前 catalog 包含 What's New、News、Architecture、Cloud Operations、Compute、Big Data、Artificial Intelligence、Security、Database；例如 CI/CD 題目必須看 Cloud Operations、Compute、Architecture，而非僅依最新公告排序。
 - 2026-07-28 修正上述 catalog 範圍：AWS Blogs 目錄實際可解析 44 個分類，不是手寫的九個分類。S1 現在每次真實抓取 `https://aws.amazon.com/blogs/` 的分類選單，從動態目錄選取 S0 相關 feed；顯性 topic mapping 之外，也會以分類名稱和 S0 字詞比對，因此 Robotics、Open Source、Storage、Web3 等不需要重新硬編來源 URL 才能被選到。`source_catalog.aws_blog_directory` 要保留 directory fetch status 與 category_count，來源暫時不可用時才可退回少量 baseline feeds 並留下 warning。
+- 2026-07-29 使用者再次確認：S1 過去架構的優勢必須保留，特別是能注意 AWS Blog 分類，並從每個分類往下找更細的新技術。後續不可把 S1 簡化成只看單一 blog feed 或只抓最新公告；AWS Blogs 動態分類、What's New 與可回查來源帳本是雷達的核心能力。
 - 2026-07-28 使用者補充真正目標是先了解全方位的新技術，不限 CI/CD，近期至一年內皆可。S1 新增 `discovery_scope`：`focused` 用於一條明確問題；`landscape` 用於跨領域雷達盤點，會掃完整 AWS Blogs directory、What's New 與 GitHub public sources，再從每個 feed 的最新項目中選近期候選。S0 artifact 新增 `max_source_age_days`（預設 365）與 `max_candidates`（預設 20）。RSS 每個 feed 目前只讀最新 20 項，因此 365 天是候選時間上限，不可誤稱已讀完完整年度 archive。真跑 landscape：44 categories、45 feeds 都抓取成功，輸出 12 個跨領域 AWS 候選；此仍只是 S1 Scan，不是推薦或 S2-S5 完成。
 - 2026-07-28 選題標準再校正：使用者真正優先的是「已正式可用（GA）」的 AWS 技術，不是最新文章。S0 的 `maturity_requirement=ga_evidence_required` 必須讓 S1 只保留本次抓到的 AWS 官方來源中有明確 `generally available`／`general availability` 字樣的候選，並在 artifact 留下原文摘錄。沒有字樣只能說本次來源未能證明 GA，不能猜成 preview 或非 GA；GitHub 開源 metadata 也不能證明 AWS GA，故該模式不納入 GitHub 候選。此為初篩證據門檻，不可稱完整 AWS GA／release archive 搜尋。
 - GA 初篩需排除假陽性：文章若是 Preview／只提到未來才會 GA，即使出現 `generally available` 也不能納入；標題屬 monthly／weekly roundup、歷史熱門文章回顧或 recap 的來源，不可整篇當成一項技術候選。多項技術月報可作為發現線索，但後續比較需回到它引用的單一官方公告，不能以彙整文代替原子技術的證據。
@@ -188,6 +189,6 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - S0 已從入口移除；使用者直接匯入公開 URL 時走 `S1 URL Import`，想探索技術時走 `S1 Discovery`。兩者都不需要 S0 confirmation。
 - 原 S0 的問題定義、預期改善、成功條件與限制，改由 S2 對每個真實候選建立 `proposal_card`：來源支持的能力、待確認的問題與使用者、改善假設與程度、好處、規劃利弊、before/after 量測、stop conditions、下一步問題。
-- 新加坡 `ap-southeast-1` 是 shortlist 硬門檻。只有候選功能本身的官方正文或候選相關官方文件明確同時支持功能與 Singapore/ap-southeast-1，才可進 S3；僅服務 endpoint 或通用導覽文字不構成證據。
+- 新加坡 `ap-southeast-1` 不再是 S2/S3 shortlist 硬門檻。S2 仍必須查 Region 證據，但只標 `available_ap_southeast_1`、`other_region_only` 或 `region_unknown`，缺證據時降級為 warning，不阻擋進 S3。S3 可把 `region_status` 放在導入前提扣分；正式付費 S4 PoC 才要求 `available_ap_southeast_1`、成本上限與人工核准三重檢查，否則降級為低風險驗證。
 - S2 必須區分 source-backed fact、planning inference、unknown；不得用自動總分取代人類 shortlist。
-- 2026-07-29 S2 已補上 `official_region_lookup`：AWS 公開搜尋索引只用於發現候選相關官方 URL，隨後必須重新抓取 `aws.amazon.com`／`docs.aws.amazon.com` 正文；搜尋 snippet、rank 與通用 endpoint 均不可作為 Region 證據。只有實抓同段同時出現候選功能詞與 `Singapore`／`ap-southeast-1` 才可通過功能級硬門檻。當日 GA landscape 真跑 5 項候選及額外 AWS DevOps Agent GA URL Import 均仍無合格者；這代表本次查找未能證明，不可寫成該功能必定不支援新加坡。
+- 2026-07-29 S2 已補上 `official_region_lookup`：AWS 公開搜尋索引只用於發現候選相關官方 URL，隨後必須重新抓取 `aws.amazon.com`／`docs.aws.amazon.com` 正文；搜尋 snippet、rank 與通用 endpoint 均不可作為 Region 證據。只有實抓同段同時出現候選功能詞與 `Singapore`／`ap-southeast-1` 才可把 Region 狀態提升為 `available_ap_southeast_1`；若查不到，只能說本次證據不足，不能寫成該功能必定不支援新加坡，也不能因此讓 S2 流程停止。

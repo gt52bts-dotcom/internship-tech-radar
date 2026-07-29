@@ -57,8 +57,6 @@ class CompareResult:
             return "needs_revision"
         if not self.comparison["candidates"]:
             return "no_comparable_candidates"
-        if not self.comparison["shortlist_policy"]["eligible_candidate_count"]:
-            return "no_target_region_eligible_candidates"
         return "ready_for_human_shortlist"
 
     def to_dict(self) -> dict[str, Any]:
@@ -96,6 +94,15 @@ def build_compare(scan: dict[str, Any]) -> CompareResult:
     comparison["cross_candidate_findings"] = _cross_candidate_findings(comparison["candidates"])
     comparison["shortlist_policy"]["eligible_candidate_count"] = sum(
         1 for candidate in comparison["candidates"] if candidate["shortlist_eligibility"]["eligible"]
+    )
+    comparison["shortlist_policy"]["region_verified_candidate_count"] = sum(
+        1
+        for candidate in comparison["candidates"]
+        if candidate["comparison_dimensions"]["target_region_eligibility"]["status"]
+        == f"available_{target_region.replace('-', '_')}"
+    )
+    comparison["shortlist_policy"]["region_warning_candidate_count"] = (
+        len(comparison["candidates"]) - comparison["shortlist_policy"]["region_verified_candidate_count"]
     )
     comparison["data_gaps"].extend(scan.get("data_gaps") or [])
     if not comparison["candidates"]:
@@ -151,18 +158,21 @@ def _base_comparison(scan: dict[str, Any]) -> dict[str, Any]:
         "cross_candidate_findings": {},
         "data_gaps": [],
         "human_review_required": {
-            "decision": "Choose at most three Singapore-eligible candidates for S3, and record the reason for each selection.",
+            "decision": "Choose at most three evidence-backed candidates for S3, and record the reason for each selection.",
             "required_inputs": [
                 "Which concrete business or engineering problem matters now?",
                 "Which existing non-production environment is available for safe validation?",
-                "Can official pricing, supported Region, permissions, and cleanup be verified within the USD 3 cap?",
+                "Which data, permissions, and governance boundaries must not be touched?",
+                "What is the candidate's Region status, and must paid PoC support be deferred until S4?",
             ],
         },
         "shortlist_policy": {
             "target_region": target_region,
             "target_region_label": TARGET_REGION_LABELS.get(target_region, target_region),
-            "rule": "Only candidates with feature-level official evidence for the target Region may enter the S3 shortlist.",
+            "rule": "Target Region evidence is recorded as a warning/status in S2 and does not block S3. Paid PoC still requires feature-level official target Region evidence.",
             "eligible_candidate_count": 0,
+            "region_verified_candidate_count": 0,
+            "region_warning_candidate_count": 0,
         },
         "notes": [
             "A populated field is source-backed or a transparent rule-based classification; it is not an LLM-generated product claim.",
@@ -248,7 +258,7 @@ def _compare_candidate(
         },
         "comparison_dimensions": dimensions,
         "shortlist_eligibility": {
-            "eligible": region_eligibility["status"] == "feature_level_region_verified",
+            "eligible": True,
             "reason": region_eligibility["shortlist_reason"],
         },
         "proposal_card": _proposal_card(candidate, dimensions, source_evidence, evidence_coverage),
@@ -268,7 +278,7 @@ def _collect_source_evidence(
 
     The second path deliberately fixes a coverage limitation in the first S2
     version: a launch article need not link to its feature's Region document.
-    AWS search supplies discovery URLs only. A result can affect the Region gate
+    AWS search supplies discovery URLs only. A result can upgrade Region status
     only after its official page is fetched and a candidate-specific passage
     explicitly names the target Region.
     """
@@ -387,7 +397,7 @@ def _lookup_candidate_region_evidence(
         "search_result_count": 0,
         "selected_result_count": 0,
         "status": "pending",
-        "evidence_rule": "Search snippets are discovery metadata only. Only a separately fetched AWS official page with a candidate-specific Region passage can pass the gate.",
+        "evidence_rule": "Search snippets are discovery metadata only. Only a separately fetched AWS official page with a candidate-specific Region passage can upgrade Region status.",
     }
     if not query_terms:
         lookup["status"] = "skipped_no_candidate_terms"
@@ -493,19 +503,28 @@ def _region_eligibility(
         and evidence.get("status") == "official_region_text_found"
     )
     if has_feature_level_evidence:
+        available_status = f"available_{target_region.replace('-', '_')}"
         return {
             "target_region": target_region,
             "target_region_label": TARGET_REGION_LABELS.get(target_region, target_region),
-            "status": "feature_level_region_verified",
+            "status": available_status,
             "evidence_excerpts": evidence.get("official_source_matches") or [],
+            "severity": "info",
+            "blocks_s3": False,
+            "blocks_paid_poc": False,
             "shortlist_reason": "Official candidate-specific source evidence explicitly names the target Region.",
+            "paid_poc_requirement": "Already satisfies the S2 Region evidence precondition for later paid PoC review.",
         }
     return {
         "target_region": target_region,
         "target_region_label": TARGET_REGION_LABELS.get(target_region, target_region),
-        "status": "not_eligible_until_feature_level_region_evidence",
+        "status": "region_unknown",
         "evidence_excerpts": evidence.get("official_source_matches") or [],
-        "shortlist_reason": "Do not shortlist: official evidence has not yet proved this specific feature is usable in the target Region.",
+        "severity": "warning",
+        "blocks_s3": False,
+        "blocks_paid_poc": True,
+        "shortlist_reason": "Region support is not proven by S2, but this is a warning rather than an S3 blocker.",
+        "paid_poc_requirement": "Before a paid PoC, S4 must prove feature-level target Region support or downgrade to low-risk/local/document validation.",
     }
 
 
@@ -618,7 +637,7 @@ def _unknowns(
     region_evidence = source_evidence.get("target_region_evidence") or {}
     if region_evidence.get("status") != "official_region_text_found":
         unknowns.append(
-            f"Feature-level availability in {region_evidence.get('target_region', DEFAULT_TARGET_REGION)} has not been officially verified."
+            f"Feature-level availability in {region_evidence.get('target_region', DEFAULT_TARGET_REGION)} has not been officially verified; this warns S3 but blocks only paid S4 PoC."
         )
     if not candidate.get("official_source"):
         unknowns.append("AWS GA status cannot be proven from this non-official primary source.")

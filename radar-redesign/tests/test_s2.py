@@ -22,12 +22,17 @@ class S2CompareTests(unittest.TestCase):
         scan = build_direct_url_scan(REAL_AWS_S3_FILES_URL).to_dict()
         result = build_compare(scan).to_dict()
 
-        self.assertIn(
-            result["status"],
-            {"ready_for_human_shortlist", "no_target_region_eligible_candidates"},
-        )
+        self.assertEqual(result["status"], "ready_for_human_shortlist")
         self.assertFalse(result["comparison_contract"]["automatic_shortlist"])
         self.assertEqual(len(result["candidates"]), 1)
+        self.assertEqual(result["shortlist_policy"]["eligible_candidate_count"], 1)
+        self.assertIn(
+            result["candidates"][0]["comparison_dimensions"]["target_region_eligibility"]["status"],
+            {"available_ap_southeast_1", "region_unknown"},
+        )
+        self.assertFalse(
+            result["candidates"][0]["comparison_dimensions"]["target_region_eligibility"]["blocks_s3"]
+        )
         card = result["candidates"][0]["proposal_card"]
         self.assertEqual(card["proposal_status"], "candidate_hypothesis_requires_human_problem_selection")
         self.assertIn("improvement_hypothesis", card)

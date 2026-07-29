@@ -17,7 +17,7 @@ flowchart LR
   B["探索新技術"] --> D["S1 Discovery"]
   C --> E["S2 Candidate Proposal Cards"]
   D --> E
-  E --> F["Human shortlist: at most 3"]
+  E --> F["Human shortlist: at most 3<br/>Region status is warning, not blocker"]
   F --> G["S3 Evaluate"]
   G --> H["Human PoC gate"]
   H --> I["S4 Validate"]
@@ -66,7 +66,7 @@ S2 不算假精準總分，而是用固定欄位形成橫向比較矩陣：
 8. 官方文件、定價、區域／可用性證據是否已找到。
 9. 證據覆蓋率與重要未知。
 10. 驗證可觀測性：能否量 before/after、失敗／rollback、人工介入與資源成本。
-11. 新加坡功能級可用性：必須有候選相關官方證據明確指向 `ap-southeast-1`，服務本身有 endpoint 不足以通過。
+11. 新加坡功能級可用性：S2 只標示 `available_ap_southeast_1`、`other_region_only` 或 `region_unknown`。缺 Region 證據會成為 warning 與 S3 扣分因素，但不阻擋進 S3；正式付費 PoC 到 S4 才必須通過 Region、成本、核准三重檢查。
 
 ## 5. 不做的事
 

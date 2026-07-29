@@ -4,17 +4,20 @@
 
 ## 2026-07-29｜17:00 前暫存
 
-### 新版 S2｜功能級新加坡證據補查與 S1／S2 詳細說明
+### 新版 Radar｜保留 S1 分類深挖，S2 Region 改為 warning
 
 - 發現原本 S2 只追原始文章直接連出的最多 3 頁官方資料；若 launch article 沒連 Region 文件，容易把「當次連結不足」誤當成「功能沒有新加坡證據」。
 - 已在 `radar-redesign/agentic_cloud_radar/s2.py` 增加受控的 `official_region_lookup`：先以 AWS 公開搜尋索引發現候選功能相關的官方頁，再逐頁重新抓取 `aws.amazon.com`／`docs.aws.amazon.com` 正文。搜尋結果的 title、snippet 與 rank 只記錄發現來源，絕不直接當 Region 證據。
-- 放行規則不變：只有同一段實抓官方正文同時出現候選功能詞與 `Singapore`／`ap-southeast-1`，才標記 `feature_level_region_verified`；服務通用 endpoint、導覽文字、搜尋摘要與不相干 Region 頁仍不得放行。
+- Cleo 補充架構決策：過去 S1 能從 AWS Blogs 分類目錄下鑽、再從各分類找更細的新技術，這個優勢必須保留，不能為了趕流程簡化成單一 feed 或只看最新公告。
+- Cleo 修正 S2 決策：新加坡／`ap-southeast-1` 不再當 S2/S3 的硬門檻。S2 仍查官方 Region 證據，但只輸出 `available_ap_southeast_1`、`other_region_only` 或 `region_unknown`；缺證據時作為 warning 與 S3 扣分因素，不再讓流程停在 S2。
+- 付費 PoC 的 Region 要求移到 S4：若正式最小 PoC 會建立付費資源，仍需 `region_status=available_ap_southeast_1`、`estimated_usd <= 3`、`approved_by` 非空；三項不全就降級為文件／本機／低風險驗證。
+- 保留取證嚴格度：只有同一段實抓官方正文同時出現候選功能詞與 `Singapore`／`ap-southeast-1`，才把 Region 狀態提升為 `available_ap_southeast_1`；服務通用 endpoint、導覽文字、搜尋摘要與不相干 Region 頁仍不可當成已支援證據。
 - 補上搜尋精準度保護：先以候選功能詞搜尋，再排除 title／URL 缺少候選功能詞的結果，避免加入 Singapore 後回傳 Tokyo、SageMaker 等不相干頁面。
-- 新增真實網路測試檢查 Region lookup artifact；`python -m compileall agentic_cloud_radar` 成功，`python -m unittest discover -s tests -v` 共 6 項通過。
-- 新增可重跑的 GA landscape request：`radar-redesign/samples/landscape-ga-singapore-request.json`；真跑輸出由 CLI 產生於忽略的 `radar-redesign/out/`。S1 找到 5 項當期官方 GA 候選，S2 對每項完成官方搜尋與頁面實抓，結果仍為 `no_target_region_eligible_candidates`、合格數 0、comparison issues 0。
-- 額外以 AWS DevOps Agent 的官方 GA 公告走 S1 URL Import → S2，結果同樣未找到功能級 Singapore 官方正文，維持不放行。這不能推論技術不支援，只能說本次已查官方頁面仍不足以證明。
+- 已修改 `radar-redesign/agentic_cloud_radar/s2.py`：S2 有候選時固定回到 `ready_for_human_shortlist`，`shortlist_eligibility.eligible=true`，Region 缺證據只標 `region_unknown`／`blocks_s3=false`／`blocks_paid_poc=true`。
+- 已修改流程文件：`radar-redesign/design-baseline.md` 加入完整 Policy→S1→S5 Mermaid 流程圖；`README.md`、`s0-backend-architecture.md`、S1/S2 極細註解版同步移除「新加坡硬門檻」舊口徑。
 - 已補強 `radar-redesign/docs/s1-極細註解版.md` 與 `radar-redesign/docs/s2-極細註解版.md`：增加資料流、程式閱讀順序、真實／推論／未知邊界、S2 Region lookup artifact、重跑與人工審核方式。
-- 目前階段判定：S1 Scan、S2 Compare 的本機 evidence-first 流程已擴充並測試；S3-S5、AWS deployed mode 與付費 PoC 尚未開始。下一步是找有明確候選功能與新加坡正文的官方原子來源，或由 Mentor 確認是否調整 Region gate 的業務規則；不得為了往下跑而放寬證據條件。
+- 驗證：`python -m compileall agentic_cloud_radar` 成功；`python -m unittest discover -s tests -v` 共 6 項通過。另以 `samples/landscape-ga-singapore-request.json` 真跑 S1→S2，S2 輸出 `status=ready_for_human_shortlist`、候選 5、eligible 5、region_verified 0、region_warning 5，第一筆 `blocks_s3=false`、`blocks_paid_poc=true`。
+- 目前階段判定：S1 Scan、S2 Compare 的本機 evidence-first 流程已擴充並測試；S3-S5、AWS deployed mode 與付費 PoC 尚未開始。下一步應先讓候選可以進 S3 評估，再由 S4 決定正式 PoC、低風險驗證或待公司環境驗證。
 
 ## 2026-07-24｜17:00 前暫存
 

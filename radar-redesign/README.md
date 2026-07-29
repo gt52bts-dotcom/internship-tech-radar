@@ -50,11 +50,11 @@ S2 不再只是補連結。它將每個可追溯候選做成 `proposal_card`，�
 - 改善假設與改善程度：只有來源有量化文字才標示為量化；否則明確標示為待驗證假設。
 - 可能好處、規劃上的利弊、成熟度、文件／定價／區域證據與證據覆蓋率。
 - 每個候選要先量的 before/after 指標、成功證據、stop conditions、下一個人工問題。
-- 新加坡 `ap-southeast-1` 是硬門檻：只有有「特定功能」官方證據明確可在該 Region 使用的候選，才可進 S3 shortlist；只有服務 endpoint、沒有 feature-level 證據時仍不可考慮。
+- Region 只作狀態標記：有功能級官方證據時標 `available_ap_southeast_1`，缺證據時標 `region_unknown` warning；它不再阻擋 S3 shortlist。
 
 S2 先重新抓 S1 原始文章與其中候選相關連結，再用 AWS 的公開搜尋索引補找原文未連出的官方 docs／產品頁／公告。搜尋結果只用來發現 URL；每個 URL 都要重新抓取並通過「候選功能名稱與 Singapore 同段出現」的檢查，才會成為 Region 證據。
 
-它不自動選冠軍、不假裝已知公司痛點，也不自動開 PoC。人類只能從新加坡合格候選中選最多三項進 S3。
+它不自動選冠軍、不假裝已知公司痛點，也不自動開 PoC。人類可從有證據卡片的候選中選最多三項進 S3；正式付費 PoC 到 S4 才要求確認 target Region、成本、權限與 cleanup，若確認不了就降級為文件／本機／低風險驗證。
 
 ```powershell
 python -m agentic_cloud_radar.cli s2 `
