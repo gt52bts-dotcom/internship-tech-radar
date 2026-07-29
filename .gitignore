@@ -12,6 +12,8 @@ __pycache__/
 
 # AWS CDK generated output and packaged dependencies
 cdk.out/
+**/cdk.out*/
+**/synth.log
 **/layer_build/
 
 # Local/editor files
@@ -23,10 +25,13 @@ tmp/
 Thumbs.db
 .vscode/
 .idea/
+node_modules/
 
 # Accidental nested repository copies
 internship-tech-radar/
 
-# Generated packages and reports are retained locally unless intentionally forced
+# Generated packages and local-only reports
 *.zip
+*.inspect.ndjson
 radar-redesign/out/
+outputs/

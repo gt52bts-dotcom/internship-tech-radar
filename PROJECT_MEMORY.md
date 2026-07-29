@@ -26,6 +26,11 @@
 - 已驗證：CloudFormation `CREATE_COMPLETE`、Lambda 為 `S3ObjectStorageMode=REFERENCE`、invoke 成功。這是 intern 非 production 帳號證據，不是公司環境驗證。
 - 不可自動 cleanup；Cleo 確認 Console review 後，使用 reviewed runtime artifact 與明確 `s4-cleanup --execute`。cleanup 僅限 run-derived stack 與其 versioned test bucket。
 
+## 2026-07-29 Repository Cleanup Decision
+
+- 新版唯一可部署主線為 `radar-redesign/` 與其目前維護的 S3 Files、Lambda self-managed code storage PoC recipe。
+- 舊 `cathay-techintel-v3` AWS pipeline、其本機原始碼、舊 CloudFormation、S0 入口草案、舊 GUI 與已暫停的線上投保 PoC 不再是可部署或可展示成果；清理時可移除。正式日誌與 AI 執行軌跡僅作為歷史記錄保留。
+
 更新日期：2026-07-29
 
 這份檔案記錄會跨工作階段持續沿用的偏好、目標與決策。開始工作前先讀取；使用者提出新的長期規則時再更新。不得把密碼、Token、AWS 金鑰或其他敏感資訊寫入此檔。

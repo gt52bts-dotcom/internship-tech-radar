@@ -24,6 +24,13 @@
 - 已確認的基線：S3 Files 實際 PoC 已部署、回驗並 cleanup；Lambda self-managed code storage 已部署與 invoke，仍需 Cleo 的 AWS Console review 與 cleanup 決策。
 - 7/31 前的交付缺口明確拆為：一條公開 AWS URL 的完整 S1-S5 報告、五個 Skills 的可讀跑法與限制、檢測清單、Mentor review package，以及 CIP 雙週工作進度（7/20-7/31）。
 
+## 2026-07-29 舊架構與資源清理盤點
+
+- 已確認新版唯一主線為 `radar-redesign/`。舊 `cathay-techintel-v3` AWS stack 仍在 intern 帳號運作，包含 Lambda、S3 bucket、DynamoDB、Step Functions、Scheduler、CloudWatch logs、IAM roles 與一個不再使用的 API secret；應清除。
+- 最新 `AgenticRadarS4` Lambda PoC stack 仍在人工 Console review 前，必須保留，不可與舊 v3 資源混刪。
+- 本機將移除舊 v3 原始碼、舊 CloudFormation、舊 GUI、S0 草案、舊保險題目、歷史重跑輸出、CDK synth 產物與暫存目錄；正式日誌與 AI 執行軌跡保留為歷史資料。
+- 已以 AWS CLI 完成唯讀盤點；目前執行環境的安全層拒絕 AWS 與本機遞迴刪除命令，因此尚未實際刪除 AWS 舊資源或本機 ignored build/cache 殘留。Git 追蹤的舊檔案已列入本次清理提交；AWS 端須以 Console 或可核准的受控刪除途徑完成後再回查。
+
 ## 2026-07-29 Original Cute GUI Shell Wired to Real Artifacts
 
 - Per Cleo's instruction, the visual base is `C:\\Users\\youhs\\Downloads\\cathay-tech-radar-gui (2).html`; its character, five platforms, blocks, side terminal, and report popup remain intact.

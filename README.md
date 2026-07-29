@@ -1,6 +1,6 @@
 # Cleo 的暑期實習專案（2026 CIP）
 
-本 repository 是 Cathay Tech Intel v3 / 技術雷達實習專案的工作紀錄與交付物中心。Git 是 source of truth；Notion 與 dashboard 用於呈現每日進度與 Skill 成長。
+本 repository 是「AI Agentic 雲端技術雷達與評估系統」實習專案的工作紀錄與交付物中心。新版可執行核心位於 `radar-redesign/`；Git 是 source of truth，Notion 與 dashboard 用於呈現每日進度與 Skill 成長。
 
 ## 主管快速入口
 
@@ -10,16 +10,16 @@
 
 ## 專案狀態
 
-目前主線已從本地設計與手動 Console 部署，推進到公司 AWS 帳戶可用 CloudFormation 重建並端到端驗證的版本。
+目前主線是 artifact-first 的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，人工 shortlist 後進入 Skill 3，Skill 4 僅在人工核准後部署候選專用 PoC，Skill 5 只依 artifact 產出可回查報告。既有實體 PoC 僅代表 intern 非 production 環境，不能延伸為公司環境結論。
 
 ```mermaid
 flowchart LR
-    A["定義技術雷達流程"] --> B["建立 AWS PoC 架構"]
-    B --> C["整理手動部署封包"]
-    C --> D["公司 AWS 帳戶手動部署"]
-    D --> E["CloudFormation 可重建部署"]
-    E --> F["Step Functions 端到端驗證"]
-    F --> G["治理證據、報告與 final proposal 素材"]
+    A["Skill 1 Scan<br/>URL Import / Discovery"] --> B["Skill 2 Compare<br/>證據提案卡"]
+    B --> C["Human Shortlist"]
+    C --> D["Skill 3 Evaluate<br/>固定 rubric"]
+    D --> E["Human PoC Approval"]
+    E --> F["Skill 4 Validate<br/>候選專用 CDK / CloudFormation"]
+    F --> G["Skill 5 Report<br/>artifact-only 報告"]
 ```
 
 ## 每日工作日誌
@@ -41,6 +41,8 @@ flowchart LR
 
 ## 紀錄目錄
 
+- `radar-redesign/`：新版 S1-S5 核心、GUI、AWS web demo IaC、測試與操作文件。
+- `poc/`：目前維護的 S3 Files 與 Lambda self-managed code storage PoC recipe。
 - `logs/daily/`：正式每日實習日誌，17:00 後統整。
 - `ai-execution-trace/daily/`：AI 每小時執行軌跡，只記錄 AI 當小時的判斷、產出與驗證，不寫專案前情提要。
 

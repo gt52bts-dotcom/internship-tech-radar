@@ -1,3 +1,0 @@
-display_name: Tech Intel Scan
-short_description: Run the five-step Cathay AWS technical radar scan and report.
-default_prompt: Use this skill to run the daily AWS technical intelligence scan, evaluate candidates, validate them, and produce the final Top 3 report.

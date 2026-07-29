@@ -1,3 +1,0 @@
-display_name: Pick Experiment Tracker
-short_description: Track human picks and AI-vs-human experiment statistics.
-default_prompt: Use this skill to record a human pick for a radar run or summarize blind and assisted experiment results.

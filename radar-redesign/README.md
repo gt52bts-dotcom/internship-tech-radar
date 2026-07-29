@@ -90,7 +90,6 @@ python -m agentic_cloud_radar.cli s4 `
 - `docs/s3-s4-極細註解版.md`：S3/S4 評分、降級與重跑方式。
 - `docs/s1-s4-程式碼導讀與註解.md`：從 CLI、artifact 契約到 S4 外掛式 PoC 的程式碼閱讀地圖。
 - `docs/s4-完整PoC部署操作.md`：完整 S4 的 approval、lineage、部署、Console 回驗與 cleanup 操作說明。
-- `s0-backend-architecture.md`：更新後的 S1/S2 入口架構。
 
 ## 驗證
 
