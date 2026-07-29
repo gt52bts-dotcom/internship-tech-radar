@@ -4,6 +4,11 @@
 
 - To avoid ambiguity, refer to the project stage as `Skill 3` or `S3 Evaluate`, never bare `S3`. Refer to the AWS service as `Amazon S3` or `S3 bucket`. Use `Skill 3 evaluation artifact` rather than `S3 artifact` in user-facing explanations. CLI command and code identifiers remain unchanged.
 
+## GUI Interaction Preference
+
+- The web demo title is `AI Agentic 雲端技術雷達與評估系統`.
+- Preserve the original cute game scene and its block-eating, score, and platform-jump feedback. The side panel should be a larger, designed task-control panel showing stage progress, current goal, completion criteria, status metrics, and the human action required, rather than a sparse terminal log.
+
 ## Web Delivery Decision
 
 - The current S1-S5 core must remain portable and deployable with an AWS-hosted web demo. The GUI consumes artifact-first API responses and must not bypass the S4 named-human approval, cost ceiling, Console review, or cleanup gates. A self-contained Claude GUI handoff package is maintained under `radar-redesign/claude-gui-handoff/`.

@@ -1,5 +1,11 @@
 # AI PM 當日進度暫存
 
+## 2026-07-29 Side Panel Redesign and Restored Game Feedback
+
+- Renamed the web experience to `AI Agentic 雲端技術雷達與評估系統`.
+- Rebuilt the left panel as a readable task-control surface with stage progress, current goal, completion criteria, status metrics, and the action form; removed the previous empty terminal-like area and increased the reading size.
+- Restored real block-eating progression: after an artifact transition, the current stage's three blocks are eaten in order, score/count update, and Yuan jumps to the next station. Verified S1 to S2 and S2 to Skill 3 with the Lambda self-managed code storage official URL; no AWS resources were created.
+
 ## 2026-07-29 Original Cute GUI Shell Wired to Real Artifacts
 
 - Per Cleo's instruction, the visual base is `C:\\Users\\youhs\\Downloads\\cathay-tech-radar-gui (2).html`; its character, five platforms, blocks, side terminal, and report popup remain intact.
