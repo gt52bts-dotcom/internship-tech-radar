@@ -12,57 +12,113 @@
   <body>
     <aside class="rail">
       <div class="brand"><i data-lucide="radar"></i><span>Agentic Cloud Radar</span></div>
-      <nav aria-label="Skills">
-        <button class="stage active" data-stage="s1"><span>01</span>Scan</button>
-        <button class="stage" data-stage="s2"><span>02</span>Compare</button>
-        <button class="stage" data-stage="s3"><span>03</span>Evaluate</button>
-        <button class="stage" data-stage="s4"><span>04</span>Validate</button>
-        <button class="stage" data-stage="s5"><span>05</span>Report</button>
+      <p class="product-label">AWS 技術評估工作台</p>
+      <nav aria-label="評估階段">
+        <button class="stage active" data-stage="s1"><span>01</span><b>Scan</b><small>來源與訊號</small></button>
+        <button class="stage" data-stage="s2"><span>02</span><b>Compare</b><small>證據卡比較</small></button>
+        <button class="stage" data-stage="s3"><span>03</span><b>Evaluate</b><small>人工 shortlist</small></button>
+        <button class="stage" data-stage="s4"><span>04</span><b>Validate</b><small>PoC 關卡</small></button>
+        <button class="stage" data-stage="s5"><span>05</span><b>Report</b><small>可追溯報告</small></button>
       </nav>
-      <p class="rail-note">Evidence-first<br>Human gates remain explicit.</p>
+      <div class="rail-policy">
+        <i data-lucide="shield-check"></i>
+        <p><b>Policy protected</b><br>Evidence-first, human-approved PoC.</p>
+      </div>
     </aside>
+
     <main>
       <header class="topbar">
-        <div><p class="eyebrow">AWS technical evaluation</p><h1>技術雷達工作台</h1></div>
-        <span id="connection" class="status neutral">Waiting for API</span>
+        <div>
+          <p class="eyebrow">Technical radar / artifact-first workflow</p>
+          <h1>從 AWS 訊號到可驗證 PoC</h1>
+        </div>
+        <div class="connection-wrap">
+          <span id="connection" class="status neutral"><i data-lucide="circle-dot-dashed"></i>等待執行</span>
+          <span id="run-badge" class="run-badge hidden"></span>
+        </div>
       </header>
 
-      <section id="start-panel" class="section">
-        <div class="section-head"><div><p class="eyebrow">Skill 1</p><h2>從公開 URL 開始</h2></div></div>
-        <form id="url-form" class="url-form">
-          <label for="url">AWS 公開新聞或文件 URL</label>
-          <div class="input-row"><input id="url" name="url" type="url" required placeholder="https://aws.amazon.com/..." value="https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"><button type="submit" title="掃描並比較"><i data-lucide="search"></i><span>開始掃描</span></button></div>
+      <section id="start-panel" class="section start-section">
+        <div class="section-head">
+          <div><p class="eyebrow">Skill 1 Scan</p><h2>選擇證據入口</h2></div>
+          <p class="section-note">探索會讀取 AWS Blogs 類別、What's New 與公開 GitHub repository；貼入 URL 則只處理該公開來源。</p>
+        </div>
+        <div class="entry-tabs" role="tablist" aria-label="掃描方式">
+          <button class="entry-tab active" type="button" data-entry="url"><i data-lucide="link"></i>直接貼 AWS URL</button>
+          <button class="entry-tab" type="button" data-entry="discovery"><i data-lucide="radar"></i>雷達探索</button>
+        </div>
+
+        <form id="url-form" class="entry-form" data-entry-panel="url">
+          <label for="url">公開 AWS 官方 URL</label>
+          <div class="input-row">
+            <input id="url" name="url" type="url" required placeholder="https://aws.amazon.com/..." value="https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/">
+            <button type="submit"><i data-lucide="search"></i>建立 Scan</button>
+          </div>
+          <p class="quiet">會產生 Skill 1 Scan 與 Skill 2 Compare artifact，後續不會自行補寫未取得的證據。</p>
         </form>
-        <p class="quiet">URL import 會產出 S1 Scan 與 S2 Compare artifact；不會建立 AWS 資源。</p>
+
+        <form id="discovery-form" class="entry-form hidden" data-entry-panel="discovery">
+          <div class="discovery-grid">
+            <label>探索範圍
+              <select name="discovery_scope"><option value="focused">聚焦探索</option><option value="landscape">技術地景</option></select>
+            </label>
+            <label>技術或問題提示
+              <input name="problem_statement" placeholder="例如：降低 Lambda 程式碼供應鏈管理成本">
+            </label>
+            <label>候選上限
+              <input name="max_candidates" type="number" min="1" max="20" value="8">
+            </label>
+          </div>
+          <button type="submit"><i data-lucide="radar"></i>開始雷達探索</button>
+          <p class="quiet">提示只用於選取公開來源，不是 business context，也不會影響 Skill 3 的固定評分權重。</p>
+        </form>
       </section>
 
       <section id="run-panel" class="section hidden" aria-live="polite">
-        <div class="section-head"><div><p class="eyebrow" id="run-id"></p><h2 id="run-title">Run result</h2></div><a id="source-link" target="_blank" rel="noreferrer">官方來源 <i data-lucide="external-link"></i></a></div>
+        <div class="section-head">
+          <div><p class="eyebrow">Skill 1 + Skill 2</p><h2 id="run-title">候選與證據卡</h2></div>
+          <a id="source-link" target="_blank" rel="noreferrer">開啟來源<i data-lucide="external-link"></i></a>
+        </div>
         <div class="funnel" id="funnel"></div>
-        <div id="candidates" class="table-wrap"></div>
+        <div class="compare-intro">
+          <div><b>人工 shortlist</b><span>最多選擇 3 項，再填寫 Skill 3 所需的情境資訊。</span></div>
+          <span id="selected-count" class="count-pill">0 / 3 已選</span>
+        </div>
+        <div id="candidates" class="candidate-list"></div>
       </section>
 
       <section id="evaluate-panel" class="section hidden">
-        <div class="section-head"><div><p class="eyebrow">Skill 3</p><h2>人工 shortlist 後評估</h2></div></div>
-        <form id="evaluate-form" class="form-grid">
-          <label>想解決的問題<textarea name="problem_to_solve" required>驗證非生產環境的 Lambda 程式碼儲存流程。</textarea></label>
-          <label>可用環境<textarea name="available_environment" required>隔離的 intern AWS non-production account。</textarea></label>
-          <label>不可碰的資料與權限<textarea name="forbidden_data_and_permissions" required>不使用 production data、PII 或 production role。</textarea></label>
-          <button type="submit" title="執行固定 rubric 評估"><i data-lucide="clipboard-check"></i><span>評估已選候選</span></button>
+        <div class="section-head"><div><p class="eyebrow">Skill 3 Evaluate</p><h2>補齊人工判斷，套用固定 rubric</h2></div><p class="section-note">成本不會計入技術分數，只會進入後續 PoC 成本上限檢查。</p></div>
+        <form id="evaluate-form" class="context-form">
+          <label>想解決的問題<textarea name="problem_to_solve" required placeholder="描述想改善的技術流程或風險"></textarea></label>
+          <label>可用環境<textarea name="available_environment" required placeholder="例如：intern 非 production 帳號、可用 Region 與權限"></textarea></label>
+          <label>不可碰的資料與權限<textarea name="forbidden_data_and_permissions" required placeholder="例如：production data、PII、production IAM role"></textarea></label>
+          <button type="submit"><i data-lucide="clipboard-check"></i>完成 Skill 3 評估</button>
         </form>
       </section>
 
       <section id="validate-panel" class="section hidden">
-        <div class="section-head"><div><p class="eyebrow">Skill 4</p><h2>驗證閘門</h2></div></div>
-        <div id="evaluation-result" class="result-grid"></div>
-        <button id="validate-button" type="button" title="建立 Skill 4 validation artifact"><i data-lucide="shield-check"></i><span>建立驗證 artifact</span></button>
-        <p class="quiet">完整 PoC 建立資源，必須下載 artifact 後使用同封包的 `s4-deploy --execute`，並提交人工核准檔。</p>
+        <div class="section-head"><div><p class="eyebrow">Skill 4 Validate</p><h2>先確認驗證路徑，再準備完整 PoC 審核</h2></div></div>
+        <div id="evaluation-result" class="score-grid"></div>
+        <div class="poc-gate">
+          <div><i data-lucide="shield-alert"></i><div><b>完整 PoC 不會由 GUI 自動建立資源</b><p>完整部署必須保有具名核准、成本上限、成功標準、cleanup 與 AWS Console review。此 API 目前只產生低風險驗證 artifact。</p></div></div>
+          <button id="validate-button" type="button"><i data-lucide="shield-check"></i>建立低風險驗證 artifact</button>
+        </div>
+        <div id="validation-result" class="validation-result hidden"></div>
       </section>
 
       <section id="report-panel" class="section hidden">
-        <div class="section-head"><div><p class="eyebrow">Skill 5</p><h2>技術驗證報告</h2></div><button id="report-button" type="button" title="產生報告"><i data-lucide="file-text"></i><span>產生報告</span></button></div>
+        <div class="section-head"><div><p class="eyebrow">Skill 5 Report</p><h2>由 artifact 組成的評估報告</h2></div><button id="report-button" type="button"><i data-lucide="file-text"></i>產生報告</button></div>
         <div id="report" class="report"></div>
       </section>
     </main>
+
+    <aside class="review-panel" aria-label="審查看板">
+      <div class="review-heading"><div><p class="eyebrow">Review board</p><h2>本次執行</h2></div><span id="board-state" class="board-state">尚未開始</span></div>
+      <section class="board-card current-card"><p class="card-label">目前關卡</p><div class="current-stage"><span id="current-stage-number">01</span><div><b id="current-stage-title">Scan</b><small id="current-stage-description">選擇來源入口</small></div></div></section>
+      <section class="board-card"><div class="board-card-title"><span>Artifact lineage</span><i data-lucide="git-branch"></i></div><ol id="lineage" class="lineage"></ol></section>
+      <section class="board-card"><div class="board-card-title"><span>Human gates</span><i data-lucide="user-check"></i></div><div id="gates" class="gate-list"></div></section>
+      <section class="board-card"><div class="board-card-title"><span>關鍵提醒</span><i data-lucide="triangle-alert"></i></div><ul id="board-notes" class="board-notes"><li>Artifact 尚未建立。</li><li>沒有任何 AWS 資源會由此頁面自動建立。</li></ul></section>
+    </aside>
   </body>
 </html>

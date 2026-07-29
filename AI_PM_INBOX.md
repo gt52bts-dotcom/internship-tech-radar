@@ -520,6 +520,14 @@
 - Cleo 再次提供 Lambda self-managed code storage URL，已建立新 lineage：S1=`scanned_with_gaps`、S2=`ready_for_human_shortlist`、S3=`evaluated`、score=`4.0/5`、confidence=`medium`、`recommend_s4=true`、`region_status=available_ap_southeast_1`、無 governance flag；官方 pricing link 尚未建立，因此成本仍為 `unknown`。為使此候選能完整走 S4，新增 Lambda 專用 CDK recipe：versioned/encrypted/non-public test bucket、custom code uploader、Lambda execution role、bucket policy、並以 `S3ObjectStorageMode=REFERENCE` 建立 Lambda。S4 驗證將讀 CloudFormation outputs 並 invoke Lambda，cleanup 沿用 run-derived stack/bucket 限縮。16 項 unittest 與 CDK synth 通過，模板確認有 `REFERENCE`、S3 object version、bucket policy 與 custom uploader；尚未得到部署核准，也未建立 AWS 資源。下一步是先向 Cleo 通知預計資源、成本上限、成功標準與 cleanup，等待明確 approval。
 - S4 approval 成本欄位已修正為 `approved_cost_ceiling_usd`：當官方來源只說明採標準 S3 費率、未給本次 PoC 可用數字時，記錄 Cleo 人工核准的 USD 3 spend cap，不將其寫成官方或系統估價；保留 `estimated_usd` 給真正有官方可用數字的情況。16 項 unittest 重新通過。
 
+## 2026-07-29 Radar GUI 工作台重整
+
+- 以 `radar-redesign/web/` 現有 artifact-first API 為底，重寫前端工作台；移除舊版 CloudWatch/canary 遊戲式硬編碼情境，不新增或改寫 S1-S5 核心 pipeline。
+- 新介面提供 S1 直接貼 AWS URL 與雷達探索雙入口、S2 證據卡與最多三項人工 shortlist、固定 Skill 3 rubric、Skill 4 低風險 validation artifact，以及 Skill 5 artifact-only 報告。
+- 新增右側審查看板，持續顯示目前關卡、S1-S5 artifact lineage、人工 shortlist / PoC 核准 / Console review / cleanup gate 與提醒；完整 PoC 仍明確標示為需具名人工核准的獨立部署流程。
+- 以 AWS Lambda self-managed S3 code storage 官方 URL 在本機 Web Demo 跑完 S1、S2、Skill 3、低風險 Skill 4、Skill 5；確認候選卡、固定分數、validation checks、報告與側邊看板皆更新。此驗證沒有建立 AWS 資源。
+- 驗證：`node --check web/app.js`、`git diff --check`、`python -m unittest discover -s tests -v`（18 tests passed）。
+
 ## 2026-07-29 Web delivery and Claude GUI handoff
 
 - 完成 Skill 5 artifact-only 報告 renderer，輸出 JSON、Markdown 與 GUI model，不補造缺少的證據。
