@@ -1,0 +1,280 @@
+"""Skill 5: render only recorded S1-S4 evidence into a professional report.
+
+This module deliberately does not fetch sources or infer missing facts.  It
+turns the immutable stage artifacts into one JSON report model, one Markdown
+document, and one GUI-ready view model.  A renderer may change presentation,
+but it must not invent a claim absent from these inputs.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import Any
+
+
+def build_report(
+    scan: dict[str, Any],
+    compare: dict[str, Any] | None = None,
+    evaluate: dict[str, Any] | None = None,
+    validate: dict[str, Any] | None = None,
+    runtime: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Create a source-bound Skill 5 artifact from the available stage artifacts."""
+
+    inputs = {"S1": scan, "S2": compare, "S3": evaluate, "S4": validate}
+    if runtime:
+        inputs["S4 runtime"] = runtime
+    issues = _input_issues(inputs)
+    run_id = str(scan.get("run_id") or "unknown-run")
+    evaluated = list((evaluate or {}).get("evaluated_candidates") or [])
+    selected = evaluated[0] if evaluated else _first_candidate(compare)
+    validation = _matching_candidate(validate, selected.get("candidate_id") if selected else None)
+    report = {
+        "schema_version": "s5.report.v1",
+        "stage": "S5",
+        "run_id": run_id,
+        "reported_at": datetime.now(timezone.utc).isoformat(),
+        "status": _report_status(issues, runtime),
+        "report_type": "final" if (runtime or {}).get("status") == "cleanup_verified" else "interim",
+        "input_contract": {
+            "rule": "Only S1, S2, S3, and S4 artifacts may support report claims; missing evidence is unknown.",
+            "stages_received": [name for name, artifact in inputs.items() if artifact],
+        },
+        "input_issues": issues,
+        "candidate": _candidate_summary(selected),
+        "conclusion": _conclusion(selected, runtime),
+        "evaluation": _evaluation_summary(selected),
+        "validation": _validation_summary(validation, runtime),
+        "verified_facts": _verified_facts(scan, compare, selected, runtime),
+        "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime),
+        "next_reminders": _next_reminders(selected, runtime),
+        "funnel": _funnel(scan, compare, evaluate, validate),
+        "evidence_ledger": _evidence_ledger(scan, compare, selected, runtime),
+    }
+    report["markdown"] = render_markdown(report)
+    report["gui_model"] = build_gui_model(report)
+    return report
+
+
+def render_markdown(report: dict[str, Any]) -> str:
+    """Render a portable Markdown report without adding any new assertions."""
+
+    candidate = report["candidate"]
+    lines = [
+        f"# 技術驗證報告｜{candidate['title'] or 'unknown'}",
+        "",
+        f"- 報告狀態：{report['report_type']}",
+        f"- Run ID：{report['run_id']}",
+        f"- 來源：{candidate['source_url'] or 'unknown'}",
+        "",
+        "## 一句結論",
+        "",
+        f"> {report['conclusion']['text']}",
+        "",
+        "## 評估摘要",
+        "",
+        "| 指標 | 結果 |",
+        "| --- | --- |",
+    ]
+    for label, value in report["evaluation"]["rows"]:
+        lines.append(f"| {label} | {value} |")
+    lines.extend(["", "## 技術驗證", "", "| 檢查 | 狀態 |", "| --- | --- |"])
+    for label, value in report["validation"]["rows"]:
+        lines.append(f"| {label} | {value} |")
+    lines.extend(["", "## 已證實的事實", ""])
+    lines.extend(f"- {item}" for item in report["verified_facts"] or ["unknown"])
+    lines.extend(["", "## 尚未驗證或證據不足", ""])
+    lines.extend(f"- {item}" for item in report["unknown_or_not_verified"] or ["unknown"])
+    lines.extend(["", "## 後續提醒", ""])
+    lines.extend(f"- {item}" for item in report["next_reminders"] or ["無額外提醒"])
+    lines.extend(["", "## 證據帳本", "", "| 敘述 | 類型 | 狀態 | 證據 |", "| --- | --- | --- | --- |"])
+    for entry in report["evidence_ledger"]:
+        lines.append(f"| {entry['claim']} | {entry['type']} | {entry['status']} | {entry['source']} |")
+    return "\n".join(lines) + "\n"
+
+
+def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
+    """Expose stable UI data so a frontend never parses Markdown."""
+
+    checks = [{"label": label, "status": value} for label, value in report["validation"]["rows"]]
+    dimensions = report["evaluation"].get("dimensions") or {}
+    return {
+        "header": {
+            "title": report["candidate"]["title"],
+            "source_url": report["candidate"]["source_url"],
+            "report_type": report["report_type"],
+            "conclusion": report["conclusion"],
+        },
+        "score": {
+            "weighted_score": report["evaluation"].get("weighted_score"),
+            "confidence": report["evaluation"].get("confidence"),
+            "dimensions": dimensions,
+        },
+        "validation_checks": checks,
+        "verified_facts": report["verified_facts"],
+        "unknown_or_not_verified": report["unknown_or_not_verified"],
+        "next_reminders": report["next_reminders"],
+        "evidence_ledger": report["evidence_ledger"],
+        "funnel": report["funnel"],
+    }
+
+
+def _input_issues(inputs: dict[str, dict[str, Any] | None]) -> list[str]:
+    run_ids = {str(value.get("run_id") or "") for value in inputs.values() if value}
+    issues = [f"missing_{name.lower().replace(' ', '_')}" for name, value in inputs.items() if not value and name != "S4 runtime"]
+    if len(run_ids) > 1:
+        issues.append("artifact_run_id_mismatch")
+    if inputs.get("S1", {}).get("stage") != "S1":
+        issues.append("s1_not_usable")
+    return issues
+
+
+def _first_candidate(compare: dict[str, Any] | None) -> dict[str, Any] | None:
+    candidates = (compare or {}).get("candidates") or []
+    return candidates[0] if candidates else None
+
+
+def _matching_candidate(validate: dict[str, Any] | None, candidate_id: str | None) -> dict[str, Any] | None:
+    return next(
+        (item for item in (validate or {}).get("validated_candidates") or [] if item.get("candidate_id") == candidate_id),
+        None,
+    )
+
+
+def _candidate_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
+    return {
+        "candidate_id": (candidate or {}).get("candidate_id"),
+        "title": (candidate or {}).get("title") or "unknown",
+        "source_url": (candidate or {}).get("source_url") or "unknown",
+    }
+
+
+def _report_status(issues: list[str], runtime: dict[str, Any] | None) -> str:
+    if issues:
+        return "incomplete_artifacts"
+    if runtime and runtime.get("status") == "cleanup_verified":
+        return "final"
+    return "interim"
+
+
+def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> dict[str, str]:
+    if runtime and runtime.get("status") == "cleanup_verified":
+        return {"status": "validated_and_cleaned", "text": "PoC 技術驗證通過，且 cleanup 已完成。"}
+    verification = (runtime or {}).get("verification") or {}
+    if (runtime or {}).get("status") == "awaiting_console_review":
+        if verification.get("cloudformation_reference_mode") == "verified" and verification.get("lambda_invoke") == "verified":
+            return {"status": "poc_passed_pending_closure", "text": "PoC 技術驗證通過。CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過。AWS Console review 與 cleanup 尚待完成。"}
+        return {"status": "poc_passed_pending_closure", "text": "PoC 技術驗證已通過自動化檢查。AWS Console review 與 cleanup 尚待完成。"}
+    if candidate and candidate.get("recommend_s4"):
+        return {"status": "s4_recommended", "text": "Skill 3 已建議進入 Skill 4；尚無完整 PoC runtime 證據。"}
+    return {"status": "unknown", "text": "尚無足夠的 Skill 3 或 Skill 4 證據形成 PoC 結論。"}
+
+
+def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
+    candidate = candidate or {}
+    dimensions = candidate.get("dimension_scores") or {}
+    region = candidate.get("region_status") or {}
+    return {
+        "weighted_score": candidate.get("weighted_score"),
+        "confidence": candidate.get("confidence") or "unknown",
+        "dimensions": dimensions,
+        "rows": [
+            ("Skill 3 加權分", candidate.get("weighted_score", "unknown")),
+            ("信心", candidate.get("confidence") or "unknown"),
+            ("區域狀態", region.get("status") or "unknown"),
+            ("是否建議 Skill 4", _yes_no_unknown(candidate.get("recommend_s4"))),
+            ("成本", ((candidate.get("cost_estimate") or {}).get("status") or "unknown")),
+        ],
+    }
+
+
+def _validation_summary(validation: dict[str, Any] | None, runtime: dict[str, Any] | None) -> dict[str, Any]:
+    runtime = runtime or {}
+    verification = runtime.get("verification") or {}
+    cleanup = runtime.get("cleanup") or {}
+    return {
+        "rows": [
+            ("Skill 4 validation", (validation or {}).get("validation_status") or "unknown"),
+            ("CloudFormation", (runtime.get("deployment") or {}).get("stack_status") or "unknown"),
+            ("自動化驗證", _verification_status(verification)),
+            ("AWS Console review", (runtime.get("console_review") or {}).get("status") or "unknown"),
+            ("cleanup", cleanup.get("status") or (validation or {}).get("cleanup_status") or "unknown"),
+        ]
+    }
+
+
+def _verification_status(verification: dict[str, Any]) -> str:
+    known = [
+        value
+        for key, value in verification.items()
+        if key not in {"success_criteria", "recipe"} and isinstance(value, str)
+    ]
+    return "verified" if known and all(value == "verified" for value in known) else (", ".join(known) if known else "unknown")
+
+
+def _verified_facts(scan: dict[str, Any], compare: dict[str, Any] | None, candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[str]:
+    facts: list[str] = []
+    if candidate and candidate.get("source_url"):
+        facts.append(f"官方來源已記錄：{candidate['source_url']}")
+    if (candidate or {}).get("weighted_score") is not None:
+        facts.append(f"Skill 3 加權分已依固定 rubric 計算：{candidate['weighted_score']}")
+    if (runtime or {}).get("deployment", {}).get("stack_status") == "CREATE_COMPLETE":
+        facts.append("CloudFormation stack 已達 CREATE_COMPLETE。")
+    for key, value in ((runtime or {}).get("verification") or {}).items():
+        if key != "success_criteria" and value == "verified":
+            facts.append(f"Skill 4 自動化驗證已通過：{key}。")
+    return facts
+
+
+def _unknowns(compare: dict[str, Any] | None, candidate: dict[str, Any] | None, validation: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[str]:
+    items = list(((candidate or {}).get("evidence_refs") or {}).get("evidence_limits") or [])
+    if ((candidate or {}).get("cost_estimate") or {}).get("status") == "unknown":
+        items.append("官方定價或實際成本尚未在 artifact 中證實。")
+    if (runtime or {}).get("console_review", {}).get("status") != "confirmed":
+        items.append("AWS Console review 尚未完成或尚未記錄。")
+    if (runtime or {}).get("cleanup", {}).get("status") != "verified":
+        items.append("cleanup 尚未完成或尚未記錄。")
+    return _dedupe(items)
+
+
+def _next_reminders(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[str]:
+    reminders = list((candidate or {}).get("stop_conditions") or [])
+    if (runtime or {}).get("status") == "awaiting_console_review":
+        reminders.append("完成 AWS Console review 後，才能執行受控 cleanup。")
+    return _dedupe(reminders)
+
+
+def _funnel(scan: dict[str, Any], compare: dict[str, Any] | None, evaluate: dict[str, Any] | None, validate: dict[str, Any] | None) -> dict[str, int]:
+    candidates = (compare or {}).get("candidates") or []
+    return {
+        "s1_candidates": len(scan.get("candidates") or []),
+        "s2_candidates": len(candidates),
+        "s2_region_verified": sum(1 for item in candidates if ((item.get("comparison_dimensions") or {}).get("target_region_eligibility") or {}).get("status") == "available_ap_southeast_1"),
+        "s3_evaluated": len((evaluate or {}).get("evaluated_candidates") or []),
+        "s4_validated": len((validate or {}).get("validated_candidates") or []),
+    }
+
+
+def _evidence_ledger(scan: dict[str, Any], compare: dict[str, Any] | None, candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    source_url = (candidate or {}).get("source_url") or "unknown"
+    if source_url != "unknown":
+        entries.append({"claim": "候選技術的公開來源", "type": "source-backed fact", "status": "recorded", "source": source_url})
+    for key, value in ((runtime or {}).get("verification") or {}).items():
+        if key != "success_criteria":
+            entries.append({"claim": key, "type": "runtime evidence", "status": str(value), "source": "S4 runtime artifact"})
+    if not entries:
+        entries.append({"claim": "尚無可呈現的證據帳本項目", "type": "unknown", "status": "unknown", "source": "artifact data gap"})
+    return entries
+
+
+def _yes_no_unknown(value: Any) -> str:
+    if value is True:
+        return "是"
+    if value is False:
+        return "否"
+    return "unknown"
+
+
+def _dedupe(values: list[str]) -> list[str]:
+    return list(dict.fromkeys(str(value) for value in values if str(value).strip()))

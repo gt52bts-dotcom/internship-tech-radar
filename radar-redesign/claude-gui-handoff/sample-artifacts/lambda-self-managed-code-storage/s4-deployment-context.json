@@ -1,0 +1,118 @@
+{
+  "schema_version": "s4.deployment-context.v2",
+  "stage": "S4",
+  "created_at": "2026-07-29T03:53:48.000168+00:00",
+  "run_id": "direct-url-20260729-9d2a3d3c",
+  "status": "ready_for_manual_deployment",
+  "lineage": {
+    "source_artifacts": [
+      {
+        "stage": "S1",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s1.json",
+        "sha256": "4f1981a800609ba29b3293e68aef21c0d02f433fd87f66f9c29ae5a2834f305e"
+      },
+      {
+        "stage": "S2",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s2.json",
+        "sha256": "911ba7cdec67c8f6185f6f2210c653cb23e605baa5b6116cbe33a21c26227120"
+      },
+      {
+        "stage": "S3",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s3.json",
+        "sha256": "d42bd2fcc6aa59cd8d538047b4ef91babd0b00645cb09c16ce57fdef3f0c2cb1"
+      }
+    ]
+  },
+  "selected_candidate": {
+    "candidate_id": "S1-DAC246411151",
+    "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+    "source_url": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+    "weighted_score": 4.0,
+    "confidence": "medium",
+    "region_status": "available_ap_southeast_1"
+  },
+  "s4_validation": {
+    "candidate_id": "S1-DAC246411151",
+    "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+    "validation_status": "paid_poc_ready_for_manual_start",
+    "validation_type": "paid_poc_review",
+    "automatic_poc_start": false,
+    "evidence_checks": [
+      {
+        "name": "source_url_present",
+        "passed": true,
+        "detail": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+      },
+      {
+        "name": "stop_conditions_present",
+        "passed": true,
+        "detail": "3 stop conditions recorded."
+      },
+      {
+        "name": "score_and_confidence_present",
+        "passed": true,
+        "detail": "score=4.0, confidence=medium"
+      }
+    ],
+    "paid_poc_checks": [
+      {
+        "name": "recommend_s4",
+        "passed": true,
+        "detail": "S3 must recommend S4 before any validation path proceeds."
+      },
+      {
+        "name": "region_status_available",
+        "passed": true,
+        "detail": "Paid PoC requires feature-level target Region evidence."
+      },
+      {
+        "name": "approved_cost_within_limit",
+        "passed": true,
+        "detail": "Paid PoC needs a human-approved cost ceiling or estimate within the small-PoC cap."
+      },
+      {
+        "name": "approved_by_present",
+        "passed": true,
+        "detail": "Paid PoC requires a named human approver."
+      },
+      {
+        "name": "automatic_poc_start_false",
+        "passed": true,
+        "detail": "S4 never starts paid resources automatically."
+      }
+    ],
+    "downgrade_reasons": [],
+    "cleanup_status": "not_applicable_no_cloud_resources_created",
+    "result_summary": "All S4 paid-PoC checks passed, but no resources were started automatically.",
+    "limitations": [
+      "No AWS resources were created or modified by this S4 validator.",
+      "No company data, production data, or private permissions were accessed."
+    ]
+  },
+  "authorization": {
+    "approved_by": "Cleo",
+    "deployment_authorized": true,
+    "region_warning_acknowledged": false,
+    "automatic_poc_start": false,
+    "approval_basis": "Cleo approved the S4 deployment after reviewing the S3 score 4.0, medium confidence, ap-southeast-1 availability, resource scope, cost ceiling, and cleanup plan in this conversation."
+  },
+  "deployment": {
+    "recipe": "lambda_self_managed_s3_code_storage_cdk",
+    "stack_name": "AgenticRadarS49F518735",
+    "resource_prefix": "agentic-radar-s4-9f518735",
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "create_test_instance": false
+  },
+  "success_criteria": [
+    "CloudFormation stack reaches CREATE_COMPLETE.",
+    "The Lambda function is created with S3ObjectStorageMode=REFERENCE.",
+    "The function can be invoked from the non-production test account."
+  ],
+  "cleanup_scope": [
+    "After Console review, delete the run-derived CloudFormation stack.",
+    "Empty only the stack-created versioned test bucket, including object versions and delete markers, before stack deletion.",
+    "Record cleanup evidence only after CloudFormation confirms deletion."
+  ],
+  "errors": []
+}

@@ -1,0 +1,30 @@
+{
+  "validation_type": "paid_poc",
+  "approved_by": "Cleo",
+  "approved_cost_ceiling_usd": 3.0,
+  "automatic_poc_start": false,
+  "selected_candidate_id": "S1-DAC246411151",
+  "deployment_authorized": true,
+  "region_warning_acknowledged": false,
+  "approval_basis": "Cleo approved the S4 deployment after reviewing the S3 score 4.0, medium confidence, ap-southeast-1 availability, resource scope, cost ceiling, and cleanup plan in this conversation.",
+  "deployment": {
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "create_test_instance": false
+  },
+  "success_criteria": [
+    "CloudFormation stack reaches CREATE_COMPLETE.",
+    "The Lambda function is created with S3ObjectStorageMode=REFERENCE.",
+    "The function can be invoked from the non-production test account."
+  ],
+  "cleanup_scope": [
+    "After Console review, delete the run-derived CloudFormation stack.",
+    "Empty only the stack-created versioned test bucket, including object versions and delete markers, before stack deletion.",
+    "Record cleanup evidence only after CloudFormation confirms deletion."
+  ],
+  "lineage": {
+    "s1_artifact_path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s1.json",
+    "s2_artifact_path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s2.json",
+    "s3_artifact_path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s3.json"
+  }
+}

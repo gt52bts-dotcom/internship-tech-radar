@@ -1,0 +1,98 @@
+{
+  "schema_version": "s4.validation.v1",
+  "run_id": "direct-url-20260729-9d2a3d3c",
+  "stage": "S4",
+  "status": "ready_for_manual_paid_poc_review",
+  "validated_at": "2026-07-29T03:53:26.372417+00:00",
+  "s3_artifact_ref": {
+    "schema_version": "s3.evaluation.v1",
+    "stage": "S3",
+    "status": "evaluated",
+    "evaluated_at": "2026-07-29T03:26:49.398290+00:00",
+    "evaluated_count": 1
+  },
+  "policy": {
+    "max_small_poc_usd": 3.0,
+    "automatic_poc_start": false
+  },
+  "approval_gate": {
+    "status": "paid_poc_requested",
+    "validation_type": "paid_poc",
+    "approved_by": "Cleo",
+    "estimated_usd": null,
+    "approved_cost_ceiling_usd": 3.0,
+    "cost_basis": "human_approved_ceiling",
+    "max_small_poc_usd": 3.0,
+    "missing_or_failed_checks": [],
+    "automatic_poc_start": false,
+    "message": "Passing this gate only marks a candidate ready for manual paid PoC review; S4 never starts resources automatically."
+  },
+  "validated_candidates": [
+    {
+      "candidate_id": "S1-DAC246411151",
+      "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+      "validation_status": "paid_poc_ready_for_manual_start",
+      "validation_type": "paid_poc_review",
+      "automatic_poc_start": false,
+      "evidence_checks": [
+        {
+          "name": "source_url_present",
+          "passed": true,
+          "detail": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+        },
+        {
+          "name": "stop_conditions_present",
+          "passed": true,
+          "detail": "3 stop conditions recorded."
+        },
+        {
+          "name": "score_and_confidence_present",
+          "passed": true,
+          "detail": "score=4.0, confidence=medium"
+        }
+      ],
+      "paid_poc_checks": [
+        {
+          "name": "recommend_s4",
+          "passed": true,
+          "detail": "S3 must recommend S4 before any validation path proceeds."
+        },
+        {
+          "name": "region_status_available",
+          "passed": true,
+          "detail": "Paid PoC requires feature-level target Region evidence."
+        },
+        {
+          "name": "approved_cost_within_limit",
+          "passed": true,
+          "detail": "Paid PoC needs a human-approved cost ceiling or estimate within the small-PoC cap."
+        },
+        {
+          "name": "approved_by_present",
+          "passed": true,
+          "detail": "Paid PoC requires a named human approver."
+        },
+        {
+          "name": "automatic_poc_start_false",
+          "passed": true,
+          "detail": "S4 never starts paid resources automatically."
+        }
+      ],
+      "downgrade_reasons": [],
+      "cleanup_status": "not_applicable_no_cloud_resources_created",
+      "result_summary": "All S4 paid-PoC checks passed, but no resources were started automatically.",
+      "limitations": [
+        "No AWS resources were created or modified by this S4 validator.",
+        "No company data, production data, or private permissions were accessed."
+      ]
+    }
+  ],
+  "summary": {
+    "validated_count": 1,
+    "low_risk_count": 0,
+    "paid_poc_ready_count": 1,
+    "automatic_poc_start": false,
+    "cloud_resources_created": false
+  },
+  "validation_issues": []
+}

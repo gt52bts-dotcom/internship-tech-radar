@@ -1,0 +1,8 @@
+{
+  "selected_candidate_ids": ["S1-DAC246411151"],
+  "problem_to_solve": "驗證 Lambda .zip 函數是否能直接參照帳戶內 S3 的版本化部署套件，以維持單一程式碼來源並避免 Lambda 受管程式碼儲存空間的重複副本。",
+  "available_environment": "intern AWS 帳號的隔離非生產環境，目標區域 ap-southeast-1；禁止存取公司系統與資料。",
+  "forbidden_data_and_permissions": "不得使用公司或 production 資料、PII、production IAM 角色或既有 production S3 bucket；僅能建立本次 run 衍生名稱的測試資源。",
+  "selected_by": "Cleo_direct_URL_selection",
+  "selection_reason": "Cleo 直接提供 Lambda self-managed code storage 官方公告，要求從 S1 走到完整 S4 PoC。"
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": "s3.evaluation.v1",
+  "run_id": "direct-url-20260729-9d2a3d3c",
+  "stage": "S3",
+  "status": "evaluated",
+  "evaluated_at": "2026-07-29T03:26:49.398290+00:00",
+  "s2_artifact_ref": {
+    "schema_version": "s2.comparison.v2",
+    "stage": "S2",
+    "status": "ready_for_human_shortlist",
+    "compared_at": "2026-07-29T03:26:21.038332+00:00",
+    "candidate_count": 1
+  },
+  "rubric": {
+    "weights": {
+      "technical_value": 0.35,
+      "adoption_prerequisites": 0.25,
+      "verifiability": 0.25,
+      "risk_and_stop_conditions": 0.15
+    },
+    "fixed_weight_policy": "Weights are fixed for this S3 version and are not tuned per candidate.",
+    "dimensions": [
+      "technical_value",
+      "adoption_prerequisites",
+      "verifiability",
+      "risk_and_stop_conditions"
+    ],
+    "cost_policy": "Cost is recorded for S4 budget checks only; it is not part of the technical score."
+  },
+  "policy": {
+    "max_small_poc_usd": 3.0,
+    "automatic_poc_start": false
+  },
+  "human_shortlist_gate": {
+    "status": "provided",
+    "selected_candidate_ids": [
+      "S1-DAC246411151"
+    ],
+    "problem_to_solve": "驗證 Lambda .zip 函數是否能直接參照帳戶內 S3 的版本化部署套件，以維持單一程式碼來源並避免 Lambda 受管程式碼儲存空間的重複副本。",
+    "available_environment": "intern AWS 帳號的隔離非生產環境，目標區域 ap-southeast-1；禁止存取公司系統與資料。",
+    "forbidden_data_and_permissions": "不得使用公司或 production 資料、PII、production IAM 角色或既有 production S3 bucket；僅能建立本次 run 衍生名稱的測試資源。",
+    "selected_by": "Cleo_direct_URL_selection",
+    "selection_reason": "Cleo 直接提供 Lambda self-managed code storage 官方公告，要求從 S1 走到完整 S4 PoC。"
+  },
+  "evaluated_candidates": [
+    {
+      "candidate_id": "S1-DAC246411151",
+      "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+      "source_url": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+      "dimension_scores": {
+        "technical_value": 4,
+        "adoption_prerequisites": 3,
+        "verifiability": 5,
+        "risk_and_stop_conditions": 4
+      },
+      "weighted_score": 4.0,
+      "confidence": "medium",
+      "recommend_s4": true,
+      "recommendation_reason": "Recommend S4 validation, starting with the lowest-risk path.",
+      "cost_estimate": {
+        "status": "unknown",
+        "estimated_usd": null,
+        "score_policy": "Cost is excluded from S3 score and must be bounded before paid S4 PoC."
+      },
+      "region_status": {
+        "target_region": "ap-southeast-1",
+        "status": "available_ap_southeast_1",
+        "severity": "info",
+        "blocks_s3": false,
+        "blocks_paid_poc": false
+      },
+      "governance_flags": [],
+      "stop_conditions": [
+        "No safe non-production environment or required permission is available.",
+        "Official pricing or cleanup cannot be bounded within the USD 3 cap.",
+        "No measurable baseline exists for the proposed workflow."
+      ],
+      "s4_validation_path": "eligible_for_low_risk_or_paid_poc_review",
+      "evidence_refs": {
+        "source_url": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+        "linked_evidence_count": 1,
+        "evidence_limits": [
+          "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
+          "No candidate-relevant official AWS Region or availability page was fetched in this S2 run."
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "evaluated_count": 1,
+    "recommend_s4_count": 1,
+    "highest_score": 4.0,
+    "automatic_poc_start": false
+  },
+  "evaluation_issues": []
+}

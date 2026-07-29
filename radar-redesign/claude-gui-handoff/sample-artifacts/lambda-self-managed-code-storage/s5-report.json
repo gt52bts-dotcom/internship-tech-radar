@@ -1,0 +1,234 @@
+{
+  "schema_version": "s5.report.v1",
+  "stage": "S5",
+  "run_id": "direct-url-20260729-9d2a3d3c",
+  "reported_at": "2026-07-29T06:30:24.359832+00:00",
+  "status": "interim",
+  "report_type": "interim",
+  "input_contract": {
+    "rule": "Only S1, S2, S3, and S4 artifacts may support report claims; missing evidence is unknown.",
+    "stages_received": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S4 runtime"
+    ]
+  },
+  "input_issues": [],
+  "candidate": {
+    "candidate_id": "S1-DAC246411151",
+    "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+    "source_url": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+  },
+  "conclusion": {
+    "status": "poc_passed_pending_closure",
+    "text": "PoC 技術驗證通過。CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過。AWS Console review 與 cleanup 尚待完成。"
+  },
+  "evaluation": {
+    "weighted_score": 4.0,
+    "confidence": "medium",
+    "dimensions": {
+      "technical_value": 4,
+      "adoption_prerequisites": 3,
+      "verifiability": 5,
+      "risk_and_stop_conditions": 4
+    },
+    "rows": [
+      [
+        "Skill 3 加權分",
+        4.0
+      ],
+      [
+        "信心",
+        "medium"
+      ],
+      [
+        "區域狀態",
+        "available_ap_southeast_1"
+      ],
+      [
+        "是否建議 Skill 4",
+        "是"
+      ],
+      [
+        "成本",
+        "unknown"
+      ]
+    ]
+  },
+  "validation": {
+    "rows": [
+      [
+        "Skill 4 validation",
+        "paid_poc_ready_for_manual_start"
+      ],
+      [
+        "CloudFormation",
+        "CREATE_COMPLETE"
+      ],
+      [
+        "自動化驗證",
+        "verified"
+      ],
+      [
+        "AWS Console review",
+        "required"
+      ],
+      [
+        "cleanup",
+        "pending_console_review"
+      ]
+    ]
+  },
+  "verified_facts": [
+    "官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+    "Skill 3 加權分已依固定 rubric 計算：4.0",
+    "CloudFormation stack 已達 CREATE_COMPLETE。",
+    "Skill 4 自動化驗證已通過：cloudformation_reference_mode。",
+    "Skill 4 自動化驗證已通過：lambda_invoke。"
+  ],
+  "unknown_or_not_verified": [
+    "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
+    "No candidate-relevant official AWS Region or availability page was fetched in this S2 run.",
+    "官方定價或實際成本尚未在 artifact 中證實。",
+    "AWS Console review 尚未完成或尚未記錄。",
+    "cleanup 尚未完成或尚未記錄。"
+  ],
+  "next_reminders": [
+    "No safe non-production environment or required permission is available.",
+    "Official pricing or cleanup cannot be bounded within the USD 3 cap.",
+    "No measurable baseline exists for the proposed workflow.",
+    "完成 AWS Console review 後，才能執行受控 cleanup。"
+  ],
+  "funnel": {
+    "s1_candidates": 1,
+    "s2_candidates": 1,
+    "s2_region_verified": 1,
+    "s3_evaluated": 1,
+    "s4_validated": 1
+  },
+  "evidence_ledger": [
+    {
+      "claim": "候選技術的公開來源",
+      "type": "source-backed fact",
+      "status": "recorded",
+      "source": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+    },
+    {
+      "claim": "recipe",
+      "type": "runtime evidence",
+      "status": "lambda_self_managed_s3_code_storage_cdk",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "cloudformation_reference_mode",
+      "type": "runtime evidence",
+      "status": "verified",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "lambda_invoke",
+      "type": "runtime evidence",
+      "status": "verified",
+      "source": "S4 runtime artifact"
+    }
+  ],
+  "markdown": "# 技術驗證報告｜AWS Lambda 宣布自主管理程式碼儲存空間 - AWS\n\n- 報告狀態：interim\n- Run ID：direct-url-20260729-9d2a3d3c\n- 來源：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/\n\n## 一句結論\n\n> PoC 技術驗證通過。CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過。AWS Console review 與 cleanup 尚待完成。\n\n## 評估摘要\n\n| 指標 | 結果 |\n| --- | --- |\n| Skill 3 加權分 | 4.0 |\n| 信心 | medium |\n| 區域狀態 | available_ap_southeast_1 |\n| 是否建議 Skill 4 | 是 |\n| 成本 | unknown |\n\n## 技術驗證\n\n| 檢查 | 狀態 |\n| --- | --- |\n| Skill 4 validation | paid_poc_ready_for_manual_start |\n| CloudFormation | CREATE_COMPLETE |\n| 自動化驗證 | verified |\n| AWS Console review | required |\n| cleanup | pending_console_review |\n\n## 已證實的事實\n\n- 官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/\n- Skill 3 加權分已依固定 rubric 計算：4.0\n- CloudFormation stack 已達 CREATE_COMPLETE。\n- Skill 4 自動化驗證已通過：cloudformation_reference_mode。\n- Skill 4 自動化驗證已通過：lambda_invoke。\n\n## 尚未驗證或證據不足\n\n- No candidate-relevant official AWS pricing page was fetched in this S2 run.\n- No candidate-relevant official AWS Region or availability page was fetched in this S2 run.\n- 官方定價或實際成本尚未在 artifact 中證實。\n- AWS Console review 尚未完成或尚未記錄。\n- cleanup 尚未完成或尚未記錄。\n\n## 後續提醒\n\n- No safe non-production environment or required permission is available.\n- Official pricing or cleanup cannot be bounded within the USD 3 cap.\n- No measurable baseline exists for the proposed workflow.\n- 完成 AWS Console review 後，才能執行受控 cleanup。\n\n## 證據帳本\n\n| 敘述 | 類型 | 狀態 | 證據 |\n| --- | --- | --- | --- |\n| 候選技術的公開來源 | source-backed fact | recorded | https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/ |\n| recipe | runtime evidence | lambda_self_managed_s3_code_storage_cdk | S4 runtime artifact |\n| cloudformation_reference_mode | runtime evidence | verified | S4 runtime artifact |\n| lambda_invoke | runtime evidence | verified | S4 runtime artifact |\n",
+  "gui_model": {
+    "header": {
+      "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+      "source_url": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+      "report_type": "interim",
+      "conclusion": {
+        "status": "poc_passed_pending_closure",
+        "text": "PoC 技術驗證通過。CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過。AWS Console review 與 cleanup 尚待完成。"
+      }
+    },
+    "score": {
+      "weighted_score": 4.0,
+      "confidence": "medium",
+      "dimensions": {
+        "technical_value": 4,
+        "adoption_prerequisites": 3,
+        "verifiability": 5,
+        "risk_and_stop_conditions": 4
+      }
+    },
+    "validation_checks": [
+      {
+        "label": "Skill 4 validation",
+        "status": "paid_poc_ready_for_manual_start"
+      },
+      {
+        "label": "CloudFormation",
+        "status": "CREATE_COMPLETE"
+      },
+      {
+        "label": "自動化驗證",
+        "status": "verified"
+      },
+      {
+        "label": "AWS Console review",
+        "status": "required"
+      },
+      {
+        "label": "cleanup",
+        "status": "pending_console_review"
+      }
+    ],
+    "verified_facts": [
+      "官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+      "Skill 3 加權分已依固定 rubric 計算：4.0",
+      "CloudFormation stack 已達 CREATE_COMPLETE。",
+      "Skill 4 自動化驗證已通過：cloudformation_reference_mode。",
+      "Skill 4 自動化驗證已通過：lambda_invoke。"
+    ],
+    "unknown_or_not_verified": [
+      "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
+      "No candidate-relevant official AWS Region or availability page was fetched in this S2 run.",
+      "官方定價或實際成本尚未在 artifact 中證實。",
+      "AWS Console review 尚未完成或尚未記錄。",
+      "cleanup 尚未完成或尚未記錄。"
+    ],
+    "next_reminders": [
+      "No safe non-production environment or required permission is available.",
+      "Official pricing or cleanup cannot be bounded within the USD 3 cap.",
+      "No measurable baseline exists for the proposed workflow.",
+      "完成 AWS Console review 後，才能執行受控 cleanup。"
+    ],
+    "evidence_ledger": [
+      {
+        "claim": "候選技術的公開來源",
+        "type": "source-backed fact",
+        "status": "recorded",
+        "source": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+      },
+      {
+        "claim": "recipe",
+        "type": "runtime evidence",
+        "status": "lambda_self_managed_s3_code_storage_cdk",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "cloudformation_reference_mode",
+        "type": "runtime evidence",
+        "status": "verified",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "lambda_invoke",
+        "type": "runtime evidence",
+        "status": "verified",
+        "source": "S4 runtime artifact"
+      }
+    ],
+    "funnel": {
+      "s1_candidates": 1,
+      "s2_candidates": 1,
+      "s2_region_verified": 1,
+      "s3_evaluated": 1,
+      "s4_validated": 1
+    }
+  }
+}

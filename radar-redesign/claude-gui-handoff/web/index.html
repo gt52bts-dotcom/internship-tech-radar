@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agentic Cloud Radar</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="config.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <aside class="rail">
+      <div class="brand"><i data-lucide="radar"></i><span>Agentic Cloud Radar</span></div>
+      <nav aria-label="Skills">
+        <button class="stage active" data-stage="s1"><span>01</span>Scan</button>
+        <button class="stage" data-stage="s2"><span>02</span>Compare</button>
+        <button class="stage" data-stage="s3"><span>03</span>Evaluate</button>
+        <button class="stage" data-stage="s4"><span>04</span>Validate</button>
+        <button class="stage" data-stage="s5"><span>05</span>Report</button>
+      </nav>
+      <p class="rail-note">Evidence-first<br>Human gates remain explicit.</p>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div><p class="eyebrow">AWS technical evaluation</p><h1>技術雷達工作台</h1></div>
+        <span id="connection" class="status neutral">Waiting for API</span>
+      </header>
+
+      <section id="start-panel" class="section">
+        <div class="section-head"><div><p class="eyebrow">Skill 1</p><h2>從公開 URL 開始</h2></div></div>
+        <form id="url-form" class="url-form">
+          <label for="url">AWS 公開新聞或文件 URL</label>
+          <div class="input-row"><input id="url" name="url" type="url" required placeholder="https://aws.amazon.com/..." value="https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"><button type="submit" title="掃描並比較"><i data-lucide="search"></i><span>開始掃描</span></button></div>
+        </form>
+        <p class="quiet">URL import 會產出 S1 Scan 與 S2 Compare artifact；不會建立 AWS 資源。</p>
+      </section>
+
+      <section id="run-panel" class="section hidden" aria-live="polite">
+        <div class="section-head"><div><p class="eyebrow" id="run-id"></p><h2 id="run-title">Run result</h2></div><a id="source-link" target="_blank" rel="noreferrer">官方來源 <i data-lucide="external-link"></i></a></div>
+        <div class="funnel" id="funnel"></div>
+        <div id="candidates" class="table-wrap"></div>
+      </section>
+
+      <section id="evaluate-panel" class="section hidden">
+        <div class="section-head"><div><p class="eyebrow">Skill 3</p><h2>人工 shortlist 後評估</h2></div></div>
+        <form id="evaluate-form" class="form-grid">
+          <label>想解決的問題<textarea name="problem_to_solve" required>驗證非生產環境的 Lambda 程式碼儲存流程。</textarea></label>
+          <label>可用環境<textarea name="available_environment" required>隔離的 intern AWS non-production account。</textarea></label>
+          <label>不可碰的資料與權限<textarea name="forbidden_data_and_permissions" required>不使用 production data、PII 或 production role。</textarea></label>
+          <button type="submit" title="執行固定 rubric 評估"><i data-lucide="clipboard-check"></i><span>評估已選候選</span></button>
+        </form>
+      </section>
+
+      <section id="validate-panel" class="section hidden">
+        <div class="section-head"><div><p class="eyebrow">Skill 4</p><h2>驗證閘門</h2></div></div>
+        <div id="evaluation-result" class="result-grid"></div>
+        <button id="validate-button" type="button" title="建立 Skill 4 validation artifact"><i data-lucide="shield-check"></i><span>建立驗證 artifact</span></button>
+        <p class="quiet">完整 PoC 建立資源，必須下載 artifact 後使用同封包的 `s4-deploy --execute`，並提交人工核准檔。</p>
+      </section>
+
+      <section id="report-panel" class="section hidden">
+        <div class="section-head"><div><p class="eyebrow">Skill 5</p><h2>技術驗證報告</h2></div><button id="report-button" type="button" title="產生報告"><i data-lucide="file-text"></i><span>產生報告</span></button></div>
+        <div id="report" class="report"></div>
+      </section>
+    </main>
+  </body>
+</html>
