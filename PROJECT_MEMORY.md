@@ -1,5 +1,11 @@
 # 實習專案記憶
 
+## 2026-07-29 Active S4 PoC
+
+- Lambda self-managed S3 code storage 的 live S4 PoC 正等待 Cleo 必要的 AWS Console review，lineage 為官方 direct URL run `direct-url-20260729-9d2a3d3c`。
+- 已驗證：CloudFormation `CREATE_COMPLETE`、Lambda 為 `S3ObjectStorageMode=REFERENCE`、invoke 成功。這是 intern 非 production 帳號證據，不是公司環境驗證。
+- 不可自動 cleanup；Cleo 確認 Console review 後，使用 reviewed runtime artifact 與明確 `s4-cleanup --execute`。cleanup 僅限 run-derived stack 與其 versioned test bucket。
+
 更新日期：2026-07-29
 
 這份檔案記錄會跨工作階段持續沿用的偏好、目標與決策。開始工作前先讀取；使用者提出新的長期規則時再更新。不得把密碼、Token、AWS 金鑰或其他敏感資訊寫入此檔。

@@ -1,5 +1,13 @@
 # AI PM 當日進度暫存
 
+## 2026-07-29 S4 Lambda self-managed code storage live PoC
+
+- 本次只使用同一 run 的 S1/S2/S3 artifacts：S3 `4.0/5`、`medium`、`recommend_s4=true`、`region_status=available_ap_southeast_1`，無 governance flag。
+- Cleo 已明確核准 paid S4：`approved_cost_ceiling_usd=3.0`、`automatic_poc_start=false`、非 production intern 環境與 run-derived cleanup。
+- CDK synth 後由 CloudFormation 部署為 `CREATE_COMPLETE`；驗證 `AWS::Lambda::Function.Code.S3ObjectStorageMode=REFERENCE` 與 Lambda invoke 均成功。
+- 目前為 `awaiting_console_review`，資源會保留至 Cleo 在 Console 看過 Template、Resources、測試結果；尚未 cleanup。
+- 下一步：記錄 Console review，才可執行受限的 `s4-cleanup --execute`。
+
 此檔只保存 17:00 前的原始證據，不是正式日誌。平日 17:00 排程完成統整後，將當日內容標記為已整理。
 
 ## 2026-07-29｜17:00 前暫存
