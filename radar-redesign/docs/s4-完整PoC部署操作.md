@@ -20,7 +20,7 @@
 
 - `selected_candidate_id`：S3 裡的其中一個候選。
 - `lineage`：這一次 S1、S2、S3 artifact 的絕對或可解析路徑。S4 會重新讀取、核對 stage、run ID、candidate ID，並記錄 SHA-256。
-- `validation_type: paid_poc`、`approved_by`、`estimated_usd`、`automatic_poc_start: false`。
+- `validation_type: paid_poc`、`approved_by`、`approved_cost_ceiling_usd`（或有官方數字時的 `estimated_usd`）、`automatic_poc_start: false`。成本上限是人類授權的 spend cap，不可寫成 AWS 官方報價。
 - `deployment_authorized: true`：Cleo 看過 S3 通知後的明確部署核准。
 - 若 `region_status=region_unknown`，還要以 `region_warning_acknowledged: true` 明確承認證據缺口；這只放行 Region warning，不會略過成本、核准、lineage 或 recipe gate。
 - `deployment.profile`、`deployment.target_region`、成功標準與 cleanup 範圍。

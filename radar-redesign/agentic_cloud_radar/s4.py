@@ -129,23 +129,26 @@ def _approval_gate(evaluate: dict[str, Any], approval_request: dict[str, Any] | 
         }
     approved_by = str(approval_request.get("approved_by") or "").strip()
     estimated_usd = approval_request.get("estimated_usd")
+    approved_cost_ceiling_usd = approval_request.get("approved_cost_ceiling_usd")
     try:
-        estimated = float(estimated_usd)
+        approved_cost = float(approved_cost_ceiling_usd if approved_cost_ceiling_usd is not None else estimated_usd)
     except (TypeError, ValueError):
-        estimated = None
+        approved_cost = None
     max_cost = float((evaluate.get("policy") or {}).get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
     missing = []
     if not approved_by:
         missing.append("approved_by")
-    if estimated is None:
-        missing.append("estimated_usd")
-    elif estimated > max_cost:
-        missing.append("estimated_usd_within_limit")
+    if approved_cost is None:
+        missing.append("approved_cost_ceiling_usd_or_estimated_usd")
+    elif approved_cost > max_cost:
+        missing.append("approved_cost_within_limit")
     return {
         "status": "paid_poc_requested" if not missing else "paid_poc_request_incomplete",
         "validation_type": "paid_poc",
         "approved_by": approved_by or None,
-        "estimated_usd": estimated,
+        "estimated_usd": float(estimated_usd) if isinstance(estimated_usd, (int, float)) else None,
+        "approved_cost_ceiling_usd": approved_cost,
+        "cost_basis": "human_approved_ceiling" if approved_cost_ceiling_usd is not None else "estimated_usd",
         "max_small_poc_usd": max_cost,
         "missing_or_failed_checks": missing,
         "automatic_poc_start": False,
@@ -186,7 +189,9 @@ def _validate_candidate(candidate: dict[str, Any], approval: dict[str, Any], pol
 def _paid_poc_checks(
     candidate: dict[str, Any], approval: dict[str, Any], region: dict[str, Any], policy: dict[str, Any]
 ) -> list[dict[str, Any]]:
-    estimated = approval.get("estimated_usd")
+    approved_cost = approval.get("approved_cost_ceiling_usd")
+    if approved_cost is None:
+        approved_cost = approval.get("estimated_usd")
     max_cost = float(policy.get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
     return [
         {
@@ -200,9 +205,9 @@ def _paid_poc_checks(
             "detail": "Paid PoC requires feature-level target Region evidence.",
         },
         {
-            "name": "estimated_usd_within_limit",
-            "passed": isinstance(estimated, (int, float)) and float(estimated) <= max_cost,
-            "detail": "Paid PoC estimate must be known and within the small-PoC cap.",
+            "name": "approved_cost_within_limit",
+            "passed": isinstance(approved_cost, (int, float)) and float(approved_cost) <= max_cost,
+            "detail": "Paid PoC needs a human-approved cost ceiling or estimate within the small-PoC cap.",
         },
         {
             "name": "approved_by_present",

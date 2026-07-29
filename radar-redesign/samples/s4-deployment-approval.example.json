@@ -1,7 +1,7 @@
 {
   "validation_type": "paid_poc",
   "approved_by": "Cleo",
-  "estimated_usd": 1.0,
+  "approved_cost_ceiling_usd": 3.0,
   "automatic_poc_start": false,
   "selected_candidate_id": "REPLACE_WITH_S3_CANDIDATE_ID",
   "deployment_authorized": true,
