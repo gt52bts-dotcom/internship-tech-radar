@@ -12,7 +12,7 @@
 - S1/S2/S3 路徑、run ID、candidate ID 或 S3 內容不一致。
 - 沒有此候選專用的 recipe。
 
-目前唯一已註冊、且曾在 intern 環境完成端到端回驗的 recipe 是 `s3_files_cdk`。它位於 `poc/s3-files-cdk-poc/`；其他新聞候選必須先新增自己的 CDK recipe 與驗證 handler，否則結果會是 `needs_poc_recipe`。
+目前已註冊兩個 recipe：`s3_files_cdk` 位於 `poc/s3-files-cdk-poc/`，曾在 intern 環境完成端到端回驗；`lambda_self_managed_s3_code_storage_cdk` 位於 `poc/lambda-self-managed-storage-cdk-poc/`，已通過 CDK synth 與 CloudFormation contract 驗證，等待本次人工核准後首次 live PoC。其他新聞候選仍必須先新增自己的 CDK recipe 與驗證 handler，否則結果會是 `needs_poc_recipe`。
 
 ## 2. Approval 契約
 
@@ -68,3 +68,9 @@ python -m agentic_cloud_radar.cli s4-cleanup `
 7. Console review 後，先清空此 stack 的 versioned test bucket，再刪除 stack 並等 CloudFormation deletion 完成。
 
 runtime artifact 只保存 lineage、狀態、recipe、驗證結果與 cleanup 狀態；不保存 AWS account ID、ARN、IP 或 SSM command output。
+
+## 5. Lambda self-managed S3 code storage recipe
+
+Lambda recipe 只使用這次 run 衍生名稱的測試資源：一個版本化、加密且封鎖公開存取的 S3 bucket；一個在 CloudFormation 內上傳非敏感 `.zip` 的 custom resource；以及一個 `AWS::Lambda::Function`。目標函數的 `Code` 會明確寫入 `S3ObjectStorageMode: REFERENCE`、S3 key 與 S3 object version，並以 bucket policy 只讓 Lambda service principal 讀取該 object version。
+
+S4 部署後會檢查 CloudFormation output 的 `REFERENCE` 與 S3 version，再 invoke 函數，要求其回傳本次 run ID 和 `storage_mode=REFERENCE`。這代表 CloudFormation 接受了 reference mode，且函數可由 self-managed S3 code 啟動。cleanup 仍先清空這個 stack 的 versioned bucket，再刪除整個 stack。

@@ -77,7 +77,7 @@ python -m agentic_cloud_radar.cli s4 `
   --output .\out\s4-local-validate.json
 ```
 
-完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。`s4-deploy` 先產生 deployment context，只有 approval 具有完整 S1/S2/S3 lineage、指定 recipe、Region、成本、真人核准與 `deployment_authorized=true`，且命令再附 `--execute` 才能建立資源。部署後必須由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊並實際驗證過的 recipe 是 S3 Files；未註冊的候選會停在 `needs_poc_recipe`，不會套用別的模板。
+完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。`s4-deploy` 先產生 deployment context，只有 approval 具有完整 S1/S2/S3 lineage、指定 recipe、Region、成本、真人核准與 `deployment_authorized=true`，且命令再附 `--execute` 才能建立資源。部署後必須由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；前者有既有 live PoC 證據，後者目前已通過 CDK synth 與 template contract 驗證，尚待本次人工核准後做首次 live PoC。未註冊的候選會停在 `needs_poc_recipe`，不會套用別的模板。
 
 ## 檔案
 

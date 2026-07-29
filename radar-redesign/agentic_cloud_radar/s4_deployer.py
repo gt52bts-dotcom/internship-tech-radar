@@ -61,6 +61,16 @@ S3_FILES_RECIPE = PocRecipe(
     ),
 )
 
+LAMBDA_SELF_MANAGED_STORAGE_RECIPE = PocRecipe(
+    key="lambda_self_managed_s3_code_storage_cdk",
+    poc_directory=PROJECT_ROOT / "poc" / "lambda-self-managed-storage-cdk-poc",
+    success_criteria=(
+        "CloudFormation stack reaches CREATE_COMPLETE.",
+        "The Lambda function is created with S3ObjectStorageMode=REFERENCE.",
+        "The function can be invoked from the non-production test account.",
+    ),
+)
+
 
 def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any]) -> dict[str, Any]:
     """Create an auditable, non-deploying context from a human-approved S3 run."""
@@ -342,13 +352,17 @@ def _selected_validation(validation: dict[str, Any], selected_id: str) -> dict[s
 
 def _recipe_for(candidate: dict[str, Any] | None) -> PocRecipe | None:
     title = str((candidate or {}).get("title") or "").lower()
+    source_url = str((candidate or {}).get("source_url") or "").lower()
     if "s3 files" in title:
         return S3_FILES_RECIPE
+    if "lambda-self-managed-code-storage" in source_url or ("lambda" in title and "storage" in source_url):
+        return LAMBDA_SELF_MANAGED_STORAGE_RECIPE
     return None
 
 
 def _recipe_by_key(key: str) -> PocRecipe | None:
-    return S3_FILES_RECIPE if key == S3_FILES_RECIPE.key else None
+    recipes = (S3_FILES_RECIPE, LAMBDA_SELF_MANAGED_STORAGE_RECIPE)
+    return next((recipe for recipe in recipes if recipe.key == key), None)
 
 
 def _require_deployable_context(context: dict[str, Any]) -> None:
@@ -383,6 +397,8 @@ def _synthesize(recipe: PocRecipe, deployment: dict[str, Any], work_dir: Path) -
 
 
 def _verify_recipe(recipe: PocRecipe, context: dict[str, Any], outputs: dict[str, str], work_dir: Path) -> dict[str, Any]:
+    if recipe.key == LAMBDA_SELF_MANAGED_STORAGE_RECIPE.key:
+        return _verify_lambda_self_managed_storage(context, outputs, work_dir)
     if recipe.key != S3_FILES_RECIPE.key:
         raise DeploymentError("No verification handler is registered for this recipe.")
     required = ("BucketName", "TestInstanceId")
@@ -410,6 +426,48 @@ def _verify_recipe(recipe: PocRecipe, context: dict[str, Any], outputs: dict[str
         "source_to_mount": "verified",
         "mount_to_s3": "verified",
         "ssm_status": "Success",
+        "success_criteria": list(context.get("success_criteria") or []),
+    }
+
+
+def _verify_lambda_self_managed_storage(
+    context: dict[str, Any], outputs: dict[str, str], work_dir: Path
+) -> dict[str, Any]:
+    required = ("FunctionName", "CodeObjectVersion", "CodeStorageMode")
+    if any(name not in outputs for name in required):
+        raise DeploymentError("Lambda self-managed storage stack outputs are incomplete; verification cannot proceed.")
+    if outputs["CodeStorageMode"] != "REFERENCE" or not outputs["CodeObjectVersion"]:
+        raise DeploymentError("CloudFormation did not preserve the expected Lambda REFERENCE storage configuration.")
+    deployment = context["deployment"]
+    payload = json.dumps({"run_id": context["run_id"]})
+    response_file = work_dir / "lambda-invoke-response.json"
+    response = _aws_json(
+        [
+            "lambda",
+            "invoke",
+            "--function-name",
+            outputs["FunctionName"],
+            "--cli-binary-format",
+            "raw-in-base64-out",
+            "--payload",
+            payload,
+            str(response_file),
+        ],
+        str(deployment["profile"]),
+        str(deployment["target_region"]),
+    )
+    if response.get("FunctionError") or int(response.get("StatusCode") or 0) != 200:
+        raise DeploymentError("Lambda invocation did not succeed.")
+    try:
+        invoked = json.loads(response_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise DeploymentError("Lambda invocation did not return valid JSON.") from exc
+    if invoked.get("storage_mode") != "REFERENCE" or invoked.get("run_id") != context["run_id"]:
+        raise DeploymentError("Lambda invocation response did not match the self-managed storage test contract.")
+    return {
+        "recipe": LAMBDA_SELF_MANAGED_STORAGE_RECIPE.key,
+        "cloudformation_reference_mode": "verified",
+        "lambda_invoke": "verified",
         "success_criteria": list(context.get("success_criteria") or []),
     }
 

@@ -197,6 +197,30 @@ class S3S4Tests(unittest.TestCase):
         self.assertTrue(_matches_run_identity(context["run_id"], f"AgenticRadarS4{suffix.upper()}", f"agentic-radar-s4-{suffix}"))
         self.assertFalse(_matches_run_identity(context["run_id"], "UnrelatedStack", f"agentic-radar-s4-{suffix}"))
 
+    def test_s4_selects_lambda_self_managed_storage_recipe(self):
+        s2 = _deployable_s2()
+        candidate = s2["candidates"][0]
+        candidate["title"] = "AWS Lambda self-managed code storage"
+        candidate["source_url"] = "https://aws.amazon.com/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+        evaluate = build_evaluate(s2, _shortlist()).to_dict()
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            paths = {"s1": root / "s1.json", "s2": root / "s2.json", "s3": root / "s3.json"}
+            s1 = {"stage": "S1", "run_id": "unit-test-run", "candidates": [{"candidate_id": "CAND-1"}]}
+            for key, payload in (("s1", s1), ("s2", s2), ("s3", evaluate)):
+                paths[key].write_text(json.dumps(payload), encoding="utf-8")
+            approval = {
+                "validation_type": "paid_poc", "approved_by": "Cleo", "estimated_usd": 1.0,
+                "automatic_poc_start": False, "selected_candidate_id": "CAND-1", "deployment_authorized": True,
+                "deployment": {"profile": "intern", "target_region": "ap-southeast-1"},
+                "success_criteria": ["Lambda invocation succeeds."], "cleanup_scope": ["Delete the stack."],
+                "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
+            }
+            context = build_deployment_context(evaluate, approval)
+
+        self.assertEqual(context["status"], "ready_for_manual_deployment")
+        self.assertEqual(context["deployment"]["recipe"], "lambda_self_managed_s3_code_storage_cdk")
+
 
 if __name__ == "__main__":
     unittest.main()
