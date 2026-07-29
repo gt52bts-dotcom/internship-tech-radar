@@ -18,6 +18,12 @@
 - AI PM 簡報與 10 分鐘講稿已完成；8/11 將直接沿用原訂 2026-07-28 科會版本，現階段不需另行修改簡報。
 - Cleo will attend the 2026-08-03, 10:30 department meeting as a listener only; no presentation is required.
 
+## 2026-07-29 第一版交付計畫重整
+
+- 2026-07-31 的第一版完整交付仍維持硬截止，但剩餘工作改為證據收斂，不再擴充新功能。
+- 已確認的基線：S3 Files 實際 PoC 已部署、回驗並 cleanup；Lambda self-managed code storage 已部署與 invoke，仍需 Cleo 的 AWS Console review 與 cleanup 決策。
+- 7/31 前的交付缺口明確拆為：一條公開 AWS URL 的完整 S1-S5 報告、五個 Skills 的可讀跑法與限制、檢測清單、Mentor review package，以及 CIP 雙週工作進度（7/20-7/31）。
+
 ## 2026-07-29 Original Cute GUI Shell Wired to Real Artifacts
 
 - Per Cleo's instruction, the visual base is `C:\\Users\\youhs\\Downloads\\cathay-tech-radar-gui (2).html`; its character, five platforms, blocks, side terminal, and report popup remain intact.
