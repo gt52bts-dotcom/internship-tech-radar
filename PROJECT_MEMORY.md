@@ -1,5 +1,9 @@
 # 實習專案記憶
 
+## Terminology Rule
+
+- To avoid ambiguity, refer to the project stage as `Skill 3` or `S3 Evaluate`, never bare `S3`. Refer to the AWS service as `Amazon S3` or `S3 bucket`. Use `Skill 3 evaluation artifact` rather than `S3 artifact` in user-facing explanations. CLI command and code identifiers remain unchanged.
+
 ## 2026-07-29 Active S4 PoC
 
 - Lambda self-managed S3 code storage 的 live S4 PoC 正等待 Cleo 必要的 AWS Console review，lineage 為官方 direct URL run `direct-url-20260729-9d2a3d3c`。
