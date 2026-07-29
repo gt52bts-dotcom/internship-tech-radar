@@ -62,12 +62,30 @@ python -m agentic_cloud_radar.cli s2 `
   --output .\out\s2-landscape-proposals.json
 ```
 
+## S3/S4：評估與低風險驗證
+
+S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 預設只建立低風險 validation artifact，不會建立 AWS 資源，也不會自動啟動付費 PoC。
+
+```powershell
+python -m agentic_cloud_radar.cli s3 `
+  --input .\out\s2-landscape-proposals.json `
+  --shortlist .\out\s3-local-shortlist-request.json `
+  --output .\out\s3-local-evaluate.json
+
+python -m agentic_cloud_radar.cli s4 `
+  --input .\out\s3-local-evaluate.json `
+  --output .\out\s4-local-validate.json
+```
+
 ## 檔案
 
 - `agentic_cloud_radar/s1.py`：掃描與 URL 匯入。
 - `agentic_cloud_radar/s2.py`：證據比較、候選提案卡、比較矩陣。
+- `agentic_cloud_radar/s3.py`：固定 rubric 評估 human shortlist。
+- `agentic_cloud_radar/s4.py`：低風險驗證 artifact 與 paid-PoC gate 檢查。
 - `docs/s1-極細註解版.md`：S1 資料流與命令說明。
 - `docs/s2-極細註解版.md`：S2 提案卡欄位與比較指標。
+- `docs/s3-s4-極細註解版.md`：S3/S4 評分、降級與重跑方式。
 - `s0-backend-architecture.md`：更新後的 S1/S2 入口架構。
 
 ## 驗證

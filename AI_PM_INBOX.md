@@ -17,7 +17,19 @@
 - 已修改流程文件：`radar-redesign/design-baseline.md` 加入完整 Policy→S1→S5 Mermaid 流程圖；`README.md`、`s0-backend-architecture.md`、S1/S2 極細註解版同步移除「新加坡硬門檻」舊口徑。
 - 已補強 `radar-redesign/docs/s1-極細註解版.md` 與 `radar-redesign/docs/s2-極細註解版.md`：增加資料流、程式閱讀順序、真實／推論／未知邊界、S2 Region lookup artifact、重跑與人工審核方式。
 - 驗證：`python -m compileall agentic_cloud_radar` 成功；`python -m unittest discover -s tests -v` 共 6 項通過。另以 `samples/landscape-ga-singapore-request.json` 真跑 S1→S2，S2 輸出 `status=ready_for_human_shortlist`、候選 5、eligible 5、region_verified 0、region_warning 5，第一筆 `blocks_s3=false`、`blocks_paid_poc=true`。
-- 目前階段判定：S1 Scan、S2 Compare 的本機 evidence-first 流程已擴充並測試；S3-S5、AWS deployed mode 與付費 PoC 尚未開始。下一步應先讓候選可以進 S3 評估，再由 S4 決定正式 PoC、低風險驗證或待公司環境驗證。
+- 目前階段判定：S1 Scan、S2 Compare 的本機 evidence-first 流程已擴充並測試；S3/S4 後續已接續完成本機切片；S5、AWS deployed mode 與付費 PoC 尚未開始。
+
+### 新版 S3/S4｜本機評估與低風險驗證切片
+
+- Cleo 要求教學如何在終端機跑一次，並授權繼續做 S3/S4。已提供 PowerShell 指令：進入 `radar-redesign`，跑 `s1`、`s2`，再用 `ConvertFrom-Json` 檢查 `status=ready_for_human_shortlist`、`eligible` 與 `region_warning`。
+- 新增 `radar-redesign/agentic_cloud_radar/s3.py`：只吃 S2 artifact 與 human shortlist request；沒有 shortlist 時輸出 `needs_human_shortlist`。S3 使用固定 rubric：technical_value 0.35、adoption_prerequisites 0.25、verifiability 0.25、risk_and_stop_conditions 0.15；成本不列入技術分數，只留給 S4 budget gate。
+- 新增 `radar-redesign/agentic_cloud_radar/s4.py`：只吃 S3 artifact，預設建立低風險 validation artifact，不會建立 AWS resources。正式 paid PoC 必須同時滿足 S3 recommend、`region_status=available_ap_southeast_1`、`estimated_usd <= 3`、`approved_by` 非空、`automatic_poc_start=false`。
+- CLI 已接上 `s3` 與 `s4` 指令；`__init__.py` 已加入 `s3`、`s4`。
+- 新增 `tests/test_s3_s4.py`：測試無 shortlist 時 S3 停止、Region unknown 不阻擋 S3、S4 將 Region unknown 候選降級為低風險驗證。
+- 新增 `radar-redesign/docs/s3-s4-極細註解版.md`，並更新 `radar-redesign/README.md` 的 S3/S4 指令與檔案說明。
+- 驗證：`python -m compileall agentic_cloud_radar tests` 成功；`python -m unittest discover -s tests -v` 共 9 項通過。
+- 真跑本機 S1→S4：用 `samples/landscape-ga-singapore-request.json` 產生 S1/S2，再從 S2 前三個候選建立 `out/s3-local-shortlist-request.json`。S3 輸出 `evaluated`、評估 3 個、3 個 `recommend_s4`；S4 輸出 `validated_low_risk`、驗證 3 個、low risk 3、paid PoC ready 0、`cloud_resources_created=false`。
+- 可宣稱：S3/S4 本機 Skill slice 已能產生可回查 JSON artifact，且不會因 Region unknown 停在 S2/S3。不可宣稱：正式 PoC、公司環境驗證、AWS 資源建立或新加坡可用性已完成。
 
 ## 2026-07-24｜17:00 前暫存
 
