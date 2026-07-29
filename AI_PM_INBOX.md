@@ -53,6 +53,7 @@
 - 正式積分：Scan +2、Compare +2、Evaluate +1、Validate +4、Report +1；當日總分 10、累積 97，目標對齊 direct。
 - 對外口徑：S3 Files 隔離 PoC 的部署、回驗與 cleanup 有證據；Lambda PoC 只可稱為 CloudFormation、REFERENCE 設定與 invoke 已驗證，Console review、成本與 cleanup 仍待處理。
 - Notion connector 本次不可用，Notion 日誌頁、每日 Skill 積分與內嵌 dashboard 尚未同步。
+- 17:09 後補入舊架構清理結果：GitHub 已移除舊 v3 程式與文件並推送；AWS 舊資源與本機 ignored build/cache 僅完成盤點，刪除指令受執行環境安全限制未執行，已同步更新正式日誌的限制與下一步。
 
 此檔只保存 17:00 前的原始證據，不是正式日誌。平日 17:00 排程完成統整後，將當日內容標記為已整理。
 
