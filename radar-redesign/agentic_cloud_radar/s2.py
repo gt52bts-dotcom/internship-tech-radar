@@ -29,6 +29,14 @@ MAX_REGION_LOOKUP_RESULTS = 5
 MAX_SOURCE_EXCERPTS_PER_DIMENSION = 3
 DEFAULT_TARGET_REGION = "ap-southeast-1"
 TARGET_REGION_LABELS = {"ap-southeast-1": "Asia Pacific (Singapore)"}
+# An AWS feature statement that it is available in all commercial Regions is
+# feature-level availability evidence for Singapore too. Keep this explicit:
+# a broad "AWS Regions" statement alone is not sufficient.
+COMMERCIAL_AWS_REGIONS = {"ap-southeast-1"}
+ALL_COMMERCIAL_REGIONS_PATTERN = re.compile(
+    r"\b(?:all|every)\s+(?:commercial\s+)?(?:aws\s+)?regions?\b|所有\s*(?:商業\s*)?(?:AWS\s*)?區域",
+    re.IGNORECASE,
+)
 # This AWS-owned search API is only a discovery mechanism. Its result snippets
 # never count as evidence; S2 separately fetches and validates every result URL.
 AWS_OFFICIAL_SEARCH_ENDPOINT = "https://prod.search.marketing.aws.dev/api/v1/search"
@@ -467,8 +475,10 @@ def _target_region_matches(
     """Keep only a target-Region passage that also names this specific feature.
 
     A regional table for unrelated Local Zones or an AWS navigation list is not
-    enough. At least two non-generic title terms, including one distinctive
-    feature term, must occur in the same extracted text block as Singapore.
+    enough. A target-Region mention needs at least two non-generic title terms
+    in the same extracted text block. An explicit "all commercial AWS Regions"
+    statement is also accepted for a known commercial target Region, but only
+    when the same passage mentions a service detected for this candidate.
     """
 
     label = TARGET_REGION_LABELS.get(target_region, target_region)
@@ -478,9 +488,32 @@ def _target_region_matches(
     return [
         passage.strip()[:500]
         for passage in passages
-        if any(marker in passage.lower() for marker in markers)
-        and _is_feature_specific_region_passage(passage.lower(), title_terms)
+        if _is_target_region_passage(passage, markers, title_terms, target_region, candidate)
     ][:3]
+
+
+def _is_target_region_passage(
+    passage: str,
+    markers: tuple[str, ...],
+    title_terms: list[str],
+    target_region: str,
+    candidate: dict[str, Any],
+) -> bool:
+    """Decide whether one sentence proves availability for this candidate."""
+
+    lowered = passage.lower()
+    if any(marker in lowered for marker in markers):
+        return _is_feature_specific_region_passage(lowered, title_terms)
+    if target_region not in COMMERCIAL_AWS_REGIONS or not ALL_COMMERCIAL_REGIONS_PATTERN.search(lowered):
+        return False
+    return _mentions_candidate_service(lowered, candidate)
+
+
+def _mentions_candidate_service(passage: str, candidate: dict[str, Any]) -> bool:
+    """Require the global availability statement to name a candidate service."""
+
+    services = [str(service).lower() for service in candidate.get("related_aws_services") or []]
+    return any(re.search(rf"\b{re.escape(service)}\b", passage) for service in services)
 
 
 def _candidate_region_terms(title: str) -> list[str]:
@@ -512,7 +545,7 @@ def _region_eligibility(
             "severity": "info",
             "blocks_s3": False,
             "blocks_paid_poc": False,
-            "shortlist_reason": "Official candidate-specific source evidence explicitly names the target Region.",
+            "shortlist_reason": "Official candidate-specific source evidence covers the target Region directly or through an all-commercial-Regions statement.",
             "paid_poc_requirement": "Already satisfies the S2 Region evidence precondition for later paid PoC review.",
         }
     return {

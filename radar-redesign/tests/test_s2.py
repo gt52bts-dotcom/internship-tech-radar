@@ -18,6 +18,24 @@ class S2CompareTests(unittest.TestCase):
 
         self.assertEqual(_target_region_matches(source_text, "ap-southeast-1", candidate), [])
 
+    def test_all_commercial_regions_statement_can_prove_singapore_for_named_service(self):
+        candidate = {"title": "AWS Lambda self-managed S3 code storage", "related_aws_services": ["Lambda", "S3"]}
+        source_text = "Lambda self-managed S3 code storage is available in all commercial AWS Regions."
+
+        self.assertEqual(
+            _target_region_matches(source_text, "ap-southeast-1", candidate),
+            [source_text],
+        )
+
+    def test_traditional_chinese_all_commercial_regions_statement_can_prove_singapore(self):
+        candidate = {"title": "AWS Lambda 自主管理程式碼儲存空間", "related_aws_services": ["Lambda", "S3"]}
+        source_text = "所有商業 AWS 區域皆提供自主管理的 Amazon S3 程式碼儲存功能。"
+
+        self.assertEqual(
+            _target_region_matches(source_text, "ap-southeast-1", candidate),
+            [source_text],
+        )
+
     def test_compares_a_real_s1_candidate_with_source_linked_evidence(self):
         scan = build_direct_url_scan(REAL_AWS_S3_FILES_URL).to_dict()
         result = build_compare(scan).to_dict()
