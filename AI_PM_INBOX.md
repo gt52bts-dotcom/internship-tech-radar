@@ -12,6 +12,10 @@
 - Updated Skill 3 gate to evaluate a selected candidate without those fields, recording empty optional context and explicit `optional_context_provided` flags instead of fabricating content. Missing context naturally lowers adoption/risk evidence without blocking exploration.
 - Verified through the GUI with all three fields blank: the Lambda article reached Skill 3 at 3.75/5 and medium confidence; all 19 unit tests passed. No AWS resources were created.
 
+## 2026-07-29 AI PM Presentation Reschedule
+
+- The AI PM deck was not presented in the previous team meeting due to time. Cleo will present it at the next team meeting on Tuesday, 2026-08-04, at 15:30.
+
 ## 2026-07-29 Original Cute GUI Shell Wired to Real Artifacts
 
 - Per Cleo's instruction, the visual base is `C:\\Users\\youhs\\Downloads\\cathay-tech-radar-gui (2).html`; its character, five platforms, blocks, side terminal, and report popup remain intact.

@@ -14,6 +14,10 @@
 
 - The current S1-S5 core must remain portable and deployable with an AWS-hosted web demo. The GUI consumes artifact-first API responses and must not bypass the S4 named-human approval, cost ceiling, Console review, or cleanup gates. A self-contained Claude GUI handoff package is maintained under `radar-redesign/claude-gui-handoff/`.
 
+## Presentation Schedule
+
+- The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the Tuesday, 2026-08-04, 15:30 team meeting.
+
 ## 2026-07-29 Active S4 PoC
 
 - Lambda self-managed S3 code storage 的 live S4 PoC 正等待 Cleo 必要的 AWS Console review，lineage 為官方 direct URL run `direct-url-20260729-9d2a3d3c`。
