@@ -11,6 +11,7 @@ from .s1 import build_direct_url_scan, build_scan
 from .s2 import build_compare
 from .s3 import build_evaluate
 from .s4 import build_validate
+from .s4_deployer import DeploymentError, build_deployment_context, execute_cleanup, execute_deployment, record_console_review
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -42,6 +43,24 @@ def main(argv: list[str] | None = None) -> int:
     s4_parser.add_argument("--approval", help="Optional path to an S4 approval request JSON file.")
     s4_parser.add_argument("--output", help="Optional path for the S4 validation artifact.")
 
+    deploy_parser = subparsers.add_parser("s4-deploy", help="Build or explicitly execute a human-approved, candidate-specific S4 PoC.")
+    deploy_parser.add_argument("--input", required=True, help="Path to an S3 evaluation artifact JSON file.")
+    deploy_parser.add_argument("--approval", required=True, help="Path to a human S4 deployment approval JSON file.")
+    deploy_parser.add_argument("--output", required=True, help="Path for the S4 deployment context JSON file.")
+    deploy_parser.add_argument("--execute", action="store_true", help="Actually create AWS resources after all approval checks pass.")
+    deploy_parser.add_argument("--runtime-output", help="Required with --execute; path for S4 runtime evidence JSON.")
+
+    console_parser = subparsers.add_parser("s4-console-review", help="Record required human AWS Console verification before cleanup.")
+    console_parser.add_argument("--input", required=True, help="Path to an S4 runtime evidence JSON file.")
+    console_parser.add_argument("--confirmed-by", required=True, help="Named human who completed the Console review.")
+    console_parser.add_argument("--notes", help="Optional concise Console review note.")
+    console_parser.add_argument("--output", required=True, help="Path for the Console-reviewed S4 runtime JSON file.")
+
+    cleanup_parser = subparsers.add_parser("s4-cleanup", help="Explicitly remove a Console-reviewed S4 PoC and record cleanup evidence.")
+    cleanup_parser.add_argument("--input", required=True, help="Path to a Console-reviewed S4 runtime JSON file.")
+    cleanup_parser.add_argument("--execute", action="store_true", help="Actually delete only the reviewed PoC stack and its test data.")
+    cleanup_parser.add_argument("--output", required=True, help="Path for the cleanup-complete S4 runtime JSON file.")
+
     args = parser.parse_args(argv)
     if args.command == "s1":
         return _run_s1(
@@ -64,6 +83,15 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.approval) if args.approval else None,
             Path(args.output) if args.output else None,
         )
+    if args.command == "s4-deploy":
+        return _run_s4_deploy(
+            Path(args.input), Path(args.approval), Path(args.output), args.execute,
+            Path(args.runtime_output) if args.runtime_output else None,
+        )
+    if args.command == "s4-console-review":
+        return _run_s4_console_review(Path(args.input), args.confirmed_by, args.notes, Path(args.output))
+    if args.command == "s4-cleanup":
+        return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output))
     parser.error("unknown command")
     return 2
 
@@ -164,6 +192,59 @@ def _run_s4(input_path: Path, approval_path: Path | None, output_path: Path | No
     if result["status"] in {"blocked_s3_not_usable", "needs_revision"}:
         return 1
     return 0
+
+
+def _run_s4_deploy(
+    input_path: Path, approval_path: Path, output_path: Path, execute: bool, runtime_output: Path | None
+) -> int:
+    if execute and runtime_output is None:
+        raise SystemExit("s4-deploy --execute requires --runtime-output.")
+    evaluate = _read_json(input_path)
+    approval = _read_json(approval_path)
+    try:
+        context = build_deployment_context(evaluate, approval)
+        _write_json(output_path, context)
+        if not execute:
+            return 0 if context["status"] == "ready_for_manual_deployment" else 1
+        runtime = execute_deployment(context)
+        _write_json(runtime_output, runtime)
+        return 0
+    except DeploymentError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+
+def _run_s4_console_review(input_path: Path, confirmed_by: str, notes: str | None, output_path: Path) -> int:
+    try:
+        _write_json(output_path, record_console_review(_read_json(input_path), confirmed_by, notes))
+        return 0
+    except DeploymentError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+
+def _run_s4_cleanup(input_path: Path, execute: bool, output_path: Path) -> int:
+    if not execute:
+        print("s4-cleanup only creates or deletes resources when --execute is explicitly supplied.", file=sys.stderr)
+        return 1
+    try:
+        _write_json(output_path, execute_cleanup(_read_json(input_path)))
+        return 0
+    except DeploymentError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+
+def _read_json(path: Path) -> dict:
+    with path.open("r", encoding="utf-8-sig") as handle:
+        return json.load(handle)
+
+
+def _write_json(path: Path | None, value: dict) -> None:
+    if path is None:
+        raise ValueError("An output path is required.")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

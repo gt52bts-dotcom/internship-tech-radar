@@ -1,0 +1,29 @@
+{
+  "validation_type": "paid_poc",
+  "approved_by": "Cleo",
+  "estimated_usd": 1.0,
+  "automatic_poc_start": false,
+  "selected_candidate_id": "REPLACE_WITH_S3_CANDIDATE_ID",
+  "deployment_authorized": true,
+  "region_warning_acknowledged": false,
+  "approval_basis": "Reviewed S3 score, confidence, Region evidence, success criteria, and cleanup plan.",
+  "deployment": {
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "create_test_instance": true
+  },
+  "success_criteria": [
+    "CloudFormation stack reaches CREATE_COMPLETE.",
+    "The candidate-specific test passes using non-production data."
+  ],
+  "cleanup_scope": [
+    "Delete the CloudFormation stack.",
+    "Remove only the stack's test data before deleting a versioned bucket.",
+    "Record stack deletion and active-resource checks."
+  ],
+  "lineage": {
+    "s1_artifact_path": "C:\\absolute\\path\\to\\s1.json",
+    "s2_artifact_path": "C:\\absolute\\path\\to\\s2.json",
+    "s3_artifact_path": "C:\\absolute\\path\\to\\s3.json"
+  }
+}

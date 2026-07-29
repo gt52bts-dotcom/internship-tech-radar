@@ -62,7 +62,7 @@ python -m agentic_cloud_radar.cli s2 `
   --output .\out\s2-landscape-proposals.json
 ```
 
-## S3/S4：評估與低風險驗證
+## S3/S4：評估、受控部署與驗證
 
 S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 預設只建立低風險 validation artifact，不會建立 AWS 資源，也不會自動啟動付費 PoC。
 
@@ -77,6 +77,8 @@ python -m agentic_cloud_radar.cli s4 `
   --output .\out\s4-local-validate.json
 ```
 
+完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。`s4-deploy` 先產生 deployment context，只有 approval 具有完整 S1/S2/S3 lineage、指定 recipe、Region、成本、真人核准與 `deployment_authorized=true`，且命令再附 `--execute` 才能建立資源。部署後必須由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊並實際驗證過的 recipe 是 S3 Files；未註冊的候選會停在 `needs_poc_recipe`，不會套用別的模板。
+
 ## 檔案
 
 - `agentic_cloud_radar/s1.py`：掃描與 URL 匯入。
@@ -87,6 +89,7 @@ python -m agentic_cloud_radar.cli s4 `
 - `docs/s2-極細註解版.md`：S2 提案卡欄位與比較指標。
 - `docs/s3-s4-極細註解版.md`：S3/S4 評分、降級與重跑方式。
 - `docs/s1-s4-程式碼導讀與註解.md`：從 CLI、artifact 契約到 S4 外掛式 PoC 的程式碼閱讀地圖。
+- `docs/s4-完整PoC部署操作.md`：完整 S4 的 approval、lineage、部署、Console 回驗與 cleanup 操作說明。
 - `s0-backend-architecture.md`：更新後的 S1/S2 入口架構。
 
 ## 驗證
