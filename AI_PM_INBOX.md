@@ -519,3 +519,10 @@
 - 使用者要求將 S4 從 validator 升級為完整 PoC 部署功能。已新增 `agentic_cloud_radar/s4_deployer.py` 與 CLI `s4-deploy`、`s4-console-review`、`s4-cleanup`：從 S1/S2/S3 artifact 路徑重新讀取 lineage、核對 stage/run/candidate 並寫入 SHA-256；只有 paid-PoC gate、`deployment_authorized=true`、CLI `--execute`、成功條件、cleanup scope 與候選專用 recipe 全數具備才會呼叫 AWS。S3 Files recipe 會 CDK synth、CloudFormation create-stack、S3→mount／mount→S3 SSM 驗證、等待 Console review，再以 run-derived stack/prefix 限縮 versioned bucket cleanup。Region unknown 可在 Cleo approval 的 `region_warning_acknowledged=true` 下以人工決策繼續，但不會放寬其他 gate。新增 approval example、完整操作文件與回歸測試；`compileall` 和 15 項 unittest 通過，S3 Files CDK synth 成功。此次僅驗證程式與模板，沒有執行 `--execute` 或建立 AWS 資源；不可聲稱新 S4 deployer 已再度完成 live deployment。
 - Cleo 再次提供 Lambda self-managed code storage URL，已建立新 lineage：S1=`scanned_with_gaps`、S2=`ready_for_human_shortlist`、S3=`evaluated`、score=`4.0/5`、confidence=`medium`、`recommend_s4=true`、`region_status=available_ap_southeast_1`、無 governance flag；官方 pricing link 尚未建立，因此成本仍為 `unknown`。為使此候選能完整走 S4，新增 Lambda 專用 CDK recipe：versioned/encrypted/non-public test bucket、custom code uploader、Lambda execution role、bucket policy、並以 `S3ObjectStorageMode=REFERENCE` 建立 Lambda。S4 驗證將讀 CloudFormation outputs 並 invoke Lambda，cleanup 沿用 run-derived stack/bucket 限縮。16 項 unittest 與 CDK synth 通過，模板確認有 `REFERENCE`、S3 object version、bucket policy 與 custom uploader；尚未得到部署核准，也未建立 AWS 資源。下一步是先向 Cleo 通知預計資源、成本上限、成功標準與 cleanup，等待明確 approval。
 - S4 approval 成本欄位已修正為 `approved_cost_ceiling_usd`：當官方來源只說明採標準 S3 費率、未給本次 PoC 可用數字時，記錄 Cleo 人工核准的 USD 3 spend cap，不將其寫成官方或系統估價；保留 `estimated_usd` 給真正有官方可用數字的情況。16 項 unittest 重新通過。
+
+## 2026-07-29 Web delivery and Claude GUI handoff
+
+- 完成 Skill 5 artifact-only 報告 renderer，輸出 JSON、Markdown 與 GUI model，不補造缺少的證據。
+- 新增可部署 AWS Web Demo：私有 artifact S3、Lambda API、API Gateway、CloudFront 靜態網站；`npx.cmd cdk synth` 已通過，未部署 AWS 資源。
+- 完成自包含 Claude GUI handoff，含 S1-S5 核心、兩個受控 S4 PoC recipe、真實 Lambda artifact 範例與本機 GUI demo。
+- 驗證：18 個單元測試通過；本機 URL run 已走完 S1、S2、Skill 3、Skill 4 validation、Skill 5 report。
