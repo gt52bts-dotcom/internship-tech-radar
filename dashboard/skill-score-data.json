@@ -146,11 +146,21 @@
     {
       "date": "2026-07-28",
       "scores": {
-        "scan": 1,
+        "scan": 3,
         "compare": 2,
-        "evaluate": 0,
-        "validate": 0,
-        "report": 0
+        "evaluate": 1,
+        "validate": 1,
+        "report": 1
+      }
+    },
+    {
+      "date": "2026-07-29",
+      "scores": {
+        "scan": 2,
+        "compare": 2,
+        "evaluate": 1,
+        "validate": 4,
+        "report": 1
       }
     }
   ]

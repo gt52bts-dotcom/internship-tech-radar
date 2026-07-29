@@ -15,15 +15,15 @@
 
 ## 累積分數
 
-截至 2026-07-28，嚴格審核後累積總分為 `82`。每日總分最高 10 分，舊版 107 分不再作為正式累積值。
+截至 2026-07-29，嚴格審核後累積總分為 `97`。每日總分最高 10 分，舊版 107 分不再作為正式累積值。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 13 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
-| Skill 2 - Compare | 13 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
-| Skill 3 - Evaluate | 16 | 已把成本、權限、安全、GA 證據、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 24 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC；7/28 僅完成本機程式檢查，未計入 S4。 |
-| Skill 5 - Report | 16 | 已能產出教學書、報告、證據包與主管可讀入口，並收斂 AI 使用軌跡素材。 |
+| Skill 1 - Scan | 17 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
+| Skill 2 - Compare | 15 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
+| Skill 3 - Evaluate | 18 | 已把成本、權限、安全、GA 證據、fallback 與 cleanup 納入判斷。 |
+| Skill 4 - Validate | 29 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC；Lambda PoC 仍待 Console review 與 cleanup。 |
+| Skill 5 - Report | 18 | 已能產出 artifact-only interim report、教學書、證據包與主管可讀入口。 |
 
 ## 每日趨勢
 
@@ -40,15 +40,16 @@
 | 2026-07-23 | 1 | 1 | 1 | 1 | 1 | 5 |
 | 2026-07-24 | 0 | 0 | 1 | 0 | 3 | 4 |
 | 2026-07-27 | 2 | 1 | 1 | 3 | 2 | 9 |
-| 2026-07-28 | 1 | 2 | 0 | 0 | 0 | 3 |
+| 2026-07-28 | 3 | 2 | 1 | 1 | 1 | 8 |
+| 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 |
 
 ## 今日判定
 
-2026-07-28 的核心成果是移除 S0 入口、建立 S1 兩條真實資料入口與 S2 提案卡。當次 6 個 GA 候選均未通過新加坡功能級證據門檻，因此不進 S3；S3-S5、正式推薦、AWS deployed mode、runtime LLM 與 PoC 仍未完成。
+2026-07-29 的核心成果是完成一條公開 AWS URL 的 S1-S5 artifact 流程與兩種受控 S4 PoC 證據。S3 Files 隔離 PoC 已完成 cleanup 回查；Lambda self-managed code storage 已完成 CloudFormation、REFERENCE 設定與 invoke 驗證，但仍待 Cleo Console review、實際成本確認與 cleanup，不可視為完全結案或公司環境驗證。
 
 ## 相關檔案
 
-- [正式日誌](../logs/daily/work-log-2026-07-28.md)
+- [正式日誌](../logs/daily/work-log-2026-07-29.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)
 - [Skill JSON 資料](./skill-score-data.json)
 - [互動式 Skill dashboard](./cleo-skill-dashboard.html)
@@ -57,5 +58,5 @@
 
 ## 待修正流程
 
-- S3 Files 指定新聞仍待有效 API key 重跑、真人核准紀錄與 cleanup；既有 PoC 補證據不列為個人日誌核心成果。
-- `cdk deploy` 仍受 bootstrap role 權限限制，目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑。
+- Lambda self-managed code storage PoC 仍待 Cleo 完成 AWS Console review，再以同一 run 的受限範圍 cleanup 並回查。
+- `cdk deploy` 仍受 bootstrap role 權限限制；目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑，這不代表 CDK 部署已成功。

@@ -31,8 +31,9 @@
 | 2026-07-23 | 1 | 1 | 1 | 1 | 1 | 5 | direct |
 | 2026-07-24 | 0 | 0 | 1 | 0 | 3 | 4 | direct |
 | 2026-07-27 | 2 | 1 | 1 | 3 | 2 | 9 | direct |
-| 2026-07-28 | 1 | 2 | 0 | 0 | 0 | 3 | direct |
-| **累積** | **13** | **13** | **16** | **24** | **16** | **82** |  |
+| 2026-07-28 | 3 | 2 | 1 | 1 | 1 | 8 | direct |
+| 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 | direct |
+| **累積** | **17** | **15** | **18** | **29** | **18** | **97** |  |
 
 ## 2026-07-21 評分理由
 
@@ -44,7 +45,7 @@
 
 ## 當前狀態
 
-截至 2026-07-28，累積總分為 82。S1 已完成直接 URL 與技術探索兩條真實資料入口，S2 已能產出 evidence-first 的提案卡；但當次 6 個 GA 候選都未通過新加坡功能級證據門檻。S3-S5、AWS deployed mode 與正式 LLM 尚未完成。
+截至 2026-07-29，累積總分為 97。S1-S5 已可用公開 AWS URL 產出可追溯 artifact；S3 Files 隔離 PoC 已完成部署、回驗與 cleanup，Lambda self-managed code storage PoC 已完成 CloudFormation、REFERENCE 設定與 invoke 驗證，但仍待 Cleo Console review 與 cleanup。兩者皆為 intern 非 production 環境證據。
 
 ## 2026-07-24 評分理由
 
@@ -80,8 +81,16 @@
 
 ## 2026-07-28 評分理由
 
-- Scan +1：完成直接 URL 與技術探索兩條 S1 真實資料入口。
+- Scan +3：完成直接 URL、RSS 與動態分類的 S1 真實資料入口，並保留 GA 證據篩選。
 - Compare +2：S2 將 6 個候選轉成提案卡，並加入新加坡功能級可用性檢查。
-- Evaluate +0：尚未有符合新加坡條件的候選進入 S3。
-- Validate +0：未建立或驗證 AWS 資源；本機編譯與單元測試只作程式品質檢查，不計入 S4 驗證分數。
-- Report +0：尚未產出正式最終報告。
+- Evaluate +1：明確保留 S0 human gate、URL 失敗回報與 LLM 不得直接作為證據的判斷邊界。
+- Validate +1：編譯通過，但正式重跑單元測試有失敗，僅計入問題發現與驗證邊界，未計入 AWS 資源驗證。
+- Report +1：保留可追溯的規則與限制整理；尚未產出正式最終報告。
+
+## 2026-07-29 評分理由
+
+- Scan +2：保留 AWS Blog 分類深挖，並以 Lambda 官方 URL 建立第二條可追溯候選 lineage。
+- Compare +2：新增受控官方 Region 取證；缺證據改為 warning 與付費 PoC gate，避免把搜尋摘要或不相干頁面當證據。
+- Evaluate +1：S3 以固定 rubric、人工 shortlist 和可選商業脈絡完成評估；未把缺少脈絡補造成事實。
+- Validate +4：S3 Files 隔離 PoC 已完成部署、雙向驗證、Console 檢視及 cleanup 回查；Lambda PoC 已確認 CloudFormation、REFERENCE 設定與 invoke，但 Console review、實際成本與 cleanup 尚待完成，因此不給更高分。
+- Report +1：S5 只能引用 artifact，產出 interim report 與可讀 GUI；未把待覆核的 Lambda PoC 寫成結案。
