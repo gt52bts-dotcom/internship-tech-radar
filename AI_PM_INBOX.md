@@ -1,5 +1,13 @@
 # AI PM 當日進度暫存
 
+## 2026-07-29 Original Cute GUI Shell Wired to Real Artifacts
+
+- Per Cleo's instruction, the visual base is `C:\\Users\\youhs\\Downloads\\cathay-tech-radar-gui (2).html`; its character, five platforms, blocks, side terminal, and report popup remain intact.
+- A frontend adapter now replaces the old CloudWatch/canary demo scenario with an artifact-driven Skill 1 Scan, Skill 2 Compare, Skill 3 Evaluate, Skill 4 Validate, and Skill 5 Report flow.
+- The Skill 4 screen creates only a low-risk validation artifact. It does not bypass named approval, budget, Console review, or cleanup for a complete PoC.
+- Local run against the Lambda self-managed code storage official URL reached Skill 5: Skill 3 score 4.0/5, medium confidence, Skill 4 `validated_low_risk`, and zero AWS resources created.
+- Verification: `python -m unittest discover -s tests -v` passed all 18 tests.
+
 ## 2026-07-29 S4 Lambda self-managed code storage live PoC
 
 - 本次只使用同一 run 的 S1/S2/S3 artifacts：S3 `4.0/5`、`medium`、`recommend_s4=true`、`region_status=available_ap_southeast_1`，無 governance flag。
