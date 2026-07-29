@@ -495,3 +495,12 @@
 - 今日嚴格計分：Scan +3、Compare +2、Evaluate +1、Validate +1、Report +1；當日總分 8，累積 87，目標對齊 direct。
 - 可宣稱：S1 的真實 AWS 官方來源與 GA 篩選、S2 的 6 個候選 evidence-first 比較與編譯檢查均有證據。正式重跑 16 項測試有 7 項失敗，修正前不可宣稱 URL→S1、S2 測試通過；不可宣稱 S3-S5、正式推薦、AWS deployed mode、runtime LLM 或 S4 PoC 已完成。
 - Notion connector 本次不可用，Notion 日誌頁、每日 Skill 明細與內嵌 dashboard 待可用連線時補同步。
+
+## 2026-07-29｜17:00 前暫存
+
+- 使用者指出只跑 S1 不足，要求在產出報告前能驗證到 PoC，並先檢視 CDK 轉出的 CloudFormation。已以 `npx.cmd cdk synth` 驗證 `poc/s3-files-cdk-poc`，產出獨立的 `cdk.out-verify-20260729`，未覆寫既有輸出、未執行 deploy、未建立 AWS 資源。模板可確認 VPC、S3 bucket、S3 Files file system、mount target、access point、EC2 test client、IAM role 與 security group 的參照與依賴皆已轉成 CloudFormation。
+- 另以 `npx.cmd cdk synth` 驗證舊版 `radar-company-account-complete/radar/cdk`，成功產生 data、secrets、pipeline 三份 CloudFormation 模板。pipeline 模板含 7 個 Lambda、Step Functions、EventBridge Scheduler 與 CloudWatch logs；data 模板含 S3/DynamoDB；secrets 模板含 Secrets Manager。此只證明 CDK 可以 synth，沒有部署或帳戶端資源證據。
+- 以 AWS Architecture Scout 掃描舊目錄雖得到 92%／`complete`，但檢查器把舊文件、既有 `cdk.out` 資產與相依套件字串誤列為 CloudFront、Bedrock、RAG 等實作證據；實際新 synth 模板沒有 CloudFront、Cognito 或 API Gateway，因此不得採用該分數作為架構完成證明。
+- 已識別新版交付缺口：`radar-redesign` 本機流程目前可由 S1 跑到 S4，但尚未有 S5 CLI，且 S4 沒有把已核准候選安全交給 S3 Files CDK PoC 的 bridge。舊 CDK 仍採 Anthropic API 與舊流程假設，未對齊新版 S1 動態 AWS Blogs 分類、policy_ref、human shortlist 與 paid-PoC gate；因此不可把兩者合稱為已完成的新版本端到端 PoC。
+- 下一步：先用真實 S1→S2 輸出讓 Cleo 選最多三個候選並提供 problem/environment/forbidden boundary；S3/S4 可產出低風險驗證 artifact。若要執行付費 S3 Files PoC，仍須以候選功能的 Singapore 證據、預估成本不超過 USD 3、真人核准人、成功條件與 cleanup 範圍通過 gate，才可手動執行 CDK deploy，再由 Cleo 在 CloudFormation Console 與資源 Console 回驗。
+- 已依使用者指定，以 S3 Files 官方 AWS News Blog 真跑新版 S1→S2→S3：S1/S2 均成功建立 artifact，S2=`ready_for_human_shortlist`，人類 shortlist 明確限定為隔離的 intern 帳號 PoC、不用公司/production/PII 資料。S3=`evaluated`，candidate=`S1-0ABDE9073750`、weighted score=`3.85/5`、confidence=`medium`、`recommend_s4=true`、無 governance flags；但 S2 尚未取得功能級 `ap-southeast-1` 官方證據，`region_status=region_unknown`、`blocks_paid_poc=true`。已在開始任何部署前向 Cleo 通知分數、風險、預計 CDK 資源、成功條件與 cleanup；目前未建立或變更 AWS 資源，待 Cleo 在通知後明確核准才可繼續。
