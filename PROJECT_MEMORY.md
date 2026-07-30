@@ -14,6 +14,12 @@
 
 - The current S1-S5 core must remain portable and deployable with an AWS-hosted web demo. The GUI consumes artifact-first API responses and must not bypass the S4 named-human approval, cost ceiling, Console review, or cleanup gates. A self-contained Claude GUI handoff package is maintained under `radar-redesign/claude-gui-handoff/`.
 
+## 2026-07-30 Five Skill Packaging Decision
+
+- The reusable project deliverable is now maintained as five repository-backed Skill packages under `radar-redesign/skills/`: `scan-cloud-technologies`, `compare-cloud-candidates`, `evaluate-cloud-candidate`, `validate-cloud-poc`, and `report-cloud-evidence`.
+- Each Skill has its own `SKILL.md` and `agents/openai.yaml`, but all five must reuse the tested `agentic_cloud_radar/` core rather than copying business logic into Skill folders.
+- The repository version is the source of truth for Mentor review and cross-computer continuity. Personal installation under `$CODEX_HOME/skills` is optional and must not replace the Git copy.
+
 ## Presentation Schedule
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.

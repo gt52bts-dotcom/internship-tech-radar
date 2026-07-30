@@ -12,6 +12,8 @@
 
 目前主線是 artifact-first 的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，人工 shortlist 後進入 Skill 3，Skill 4 僅在人工核准後部署候選專用 PoC，Skill 5 只依 artifact 產出可回查報告。既有實體 PoC 僅代表 intern 非 production 環境，不能延伸為公司環境結論。
 
+五個階段已整理為 repository 內的正式 Skill packages，入口位於 [`radar-redesign/skills/`](./radar-redesign/skills/)。每個 Skill 均有獨立 `SKILL.md` 與 UI metadata，並共用同一套已測試的 S1-S5 核心。
+
 ```mermaid
 flowchart LR
     A["Skill 1 Scan<br/>URL Import / Discovery"] --> B["Skill 2 Compare<br/>證據提案卡"]
@@ -42,7 +44,7 @@ flowchart LR
 
 ## 紀錄目錄
 
-- `radar-redesign/`：新版 S1-S5 核心、GUI、AWS web demo IaC、測試與操作文件。
+- `radar-redesign/`：新版 S1-S5 核心、五個正式 Skills、GUI、AWS web demo IaC、測試與操作文件。
 - `poc/`：目前維護的 S3 Files 與 Lambda self-managed code storage PoC recipe。
 - `logs/daily/`：正式每日實習日誌，17:00 後統整。
 - `ai-execution-trace/daily/`：AI 每小時執行軌跡，只記錄 AI 當小時的判斷、產出與驗證，不寫專案前情提要。
@@ -80,7 +82,7 @@ flowchart LR
 | 交付物 | 日期 / 時點 | 目前狀態 | 完成條件 |
 |---|---|---|---|
 | AI PM 科會 10 分鐘報告 | 2026-08-11（二）15:30 | 簡報與講稿已完成；直接沿用原訂 2026-07-28 報告版本。 | 準時完成 10 分鐘報告；依既有版本呈現 2-3 組去識別化 input/output 前後差異、限制與下一步。 |
-| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 核心程式與實際 artifact 已有：S3 Files 完整 PoC 已 cleanup；Lambda 候選已部署與 invoke，待人工 Console review。尚待 S5 完整鏈路報告、可讀文件、檢測清單與 Mentor review package 收斂。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor review package。 |
+| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 五個正式 Skill packages 已建立且格式驗證通過；19 項核心測試通過。S3 Files 完整 PoC 已 cleanup；Lambda 候選已部署與 invoke，已完成部分人工 Console review，仍待儲存設定確認與 cleanup 決策。尚待 Mentor review package 與 CIP 雙週進度收斂。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor review package。 |
 | CIP 雙週工作進度（7/20-7/31） | 2026-07-31（五） | 待依第一版完整交付的真實證據彙整。 | 匯出正式檔案，內容按成果與影響整理，不寫成逐日流水帳。 |
 | CIP 雙週工作進度（8/3-8/14） | 2026-08-14（五） | 未開始。 | 匯出正式檔案，補齊該期間成果、問題、學習與下期重點。 |
 | 最終部會實習成果簡報 / 展示 | 2026-08-17（一） | 素材累積中。 | 完成最終簡報、展示路線、時間控制與可驗證成果標註。 |

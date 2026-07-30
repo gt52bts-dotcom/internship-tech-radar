@@ -581,3 +581,31 @@
 - 新增可部署 AWS Web Demo：私有 artifact S3、Lambda API、API Gateway、CloudFront 靜態網站；`npx.cmd cdk synth` 已通過，未部署 AWS 資源。
 - 完成自包含 Claude GUI handoff，含 S1-S5 核心、兩個受控 S4 PoC recipe、真實 Lambda artifact 範例與本機 GUI demo。
 - 驗證：18 個單元測試通過；本機 URL run 已走完 S1、S2、Skill 3、Skill 4 validation、Skill 5 report。
+
+## 2026-07-30｜17:00 前暫存
+
+### 人壽高管交流活動
+
+- Cleo 上午參加人壽高管交流活動。第一階段與數理精算的凃薏如副總交流；凃副總分享自己在國泰歷經七個部門的經驗，並鼓勵實習生多做跨領域嘗試。
+- 第二階段與財務金融的林士喬副總交流。現場討論包含許多 Cleo 尚不熟悉的財務金融專有名詞，前段氣氛較嚴肅、互動也較拘謹；此處只記錄參與與觀察，不延伸成未實際理解的專業學習成果。
+- Cleo 最後主動詢問林副總「在這裡工作開心嗎？」林副總笑著回應，自己不是容易開心的人，但在工作中很有成就感，因此整體感受也算不錯。這個提問讓原本嚴肅的交流出現較自然、真誠的互動。
+- 今天也認識一位新朋友；午餐與朋友共五人一起吃越式料理。這屬於實習期間的人際連結與組織融入證據，不屬於技術雷達五個 Skill 的直接成果，晚間計分不可灌入技術進度。
+- 證據狀態：以上為 Cleo 當日親身參與與口述紀錄；未取得兩位副總的書面回饋，也不宣稱已理解第二階段所有財務金融專業內容。
+
+### Lambda PoC 人工 Console review
+
+- Cleo 提供 AWS CloudFormation Infrastructure Composer 截圖，區域為 Asia Pacific (Singapore)，畫面中的模板名稱為 `AgenticRadarS49F518735.yaml`。
+- 畫面可確認這個 Lambda self-managed code storage PoC 的主要組成：`SelfManagedFunction`（含 Lambda 與執行角色）、`CodeArtifactUploader`（含自訂上傳 Lambda、上傳角色與 code artifact）、`DataBucket`，以及 CDK metadata。
+- Infrastructure Composer 連線顯示主 Lambda、code artifact uploader 與 S3 bucket 間存在模板依賴／參照關係，與「先將程式碼 artifact 上傳到版本化 S3，再由主 Lambda 使用 self-managed code storage」的設計一致。
+- 證據邊界：這張圖可作為 Cleo 已進入 Console 並人工檢視 CloudFormation 架構的證據，但畫面本身未顯示 stack 狀態、Lambda invoke 結果、S3 object version、`S3ObjectStorageMode=REFERENCE` 屬性或 cleanup 結果；這些仍須搭配既有 runtime artifact 或其他 Console 頁面確認。
+- 本次只記錄人工 review，不執行 cleanup。下一步由 Cleo 明確決定是否刪除這個 PoC stack；若要刪除，須沿用同一 run 的受限 cleanup 流程並回查 stack、測試 bucket 與 Lambda 資源。
+- Cleo 另提供 CloudFormation Stacks 截圖，確認 stack `AgenticRadarS49F518735` 的狀態為 `CREATE_COMPLETE`。這補足「CloudFormation 部署完成」的人工 Console 證據，並與 Infrastructure Composer 顯示的同名架構一致。
+- 目前人工 review 已確認架構關係與 stack 建立狀態；仍未由 Console 畫面確認主 Lambda 的 self-managed code storage／S3 object version 設定，也尚未執行或驗證 cleanup。
+
+### S1-S5 正式 Skill packages
+
+- 依 Cleo 重新確認的原始專案目標，先停止 GUI 與 AWS Web Demo 部署討論，將現有 S1-S5 核心正式整理為五個 repository-backed Skills：`scan-cloud-technologies`、`compare-cloud-candidates`、`evaluate-cloud-candidate`、`validate-cloud-poc`、`report-cloud-evidence`。
+- 每個 Skill 已建立獨立 `SKILL.md` 與 `agents/openai.yaml`，內容分別固定 Skill 1 掃描、Skill 2 比較、Skill 3 人工 shortlist 後評估、Skill 4 低風險／受控 PoC 驗證、Skill 5 artifact-only 報告的責任與停止條件。
+- 五個 Skill 共用 `agentic_cloud_radar/` 已測試核心，不在 Skill 資料夾複製執行邏輯；repository 版本作為 Mentor review 與跨電腦交付的 source of truth，個人安裝可日後另做。
+- 驗證：`skill-creator` 的 `quick_validate.py` 對五個 Skill 皆回報 `Skill is valid!`；`python -m unittest discover -s tests -v` 共 19 項全部通過。
+- 目標關係：直接扣回目標。這次完成的是五個可重用 Skill 的正式包裝與規則固化，不是新增 GUI 功能或 AWS 部署。

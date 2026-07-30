@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill 3 · Evaluate"
+  short_description: "Evaluate a human shortlist with a fixed cloud rubric"
+  default_prompt: "Use $evaluate-cloud-candidate to evaluate a human-shortlisted cloud candidate with the fixed rubric."
