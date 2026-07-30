@@ -686,3 +686,11 @@
 - 本輪發現並修正 S2 的錯誤絕對敘述：原本所有候選都會被寫成「沒有已登錄 recipe」，與 S3 Files 實際已有 recipe 矛盾；改為部署前必須由 Skill 4 解析候選專用 recipe、成本上限與 cleanup gate 的條件式提醒，並新增回歸 assertion。
 - 驗證：完整 22 項 unittest、Python compile、主版與 Claude handoff JavaScript syntax、`git diff --check` 均通過。
 - 目標關係：直接扣回五個 Skill 的一般版端到端可用性與報告一致性；不是新的 AWS live PoC。
+
+### S3 Files 成本估算缺口釐清
+
+- Cleo 詢問為何 fresh run 沒有成本估算。核對 artifact 與程式後確認：Skill 2 已抓到 `https://aws.amazon.com/s3/pricing/` 並標示 `official_pricing_linked=true`，但這只代表官方定價頁存在，不代表已建立本次 PoC 的數值成本模型。
+- 現行 Skill 3 在 `agentic_cloud_radar/s3.py` 對所有候選固定輸出 `cost_estimate.status=unknown`、`estimated_usd=None`；因此即使 Skill 2 抓到 pricing 頁，Skill 5 仍只能寫成本 unknown。這是系統尚未完成費率解析與用量計算的缺口，不是 Cleo 缺少公司內部資料。
+- AWS 官方定價頁已提供 S3 Files 計費構成與範例費率，但本次 artifact 沒有記錄高效能儲存 GB-month、讀／寫／同步 GB、PoC 執行時間、EC2 instance type／時數、S3 requests 與 CloudWatch 等用量；官方範例的 `$0.3765/month` 也只是其 100 GB bucket／10 GB read／1 GB write 假設，不能直接冒充本次 PoC 金額。
+- 後續正確修正方向是把成本狀態拆成「找到官方費率／具備估算輸入／估算完成／部署後實際帳單」，由 S3 Files recipe 提供最小 PoC 用量假設，再計算低／中／高情境；部署後實際成本仍需 Cost Explorer 或帳單證據，不可由預估代替。
+- 本次只完成原因診斷，未修改成本模型，也未新增 AWS 資源。
