@@ -26,6 +26,8 @@
 - This caused the same Lambda self-managed S3 code storage technology to appear contradictory across runs: a context-rich run recommended the lowest-risk Skill 4 path, while a context-free run rejected Skill 4 because deployment governance boundaries were missing.
 - Future schema work should separate at least `recommend_low_risk_validation` from `eligible_for_paid_poc_review`. Paid-PoC eligibility must independently require problem context, environment, forbidden data/permissions, feature-level Region evidence, cost ceiling, success criteria, and cleanup scope.
 - Until fixed, never interpret `recommend_s4` alone as either intrinsic technical value or deployment authorization. Read recommendation reason, validation path, governance flags, Region, cost, and approval artifact together.
+- Resolution: S3 schema `s3.evaluation.v2` now emits `recommend_low_risk_validation` and `eligible_for_paid_poc_review` separately. Legacy `recommend_s4` remains temporarily as a compatibility alias for low-risk validation only; S4 paid-PoC checks use the explicit paid-review field.
+- A context-free Lambda rerun now correctly yields low-risk validation `true`, paid-PoC review eligibility `false`, S4 `validated_low_risk`, and an S5 conclusion that states the distinction. Existing S3 v1 artifacts remain readable by S4 fallback logic.
 
 ## Presentation Schedule
 

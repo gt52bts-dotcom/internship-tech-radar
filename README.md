@@ -97,7 +97,7 @@ flowchart LR
 |---|---|---|---|---|
 | 2026-07-30（四）上午 | 參加人壽高管交流活動（總公司）。 | 累積公司情境與成長證據。 | 活動後把可公開、非敏感重點整理進當日 inbox / 日誌。 | 未開始 |
 | 2026-07-31（五） | 完成 Lambda self-managed code storage 的 S4 人工 Console review 與 cleanup 決策。 | 封閉第二條真實 PoC 的驗證鏈路，或清楚保留未結案原因。 | Cleo 在 AWS Console 檢視 CloudFormation、Lambda 與測試 S3 bucket；明確決定 cleanup 或保留，並留下人工確認證據。 | 待人工確認 |
-| 2026-07-31（五） | 拆分 Skill 4 低風險驗證建議與付費 PoC 資格。 | 避免同一技術因缺少部署脈絡而被誤讀為不值得研究。 | 定義 `recommend_low_risk_validation` 與 `eligible_for_paid_poc_review` 的獨立規則、相容策略與回歸測試；若未完成，列入 Mentor package 已知限制。 | 已識別設計缺口 |
+| 2026-07-31（五） | 拆分 Skill 4 低風險驗證建議與付費 PoC 資格。 | 避免同一技術因缺少部署脈絡而被誤讀為不值得研究。 | 定義 `recommend_low_risk_validation` 與 `eligible_for_paid_poc_review` 的獨立規則、相容策略與回歸測試；若未完成，列入 Mentor package 已知限制。 | 已完成：S3 v2、S4／S5／GUI 與 22 項測試通過 |
 | 2026-07-31（五） | 完成 S1-S5 第一版 Mentor review package。 | 本週五完整 Skills 交付。 | 一條公開 AWS URL 的 S1-S5 artifact、S5 報告、五個 Skills 的跑法、檢測清單與限制清單可供 Mentor 回查。 | 進行中 |
 | 2026-07-31（五） | 匯出 CIP 雙週工作進度（7/20-7/31）。 | 完成本期正式實習文件。 | 正式檔案依成果、影響、問題與下一步整理完成。 | 未開始 |
 | 2026-08-03 10:30 | 出席部會並聆聽。 | 掌握部會資訊與行程安排。 | 準時出席；不需準備或進行報告。 | 未開始 |

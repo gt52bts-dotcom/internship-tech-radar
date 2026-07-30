@@ -76,6 +76,8 @@ python -m agentic_cloud_radar.cli s2 `
 
 S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 預設只建立低風險 validation artifact，不會建立 AWS 資源，也不會自動啟動付費 PoC。
 
+S3 v2 將原本混在 `recommend_s4` 的決策拆開：`recommend_low_risk_validation` 判斷是否值得做文件／本機／validator 驗證，`eligible_for_paid_poc_review` 則獨立檢查公司問題脈絡、可用環境、禁止資料／權限、治理旗標與 Region 證據。舊 `recommend_s4` 暫時保留並只映射到低風險建議；S4 的付費 gate 不再依賴這個相容欄位。
+
 ```powershell
 python -m agentic_cloud_radar.cli s3 `
   --input .\out\s2-landscape-proposals.json `

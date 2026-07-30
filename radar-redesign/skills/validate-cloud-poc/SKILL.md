@@ -7,6 +7,12 @@ description: Validate an evaluated cloud candidate with low-risk checks or a tig
 
 Default to low-risk validation. Never create paid AWS resources through the normal `s4` command.
 
+Read Skill 3 decisions independently:
+
+- `recommend_low_risk_validation` controls document, local, schema, template, or validator work.
+- `eligible_for_paid_poc_review` controls entry to the separate paid-PoC approval gate.
+- Legacy `recommend_s4` is only a compatibility alias for low-risk validation.
+
 ## Low-risk validation
 
 From `radar-redesign/`:
@@ -26,6 +32,7 @@ Read `docs/s4-完整PoC部署操作.md` before any live action.
 Require all of the following:
 
 - Matching S1/S2/S3 lineage and artifact hashes.
+- Skill 3 `eligible_for_paid_poc_review=true`, unless a recorded Region warning is explicitly acknowledged without any other governance or context gap.
 - A registered candidate-specific recipe.
 - Named human approval and `deployment_authorized=true`.
 - Target Region, success criteria, cost ceiling, permissions, forbidden data, and cleanup scope.

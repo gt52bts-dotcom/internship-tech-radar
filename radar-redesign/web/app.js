@@ -207,10 +207,17 @@ function radarEvaluate(event) {
 function radarShowEvaluation() {
   var candidate = radarState.s3.evaluated_candidates[0];
   var score = candidate.dimension_scores || {};
+  var lowRisk = candidate.recommend_low_risk_validation !== undefined ? candidate.recommend_low_risk_validation : candidate.recommend_s4;
+  var paidReview = candidate.eligible_for_paid_poc_review !== undefined ? candidate.eligible_for_paid_poc_review : candidate.recommend_s4;
+  var decisionText = lowRisk
+    ? (paidReview
+      ? "建議建立低風險驗證 artifact；付費 PoC 仍需獨立人工核准、成本與 cleanup gate。"
+      : "建議建立低風險驗證 artifact，但目前不具付費 PoC 審查資格。")
+    : "目前不建議低風險 Skill 4 驗證，報告會保留原因。";
   radarSetStage(2,
     ["<span class=\"h\">$ evaluate -- 固定 rubric 已完成</span>", "<span class=\"ok\">✓</span> 技術價值 " + radarEscape(score.technical_value) + " · 導入前提 " + radarEscape(score.adoption_prerequisites), "<span class=\"ok\">✓</span> 可驗證性 " + radarEscape(score.verifiability) + " · 風險與停損 " + radarEscape(score.risk_and_stop_conditions), "<span class=\"num\">★</span> 加權分 " + radarEscape(candidate.weighted_score) + " / 5 · " + radarEscape(candidate.confidence) + " confidence"],
-    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "S4", value: candidate.recommend_s4 ? "review" : "hold" }],
-    candidate.recommend_s4 ? "已達到可驗證條件。下一步是建立低風險驗證 artifact。" : "尚未建議進入 Skill 4，報告會保留原因。"
+    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "Low-risk", value: lowRisk ? "review" : "hold" }, { label: "Paid PoC", value: paidReview ? "eligible" : "blocked" }],
+    decisionText
   );
   document.getElementById("log").insertAdjacentHTML("beforeend", "<div class=\"radar-action\"><b>下一關：Skill 4 Validate</b><p>現在只會建立低風險驗證 artifact，不會自行部署任何 AWS 資源。</p><button id=\"radar-validate\">建立驗證 artifact</button></div>");
   document.getElementById("radar-validate").addEventListener("click", radarValidate);

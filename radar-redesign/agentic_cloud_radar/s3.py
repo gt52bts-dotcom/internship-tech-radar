@@ -99,7 +99,7 @@ def _validate_s2(compare: dict[str, Any]) -> list[EvaluateIssue]:
 def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | None) -> dict[str, Any]:
     policy = (shortlist_request or {}).get("policy") or {}
     return {
-        "schema_version": "s3.evaluation.v1",
+        "schema_version": "s3.evaluation.v2",
         "run_id": compare.get("run_id", "unknown-run"),
         "stage": "S3",
         "status": "draft",
@@ -205,7 +205,19 @@ def _evaluate_candidate(candidate: dict[str, Any], gate: dict[str, Any], compare
     )
     confidence = _confidence(coverage, unknowns, gate)
     governance_flags = _governance_flags(candidate, region, gate)
-    recommend_s4 = weighted_score >= 3.25 and confidence in {"medium", "high"} and not governance_flags
+    paid_poc_context_gaps = _paid_poc_context_gaps(gate)
+    low_risk_blockers = _low_risk_blockers(governance_flags)
+    recommend_low_risk_validation = (
+        weighted_score >= 3.25
+        and confidence in {"medium", "high"}
+        and not low_risk_blockers
+    )
+    eligible_for_paid_poc_review = (
+        recommend_low_risk_validation
+        and not governance_flags
+        and not paid_poc_context_gaps
+        and not region.get("blocks_paid_poc", True)
+    )
     if region.get("blocks_paid_poc"):
         stop_conditions.append("Paid PoC must wait for feature-level target Region evidence or be downgraded.")
 
@@ -216,8 +228,22 @@ def _evaluate_candidate(candidate: dict[str, Any], gate: dict[str, Any], compare
         "dimension_scores": dimension_scores,
         "weighted_score": weighted_score,
         "confidence": confidence,
-        "recommend_s4": recommend_s4,
-        "recommendation_reason": _recommendation_reason(weighted_score, confidence, governance_flags),
+        "recommend_low_risk_validation": recommend_low_risk_validation,
+        "eligible_for_paid_poc_review": eligible_for_paid_poc_review,
+        "recommend_s4": recommend_low_risk_validation,
+        "recommend_s4_compatibility": {
+            "deprecated": True,
+            "maps_to": "recommend_low_risk_validation",
+            "reason": "Kept for v1 consumers; it no longer represents paid PoC eligibility.",
+        },
+        "recommendation_reason": _recommendation_reason(
+            weighted_score,
+            confidence,
+            low_risk_blockers,
+            governance_flags,
+            paid_poc_context_gaps,
+            region,
+        ),
         "cost_estimate": {
             "status": "unknown",
             "estimated_usd": None,
@@ -231,8 +257,12 @@ def _evaluate_candidate(candidate: dict[str, Any], gate: dict[str, Any], compare
             "blocks_paid_poc": bool(region.get("blocks_paid_poc", True)),
         },
         "governance_flags": governance_flags,
+        "paid_poc_context_gaps": paid_poc_context_gaps,
         "stop_conditions": _dedupe(stop_conditions),
-        "s4_validation_path": _s4_validation_path(recommend_s4, region),
+        "s4_validation_path": _s4_validation_path(
+            recommend_low_risk_validation,
+            eligible_for_paid_poc_review,
+        ),
         "evidence_refs": {
             "source_url": candidate.get("source_url"),
             "linked_evidence_count": len((candidate.get("linked_evidence") or {}).get("linked_sources") or []),
@@ -316,27 +346,74 @@ def _governance_flags(candidate: dict[str, Any], region: dict[str, Any], gate: d
     return flags
 
 
-def _s4_validation_path(recommend_s4: bool, region: dict[str, Any]) -> str:
-    if not recommend_s4:
+def _low_risk_blockers(governance_flags: list[str]) -> list[str]:
+    """Return flags that make even document/local validation inappropriate."""
+
+    return [
+        flag
+        for flag in governance_flags
+        if flag in {"excluded_service_bedrock", "region_blocks_s3"}
+    ]
+
+
+def _paid_poc_context_gaps(gate: dict[str, Any]) -> list[str]:
+    return [
+        f"{field}_not_specific"
+        for field in ("problem_to_solve", "available_environment", "forbidden_data_and_permissions")
+        if not str(gate.get(field) or "").strip()
+    ]
+
+
+def _s4_validation_path(
+    recommend_low_risk_validation: bool,
+    eligible_for_paid_poc_review: bool,
+) -> str:
+    if not recommend_low_risk_validation:
         return "not_recommended"
-    if region.get("blocks_paid_poc"):
+    if not eligible_for_paid_poc_review:
         return "low_risk_validation_only"
-    return "eligible_for_low_risk_or_paid_poc_review"
+    return "eligible_for_paid_poc_review"
 
 
-def _recommendation_reason(weighted_score: float, confidence: str, governance_flags: list[str]) -> str:
-    if governance_flags:
-        return "S4 is not recommended until governance flags are resolved."
+def _recommendation_reason(
+    weighted_score: float,
+    confidence: str,
+    low_risk_blockers: list[str],
+    governance_flags: list[str],
+    paid_poc_context_gaps: list[str],
+    region: dict[str, Any],
+) -> str:
+    if low_risk_blockers:
+        return "Low-risk Skill 4 validation is not recommended until hard blockers are resolved."
     if weighted_score < 3.25:
-        return "S4 is not recommended because the weighted score is below the S3 threshold."
+        return "Low-risk Skill 4 validation is not recommended because the weighted score is below the S3 threshold."
     if confidence == "low":
-        return "S4 is not recommended because evidence confidence is low."
-    return "Recommend S4 validation, starting with the lowest-risk path."
+        return "Low-risk Skill 4 validation is not recommended because evidence confidence is low."
+    paid_limits: list[str] = []
+    if governance_flags:
+        paid_limits.extend(governance_flags)
+    if paid_poc_context_gaps:
+        paid_limits.extend(paid_poc_context_gaps)
+    if region.get("blocks_paid_poc", True):
+        paid_limits.append("paid_poc_region_evidence_missing")
+    if paid_limits:
+        return (
+            "Recommend low-risk Skill 4 validation only; paid PoC review remains ineligible until "
+            + ", ".join(_dedupe(paid_limits))
+            + " is resolved."
+        )
+    return "Recommend low-risk Skill 4 validation; candidate evidence is also ready for a separate paid-PoC review."
 
 
 def _summary(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "evaluated_count": len(evaluated),
+        "recommend_low_risk_validation_count": sum(
+            1 for item in evaluated if item.get("recommend_low_risk_validation")
+        ),
+        "eligible_for_paid_poc_review_count": sum(
+            1 for item in evaluated if item.get("eligible_for_paid_poc_review")
+        ),
         "recommend_s4_count": sum(1 for item in evaluated if item.get("recommend_s4")),
         "highest_score": max((item["weighted_score"] for item in evaluated), default=None),
         "automatic_poc_start": False,

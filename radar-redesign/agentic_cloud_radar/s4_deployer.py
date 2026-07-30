@@ -291,8 +291,11 @@ def _paid_poc_gate_passes(validation_candidate: dict[str, Any], selected: dict[s
     region = selected.get("region_status") or {}
     if region.get("status") != "region_unknown" or approval.get("region_warning_acknowledged") is not True:
         return False
+    if selected.get("governance_flags") or selected.get("paid_poc_context_gaps"):
+        return False
     checks = validation_candidate.get("paid_poc_checks") or []
-    return all(check.get("passed") or check.get("name") == "region_status_available" for check in checks)
+    acknowledged_region_checks = {"eligible_for_paid_poc_review", "region_status_available"}
+    return all(check.get("passed") or check.get("name") in acknowledged_region_checks for check in checks)
 
 
 def _verify_lineage(

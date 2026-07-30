@@ -34,8 +34,9 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 2. Stop with `needs_human_shortlist` when no human selection exists.
 3. Score only evidence-supported dimensions with the fixed rubric.
 4. Record weighted score, confidence, Region state, governance flags, cost state, stop conditions, and evidence limits.
-5. Recommend Skill 4 only when the recorded score and evidence justify it.
-6. Distinguish a recommendation for validation from authorization to deploy.
+5. Set `recommend_low_risk_validation` from technical value, confidence, and hard blockers.
+6. Set `eligible_for_paid_poc_review` separately from business context, environment, forbidden boundaries, governance flags, and Region evidence.
+7. Keep legacy `recommend_s4` mapped only to low-risk validation for v1 consumer compatibility; never treat it as deployment eligibility.
 
 ## Guardrails
 
@@ -43,6 +44,7 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 - Do not convert `region_unknown` into unavailable or available.
 - Do not call a human-approved spending ceiling an official estimate.
 - Do not describe a rubric fallback as an LLM or external API result.
+- Missing optional context may block paid-PoC review, but must not by itself block document, local, or other low-risk validation.
 
 ## Validation
 

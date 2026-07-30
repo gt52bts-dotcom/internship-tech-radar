@@ -635,3 +635,12 @@
 - 建議修正介面：至少拆成 `recommend_low_risk_validation` 與 `eligible_for_paid_poc_review`；前者依技術價值與可驗證性判斷，後者另要求問題脈絡、可用環境、禁止資料／權限、功能級 Region 證據、成本上限、成功條件與 cleanup 範圍。
 - 修正前的判讀規則：`recommend_s4` 不能單獨作為技術價值或 PoC 核准結論，必須同時閱讀 recommendation reason、validation path、governance flags、Region、cost 與 approval artifact。
 - 狀態：已記錄，尚未修改程式與 schema；應在第一版 Mentor review package 中列為已知限制，並在變更前補回歸測試與既有 artifact 相容策略。
+
+### Skill 3／Skill 4 雙軌決策修正完成
+
+- 已將 Skill 3 schema 升級為 `s3.evaluation.v2`，新增 `recommend_low_risk_validation` 與 `eligible_for_paid_poc_review`；舊 `recommend_s4` 暫時保留，但明確標記為只映射低風險驗證的相容欄位。
+- 低風險判斷只依技術分數、信心與真正 hard blocker；缺少公司問題、可用環境、禁止資料／權限或 Region 證據不再把技術判成不值得研究，而是只讓付費 PoC 審查資格為 false。
+- S4 已改用獨立付費資格欄位；具名核准、成本上限、Region、`automatic_poc_start=false` 等 gate 仍逐項檢查。既有 Region warning 人工 acknowledgment 只在沒有其他 governance／context gap 時可例外繼續。
+- S5 報告與 GUI 已分開顯示「低風險驗證」和「Paid PoC」，不再只顯示一個模糊的 S4 review／hold。
+- 以同一 Lambda context-free run 真實重跑：score=`3.35`、`recommend_low_risk_validation=true`、`eligible_for_paid_poc_review=false`、S4=`validated_low_risk`；S5 結論為「建議低風險 Skill 4 驗證，但尚不具付費 PoC 審查資格」。
+- 驗證：兩個更新後 Skills 通過 `quick_validate.py`；`compileall`、`node --check web/app.js` 通過；完整 22 項 unittest 全部通過；昨天的 S3 v1 artifact 可由新版 S4 讀取並產生 `validated_low_risk`。

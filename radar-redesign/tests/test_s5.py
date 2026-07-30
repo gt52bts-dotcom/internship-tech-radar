@@ -33,6 +33,31 @@ class Skill5Tests(unittest.TestCase):
         self.assertIn("CloudFormation", report["markdown"])
         self.assertEqual(report["gui_model"]["score"]["weighted_score"], 4.0)
 
+    def test_dual_s4_decisions_are_rendered_separately(self):
+        s1 = {"stage": "S1", "run_id": "run-2", "candidates": [{"candidate_id": "C2"}]}
+        s2 = {"stage": "S2", "run_id": "run-2", "candidates": [{"candidate_id": "C2", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
+        s3 = {
+            "stage": "S3",
+            "run_id": "run-2",
+            "evaluated_candidates": [{
+                "candidate_id": "C2",
+                "title": "Feature",
+                "source_url": "https://aws.amazon.com/example",
+                "weighted_score": 3.35,
+                "confidence": "medium",
+                "recommend_low_risk_validation": True,
+                "eligible_for_paid_poc_review": False,
+                "recommend_s4": True,
+            }],
+        }
+
+        report = build_report(s1, s2, s3)
+
+        rows = dict(report["evaluation"]["rows"])
+        self.assertEqual(rows["建議低風險 Skill 4 驗證"], "是")
+        self.assertEqual(rows["具備付費 PoC 審查資格"], "否")
+        self.assertEqual(report["conclusion"]["status"], "low_risk_validation_recommended")
+
     def test_mismatched_artifacts_are_reported_as_incomplete(self):
         report = build_report({"stage": "S1", "run_id": "run-a"}, {"stage": "S2", "run_id": "run-b"})
         self.assertEqual(report["status"], "incomplete_artifacts")

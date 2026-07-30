@@ -113,6 +113,8 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(result["status"], "evaluated")
         evaluated = result["evaluated_candidates"][0]
         self.assertTrue(evaluated["recommend_s4"])
+        self.assertTrue(evaluated["recommend_low_risk_validation"])
+        self.assertFalse(evaluated["eligible_for_paid_poc_review"])
         self.assertEqual(evaluated["region_status"]["status"], "region_unknown")
         self.assertFalse(evaluated["region_status"]["blocks_s3"])
         self.assertTrue(evaluated["region_status"]["blocks_paid_poc"])
@@ -127,6 +129,24 @@ class S3S4Tests(unittest.TestCase):
         gate = result["human_shortlist_gate"]
         self.assertEqual(gate["problem_to_solve"], "")
         self.assertFalse(gate["optional_context_provided"]["available_environment"])
+        evaluated = result["evaluated_candidates"][0]
+        self.assertTrue(evaluated["recommend_low_risk_validation"])
+        self.assertFalse(evaluated["eligible_for_paid_poc_review"])
+        self.assertTrue(evaluated["recommend_s4"])
+        self.assertIn("problem_to_solve_not_specific", evaluated["paid_poc_context_gaps"])
+        self.assertEqual(evaluated["s4_validation_path"], "low_risk_validation_only")
+
+    def test_context_free_candidate_can_reach_low_risk_s4_without_paid_poc_eligibility(self):
+        request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
+        s3 = build_evaluate(_sample_s2(), request).to_dict()
+
+        result = build_validate(s3).to_dict()
+
+        self.assertEqual(result["status"], "validated_low_risk")
+        validated = result["validated_candidates"][0]
+        self.assertTrue(validated["recommend_low_risk_validation"])
+        self.assertFalse(validated["eligible_for_paid_poc_review"])
+        self.assertEqual(validated["validation_status"], "validated_low_risk")
 
     def test_s4_downgrades_region_unknown_candidate_to_low_risk_validation(self):
         request = _shortlist()
@@ -140,6 +160,14 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(validated["cleanup_status"], "not_applicable_no_cloud_resources_created")
         self.assertFalse(validated["automatic_poc_start"])
         self.assertIn("region_status_available", validated["downgrade_reasons"])
+
+    def test_context_and_region_ready_candidate_has_separate_paid_review_eligibility(self):
+        result = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
+
+        evaluated = result["evaluated_candidates"][0]
+        self.assertTrue(evaluated["recommend_low_risk_validation"])
+        self.assertTrue(evaluated["eligible_for_paid_poc_review"])
+        self.assertEqual(evaluated["s4_validation_path"], "eligible_for_paid_poc_review")
 
     def test_s4_deployment_context_requires_matching_lineage_and_registered_recipe(self):
         evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()

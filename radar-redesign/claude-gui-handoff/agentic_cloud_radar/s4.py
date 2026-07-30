@@ -160,7 +160,9 @@ def _validate_candidate(candidate: dict[str, Any], approval: dict[str, Any], pol
     region = candidate.get("region_status") or {}
     paid_checks = _paid_poc_checks(candidate, approval, region, policy)
     evidence_checks = _evidence_checks(candidate)
-    if not candidate.get("recommend_s4"):
+    recommend_low_risk = _recommend_low_risk_validation(candidate)
+    eligible_paid_review = _eligible_for_paid_poc_review(candidate)
+    if not recommend_low_risk:
         status = "not_validated_not_recommended"
         validation_type = "none"
     elif approval.get("validation_type") == "paid_poc" and all(check["passed"] for check in paid_checks):
@@ -176,6 +178,8 @@ def _validate_candidate(candidate: dict[str, Any], approval: dict[str, Any], pol
         "title": candidate.get("title"),
         "validation_status": status,
         "validation_type": validation_type,
+        "recommend_low_risk_validation": recommend_low_risk,
+        "eligible_for_paid_poc_review": eligible_paid_review,
         "automatic_poc_start": False,
         "evidence_checks": evidence_checks,
         "paid_poc_checks": paid_checks,
@@ -195,9 +199,9 @@ def _paid_poc_checks(
     max_cost = float(policy.get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
     return [
         {
-            "name": "recommend_s4",
-            "passed": bool(candidate.get("recommend_s4")),
-            "detail": "S3 must recommend S4 before any validation path proceeds.",
+            "name": "eligible_for_paid_poc_review",
+            "passed": _eligible_for_paid_poc_review(candidate),
+            "detail": "S3 must separately mark the candidate eligible for paid-PoC review.",
         },
         {
             "name": "region_status_available",
@@ -220,6 +224,22 @@ def _paid_poc_checks(
             "detail": "S4 never starts paid resources automatically.",
         },
     ]
+
+
+def _recommend_low_risk_validation(candidate: dict[str, Any]) -> bool:
+    """Read the v2 decision while remaining compatible with S3 v1 artifacts."""
+
+    if "recommend_low_risk_validation" in candidate:
+        return bool(candidate.get("recommend_low_risk_validation"))
+    return bool(candidate.get("recommend_s4"))
+
+
+def _eligible_for_paid_poc_review(candidate: dict[str, Any]) -> bool:
+    """Use explicit v2 paid readiness; fall back to the legacy combined decision."""
+
+    if "eligible_for_paid_poc_review" in candidate:
+        return bool(candidate.get("eligible_for_paid_poc_review"))
+    return bool(candidate.get("recommend_s4"))
 
 
 def _evidence_checks(candidate: dict[str, Any]) -> list[dict[str, Any]]:
@@ -248,7 +268,7 @@ def _result_summary(status: str, downgrade_reasons: list[str]) -> str:
         return "All S4 paid-PoC checks passed, but no resources were started automatically."
     if status == "validated_low_risk":
         return "Low-risk validation artifact created; paid PoC is deferred or downgraded."
-    return "Candidate was not recommended by S3, so S4 records limits only."
+    return "Candidate was not recommended for low-risk validation by S3, so S4 records limits only."
 
 
 def _limitations(candidate: dict[str, Any], status: str) -> list[str]:
