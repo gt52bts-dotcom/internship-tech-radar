@@ -165,6 +165,9 @@ class S3S4Tests(unittest.TestCase):
         self.assertTrue(evaluated["recommend_low_risk_validation"])
         self.assertTrue(evaluated["eligible_for_poc_review"])
         self.assertEqual(evaluated["s4_validation_path"], "eligible_for_poc_review")
+        self.assertEqual(evaluated["cost_estimate"]["status"], "estimated")
+        self.assertEqual(evaluated["cost_estimate"]["estimated_usd"], 0.04719)
+        self.assertEqual(evaluated["cost_estimate"]["recommended_approval_ceiling_usd"], 0.2)
 
     def test_s4_deployment_context_requires_matching_lineage_and_registered_recipe(self):
         evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
@@ -187,6 +190,7 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(context["status"], "ready_for_manual_deployment")
         self.assertEqual(context["deployment"]["recipe"], "s3_files_cdk")
         self.assertEqual(len(context["lineage"]["source_artifacts"]), 3)
+        self.assertEqual(context["s4_validation"]["cost_estimate"]["status"], "estimated")
 
     def test_console_review_is_required_before_cleanup(self):
         runtime = {"stage": "S4", "status": "awaiting_console_review", "console_review": {}, "cleanup": {}}

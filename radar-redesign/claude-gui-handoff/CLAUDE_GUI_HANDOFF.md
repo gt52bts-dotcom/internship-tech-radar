@@ -18,6 +18,7 @@ Improve the visual and interaction design of the web UI without changing the evi
 - Skill 3 must stop for a human shortlist and its three context fields. Do not automatically rank a landscape result into a winner.
 - Skill 4 validation never auto-starts resources. A real deployment requires the existing `s4-deploy --execute` process plus a named approval, cost ceiling, artifact lineage, Console review, and explicit cleanup.
 - Skill 5 can only state facts present in S1-S4 artifacts. Unknown remains `unknown`; never use generated filler to make a report sound complete.
+- Display `gui_model.cost_quote` as a non-binding PoC estimate: quote ID, low/expected/high totals, recommended approval ceiling, validity and official sources. Never label it as an AWS invoice.
 - Refer to the project stage as `Skill 3` or `S3 Evaluate`. Refer to the AWS storage service as `Amazon S3` or `S3 bucket`.
 
 ## Frontend Contract

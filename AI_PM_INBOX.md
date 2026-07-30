@@ -694,3 +694,14 @@
 - AWS 官方定價頁已提供 S3 Files 計費構成與範例費率，但本次 artifact 沒有記錄高效能儲存 GB-month、讀／寫／同步 GB、PoC 執行時間、EC2 instance type／時數、S3 requests 與 CloudWatch 等用量；官方範例的 `$0.3765/month` 也只是其 100 GB bucket／10 GB read／1 GB write 假設，不能直接冒充本次 PoC 金額。
 - 後續正確修正方向是把成本狀態拆成「找到官方費率／具備估算輸入／估算完成／部署後實際帳單」，由 S3 Files recipe 提供最小 PoC 用量假設，再計算低／中／高情境；部署後實際成本仍需 Cost Explorer 或帳單證據，不可由預估代替。
 - 本次只完成原因診斷，未修改成本模型，也未新增 AWS 資源。
+
+### PoC 成本估算報價單完成
+
+- Cleo 明確要求系統一定要產出報價單。已新增 `radar-redesign/agentic_cloud_radar/costing.py`，以 AWS 公開牌價、已驗證 recipe 規格與明列用量假設建立非約束性 `poc.cost-quote.v1`；不能把固定 USD 3 sandbox ceiling 當成報價。
+- S3 Files recipe 規格已用 AWS 唯讀查詢核對：新加坡區 Amazon Linux 2023 公開 AMI 根磁碟為 8 GiB gp3；recipe 使用一台 t3.micro 測試機、S3 Files、S3 Standard 儲存與 requests。費率來源記錄 EC2、EBS、S3 與 AWS Price List 官方頁面／公開價目。
+- 報價提供三情境：低用量 1 小時／0.02 GB、預期 2 小時／0.10 GB、高用量 4 小時／0.50 GB。fresh run `direct-url-20260730-7339a0b8` 的 Quote ID=`POC-QUOTE-4C820F98175B`；低／預期／高估算分別為 USD 0.018037／0.047190／0.150962，建議核准上限為 USD 0.20。
+- Skill 3 artifact 已內嵌逐項費率、用量、公式、小計、官方來源、有效期限、排除項與聲明；Skill 4 會帶入預期成本與報價上限並保留 quote evidence check；Skill 5 Markdown／JSON／GUI model 已新增完整報價區塊。Skill 3 技術分數仍不含成本。
+- `evaluate-cloud-candidate`、`validate-cloud-poc`、`report-cloud-evidence` 三個 Skill 契約與 metadata 已同步：Skill 3 計算、Skill 4 獨立檢查、Skill 5 呈現。未知 recipe 仍產生 `needs_registered_cost_model` 報價 artifact，但不填造金額。
+- 證據邊界：本報價為 AWS 公開牌價加明列假設的非約束性 PoC 估算，不是 AWS 帳單、發票或正式 AWS 銷售報價；稅、私人折扣、credits、Free Tier、非預期傳輸／重試／logs 不含在內，實際成本待部署後用 AWS 帳務資料核對。本次未建立或修改 AWS 資源。
+- 驗證：fresh S3→S5 artifact 已產出完整逐項報價；`python -m unittest discover -s tests -v` 共 25 項通過，Python compile、主版與可攜 handoff 的 JavaScript syntax、`git diff --check` 均通過。官方 `quick_validate.py` 仍因本機缺少 PyYAML 無法啟動；三個 Skill 的 frontmatter、名稱、描述與 `openai.yaml` 必要欄位已用不依賴套件的檢查確認。
+- 目標關係：直接扣回五個 Skill 的可用交付與成本決策能力。

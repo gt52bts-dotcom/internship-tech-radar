@@ -36,6 +36,14 @@
 - 真的要建立 AWS 資源時，才保留最小且必要的安全閘門：選定候選、具名核准、固定小額成本上限、已登錄 recipe、明確 `--execute`、Console review 與受限 cleanup。Region、測試資料、成功條件與 cleanup 範圍使用專案安全預設值。
 - 程式內可保留既有 AWS profile 名稱作為實作設定，但文件與 GUI 只描述為隔離測試／sandbox，不以「intern」作為產品版本或使用限制。
 
+## 2026-07-30 Mandatory PoC Quotation Decision
+
+- Cleo 明確要求五個 Skill 流程必須想辦法產出報價單；成本不能只顯示 `unknown` 或拿固定 USD 3 policy ceiling 代替。
+- Skill 3 對已登錄費率模型產出 `PoC 成本估算報價單`：Quote ID、Region、幣別、價格快照、有效期限、低／預期／高情境、逐項費率與公式、官方來源、排除項與建議核准上限。沒有模型時也要留下 `needs_registered_cost_model` 報價 artifact，不得填造數字。
+- Skill 4 獨立檢查報價狀態與成本上限；Skill 5 必須在 JSON、Markdown 與 GUI model 呈現報價。成本仍不納入 Skill 3 技術分數。
+- 報價一律標示為依 AWS 公開牌價與明列用量假設產生的非約束性估算，不是 AWS 帳單、發票或正式 AWS 銷售報價；實際費用須在部署後以 AWS 帳務資料核對。
+- S3 Files 第一版費率模型使用 `ap-southeast-1` 公開牌價，預期情境為 2 小時／0.10 GB，高情境為 4 小時／0.50 GB；建議核准上限取高情境向上進位，不以 USD 3 固定 ceiling 冒充估價。
+
 ## Presentation Schedule
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.

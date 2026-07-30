@@ -8,9 +8,9 @@
 |---|---|---|
 | Skill 1 Scan | [`scan-cloud-technologies`](./skills/scan-cloud-technologies/SKILL.md) | 掃描可信公開來源、清理雜訊並建立可追溯候選。 |
 | Skill 2 Compare | [`compare-cloud-candidates`](./skills/compare-cloud-candidates/SKILL.md) | 建立證據提案卡與比較矩陣，準備人工 shortlist。 |
-| Skill 3 Evaluate | [`evaluate-cloud-candidate`](./skills/evaluate-cloud-candidate/SKILL.md) | 依固定 rubric 評估人工選定候選，保留證據限制。 |
-| Skill 4 Validate | [`validate-cloud-poc`](./skills/validate-cloud-poc/SKILL.md) | 執行低風險驗證或具人工核准、成本與 cleanup gate 的 PoC。 |
-| Skill 5 Report | [`report-cloud-evidence`](./skills/report-cloud-evidence/SKILL.md) | 只依 S1-S4 artifact 產出 JSON、Markdown 與 GUI 報告。 |
+| Skill 3 Evaluate | [`evaluate-cloud-candidate`](./skills/evaluate-cloud-candidate/SKILL.md) | 依固定 rubric 評估人工選定候選；已登錄 recipe 同時產出可稽核的 PoC 成本估算報價單。 |
+| Skill 4 Validate | [`validate-cloud-poc`](./skills/validate-cloud-poc/SKILL.md) | 獨立檢查報價、人工核准、成本上限與 cleanup gate，再執行低風險驗證或受控 PoC。 |
+| Skill 5 Report | [`report-cloud-evidence`](./skills/report-cloud-evidence/SKILL.md) | 只依 S1-S4 artifact 產出含逐項報價的 JSON、Markdown 與 GUI 報告。 |
 
 ## 新入口與流程
 
@@ -89,7 +89,9 @@ python -m agentic_cloud_radar.cli s4 `
   --output .\out\s4-local-validate.json
 ```
 
-完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。最小 approval 只需記錄核准人、候選、`deployment_authorized=true` 與 S1/S2/S3 artifact 路徑；Region、小額成本上限、recipe 成功條件與 cleanup scope 使用系統預設，必要時才覆寫。命令仍須另附 `--execute` 才能建立資源。部署後由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
+完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。最小 approval 只需記錄核准人、候選、`deployment_authorized=true` 與 S1/S2/S3 artifact 路徑；Region、recipe 成功條件與 cleanup scope 使用系統預設。若 Skill 3 有已登錄的成本模型，S4 會帶入報價單的預期總額與建議核准上限；沒有費率模型時只保留待補報價 artifact，不虛構金額。命令仍須另附 `--execute` 才能建立資源。部署後由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
+
+S3 Files 報價模型目前採新加坡區 AWS 公開牌價與三種用量情境：低用量 1 小時／0.02 GB、預期 2 小時／0.10 GB、高用量 4 小時／0.50 GB。報價逐項列出 EC2、EBS、S3 Files 儲存與資料操作、S3 Standard 儲存與 requests；有效期七天。它是非約束性估算，不是 AWS 帳單，實際費用仍須在部署後核對。
 
 ## S5：證據報告
 

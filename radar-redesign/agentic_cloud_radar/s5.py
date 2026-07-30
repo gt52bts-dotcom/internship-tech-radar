@@ -44,6 +44,7 @@ def build_report(
         "candidate": _candidate_summary(selected),
         "conclusion": _conclusion(selected, runtime),
         "evaluation": _evaluation_summary(selected),
+        "cost_quote": _cost_quote(selected),
         "validation": _validation_summary(validation, runtime),
         "verified_facts": _verified_facts(scan, compare, selected, runtime),
         "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime),
@@ -78,6 +79,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     ]
     for label, value in report["evaluation"]["rows"]:
         lines.append(f"| {label} | {value} |")
+    lines.extend(_render_cost_quote(report["cost_quote"]))
     lines.extend(["", "## 技術驗證", "", "| 檢查 | 狀態 |", "| --- | --- |"])
     for label, value in report["validation"]["rows"]:
         lines.append(f"| {label} | {value} |")
@@ -110,6 +112,7 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
             "confidence": report["evaluation"].get("confidence"),
             "dimensions": dimensions,
         },
+        "cost_quote": report["cost_quote"],
         "validation_checks": checks,
         "verified_facts": report["verified_facts"],
         "unknown_or_not_verified": report["unknown_or_not_verified"],
@@ -197,6 +200,86 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
+def _cost_quote(candidate: dict[str, Any] | None) -> dict[str, Any]:
+    estimate = (candidate or {}).get("cost_estimate") or {}
+    quote = estimate.get("quote") or {}
+    if quote:
+        return quote
+    return {
+        "status": estimate.get("status") or "unknown",
+        "quote_id": estimate.get("quote_id"),
+        "currency": "USD",
+        "expected_total_usd": estimate.get("estimated_usd"),
+        "estimated_range_usd": estimate.get("range_usd") or {},
+        "scenarios": {},
+        "disclaimer": "成本報價資料未記錄在 Skill 3 artifact。",
+        "sources": [],
+    }
+
+
+def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
+    lines = ["", "## PoC 成本估算報價單", ""]
+    if quote.get("status") != "estimated":
+        lines.extend(
+            [
+                f"- 報價狀態：{quote.get('status') or 'unknown'}",
+                f"- Quote ID：{quote.get('quote_id') or 'unknown'}",
+                "- 結果：目前沒有已登錄且可稽核的費率模型，不填造金額。",
+            ]
+        )
+        return lines
+
+    expected = (quote.get("scenarios") or {}).get("expected") or {}
+    price_range = quote.get("estimated_range_usd") or {}
+    lines.extend(
+        [
+            f"- Quote ID：{quote.get('quote_id')}",
+            f"- 區域：{quote.get('target_region')}",
+            f"- 幣別：{quote.get('currency')}",
+            f"- 價格快照：{quote.get('price_snapshot_date')}",
+            f"- 有效期限：{quote.get('valid_until')}",
+            (
+                f"- 情境總額：低 **${_format_money(price_range.get('low'))}**／"
+                f"預期 **${_format_money(price_range.get('expected'))}**／"
+                f"高 **${_format_money(price_range.get('high'))}**"
+            ),
+            f"- 建議核准上限：**${_format_money(quote.get('recommended_approval_ceiling_usd'))}**",
+            "",
+            "### 預期情境明細",
+            "",
+            "| 項目 | 費率 | 用量 | 小計 USD |",
+            "| --- | ---: | ---: | ---: |",
+        ]
+    )
+    for item in expected.get("line_items") or []:
+        lines.append(
+            f"| {item.get('item')} | {_format_number(item.get('rate_usd'))} {item.get('rate_unit')} | "
+            f"{_format_number(item.get('quantity'))} {item.get('quantity_unit')} | "
+            f"{_format_money(item.get('subtotal_usd'))} |"
+        )
+    lines.extend(
+        [
+            f"| **預期總額** |  |  | **{_format_money(expected.get('total_usd'))}** |",
+            "",
+            "### 報價假設與限制",
+            "",
+        ]
+    )
+    assumptions = expected.get("assumptions") or {}
+    lines.append(
+        f"- 預期情境使用 {assumptions.get('hours')} 小時、"
+        f"{assumptions.get('active_gb')} GB active storage。"
+    )
+    lines.extend(f"- {item}" for item in quote.get("exclusions") or [])
+    lines.append(f"- {quote.get('disclaimer')}")
+    lines.extend(["", "### 官方價格來源", ""])
+    lines.extend(
+        f"- [{source.get('purpose')}]({source.get('url')})"
+        for source in quote.get("sources") or []
+    )
+    return lines
+
+
 def _validation_summary(validation: dict[str, Any] | None, runtime: dict[str, Any] | None) -> dict[str, Any]:
     runtime = runtime or {}
     verification = runtime.get("verification") or {}
@@ -227,6 +310,12 @@ def _verified_facts(scan: dict[str, Any], compare: dict[str, Any] | None, candid
         facts.append(f"官方來源已記錄：{candidate['source_url']}")
     if (candidate or {}).get("weighted_score") is not None:
         facts.append(f"Skill 3 加權分已依固定 rubric 計算：{candidate['weighted_score']}")
+    quote = ((candidate or {}).get("cost_estimate") or {}).get("quote") or {}
+    if quote.get("status") == "estimated":
+        facts.append(
+            f"PoC 成本估算報價單已建立：{quote.get('quote_id')}，"
+            f"預期 USD {quote.get('expected_total_usd')}。"
+        )
     if (runtime or {}).get("deployment", {}).get("stack_status") == "CREATE_COMPLETE":
         facts.append("CloudFormation stack 已達 CREATE_COMPLETE。")
     for key, value in ((runtime or {}).get("verification") or {}).items():
@@ -237,8 +326,10 @@ def _verified_facts(scan: dict[str, Any], compare: dict[str, Any] | None, candid
 
 def _unknowns(compare: dict[str, Any] | None, candidate: dict[str, Any] | None, validation: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[str]:
     items = list(((candidate or {}).get("evidence_refs") or {}).get("evidence_limits") or [])
-    if ((candidate or {}).get("cost_estimate") or {}).get("status") == "unknown":
+    if ((candidate or {}).get("cost_estimate") or {}).get("status") != "estimated":
         items.append("官方定價或實際成本尚未在 artifact 中證實。")
+    elif not runtime:
+        items.append("報價單是公開牌價估算；實際 AWS 費用需在部署後以帳務資料核對。")
     if (runtime or {}).get("console_review", {}).get("status") != "confirmed":
         items.append("AWS Console review 尚未完成或尚未記錄。")
     if (runtime or {}).get("cleanup", {}).get("status") != "verified":
@@ -272,6 +363,16 @@ def _evidence_ledger(scan: dict[str, Any], compare: dict[str, Any] | None, candi
     for key, value in ((runtime or {}).get("verification") or {}).items():
         if key != "success_criteria":
             entries.append({"claim": key, "type": "runtime evidence", "status": str(value), "source": "S4 runtime artifact"})
+    quote = ((candidate or {}).get("cost_estimate") or {}).get("quote") or {}
+    if quote.get("status") == "estimated":
+        entries.append(
+            {
+                "claim": "PoC 成本估算",
+                "type": "public list-price estimate",
+                "status": "estimated",
+                "source": str(quote.get("quote_id") or "Skill 3 cost quote"),
+            }
+        )
     if not entries:
         entries.append({"claim": "尚無可呈現的證據帳本項目", "type": "unknown", "status": "unknown", "source": "artifact data gap"})
     return entries
@@ -301,3 +402,19 @@ def _eligible_for_poc_review(candidate: dict[str, Any]) -> bool:
 
 def _dedupe(values: list[str]) -> list[str]:
     return list(dict.fromkeys(str(value) for value in values if str(value).strip()))
+
+
+def _format_number(value: Any) -> str:
+    if not isinstance(value, (int, float)):
+        return str(value if value is not None else "unknown")
+    return f"{float(value):.9f}".rstrip("0").rstrip(".")
+
+
+def _format_money(value: Any) -> str:
+    if not isinstance(value, (int, float)):
+        return str(value if value is not None else "unknown")
+    text = f"{float(value):.6f}".rstrip("0").rstrip(".")
+    if "." not in text:
+        return text + ".00"
+    decimals = len(text.split(".", 1)[1])
+    return text + ("0" * max(0, 2 - decimals))

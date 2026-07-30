@@ -13,14 +13,14 @@ var radarStages = [
     hint: "把已證實、規劃推論與未知資料拆開，才不會把希望當成證據。",
     labels: ["FACT", "GAP", "REGION"],
     focus: "建立每個候選的官方證據卡，並保留 region 與定價缺口。",
-    checklist: ["官方事實", "region warning", "價格未知不估算"]
+    checklist: ["官方事實", "region warning", "官方價格來源"]
   },
   {
     code: "S3", name: "評估", en: "EVALUATE", title: "Skill 3 Evaluate", sub: "真人 shortlist 與固定 rubric",
     hint: "真人先選候選，再用固定 rubric 評估，不讓權重隨候選改變。",
     labels: ["PROBLEM", "ENV", "BOUNDARY"],
     focus: "真人選擇候選即可評估；問題、環境與邊界可在知道後再補充。",
-    checklist: ["真人選擇候選", "脈絡欄位選填", "停損條件必填"]
+    checklist: ["真人選擇候選", "固定 rubric", "PoC 估算報價單"]
   },
   {
     code: "S4", name: "驗證", en: "VALIDATE", title: "Skill 4 Validate", sub: "受控驗證與完整 PoC Gate",
@@ -203,6 +203,7 @@ function radarEvaluate(event) {
 function radarShowEvaluation() {
   var candidate = radarState.s3.evaluated_candidates[0];
   var score = candidate.dimension_scores || {};
+  var quote = candidate.cost_estimate && candidate.cost_estimate.quote || {};
   var lowRisk = candidate.recommend_low_risk_validation !== undefined ? candidate.recommend_low_risk_validation : candidate.recommend_s4;
   var pocReview = candidate.eligible_for_poc_review !== undefined
     ? candidate.eligible_for_poc_review
@@ -213,8 +214,8 @@ function radarShowEvaluation() {
       : "建議建立低風險驗證 artifact；公開證據尚未達 PoC 審查門檻。")
     : "目前不建議低風險 Skill 4 驗證，報告會保留原因。";
   radarSetStage(2,
-    ["<span class=\"h\">$ evaluate -- 固定 rubric 已完成</span>", "<span class=\"ok\">✓</span> 技術價值 " + radarEscape(score.technical_value) + " · 導入前提 " + radarEscape(score.adoption_prerequisites), "<span class=\"ok\">✓</span> 可驗證性 " + radarEscape(score.verifiability) + " · 風險與停損 " + radarEscape(score.risk_and_stop_conditions), "<span class=\"num\">★</span> 加權分 " + radarEscape(candidate.weighted_score) + " / 5 · " + radarEscape(candidate.confidence) + " confidence"],
-    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "Low-risk", value: lowRisk ? "review" : "hold" }, { label: "PoC", value: pocReview ? "eligible" : "hold" }],
+    ["<span class=\"h\">$ evaluate -- 固定 rubric 已完成</span>", "<span class=\"ok\">✓</span> 技術價值 " + radarEscape(score.technical_value) + " · 導入前提 " + radarEscape(score.adoption_prerequisites), "<span class=\"ok\">✓</span> 可驗證性 " + radarEscape(score.verifiability) + " · 風險與停損 " + radarEscape(score.risk_and_stop_conditions), "<span class=\"num\">★</span> 加權分 " + radarEscape(candidate.weighted_score) + " / 5 · " + radarEscape(candidate.confidence) + " confidence", "<span class=\"ok\">$</span> 報價單 " + radarEscape(quote.quote_id || "待建立") + " · 預期 USD " + radarEscape(quote.expected_total_usd == null ? "unknown" : quote.expected_total_usd) + " · 建議上限 USD " + radarEscape(quote.recommended_approval_ceiling_usd == null ? "unknown" : quote.recommended_approval_ceiling_usd)],
+    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "Estimate", value: quote.expected_total_usd == null ? "pending" : "$" + quote.expected_total_usd }, { label: "PoC", value: pocReview ? "eligible" : "hold" }],
     decisionText
   );
   document.getElementById("log").insertAdjacentHTML("beforeend", "<div class=\"radar-action\"><b>下一關：Skill 4 Validate</b><p>現在只會建立低風險驗證 artifact，不會自行部署任何 AWS 資源。</p><button id=\"radar-validate\">建立驗證 artifact</button></div>");
@@ -258,9 +259,11 @@ function radarShowReportStage() {
 
 function radarShowReport(model) {
   var score = model.score || {};
+  var quote = model.cost_quote || {};
+  var range = quote.estimated_range_usd || {};
   var verified = (model.verified_facts || []).map(function (item) { return "<div class=\"r\">" + radarEscape(item) + "</div>"; }).join("") || "unknown";
   var unknown = (model.unknown_or_not_verified || []).map(function (item) { return "<div class=\"r\">" + radarEscape(item) + "</div>"; }).join("") || "unknown";
-  document.getElementById("repBox").innerHTML = "<h3>技術評估報告<button class=\"x\" id=\"repX\">×</button></h3><div class=\"meta\">S1 → S2 → Skill 3 → Skill 4 → Skill 5 · " + radarEscape(radarState.runId) + "</div><div class=\"rgrid\"><div class=\"rcell\"><div class=\"k\">Skill 3 分數</div><div class=\"v s\">" + radarEscape(score.weighted_score || "unknown") + "</div></div><div class=\"rcell\"><div class=\"k\">Confidence</div><div class=\"v q\">" + radarEscape(score.confidence || "unknown") + "</div></div><div class=\"rcell\"><div class=\"k\">Skill 4</div><div class=\"v q\">" + radarEscape(radarState.s4 && radarState.s4.status || "unknown") + "</div></div></div><div class=\"rb\"><div class=\"bk\">結論</div><p>" + radarEscape(model.header && model.header.conclusion && model.header.conclusion.text || "unknown") + "</p></div><div class=\"rb\"><div class=\"bk\">已驗證</div><div class=\"risks\">" + verified + "</div></div><div class=\"rb\"><div class=\"bk\">待確認</div><div class=\"risks\">" + unknown + "</div></div>";
+  document.getElementById("repBox").innerHTML = "<h3>技術評估報告<button class=\"x\" id=\"repX\">×</button></h3><div class=\"meta\">S1 → S2 → Skill 3 → Skill 4 → Skill 5 · " + radarEscape(radarState.runId) + "</div><div class=\"rgrid\"><div class=\"rcell\"><div class=\"k\">Skill 3 分數</div><div class=\"v s\">" + radarEscape(score.weighted_score || "unknown") + "</div></div><div class=\"rcell\"><div class=\"k\">PoC 預期成本</div><div class=\"v q\">USD " + radarEscape(quote.expected_total_usd == null ? "unknown" : quote.expected_total_usd) + "</div></div><div class=\"rcell\"><div class=\"k\">建議核准上限</div><div class=\"v q\">USD " + radarEscape(quote.recommended_approval_ceiling_usd == null ? "unknown" : quote.recommended_approval_ceiling_usd) + "</div></div></div><div class=\"rb\"><div class=\"bk\">成本估算報價單</div><p>" + radarEscape(quote.quote_id || "尚無可稽核報價單") + " · 低／預期／高：USD " + radarEscape(range.low == null ? "?" : range.low) + " / " + radarEscape(range.expected == null ? "?" : range.expected) + " / " + radarEscape(range.high == null ? "?" : range.high) + "。此為公開牌價估算，不是 AWS 帳單。</p></div><div class=\"rb\"><div class=\"bk\">結論</div><p>" + radarEscape(model.header && model.header.conclusion && model.header.conclusion.text || "unknown") + "</p></div><div class=\"rb\"><div class=\"bk\">已驗證</div><div class=\"risks\">" + verified + "</div></div><div class=\"rb\"><div class=\"bk\">待確認</div><div class=\"risks\">" + unknown + "</div></div>";
   document.getElementById("repOverlay").classList.add("show");
   document.getElementById("repX").addEventListener("click", function () { document.getElementById("repOverlay").classList.remove("show"); });
 }

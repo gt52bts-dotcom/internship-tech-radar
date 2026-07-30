@@ -2,7 +2,8 @@
 
 S3 is intentionally conservative. It only reads the S2 comparison artifact and
 an explicit human shortlist request. It does not discover new sources, tune the
-rubric per candidate, estimate unknown prices, or authorize a PoC.
+rubric per candidate, or authorize a PoC. Registered recipes may produce a
+source-backed, non-binding cost quotation from explicit assumptions.
 """
 
 from __future__ import annotations
@@ -10,6 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
+
+from .costing import build_cost_quote
 
 
 ALLOWED_S2_STATUSES = {"ready_for_human_shortlist"}
@@ -77,7 +80,9 @@ def build_evaluate(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
         if candidate is None:
             issues.append(EvaluateIssue("selected_candidate_not_found", f"{selected_id} is not present in S2.", "error"))
             continue
-        artifact["evaluated_candidates"].append(_evaluate_candidate(candidate, gate, compare))
+        artifact["evaluated_candidates"].append(
+            _evaluate_candidate(candidate, gate, compare, artifact["evaluated_at"])
+        )
 
     artifact["evaluated_candidates"].sort(key=lambda item: (-item["weighted_score"], item["candidate_id"]))
     artifact["summary"] = _summary(artifact["evaluated_candidates"])
@@ -174,7 +179,12 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
     }
 
 
-def _evaluate_candidate(candidate: dict[str, Any], gate: dict[str, Any], compare: dict[str, Any]) -> dict[str, Any]:
+def _evaluate_candidate(
+    candidate: dict[str, Any],
+    gate: dict[str, Any],
+    compare: dict[str, Any],
+    evaluated_at: str,
+) -> dict[str, Any]:
     dimensions = candidate.get("comparison_dimensions") or {}
     proposal = candidate.get("proposal_card") or {}
     coverage = candidate.get("evidence_coverage") or {}
@@ -206,6 +216,12 @@ def _evaluate_candidate(candidate: dict[str, Any], gate: dict[str, Any], compare
         and not low_risk_blockers
     )
     poc_review_notes = _poc_review_notes(coverage, region)
+    quote = build_cost_quote(
+        candidate,
+        str(compare.get("run_id") or "unknown-run"),
+        region.get("target_region"),
+        datetime.fromisoformat(evaluated_at),
+    )
 
     return {
         "candidate_id": candidate.get("candidate_id"),
@@ -236,9 +252,13 @@ def _evaluate_candidate(candidate: dict[str, Any], gate: dict[str, Any], compare
             poc_review_notes,
         ),
         "cost_estimate": {
-            "status": "unknown",
-            "estimated_usd": None,
-            "score_policy": "Cost is excluded from S3 score and uses the fixed sandbox ceiling before deployment.",
+            "status": quote["status"],
+            "estimated_usd": quote.get("expected_total_usd"),
+            "range_usd": quote.get("estimated_range_usd"),
+            "recommended_approval_ceiling_usd": quote.get("recommended_approval_ceiling_usd"),
+            "quote_id": quote["quote_id"],
+            "quote": quote,
+            "score_policy": "Cost is excluded from S3 score and is checked separately before deployment.",
         },
         "region_status": {
             "target_region": region.get("target_region"),

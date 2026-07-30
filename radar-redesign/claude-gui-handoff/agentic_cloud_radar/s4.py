@@ -130,9 +130,23 @@ def _approval_gate(evaluate: dict[str, Any], approval_request: dict[str, Any] | 
             "message": "Request is limited to low-risk validation.",
         }
     approved_by = str(approval_request.get("approved_by") or "").strip()
-    estimated_usd = approval_request.get("estimated_usd")
+    selected_id = str(approval_request.get("selected_candidate_id") or "").strip()
+    selected = next(
+        (
+            item
+            for item in evaluate.get("evaluated_candidates") or []
+            if str(item.get("candidate_id") or "") == selected_id
+        ),
+        None,
+    )
+    quote = ((selected or {}).get("cost_estimate") or {}).get("quote") or {}
+    estimated_usd = approval_request.get("estimated_usd", quote.get("expected_total_usd"))
     max_cost = float((evaluate.get("policy") or {}).get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
-    approved_cost_ceiling_usd = approval_request.get("approved_cost_ceiling_usd", max_cost)
+    quote_ceiling = quote.get("recommended_approval_ceiling_usd")
+    approved_cost_ceiling_usd = approval_request.get(
+        "approved_cost_ceiling_usd",
+        quote_ceiling if isinstance(quote_ceiling, (int, float)) else max_cost,
+    )
     try:
         approved_cost = float(approved_cost_ceiling_usd if approved_cost_ceiling_usd is not None else estimated_usd)
     except (TypeError, ValueError):
@@ -150,9 +164,13 @@ def _approval_gate(evaluate: dict[str, Any], approval_request: dict[str, Any] | 
         "approved_by": approved_by or None,
         "estimated_usd": float(estimated_usd) if isinstance(estimated_usd, (int, float)) else None,
         "approved_cost_ceiling_usd": approved_cost,
+        "cost_quote_id": quote.get("quote_id"),
+        "cost_quote_status": quote.get("status") or "not_available",
         "cost_basis": (
             "human_approved_ceiling"
             if "approved_cost_ceiling_usd" in approval_request
+            else "quoted_high_scenario_ceiling"
+            if isinstance(quote_ceiling, (int, float))
             else "default_sandbox_ceiling"
         ),
         "max_small_poc_usd": max_cost,
@@ -192,6 +210,7 @@ def _validate_candidate(candidate: dict[str, Any], approval: dict[str, Any], pol
         "paid_poc_checks": poc_checks,
         "downgrade_reasons": downgrade_reasons if status == "validated_low_risk" else [],
         "cleanup_status": "not_applicable_no_cloud_resources_created",
+        "cost_estimate": candidate.get("cost_estimate"),
         "result_summary": _result_summary(status, downgrade_reasons),
         "limitations": _limitations(candidate, status),
     }
@@ -263,6 +282,14 @@ def _evidence_checks(candidate: dict[str, Any]) -> list[dict[str, Any]]:
             "name": "score_and_confidence_present",
             "passed": candidate.get("weighted_score") is not None and bool(candidate.get("confidence")),
             "detail": f"score={candidate.get('weighted_score')}, confidence={candidate.get('confidence')}",
+        },
+        {
+            "name": "cost_quote_recorded",
+            "passed": bool((candidate.get("cost_estimate") or {}).get("quote_id")),
+            "detail": (
+                f"quote_id={(candidate.get('cost_estimate') or {}).get('quote_id')}, "
+                f"status={(candidate.get('cost_estimate') or {}).get('status') or 'unknown'}"
+            ),
         },
     ]
 

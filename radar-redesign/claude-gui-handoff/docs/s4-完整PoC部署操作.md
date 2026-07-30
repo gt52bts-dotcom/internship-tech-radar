@@ -23,7 +23,15 @@
 - `approved_by`：具名核准人。
 - `deployment_authorized: true`：看過 Skill 3 結果後的明確部署核准。
 
-Region、小額成本上限、profile、recipe 成功標準與 cleanup scope 由系統提供預設；只有要改得更嚴格時才放進 approval 覆寫。`--execute`、Console review 與 cleanup 仍不可省略。
+Region、profile、recipe 成功標準與 cleanup scope 由系統提供預設。若 Skill 3 已建立可稽核報價，S4 會使用其中的預期成本與建議核准上限；人工可覆寫成更嚴格的上限。固定 USD 3 是 sandbox policy ceiling，不是 AWS 報價。`--execute`、Console review 與 cleanup 仍不可省略。
+
+部署前請先在 S3 artifact 檢查：
+
+- `cost_estimate.status=estimated`
+- `cost_estimate.quote.quote_id`
+- `cost_estimate.quote.estimated_range_usd`
+- `cost_estimate.quote.recommended_approval_ceiling_usd`
+- 報價是否仍在 `valid_until` 內
 
 ## 3. 命令順序
 

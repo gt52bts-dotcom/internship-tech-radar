@@ -1,6 +1,6 @@
 ---
 name: report-cloud-evidence
-description: Render S1 through S4 artifacts and optional runtime evidence into traceable JSON, Markdown, and GUI report models without adding unsupported claims. Use for Skill 5 interim or final technical reports, evidence ledgers, verified-versus-unknown summaries, artifact lineage checks, or presentation-ready report data.
+description: Render S1 through S4 artifacts, PoC cost quotations, and optional runtime evidence into traceable JSON, Markdown, and GUI report models without adding unsupported claims. Use for Skill 5 interim or final technical reports, itemized quote sheets, evidence ledgers, verified-versus-unknown summaries, artifact lineage checks, or presentation-ready report data.
 ---
 
 # Skill 5 · Report
@@ -29,16 +29,18 @@ Reuse `agentic_cloud_radar/s5.py`.
 1. Check stage presence, `run_id`, and candidate lineage.
 2. Mark mismatched or missing required artifacts as `incomplete_artifacts`.
 3. Summarize the Skill 3 score and confidence without recalculation.
-4. Separate verified facts from unknown or unverified statements.
-5. Build an evidence ledger linking claims to source or runtime artifacts.
-6. Produce one JSON report, embedded Markdown, and a stable GUI model.
-7. Mark the report `final` only when runtime status is `cleanup_verified`; otherwise keep it `interim`.
+4. Render the Skill 3 quote without recalculation: ID, validity, low/expected/high totals, expected line items, assumptions, exclusions and official sources.
+5. Separate verified facts from unknown or unverified statements.
+6. Build an evidence ledger linking claims to source or runtime artifacts.
+7. Produce one JSON report, embedded Markdown, and a stable GUI model.
+8. Mark the report `final` only when runtime status is `cleanup_verified`; otherwise keep it `interim`.
 
 ## Required report sections
 
 - Candidate and official source.
 - One-sentence conclusion.
 - Skill 3 evaluation.
+- PoC 成本估算報價單.
 - Skill 4 validation and runtime checks.
 - Verified facts.
 - Unknown or insufficiently supported claims.
@@ -48,6 +50,8 @@ Reuse `agentic_cloud_radar/s5.py`.
 ## Claim rules
 
 - A named-human cost ceiling is not an official price.
+- A public-price quotation is a non-binding estimate, not an AWS invoice or formal AWS sales quote.
+- Do not omit zero-charge recipe resources, usage assumptions, exclusions or source URLs.
 - `CREATE_COMPLETE` is deployment evidence, not cleanup evidence.
 - Automated checks do not replace Console review.
 - Sandbox evidence proves only the tested recipe and workload; do not generalize it to every environment.

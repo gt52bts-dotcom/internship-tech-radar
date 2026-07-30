@@ -63,6 +63,38 @@ class Skill5Tests(unittest.TestCase):
         self.assertEqual(report["status"], "incomplete_artifacts")
         self.assertIn("artifact_run_id_mismatch", report["input_issues"])
 
+    def test_itemized_quote_is_rendered_in_markdown_and_gui(self):
+        from agentic_cloud_radar.costing import build_cost_quote
+
+        candidate = {
+            "candidate_id": "C3",
+            "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+            "source_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+            "weighted_score": 4.4,
+            "confidence": "medium",
+            "recommend_low_risk_validation": True,
+            "eligible_for_poc_review": True,
+            "region_status": {"status": "available_ap_southeast_1"},
+            "evidence_refs": {"evidence_limits": []},
+        }
+        quote = build_cost_quote(candidate, "run-3", "ap-southeast-1")
+        candidate["cost_estimate"] = {
+            "status": quote["status"],
+            "estimated_usd": quote["expected_total_usd"],
+            "quote_id": quote["quote_id"],
+            "quote": quote,
+        }
+        s1 = {"stage": "S1", "run_id": "run-3", "candidates": [{"candidate_id": "C3"}]}
+        s2 = {"stage": "S2", "run_id": "run-3", "candidates": [candidate]}
+        s3 = {"stage": "S3", "run_id": "run-3", "evaluated_candidates": [candidate]}
+
+        report = build_report(s1, s2, s3)
+
+        self.assertIn("## PoC 成本估算報價單", report["markdown"])
+        self.assertIn("預期總額", report["markdown"])
+        self.assertEqual(report["cost_quote"]["expected_total_usd"], 0.04719)
+        self.assertEqual(report["gui_model"]["cost_quote"]["recommended_approval_ceiling_usd"], 0.2)
+
 
 if __name__ == "__main__":
     unittest.main()

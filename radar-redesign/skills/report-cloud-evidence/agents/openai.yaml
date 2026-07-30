@@ -1,4 +1,4 @@
 interface:
   display_name: "Skill 5 · Report"
-  short_description: "Report verified cloud evidence without overclaiming"
-  default_prompt: "Use $report-cloud-evidence to produce a traceable report from Skill 1 through Skill 4 artifacts."
+  short_description: "Report evidence with an itemized PoC cost quotation"
+  default_prompt: "Use $report-cloud-evidence to produce a traceable Skill 1 through Skill 4 report including the recorded PoC cost quotation."

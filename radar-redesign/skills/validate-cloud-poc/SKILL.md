@@ -1,6 +1,6 @@
 ---
 name: validate-cloud-poc
-description: Validate an evaluated cloud candidate with low-risk checks or a controlled AWS PoC while preserving artifact lineage and a short human gate. Use for Skill 4 validation, CDK or CloudFormation review, named-human approval, runtime evidence, Console review, or run-scoped cleanup without requiring custom environment configuration.
+description: Independently validate an evaluated cloud candidate, its cost quotation, and either low-risk checks or a controlled AWS PoC while preserving artifact lineage and a short human gate. Use for Skill 4 validation, quote-versus-ceiling checks, CDK or CloudFormation review, named-human approval, runtime evidence, Console review, or run-scoped cleanup without requiring custom environment configuration.
 ---
 
 # Skill 4 · Validate
@@ -34,6 +34,7 @@ Require all of the following:
 - Matching S1/S2/S3 lineage and artifact hashes.
 - Skill 3 `eligible_for_poc_review=true`.
 - A registered candidate-specific recipe.
+- A recorded quote artifact; where a registered rate model exists, its high-use estimate must stay within the approved sandbox ceiling.
 - Named human approval and `deployment_authorized=true`.
 - A second explicit CLI `--execute`.
 
@@ -63,7 +64,7 @@ python -m agentic_cloud_radar.cli s4-cleanup `
 
 ## Workflow
 
-1. Validate lineage and approval before contacting AWS.
+1. Validate lineage, quote status, estimated range, validity and approval before contacting AWS.
 2. Synthesize the candidate recipe and inspect CloudFormation.
 3. Create only run-derived sandbox resources.
 4. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
@@ -77,6 +78,8 @@ python -m agentic_cloud_radar.cli s4-cleanup `
 - Lambda self-managed S3 code storage with versioned artifact, `REFERENCE` mode, and invoke verification.
 
 Unknown candidates must stop at `needs_poc_recipe`.
+
+The fixed sandbox ceiling is a policy control, not a quotation. Do not substitute it for missing rates.
 
 ## Validation
 
