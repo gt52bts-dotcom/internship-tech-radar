@@ -87,6 +87,14 @@
 - Validate +1：編譯通過，但正式重跑單元測試有失敗，僅計入問題發現與驗證邊界，未計入 AWS 資源驗證。
 - Report +1：保留可追溯的規則與限制整理；尚未產出正式最終報告。
 
+## 2026-07-30 評分理由
+
+- Scan +2：以 AWS 官方 S3 Files URL 產出可追溯掃描 artifact。
+- Compare +2：完成官方 Region／pricing 證據連結、候選比較與人工 shortlist 停點。
+- Evaluate +2：導入 s3.evaluation.v3，完成人工 shortlist 評估並串接可稽核 PoC quote。
+- Validate +2：完成不建立資源的低風險驗證，並取得既有 Lambda PoC 的 Console 架構與 CREATE_COMPLETE 人工檢視證據。
+- Report +2：產出 S5 interim report、五個 Skill 交付說明與報價限制，保留 runtime、帳務與 cleanup 未驗證界線。
+
 ## 2026-07-29 評分理由
 
 - Scan +2：保留 AWS Blog 分類深挖，並以 Lambda 官方 URL 建立第二條可追溯候選 lineage。
