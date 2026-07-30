@@ -618,3 +618,11 @@
 - Skill 2 產出 `radar-redesign/out/s2-lambda-self-managed-20260730.json`：同一 run、status=`ready_for_human_shortlist`、候選可進人工 shortlist；官方開發者文件已抓取，pricing 與 `ap-southeast-1` 功能級可用性仍為未知，因此 Region warning 不阻擋 Skill 3，但會阻擋未補證據的付費 PoC。
 - 品質限制：Skill 2 的 AWS 官方搜尋另附帶找到兩篇 Lambda Managed Instances 頁面，與 self-managed S3 code storage 不是同一功能；本次不得用來支持候選的 Region、pricing 或能力結論。現有規則沒有因此升級 Region／pricing 狀態，但後續應收緊 supplemental search relevance。
 - 驗證：`python -m unittest tests.test_s1 tests.test_s2 -v` 共 8 項全部通過。依 Cleo 指示未執行 Skill 3、Skill 4 或建立 AWS 資源。
+
+### Lambda 候選 Skill 3 人工選擇與評估
+
+- Cleo 明確選擇候選 `S1-8B46A6CB0E6E` 進入 Skill 3，並指定目前沒有公司問題脈絡；shortlist 只記錄 `selected_by=Cleo`，`problem_to_solve`、`available_environment`、`forbidden_data_and_permissions` 均保持未提供。
+- Skill 3 產出 `radar-redesign/out/s3-lambda-self-managed-20260730.json`：同一 run=`direct-url-20260730-5c61bfa2`、status=`evaluated`、weighted score=`3.35/5`、confidence=`medium`。
+- 分項：technical value=`4`、adoption prerequisites=`1`、verifiability=`5`、risk and stop conditions=`3`。成本=`unknown`、Region=`region_unknown`，治理旗標=`forbidden_boundary_not_specific`。
+- `recommend_s4=false`；原因是公司問題、可用非 production 環境與禁止資料／權限邊界未提供，加上 pricing 與功能級 Singapore 證據仍不足。依 Cleo 指示停在 Skill 3，未執行 Skill 4 或建立 AWS 資源。
+- 驗證：Skill 3 的人工 shortlist、Region warning 與 optional context 缺省三項測試全部通過。
