@@ -675,3 +675,14 @@
 - 另以只有 `approved_by=Cleo`、candidate ID、`deployment_authorized=true` 與 S1/S2/S3 lineage 的最小 approval 建立部署 context：status=`ready_for_manual_deployment`、recipe=`s3_files_cdk`、預設 Region=`ap-southeast-1`、AWS profile=`intern`（只屬內部實作設定）。本次未加 `--execute`，沒有建立或修改 AWS 資源。
 - 驗證：核心 `compileall`、GUI `node --check`、完整 22 項 unittest、Claude GUI handoff 的 Python compile 與 JavaScript syntax check 均通過。五個 Skill 的官方 `quick_validate.py` 因執行環境缺少其 `PyYAML` 相依套件而無法啟動；未擅自安裝套件，這不是內容驗證失敗。
 - 目標關係：直接扣回五個 Skill 的日常可用性、決策一致性與 GUI 操作簡化。
+
+### S3 Files 一般版 Skill 1～Skill 5 fresh run
+
+- Cleo 再次指定 AWS 官方文章 `https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/`，要求以修改後的一般版 Skill 1～Skill 5 完整重跑。新 run=`direct-url-20260730-7339a0b8`、candidate=`S1-292428E1335D`。
+- Skill 1 產出 `radar-redesign/out/s1-s3-files-general-20260730-161842.json`：status=`scanned_with_gaps`、候選數 1；官方文章抓取成功。Skill 2 產出同名 S2 artifact：status=`ready_for_human_shortlist`，AWS 官方使用文件、掛載文件與 S3 pricing 頁均有實抓證據，Region=`available_ap_southeast_1`。
+- Cleo 的指定文章視為本輪人工 shortlist；Skill 3 schema=`s3.evaluation.v3`、score=`4.4/5`、confidence=`medium`，分項為 technical value 4、adoption prerequisites 4、verifiability 5、risk and stop conditions 5；`recommend_low_risk_validation=true`、`eligible_for_poc_review=true`。
+- Skill 4 產出 `validated_low_risk`，summary 明確記錄 `cloud_resources_created=false`、`automatic_poc_start=false`。本輪沒有 approval、沒有 `--execute`、沒有 CloudFormation／runtime／Console review／cleanup 證據。
+- Skill 5 產出 `radar-redesign/out/s5-s3-files-general-20260730-161842.json` 與 `.md`：status=`interim`；結論為公開證據已達 PoC 審查門檻，但尚無完整 runtime 證據。
+- 本輪發現並修正 S2 的錯誤絕對敘述：原本所有候選都會被寫成「沒有已登錄 recipe」，與 S3 Files 實際已有 recipe 矛盾；改為部署前必須由 Skill 4 解析候選專用 recipe、成本上限與 cleanup gate 的條件式提醒，並新增回歸 assertion。
+- 驗證：完整 22 項 unittest、Python compile、主版與 Claude handoff JavaScript syntax、`git diff --check` 均通過。
+- 目標關係：直接扣回五個 Skill 的一般版端到端可用性與報告一致性；不是新的 AWS live PoC。

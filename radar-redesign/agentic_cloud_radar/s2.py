@@ -734,8 +734,8 @@ def _proposal_card(
             "after_measurements": metrics["after"],
             "minimum_success_evidence": metrics["success"],
             "stop_conditions": [
-                "The candidate has no registered reproducible PoC recipe.",
-                "The standard small-cost ceiling or cleanup guarantee cannot be met.",
+                "Skill 4 must resolve a candidate-specific registered PoC recipe before deployment.",
+                "The standard small-cost ceiling and cleanup guarantee must pass before deployment.",
             ],
             "next_stage_question": dimensions["unknowns_and_next_validation_question"]["next_question"],
         },

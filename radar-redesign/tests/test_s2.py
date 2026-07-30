@@ -56,6 +56,12 @@ class S2CompareTests(unittest.TestCase):
         self.assertIn("improvement_hypothesis", card)
         self.assertIn("tradeoffs_and_risks", card)
         self.assertIn("validation_design", card)
+        stop_conditions = card["validation_design"]["stop_conditions"]
+        self.assertNotIn("The candidate has no registered reproducible PoC recipe.", stop_conditions)
+        self.assertIn(
+            "Skill 4 must resolve a candidate-specific registered PoC recipe before deployment.",
+            stop_conditions,
+        )
         self.assertEqual(result["candidates"][0]["linked_evidence"]["primary_source"]["status"], "refetched")
         self.assertEqual(
             result["shortlist_policy"]["target_region"],
