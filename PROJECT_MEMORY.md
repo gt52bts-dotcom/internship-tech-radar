@@ -20,6 +20,13 @@
 - Each Skill has its own `SKILL.md` and `agents/openai.yaml`, but all five must reuse the tested `agentic_cloud_radar/` core rather than copying business logic into Skill folders.
 - The repository version is the source of truth for Mentor review and cross-computer continuity. Personal installation under `$CODEX_HOME/skills` is optional and must not replace the Git copy.
 
+## 2026-07-30 Skill 3 / Skill 4 Decision Model Gap
+
+- The current single `recommend_s4` field conflates two different decisions: whether a candidate merits low-risk document/local validation, and whether it is eligible for paid AWS PoC review.
+- This caused the same Lambda self-managed S3 code storage technology to appear contradictory across runs: a context-rich run recommended the lowest-risk Skill 4 path, while a context-free run rejected Skill 4 because deployment governance boundaries were missing.
+- Future schema work should separate at least `recommend_low_risk_validation` from `eligible_for_paid_poc_review`. Paid-PoC eligibility must independently require problem context, environment, forbidden data/permissions, feature-level Region evidence, cost ceiling, success criteria, and cleanup scope.
+- Until fixed, never interpret `recommend_s4` alone as either intrinsic technical value or deployment authorization. Read recommendation reason, validation path, governance flags, Region, cost, and approval artifact together.
+
 ## Presentation Schedule
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.

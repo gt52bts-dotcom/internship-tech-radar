@@ -626,3 +626,12 @@
 - 分項：technical value=`4`、adoption prerequisites=`1`、verifiability=`5`、risk and stop conditions=`3`。成本=`unknown`、Region=`region_unknown`，治理旗標=`forbidden_boundary_not_specific`。
 - `recommend_s4=false`；原因是公司問題、可用非 production 環境與禁止資料／權限邊界未提供，加上 pricing 與功能級 Singapore 證據仍不足。依 Cleo 指示停在 Skill 3，未執行 Skill 4 或建立 AWS 資源。
 - 驗證：Skill 3 的人工 shortlist、Region warning 與 optional context 缺省三項測試全部通過。
+
+### Skill 3／Skill 4 單一建議欄位造成前後矛盾
+
+- Cleo 發現同一項 Lambda self-managed S3 code storage 技術在 2026-07-29 得到 `recommend_s4=true`，2026-07-30 重跑卻得到 `recommend_s4=false`，要求將此問題正式記錄。
+- 差異有可解釋的輸入原因：昨天使用 AWS What's New 的「所有商業 AWS 區域」證據，並提供 intern 非 production 環境、具體問題與禁止資料／權限邊界；今天使用 Compute Blog，Region 證據為 unknown，且依 Cleo 指示不提供公司問題脈絡，因此分數由 4.0 降至 3.35 並出現 `forbidden_boundary_not_specific`。
+- 但目前資料模型仍有實質設計缺口：單一 `recommend_s4` 同時代表「是否值得做文件／本機／低風險驗證」與「是否具備付費 AWS PoC 審查資格」，容易讓使用者把低風險研究建議誤讀成部署核准，或把缺少部署邊界誤讀成技術不值得繼續研究。
+- 建議修正介面：至少拆成 `recommend_low_risk_validation` 與 `eligible_for_paid_poc_review`；前者依技術價值與可驗證性判斷，後者另要求問題脈絡、可用環境、禁止資料／權限、功能級 Region 證據、成本上限、成功條件與 cleanup 範圍。
+- 修正前的判讀規則：`recommend_s4` 不能單獨作為技術價值或 PoC 核准結論，必須同時閱讀 recommendation reason、validation path、governance flags、Region、cost 與 approval artifact。
+- 狀態：已記錄，尚未修改程式與 schema；應在第一版 Mentor review package 中列為已知限制，並在變更前補回歸測試與既有 artifact 相容策略。
