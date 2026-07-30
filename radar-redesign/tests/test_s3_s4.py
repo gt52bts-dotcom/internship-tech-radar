@@ -4,10 +4,18 @@ import hashlib
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from agentic_cloud_radar.s3 import build_evaluate
 from agentic_cloud_radar.s4 import build_validate
-from agentic_cloud_radar.s4_deployer import _matches_run_identity, build_deployment_context, record_console_review
+from agentic_cloud_radar.s4_deployer import (
+    DeploymentError,
+    _get_s3_object_with_retry,
+    _matches_run_identity,
+    _stack_status_or_none,
+    build_deployment_context,
+    record_console_review,
+)
 
 
 def _sample_s2():
@@ -248,6 +256,30 @@ class S3S4Tests(unittest.TestCase):
 
         self.assertEqual(context["status"], "ready_for_manual_deployment")
         self.assertEqual(context["deployment"]["recipe"], "lambda_self_managed_s3_code_storage_cdk")
+
+    @patch("agentic_cloud_radar.s4_deployer._aws_json")
+    def test_existing_complete_stack_can_resume_verification(self, aws_json):
+        aws_json.return_value = {"Stacks": [{"StackStatus": "CREATE_COMPLETE"}]}
+
+        self.assertEqual(_stack_status_or_none("Example", "intern", "ap-southeast-1"), "CREATE_COMPLETE")
+
+    @patch("agentic_cloud_radar.s4_deployer.time.sleep")
+    @patch("agentic_cloud_radar.s4_deployer._aws")
+    def test_s3_files_readback_retries_eventual_no_such_key(self, aws, sleep):
+        aws.side_effect = [DeploymentError("NoSuchKey"), ""]
+
+        _get_s3_object_with_retry(
+            "example-bucket",
+            "poc/from-mount.txt",
+            Path("from-mount.txt"),
+            "intern",
+            "ap-southeast-1",
+            attempts=2,
+            interval_seconds=1,
+        )
+
+        self.assertEqual(aws.call_count, 2)
+        sleep.assert_called_once_with(1)
 
 
 if __name__ == "__main__":

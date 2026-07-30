@@ -166,10 +166,10 @@
     {
       "date": "2026-07-30",
       "scores": {
-        "scan": 2,
-        "compare": 2,
+        "scan": 1,
+        "compare": 1,
         "evaluate": 2,
-        "validate": 2,
+        "validate": 4,
         "report": 2
       }
     }

@@ -19,11 +19,11 @@
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 19 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
-| Skill 2 - Compare | 17 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
+| Skill 1 - Scan | 18 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
+| Skill 2 - Compare | 16 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
 | Skill 3 - Evaluate | 20 | 已把成本、權限、安全、GA 證據、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 31 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC；Lambda PoC 已完成架構與 CREATE_COMPLETE 的 Console 檢視，runtime 與 cleanup 仍待確認。 |
-| Skill 5 - Report | 20 | 已能產出 artifact-only interim report、教學書、證據包與主管可讀入口。 |
+| Skill 4 - Validate | 33 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC；今日 S3 Files 雙向驗證、Console review、cleanup 與獨立回查通過。 |
+| Skill 5 - Report | 20 | 已能產出 artifact-only final／interim report、教學書、證據包與主管可讀入口。 |
 
 ## 每日趨勢
 
@@ -42,11 +42,11 @@
 | 2026-07-27 | 2 | 1 | 1 | 3 | 2 | 9 |
 | 2026-07-28 | 3 | 2 | 1 | 1 | 1 | 8 |
 | 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 |
-| 2026-07-30 | 2 | 2 | 2 | 2 | 2 | 10 |
+| 2026-07-30 | 1 | 1 | 2 | 4 | 2 | 10 |
 
 ## 今日判定
 
-2026-07-30 的核心成果是將 S1-S5 核心正式包裝為五個可重用 Skill，完成 S3 Files artifact chain、公開牌價 PoC quote 與 Lambda PoC 的人工 Console 架構／CREATE_COMPLETE 檢視。Lambda runtime 細節、實際帳務與 cleanup 仍待確認。
+2026-07-30 的核心成果是將 S1-S5 核心正式包裝為五個可重用 Skill，並以 S3 Files fresh run 完成 artifact chain、公開牌價 PoC quote、CloudFormation、掛載、雙向資料驗證、Cleo Console review、cleanup 與 Skill 5 final report。實際帳務成本仍待 AWS 帳務資料核對。
 
 ## 相關檔案
 

@@ -67,10 +67,12 @@ python -m agentic_cloud_radar.cli s4-cleanup `
 1. Validate lineage, quote status, estimated range, validity and approval before contacting AWS.
 2. Synthesize the candidate recipe and inspect CloudFormation.
 3. Create only run-derived sandbox resources.
-4. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
-5. Pause for the named human to inspect CloudFormation and service-specific Console pages.
-6. Run cleanup only after confirmed review and only for the reviewed run.
-7. Re-query stack, bucket, compute, and candidate-specific resources; mark cleanup verified only from evidence.
+4. If the same run-derived stack is already `CREATE_COMPLETE`, resume its verification instead of creating duplicate resources.
+5. Treat candidate-service propagation as eventually consistent: use a bounded retry for expected transient read-back gaps, and fail after the timeout.
+6. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
+7. Pause for the named human to inspect CloudFormation and service-specific Console pages.
+8. Run cleanup only after confirmed review and only for the reviewed run.
+9. Re-query stack, bucket, compute, and candidate-specific resources; mark cleanup verified only from evidence.
 
 ## Registered recipes
 

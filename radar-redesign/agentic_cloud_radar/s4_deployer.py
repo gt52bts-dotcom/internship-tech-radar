@@ -146,23 +146,29 @@ def execute_deployment(context: dict[str, Any]) -> dict[str, Any]:
     stack_name = str(deployment["stack_name"])
 
     _aws(["cloudformation", "validate-template", "--template-body", f"file://{template_path}"], profile, region)
-    _aws(
-        [
-            "cloudformation",
-            "create-stack",
-            "--stack-name",
-            stack_name,
-            "--template-body",
-            f"file://{template_path}",
-            "--capabilities",
-            "CAPABILITY_IAM",
-            "--on-failure",
-            "DELETE",
-        ],
-        profile,
-        region,
-    )
-    _aws(["cloudformation", "wait", "stack-create-complete", "--stack-name", stack_name], profile, region)
+    stack_status = _stack_status_or_none(stack_name, profile, region)
+    if stack_status is None:
+        _aws(
+            [
+                "cloudformation",
+                "create-stack",
+                "--stack-name",
+                stack_name,
+                "--template-body",
+                f"file://{template_path}",
+                "--capabilities",
+                "CAPABILITY_IAM",
+                "--on-failure",
+                "DELETE",
+            ],
+            profile,
+            region,
+        )
+        _aws(["cloudformation", "wait", "stack-create-complete", "--stack-name", stack_name], profile, region)
+    elif stack_status == "CREATE_IN_PROGRESS":
+        _aws(["cloudformation", "wait", "stack-create-complete", "--stack-name", stack_name], profile, region)
+    elif stack_status != "CREATE_COMPLETE":
+        raise DeploymentError(f"Existing PoC stack cannot resume verification from status {stack_status}.")
     outputs = _stack_outputs(stack_name, profile, region)
     verification = _verify_recipe(recipe, context, outputs, work_dir)
 
@@ -403,7 +409,9 @@ def _verify_recipe(recipe: PocRecipe, context: dict[str, Any], outputs: dict[str
     if invocation.get("Status") != "Success":
         raise DeploymentError("SSM validation command did not succeed.")
     round_trip_file = work_dir / "from-mount.txt"
-    _aws(["s3api", "get-object", "--bucket", outputs["BucketName"], "--key", "poc/from-mount.txt", str(round_trip_file)], profile, region)
+    _get_s3_object_with_retry(
+        outputs["BucketName"], "poc/from-mount.txt", round_trip_file, profile, region
+    )
     expected = f"S4 mount-to-S3 verification for run {context['run_id']}"
     if expected not in round_trip_file.read_text(encoding="utf-8"):
         raise DeploymentError("S3 read-back did not contain the mount-to-S3 verification marker.")
@@ -517,6 +525,37 @@ def _stack_outputs(stack_name: str, profile: str, region: str) -> dict[str, str]
     if not stacks:
         raise DeploymentError("CloudFormation did not return stack outputs.")
     return {str(item.get("OutputKey")): str(item.get("OutputValue")) for item in stacks[0].get("Outputs") or []}
+
+
+def _stack_status_or_none(stack_name: str, profile: str, region: str) -> str | None:
+    try:
+        payload = _aws_json(["cloudformation", "describe-stacks", "--stack-name", stack_name], profile, region)
+    except DeploymentError as exc:
+        if "does not exist" in str(exc):
+            return None
+        raise
+    stacks = payload.get("Stacks") or []
+    return str(stacks[0].get("StackStatus") or "") if stacks else None
+
+
+def _get_s3_object_with_retry(
+    bucket_name: str,
+    key: str,
+    output_path: Path,
+    profile: str,
+    region: str,
+    attempts: int = 30,
+    interval_seconds: int = 20,
+) -> None:
+    for attempt in range(attempts):
+        try:
+            _aws(["s3api", "get-object", "--bucket", bucket_name, "--key", key, str(output_path)], profile, region)
+            return
+        except DeploymentError as exc:
+            if "NoSuchKey" not in str(exc) or attempt == attempts - 1:
+                raise
+            time.sleep(interval_seconds)
+    raise DeploymentError("S3 Files did not export the mount-written object before the validation timeout.")
 
 
 def _stack_resource_physical_id(stack_name: str, logical_id: str, profile: str, region: str) -> str:

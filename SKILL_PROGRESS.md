@@ -33,7 +33,8 @@
 | 2026-07-27 | 2 | 1 | 1 | 3 | 2 | 9 | direct |
 | 2026-07-28 | 3 | 2 | 1 | 1 | 1 | 8 | direct |
 | 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 | direct |
-| **累積** | **17** | **15** | **18** | **29** | **18** | **97** |  |
+| 2026-07-30 | 1 | 1 | 2 | 4 | 2 | 10 | direct |
+| **累積** | **18** | **16** | **20** | **33** | **20** | **107** |  |
 
 ## 2026-07-21 評分理由
 
@@ -45,7 +46,7 @@
 
 ## 當前狀態
 
-截至 2026-07-29，累積總分為 97。S1-S5 已可用公開 AWS URL 產出可追溯 artifact；S3 Files 隔離 PoC 已完成部署、回驗與 cleanup，Lambda self-managed code storage PoC 已完成 CloudFormation、REFERENCE 設定與 invoke 驗證，但仍待 Cleo Console review 與 cleanup。兩者皆為 intern 非 production 環境證據。
+截至 2026-07-30，累積總分為 107。S1-S5 已整理為五個 repository-backed Skills。今日 S3 Files fresh run 已完成 CloudFormation `CREATE_COMPLETE`、掛載、S3→mount、mount→S3、Cleo Console review、cleanup 與獨立回查；Skill 5 已產出 final report。這些只代表隔離測試證據，不外推到未測環境。
 
 ## 2026-07-24 評分理由
 
@@ -89,11 +90,11 @@
 
 ## 2026-07-30 評分理由
 
-- Scan +2：以 AWS 官方 S3 Files URL 產出可追溯掃描 artifact。
-- Compare +2：完成官方 Region／pricing 證據連結、候選比較與人工 shortlist 停點。
+- Scan +1：以 AWS 官方 S3 Files URL 產出具 lineage 的候選 artifact。
+- Compare +1：以官方文件確認使用條件、新加坡可用性與 pricing 來源。
 - Evaluate +2：導入 s3.evaluation.v3，完成人工 shortlist 評估並串接可稽核 PoC quote。
-- Validate +2：完成不建立資源的低風險驗證，並取得既有 Lambda PoC 的 Console 架構與 CREATE_COMPLETE 人工檢視證據。
-- Report +2：產出 S5 interim report、五個 Skill 交付說明與報價限制，保留 runtime、帳務與 cleanup 未驗證界線。
+- Validate +4：新 S3 Files stack 達 `CREATE_COMPLETE`，掛載、雙向資料、人工 Console review 與 cleanup 回查通過；另修正同步延遲的有限重試與同 stack 續驗。
+- Report +2：產出包含完整報價、runtime、人工覆核與 cleanup 證據的 S5 final report，並保留實際帳務尚待核對的界線。
 
 ## 2026-07-29 評分理由
 

@@ -22,7 +22,8 @@
     .score{font-size:38px;font-weight:800}.unit{font-size:12px;color:var(--muted)}
     .legend{display:grid;gap:9px;font-size:13px}.legend-row{display:grid;grid-template-columns:11px 1fr auto;gap:8px;align-items:center}
     .dot{width:10px;height:10px;border-radius:50%}.val{font-variant-numeric:tabular-nums;font-weight:700}
-    .scroll{overflow-x:auto;padding:8px 4px 10px;border-bottom:1px solid var(--line)}
+    .scroll{overflow-x:auto;padding:8px 4px 10px;border-bottom:1px solid var(--line);cursor:grab;user-select:none}
+    .scroll.dragging{cursor:grabbing}
     .bars{display:flex;gap:22px;align-items:end;min-width:max-content;height:270px;padding:10px 10px 0}
     .day{width:54px;height:235px;display:flex;flex-direction:column;justify-content:end;align-items:center}
     .stack{width:38px;display:flex;flex-direction:column-reverse;border-radius:6px 6px 2px 2px;overflow:hidden;background:#ebecf0;box-shadow:inset 0 0 0 1px #dfe1e6}
@@ -82,11 +83,17 @@ const scoreData=[
   {date:'2026-07-21',scores:{scan:1,compare:1,evaluate:2,validate:4,report:1}},
   {date:'2026-07-22',scores:{scan:1,compare:1,evaluate:2,validate:2,report:2}},
   {date:'2026-07-23',scores:{scan:1,compare:1,evaluate:1,validate:1,report:1}},
-  {date:'2026-07-24',scores:{scan:0,compare:0,evaluate:1,validate:0,report:3}}
+  {date:'2026-07-24',scores:{scan:0,compare:0,evaluate:1,validate:0,report:3}},
+  {date:'2026-07-27',scores:{scan:2,compare:1,evaluate:1,validate:3,report:2}},
+  {date:'2026-07-28',scores:{scan:3,compare:2,evaluate:1,validate:1,report:1}},
+  {date:'2026-07-29',scores:{scan:2,compare:2,evaluate:1,validate:4,report:1}},
+  {date:'2026-07-30',scores:{scan:1,compare:1,evaluate:2,validate:4,report:2}}
 ];
 const fmt=n=>Number(n.toFixed(2)).toString();
 const total=d=>skills.reduce((s,k)=>s+(d.scores[k.id]||0),0);
 const select=document.querySelector('#dateSelect');
+const scroll=document.querySelector('#scroll');
+let dragging=false,dragStartX=0,dragStartLeft=0;
 scoreData.forEach(d=>{const o=document.createElement('option');o.value=d.date;o.textContent=d.date;select.appendChild(o)});
 select.value=scoreData.at(-1).date;
 function renderDay(date){
@@ -119,6 +126,13 @@ function renderCum(){
   document.querySelector('#cumulative').innerHTML=skills.map(k=>`<div class="cum-row"><div class="skill-name">${k.label}</div><div class="track"><div class="fill" style="width:${sums[k.id]/max*100}%;background:${k.color}"></div></div><div class="cum-val">${fmt(sums[k.id])}</div></div>`).join('');
 }
 select.addEventListener('change',e=>renderDay(e.target.value));
+scroll.addEventListener('pointerdown',e=>{
+  dragging=true;dragStartX=e.clientX;dragStartLeft=scroll.scrollLeft;
+  scroll.classList.add('dragging');scroll.setPointerCapture(e.pointerId);
+});
+scroll.addEventListener('pointermove',e=>{if(dragging)scroll.scrollLeft=dragStartLeft-(e.clientX-dragStartX)});
+scroll.addEventListener('pointerup',()=>{dragging=false;scroll.classList.remove('dragging')});
+scroll.addEventListener('pointercancel',()=>{dragging=false;scroll.classList.remove('dragging')});
 renderDay(select.value);
 renderBars();
 renderCum();

@@ -44,6 +44,18 @@
 - 報價一律標示為依 AWS 公開牌價與明列用量假設產生的非約束性估算，不是 AWS 帳單、發票或正式 AWS 銷售報價；實際費用須在部署後以 AWS 帳務資料核對。
 - S3 Files 第一版費率模型使用 `ap-southeast-1` 公開牌價，預期情境為 2 小時／0.10 GB，高情境為 4 小時／0.50 GB；建議核准上限取高情境向上進位，不以 USD 3 固定 ceiling 冒充估價。
 
+## 2026-07-30 Estimated vs Actual Cost Decision
+
+- Cleo 要求新版 Skill 5 在 PoC 後比較「部署前預估成本」與「AWS 可歸因的實際帳務成本」，並顯示金額差異、百分比差異、資料期間、歸因方法與帳務證據狀態。
+- 實際成本只能來自 AWS Billing、Cost Explorer、CUR 或其他可回查帳務資料；不得用執行時間乘公開牌價冒充實際費用。若帳務資料尚未入帳或無法歸因到該 run，Skill 5 必須標示 `pending`／`not attributable`。
+- 這項工作預定 2026-07-31 08:00 開始；先補 schema、renderer 與測試，再以可取得的帳務證據回填。
+
+## 2026-07-30 Active S3 Files S4 PoC
+
+- Fresh run=`direct-url-20260730-7339a0b8`，stack=`AgenticRadarS44D39751A`，Region=`ap-southeast-1`。
+- 已驗證：CloudFormation `CREATE_COMPLETE`、S3 Files 掛載、S3→mount、mount→S3 與 SSM `Success`。首次立即回讀遇到同步延遲，驗證器已加入有限重試與同 stack 續驗。
+- Cleo 已完成新 stack 的 Console review；run-scoped cleanup 與獨立回查完成。CloudFormation stack 不存在、S3 Files file system 0、run-prefix bucket／IAM role 0、測試 EC2 terminated，Skill 5 status=`final`、conclusion=`validated_and_cleaned`。
+
 ## Presentation Schedule
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.
