@@ -587,6 +587,7 @@
 ### 人壽高管交流活動
 
 - Cleo 上午參加人壽高管交流活動。第一階段與數理精算的凃薏如副總交流；凃副總分享自己在國泰歷經七個部門的經驗，並鼓勵實習生多做跨領域嘗試。
+- 凃副總也分享職涯觀點：能升遷的人需要展現一定的企圖心，不能只停留在「乖巧、好配合、很好用」的角色。晚間日誌應以個人交流心得呈現，不能延伸為國泰正式升遷制度或主管評分標準。
 - 第二階段與財務金融的林士喬副總交流。現場討論包含許多 Cleo 尚不熟悉的財務金融專有名詞，前段氣氛較嚴肅、互動也較拘謹；此處只記錄參與與觀察，不延伸成未實際理解的專業學習成果。
 - Cleo 最後主動詢問林副總「在這裡工作開心嗎？」林副總笑著回應，自己不是容易開心的人，但在工作中很有成就感，因此整體感受也算不錯。這個提問讓原本嚴肅的交流出現較自然、真誠的互動。
 - 今天也認識一位新朋友；午餐與朋友共五人一起吃越式料理。這屬於實習期間的人際連結與組織融入證據，不屬於技術雷達五個 Skill 的直接成果，晚間計分不可灌入技術進度。
@@ -609,3 +610,11 @@
 - 五個 Skill 共用 `agentic_cloud_radar/` 已測試核心，不在 Skill 資料夾複製執行邏輯；repository 版本作為 Mentor review 與跨電腦交付的 source of truth，個人安裝可日後另做。
 - 驗證：`skill-creator` 的 `quick_validate.py` 對五個 Skill 皆回報 `Skill is valid!`；`python -m unittest discover -s tests -v` 共 19 項全部通過。
 - 目標關係：直接扣回目標。這次完成的是五個可重用 Skill 的正式包裝與規則固化，不是新增 GUI 功能或 AWS 部署。
+
+### 使用正式 Skill 1／Skill 2 重跑 Lambda 官方 URL
+
+- Cleo 依新 Skill 使用方式，指定 AWS 官方 URL `https://aws.amazon.com/tw/blogs/compute/introducing-self-managed-amazon-s3-buckets-for-aws-lambda-function-code/`，要求只執行 Skill 1 與 Skill 2，完成後停在人工選擇。
+- Skill 1 產出 `radar-redesign/out/s1-lambda-self-managed-20260730.json`：run=`direct-url-20260730-5c61bfa2`、status=`scanned_with_gaps`、候選 `S1-8B46A6CB0E6E`；官方頁面抓取成功，規則偵測到 Amazon S3 與 Lambda，明確 GA 字樣未由本次來源證實。
+- Skill 2 產出 `radar-redesign/out/s2-lambda-self-managed-20260730.json`：同一 run、status=`ready_for_human_shortlist`、候選可進人工 shortlist；官方開發者文件已抓取，pricing 與 `ap-southeast-1` 功能級可用性仍為未知，因此 Region warning 不阻擋 Skill 3，但會阻擋未補證據的付費 PoC。
+- 品質限制：Skill 2 的 AWS 官方搜尋另附帶找到兩篇 Lambda Managed Instances 頁面，與 self-managed S3 code storage 不是同一功能；本次不得用來支持候選的 Region、pricing 或能力結論。現有規則沒有因此升級 Region／pricing 狀態，但後續應收緊 supplemental search relevance。
+- 驗證：`python -m unittest tests.test_s1 tests.test_s2 -v` 共 8 項全部通過。依 Cleo 指示未執行 Skill 3、Skill 4 或建立 AWS 資源。
