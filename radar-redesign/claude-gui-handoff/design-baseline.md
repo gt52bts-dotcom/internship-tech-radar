@@ -44,8 +44,8 @@ S2 的 purpose 是讓 Mentor 或使用者可以從同一張矩陣判斷「哪張
 
 - 每個候選都保留 source URL、是否真實 fetch、來源類型與 data gaps。
 - 官方 AWS 來源才能被用來證明 AWS GA；GitHub 等公開來源只證明該專案的公開存在與 metadata。
-- 價格、Region、公司環境、權限、cleanup 未查到時，輸出 unknown 或 requires verification。
-- `ap-southeast-1` 不再是 S2/S3 shortlist 硬門檻。S2 只標記 Region status：有功能級官方證據時為 `available_ap_southeast_1`，未查到時為 `region_unknown` warning；只有正式付費 S4 PoC 才要求 target Region 功能級證據，否則降級為低風險驗證。
+- 價格與 Region 未查到時，輸出 unknown 或 review note，不要求使用者補環境表單。
+- `ap-southeast-1` 不再是 shortlist 或 PoC 審查硬門檻。S2 只標記 Region status：有功能級官方證據時為 `available_ap_southeast_1`，未查到時為 `region_unknown` warning。
 - 只把 verified、implemented awaiting validation、estimated 三種主張分開寫。
 
 ## 6. 目前完整流程圖
@@ -101,50 +101,44 @@ flowchart TD
     CARD --> C4["region_status<br/>降級為 warning 不再擋路"]
     CARD --> C5["pricing<br/>無官方定價證據一律 unknown<br/>絕不估價"]
 
-    CARD --> MODE{"有 business_context 嗎"}
-    MODE -->|"無（landscape 模式）"| M1["只輸出證據帳本<br/>不排名 / 不給總分 / 不推薦"]
-    MODE -->|"有"| GATE
-
-    M1 --> GATE
-    GATE["Human Shortlist Gate<br/>真人最多挑 3 項<br/>並補三件事：<br/>想解決的問題 / 可用環境 /<br/>不可碰的資料與權限"]
+    CARD --> GATE
+    GATE["Human Shortlist Gate<br/>真人最多挑 3 項<br/>不需公司問題或環境表單"]
     GATE -->|"未提供"| GE1["needs_human_shortlist<br/>流程停在這裡"]
     GATE -->|"已提供"| S3
 
     S3["S3 Evaluate 固定 rubric<br/>不因候選調權重"]
-    S3 --> D1["技術價值 0.35<br/>是否解決實際問題"]
-    S3 --> D2["導入前提 0.25<br/>權限 / 架構 / 資料 / 安全<br/>region_status 在此扣分"]
+    S3 --> D1["技術價值 0.35<br/>公開來源支持的能力"]
+    S3 --> D2["導入前提 0.25<br/>文件 / 定價 / Region<br/>region_status 在此扣分"]
     S3 --> D3["可驗證性 0.25<br/>能否做最小 PoC 或文件驗證"]
     S3 --> D4["風險與停損 0.15<br/>stop conditions 必填"]
     S3 --> D5["成本不列入技術分數<br/>僅記錄估算<br/>供 S4 上限檢查"]
 
-    D1 --> S3O["S3 Evaluate Artifact<br/>加權分 / confidence /<br/>停損條件 / recommend_s4"]
+    D1 --> S3O["S3 Evaluate Artifact<br/>加權分 / confidence / stop conditions<br/>low-risk 與 PoC review 雙判斷"]
     D2 --> S3O
     D3 --> S3O
     D4 --> S3O
     D5 --> S3O
 
-    S3O --> S3Q{"recommend_s4"}
+    S3O --> S3Q{"recommend_low_risk_validation"}
     S3Q -->|"否"| S3N["保留評估結果<br/>標示不建議驗證原因<br/>仍進入 S5 報告"]
     S3Q -->|"是"| S4G
 
-    S4G["S4 Validate Gate<br/>真人核准：範圍 / 成本 /<br/>成功標準 / cleanup"]
+    S4G["S4 Validate Gate<br/>具名核准 + 選定候選<br/>其餘使用 recipe 預設"]
     S4G --> VT{"驗證類型"}
-    VT --> V1["低風險驗證<br/>文件驗證 / 本機 / validator artifact<br/>不需付費核准"]
-    VT --> V2["正式最小 PoC<br/>可能建立付費資源"]
-    VT --> V3["公司環境待驗證<br/>權限 / SCP / Region 阻擋"]
+    VT --> V1["低風險驗證<br/>文件驗證 / 本機 / validator artifact"]
+    VT --> V2["最小 PoC<br/>可能建立 AWS 資源"]
 
-    V2 --> V2C{"付費 PoC 三重檢查"}
-    V2C --> V2C1["region_status 必須是<br/>available_ap_southeast_1"]
-    V2C --> V2C2["estimated_usd <= max_small_poc_usd"]
-    V2C --> V2C3["approved_by 非空<br/>automatic_poc_start 恆 false"]
-    V2C1 --> V2R{"三項全過"}
+    V2 --> V2C{"簡化 PoC 檢查"}
+    V2C --> V2C1["eligible_for_poc_review"]
+    V2C --> V2C2["內建小額成本上限"]
+    V2C --> V2C3["approved_by 非空<br/>deployment_authorized=true"]
+    V2C1 --> V2R{"檢查全過"}
     V2C2 --> V2R
     V2C3 --> V2R
     V2R -->|"否"| V2X["降級為低風險驗證<br/>並記錄 downgrade 原因"]
     V2R -->|"是"| S4A
 
     V1 --> S4A
-    V3 --> S4A
     V2X --> S4A
     S4A["S4 Validate Artifact<br/>證據 / 測試結果 / 限制 /<br/>失敗原因 / cleanup 狀態"]
 

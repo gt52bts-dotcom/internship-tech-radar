@@ -1,4 +1,4 @@
 interface:
   display_name: "Skill 2 · Compare"
-  short_description: "Compare cloud candidates with source-bound evidence"
-  default_prompt: "Use $compare-cloud-candidates to compare an S1 candidate set and prepare evidence-based proposal cards."
+  short_description: "Compare cloud candidates with public evidence"
+  default_prompt: "Use $compare-cloud-candidates to compare cloud technologies using public evidence."

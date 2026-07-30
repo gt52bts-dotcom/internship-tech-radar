@@ -17,7 +17,7 @@ class Skill5Tests(unittest.TestCase):
                 "evidence_refs": {"evidence_limits": []},
             }],
         }
-        s4 = {"stage": "S4", "run_id": "run-1", "validated_candidates": [{"candidate_id": "C1", "validation_status": "paid_poc_ready_for_manual_start"}]}
+        s4 = {"stage": "S4", "run_id": "run-1", "validated_candidates": [{"candidate_id": "C1", "validation_status": "poc_ready_for_manual_start"}]}
         runtime = {
             "stage": "S4", "run_id": "run-1", "status": "awaiting_console_review",
             "deployment": {"stack_status": "CREATE_COMPLETE"},
@@ -46,7 +46,7 @@ class Skill5Tests(unittest.TestCase):
                 "weighted_score": 3.35,
                 "confidence": "medium",
                 "recommend_low_risk_validation": True,
-                "eligible_for_paid_poc_review": False,
+                "eligible_for_poc_review": False,
                 "recommend_s4": True,
             }],
         }
@@ -55,7 +55,7 @@ class Skill5Tests(unittest.TestCase):
 
         rows = dict(report["evaluation"]["rows"])
         self.assertEqual(rows["建議低風險 Skill 4 驗證"], "是")
-        self.assertEqual(rows["具備付費 PoC 審查資格"], "否")
+        self.assertEqual(rows["達到 PoC 審查門檻"], "否")
         self.assertEqual(report["conclusion"]["status"], "low_risk_validation_recommended")
 
     def test_mismatched_artifacts_are_reported_as_incomplete(self):

@@ -1,6 +1,6 @@
 """S4 controlled PoC deployment runner.
 
-The validator in :mod:`s4` decides whether a paid PoC may be reviewed. This
+The validator in :mod:`s4` decides whether a PoC may be reviewed. This
 module owns the later, explicit actions: prove S1/S2/S3 lineage, select a
 candidate-specific recipe, synthesize CDK, deploy through CloudFormation,
 run the recipe verification, wait for Console review, and clean up.
@@ -33,6 +33,11 @@ PROJECT_ROOT = RADAR_ROOT if (RADAR_ROOT / "poc").is_dir() else RADAR_ROOT.paren
 DEFAULT_PROFILE = "intern"
 DEFAULT_REGION = "ap-southeast-1"
 COMMAND_TIMEOUT_SECONDS = 900
+DEFAULT_CLEANUP_SCOPE = (
+    "Delete the run-derived CloudFormation stack.",
+    "Remove only test data owned by that stack.",
+    "Verify the stack and active test resources are gone.",
+)
 
 
 class DeploymentError(RuntimeError):
@@ -70,7 +75,7 @@ LAMBDA_SELF_MANAGED_STORAGE_RECIPE = PocRecipe(
     success_criteria=(
         "CloudFormation stack reaches CREATE_COMPLETE.",
         "The Lambda function is created with S3ObjectStorageMode=REFERENCE.",
-        "The function can be invoked from the non-production test account.",
+        "The function can be invoked from the sandbox test account.",
     ),
 )
 
@@ -95,7 +100,7 @@ def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any])
     suffix = hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:8]
     deployment = approval.get("deployment") or {}
     context = {
-        "schema_version": "s4.deployment-context.v2",
+        "schema_version": "s4.deployment-context.v3",
         "stage": "S4",
         "created_at": _now(),
         "run_id": run_id,
@@ -106,7 +111,6 @@ def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any])
         "authorization": {
             "approved_by": approval.get("approved_by"),
             "deployment_authorized": approval.get("deployment_authorized") is True,
-            "region_warning_acknowledged": approval.get("region_warning_acknowledged") is True,
             "automatic_poc_start": False,
             "approval_basis": approval.get("approval_basis"),
         },
@@ -114,12 +118,12 @@ def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any])
             "recipe": recipe.key if recipe else None,
             "stack_name": f"AgenticRadarS4{suffix.upper()}",
             "resource_prefix": f"agentic-radar-s4-{suffix}",
-            "profile": deployment.get("profile"),
-            "target_region": deployment.get("target_region"),
+            "profile": deployment.get("profile") or DEFAULT_PROFILE,
+            "target_region": deployment.get("target_region") or DEFAULT_REGION,
             "create_test_instance": bool(deployment.get("create_test_instance", True)),
         },
         "success_criteria": list(approval.get("success_criteria") or (recipe.success_criteria if recipe else [])),
-        "cleanup_scope": list(approval.get("cleanup_scope") or []),
+        "cleanup_scope": list(approval.get("cleanup_scope") or DEFAULT_CLEANUP_SCOPE),
         "errors": _dedupe(errors),
     }
     return context
@@ -254,48 +258,24 @@ def _context_errors(
     if not selected:
         errors.append("selected_candidate_id_not_in_s3")
         return errors
-    if approval.get("validation_type") != "paid_poc":
-        errors.append("paid_poc_validation_type_required")
-    if approval.get("automatic_poc_start") is not False:
-        errors.append("automatic_poc_start_must_be_explicitly_false")
     validation_candidate = _selected_validation(validation, str(selected.get("candidate_id")))
-    if not _paid_poc_gate_passes(validation_candidate, selected, approval):
-        errors.append("paid_poc_gate_not_passed")
+    if not _poc_gate_passes(validation_candidate):
+        errors.append("poc_gate_not_passed")
     if approval.get("deployment_authorized") is not True:
         errors.append("deployment_authorized_not_true")
     deployment = approval.get("deployment") or {}
-    if not str(deployment.get("profile") or "").strip():
-        errors.append("deployment_profile_missing")
-    if deployment.get("target_region") != DEFAULT_REGION:
+    if deployment.get("target_region") not in {None, "", DEFAULT_REGION}:
         errors.append("deployment_target_region_invalid")
-    if not approval.get("success_criteria"):
-        errors.append("success_criteria_missing")
-    if not approval.get("cleanup_scope"):
-        errors.append("cleanup_scope_missing")
     return errors
 
 
-def _paid_poc_gate_passes(validation_candidate: dict[str, Any], selected: dict[str, Any], approval: dict[str, Any]) -> bool:
-    """Allow an explicitly acknowledged Region warning without weakening other gates.
+def _poc_gate_passes(validation_candidate: dict[str, Any]) -> bool:
+    """Require the simplified manual PoC gate without custom environment forms."""
 
-    The radar treats missing Region evidence as a warning in S2/S3. For a real
-    S4 PoC, Cleo may consciously accept that warning after seeing the S3 result.
-    This is recorded in approval and evidence; every other paid-PoC check still
-    has to pass.
-    """
-
-    if approval.get("validation_type") != "paid_poc" or approval.get("automatic_poc_start") is not False:
-        return False
-    if validation_candidate.get("validation_status") == "paid_poc_ready_for_manual_start":
-        return True
-    region = selected.get("region_status") or {}
-    if region.get("status") != "region_unknown" or approval.get("region_warning_acknowledged") is not True:
-        return False
-    if selected.get("governance_flags") or selected.get("paid_poc_context_gaps"):
-        return False
-    checks = validation_candidate.get("paid_poc_checks") or []
-    acknowledged_region_checks = {"eligible_for_paid_poc_review", "region_status_available"}
-    return all(check.get("passed") or check.get("name") in acknowledged_region_checks for check in checks)
+    return validation_candidate.get("validation_status") in {
+        "poc_ready_for_manual_start",
+        "paid_poc_ready_for_manual_start",
+    }
 
 
 def _verify_lineage(

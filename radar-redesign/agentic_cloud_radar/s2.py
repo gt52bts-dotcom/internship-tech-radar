@@ -166,18 +166,15 @@ def _base_comparison(scan: dict[str, Any]) -> dict[str, Any]:
         "cross_candidate_findings": {},
         "data_gaps": [],
         "human_review_required": {
-            "decision": "Choose at most three evidence-backed candidates for S3, and record the reason for each selection.",
+            "decision": "Choose at most three evidence-backed candidates for S3.",
             "required_inputs": [
-                "Which concrete business or engineering problem matters now?",
-                "Which existing non-production environment is available for safe validation?",
-                "Which data, permissions, and governance boundaries must not be touched?",
-                "What is the candidate's Region status, and must paid PoC support be deferred until S4?",
+                "Which candidate or candidates should continue to Skill 3?",
             ],
         },
         "shortlist_policy": {
             "target_region": target_region,
             "target_region_label": TARGET_REGION_LABELS.get(target_region, target_region),
-            "rule": "Target Region evidence is recorded as a warning/status in S2 and does not block S3. Paid PoC still requires feature-level official target Region evidence.",
+            "rule": "Target Region evidence is recorded as a warning/status and does not require extra user configuration.",
             "eligible_candidate_count": 0,
             "region_verified_candidate_count": 0,
             "region_warning_candidate_count": 0,
@@ -341,6 +338,8 @@ def _collect_source_evidence(
         ("aws_pricing", "pricing"),
         ("region_availability", "Region or availability"),
     ):
+        if evidence_type == "region_availability" and region_matches:
+            continue
         if evidence_type not in found_types:
             data_gaps.append(f"No candidate-relevant official AWS {label} page was fetched in this S2 run.")
     return {
@@ -546,7 +545,7 @@ def _region_eligibility(
             "blocks_s3": False,
             "blocks_paid_poc": False,
             "shortlist_reason": "Official candidate-specific source evidence covers the target Region directly or through an all-commercial-Regions statement.",
-            "paid_poc_requirement": "Already satisfies the S2 Region evidence precondition for later paid PoC review.",
+            "poc_review_note": "The primary or linked official source covers the target Region.",
         }
     return {
         "target_region": target_region,
@@ -557,7 +556,7 @@ def _region_eligibility(
         "blocks_s3": False,
         "blocks_paid_poc": True,
         "shortlist_reason": "Region support is not proven by S2, but this is a warning rather than an S3 blocker.",
-        "paid_poc_requirement": "Before a paid PoC, S4 must prove feature-level target Region support or downgrade to low-risk/local/document validation.",
+        "poc_review_note": "Target Region support remains unverified and must stay visible as a deployment note.",
     }
 
 
@@ -614,7 +613,7 @@ def _environment_signals(excerpts: dict[str, list[str]]) -> dict[str, Any]:
     return {
         "source_indicated_contexts": detected,
         "source_excerpts": excerpts["environment"],
-        "interpretation_limit": "These are source signals, not proof that the company has the required environment.",
+        "interpretation_limit": "These are source signals, not proof that every workload has the same requirements.",
     }
 
 
@@ -624,12 +623,12 @@ def _business_context(candidate: dict[str, Any]) -> dict[str, Any]:
         return {
             "status": "unconfirmed_discovery_hint",
             "contexts": contexts,
-            "required_human_input": "Turn the scan hint into a candidate-specific problem, target user, baseline, and success measure.",
+            "optional_context": "A concrete use case can be added later, but it is not required for public-evidence evaluation.",
         }
     return {
         "status": "unknown_no_problem_context",
         "contexts": [],
-        "required_human_input": "State the problem, target user, and success measure before treating technical evidence as business fit.",
+        "optional_context": "No use case was supplied; technical evidence can still be evaluated.",
     }
 
 
@@ -658,23 +657,23 @@ def _unknowns(
 ) -> list[str]:
     unknowns: list[str] = []
     if business_context["status"] != "candidate_problem_confirmed":
-        unknowns.append("Business fit is unknown until a reviewer confirms a candidate-specific problem, target user, baseline, and success measure.")
+        unknowns.append("Workload fit was not assessed because this run uses public technical evidence only.")
     if not candidate.get("related_aws_services"):
         unknowns.append("No supported AWS service name was detected from the fetched source text.")
     sources = source_evidence.get("linked_sources") or []
     types = {item.get("evidence_type") for item in sources if item.get("status") == "fetched"}
     if "aws_pricing" not in types:
         unknowns.append("Official pricing evidence has not been established for this candidate.")
-    if "region_availability" not in types:
-        unknowns.append("Supported Region or availability evidence has not been established for this candidate.")
     region_evidence = source_evidence.get("target_region_evidence") or {}
+    if "region_availability" not in types and region_evidence.get("status") != "official_region_text_found":
+        unknowns.append("Supported Region or availability evidence has not been established for this candidate.")
     if region_evidence.get("status") != "official_region_text_found":
         unknowns.append(
-            f"Feature-level availability in {region_evidence.get('target_region', DEFAULT_TARGET_REGION)} has not been officially verified; this warns S3 but blocks only paid S4 PoC."
+            f"Feature-level availability in {region_evidence.get('target_region', DEFAULT_TARGET_REGION)} has not been officially verified; keep it as a deployment review note."
         )
     if not candidate.get("official_source"):
         unknowns.append("AWS GA status cannot be proven from this non-official primary source.")
-    unknowns.append("Permissions, cleanup plan, and USD 3 PoC feasibility require a selected environment and S3/S4 validation.")
+    unknowns.append("PoC cost and cleanup remain subject to the standard small-sandbox policy and S4 validation.")
     return unknowns
 
 
@@ -702,17 +701,17 @@ def _proposal_card(
     services = dimensions["technology_scope"]["services_detected"]
     service_label = ", ".join(services) if services else candidate.get("title")
     return {
-        "proposal_status": "candidate_hypothesis_requires_human_problem_selection",
+        "proposal_status": "public_evidence_candidate",
         "candidate_opportunity": {
             "technology": candidate.get("title"),
             "technology_scope": services,
             "source_backed_mechanism": capability_excerpts,
-            "plain_language": f"Evaluate whether {service_label} can improve one explicitly chosen workflow through {delivery_model}.",
+            "plain_language": f"Evaluate the public technical evidence for {service_label} delivered as {delivery_model}.",
         },
         "problem_definition_to_confirm": {
-            "current_state": "Unknown: S1 discovers technology and does not assume a company pain point.",
-            "target_user": "Unknown: choose a real user or engineering owner before S3.",
-            "required_human_question": f"Which current workflow would {candidate.get('title')} change, and what is its measurable baseline?",
+            "current_state": "Not assessed in public-evidence mode.",
+            "target_user": "Not required for technical evaluation.",
+            "optional_question": f"Which workload could later benefit from {candidate.get('title')}?",
         },
         "improvement_hypothesis": {
             "baseline_to_change": "A before/after claim cannot be made until a current workflow baseline is measured.",
@@ -735,9 +734,8 @@ def _proposal_card(
             "after_measurements": metrics["after"],
             "minimum_success_evidence": metrics["success"],
             "stop_conditions": [
-                "No safe non-production environment or required permission is available.",
-                "Official pricing or cleanup cannot be bounded within the USD 3 cap.",
-                "No measurable baseline exists for the proposed workflow.",
+                "The candidate has no registered reproducible PoC recipe.",
+                "The standard small-cost ceiling or cleanup guarantee cannot be met.",
             ],
             "next_stage_question": dimensions["unknowns_and_next_validation_question"]["next_question"],
         },
@@ -824,7 +822,7 @@ def _validation_metrics(improvement_vectors: list[dict[str, Any]]) -> dict[str, 
     types = {item["type"] for item in improvement_vectors}
     before = ["Current workflow steps, elapsed time, and manual handoffs."]
     after = ["Same workflow steps, elapsed time, and observed failure or rollback behaviour."]
-    success = ["A pre-agreed before/after comparison using the same non-production workload."]
+    success = ["A pre-agreed before/after comparison using the same sandbox workload."]
     if "performance_or_latency" in types:
         before.append("Baseline latency, throughput, or workload completion time.")
         after.append("Latency, throughput, or completion time under the same workload.")
@@ -865,10 +863,9 @@ def _next_validation_question(
 ) -> str:
     service_label = ", ".join(services) if services else "this candidate"
     model = delivery_model["classification"]
-    environment = ", ".join(environment_signals["source_indicated_contexts"]) or "the required environment"
     if business_context["status"] != "candidate_problem_confirmed":
-        return f"Before comparing {service_label}, which real problem and target user would justify validating {model} in {environment}?"
-    return f"For {service_label}, is a safe non-production {environment} available to validate {model}, pricing, permissions, and cleanup?"
+        return f"Which public evidence or small reproducible check would best validate {service_label} as {model}?"
+    return f"Which small reproducible check would best validate {service_label} as {model}?"
 
 
 def _official_evidence_summary(source_evidence: dict[str, Any]) -> dict[str, Any]:
@@ -879,7 +876,7 @@ def _official_evidence_summary(source_evidence: dict[str, Any]) -> dict[str, Any
         "linked_docs": [item for item in fetched if item.get("evidence_type") == "aws_docs"],
         "linked_pricing": [item for item in fetched if item.get("evidence_type") == "aws_pricing"],
         "linked_region_or_availability": [item for item in fetched if item.get("evidence_type") == "region_availability"],
-        "interpretation_limit": "A fetched page records evidence availability only; it does not calculate a cost or prove company-environment compatibility.",
+        "interpretation_limit": "A fetched page records evidence availability only; it does not calculate a workload-specific cost.",
     }
 
 

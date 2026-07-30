@@ -17,7 +17,7 @@ python -m agentic_cloud_radar.cli s2 `
   --output .\out\s2.json
 ```
 
-Reuse `agentic_cloud_radar/s2.py`. Do not invent official URLs, pricing, company needs, or implementation claims.
+Reuse `agentic_cloud_radar/s2.py`. Do not invent official URLs, pricing, workload needs, or implementation claims.
 
 ## Workflow
 
@@ -33,8 +33,8 @@ Reuse `agentic_cloud_radar/s2.py`. Do not invent official URLs, pricing, company
 
 - Use search results only to discover URLs; fetch and verify the page before citing it.
 - Keep improvement statements as hypotheses unless the source contains measurable evidence.
-- Do not select a champion without human input and company context.
-- Do not let a Region warning block Skill 3; preserve it for the paid-PoC gate.
+- Do not select a champion without human input.
+- Keep Region and pricing gaps as review notes; do not turn them into extra user forms.
 
 ## Validation
 

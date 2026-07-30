@@ -91,9 +91,6 @@ def _deployable_s2():
 def _shortlist():
     return {
         "selected_candidate_ids": ["CAND-1"],
-        "problem_to_solve": "Validate a non-production storage workflow.",
-        "available_environment": "Isolated intern account non-production environment.",
-        "forbidden_data_and_permissions": "No production data, no PII, no production roles.",
         "selected_by": "Cleo",
     }
 
@@ -114,29 +111,29 @@ class S3S4Tests(unittest.TestCase):
         evaluated = result["evaluated_candidates"][0]
         self.assertTrue(evaluated["recommend_s4"])
         self.assertTrue(evaluated["recommend_low_risk_validation"])
-        self.assertFalse(evaluated["eligible_for_paid_poc_review"])
+        self.assertTrue(evaluated["eligible_for_poc_review"])
         self.assertEqual(evaluated["region_status"]["status"], "region_unknown")
         self.assertFalse(evaluated["region_status"]["blocks_s3"])
         self.assertTrue(evaluated["region_status"]["blocks_paid_poc"])
-        self.assertEqual(evaluated["s4_validation_path"], "low_risk_validation_only")
+        self.assertEqual(evaluated["s4_validation_path"], "eligible_for_poc_review")
+        self.assertIn("target_region_support_not_verified", evaluated["poc_review_notes"])
 
-    def test_s3_allows_a_shortlist_without_optional_business_context(self):
+    def test_s3_public_evidence_mode_requires_only_a_candidate_selection(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
 
         result = build_evaluate(_sample_s2(), request).to_dict()
 
         self.assertEqual(result["status"], "evaluated")
         gate = result["human_shortlist_gate"]
-        self.assertEqual(gate["problem_to_solve"], "")
-        self.assertFalse(gate["optional_context_provided"]["available_environment"])
+        self.assertEqual(gate["evaluation_mode"], "public_evidence")
         evaluated = result["evaluated_candidates"][0]
         self.assertTrue(evaluated["recommend_low_risk_validation"])
-        self.assertFalse(evaluated["eligible_for_paid_poc_review"])
+        self.assertTrue(evaluated["eligible_for_poc_review"])
         self.assertTrue(evaluated["recommend_s4"])
-        self.assertIn("problem_to_solve_not_specific", evaluated["paid_poc_context_gaps"])
-        self.assertEqual(evaluated["s4_validation_path"], "low_risk_validation_only")
+        self.assertEqual(evaluated["assessment_scope"]["company_fit"], "not_assessed")
+        self.assertNotIn("paid_poc_context_gaps", evaluated)
 
-    def test_context_free_candidate_can_reach_low_risk_s4_without_paid_poc_eligibility(self):
+    def test_public_evidence_candidate_reaches_low_risk_s4_without_environment_form(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
         s3 = build_evaluate(_sample_s2(), request).to_dict()
 
@@ -145,7 +142,7 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(result["status"], "validated_low_risk")
         validated = result["validated_candidates"][0]
         self.assertTrue(validated["recommend_low_risk_validation"])
-        self.assertFalse(validated["eligible_for_paid_poc_review"])
+        self.assertTrue(validated["eligible_for_poc_review"])
         self.assertEqual(validated["validation_status"], "validated_low_risk")
 
     def test_s4_downgrades_region_unknown_candidate_to_low_risk_validation(self):
@@ -159,15 +156,15 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(validated["validation_status"], "validated_low_risk")
         self.assertEqual(validated["cleanup_status"], "not_applicable_no_cloud_resources_created")
         self.assertFalse(validated["automatic_poc_start"])
-        self.assertIn("region_status_available", validated["downgrade_reasons"])
+        self.assertIn("approved_by_present", validated["downgrade_reasons"])
 
-    def test_context_and_region_ready_candidate_has_separate_paid_review_eligibility(self):
+    def test_public_evidence_candidate_has_separate_poc_review_eligibility(self):
         result = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
 
         evaluated = result["evaluated_candidates"][0]
         self.assertTrue(evaluated["recommend_low_risk_validation"])
-        self.assertTrue(evaluated["eligible_for_paid_poc_review"])
-        self.assertEqual(evaluated["s4_validation_path"], "eligible_for_paid_poc_review")
+        self.assertTrue(evaluated["eligible_for_poc_review"])
+        self.assertEqual(evaluated["s4_validation_path"], "eligible_for_poc_review")
 
     def test_s4_deployment_context_requires_matching_lineage_and_registered_recipe(self):
         evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
@@ -180,16 +177,9 @@ class S3S4Tests(unittest.TestCase):
             for key, payload in (("s1", s1), ("s2", s2), ("s3", evaluate)):
                 paths[key].write_text(json.dumps(payload), encoding="utf-8")
             approval = {
-                "validation_type": "paid_poc",
                 "approved_by": "Cleo",
-                "estimated_usd": 1.0,
-                "automatic_poc_start": False,
                 "selected_candidate_id": "CAND-1",
                 "deployment_authorized": True,
-                "approval_basis": "Reviewed S3 result.",
-                "deployment": {"profile": "intern", "target_region": "ap-southeast-1", "create_test_instance": True},
-                "success_criteria": ["CloudFormation completes."],
-                "cleanup_scope": ["Delete the stack and its test data."],
                 "lineage": {**{f"{key}_artifact_path": str(path) for key, path in paths.items()}},
             }
             context = build_deployment_context(evaluate, approval)
@@ -205,7 +195,7 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(reviewed["status"], "ready_for_cleanup")
         self.assertEqual(reviewed["console_review"]["status"], "confirmed")
 
-    def test_s4_deployment_context_allows_explicitly_acknowledged_region_warning(self):
+    def test_s4_deployment_context_uses_defaults_without_environment_configuration(self):
         s2 = _sample_s2()
         s2["candidates"][0]["title"] = "Launching S3 Files, making S3 buckets accessible as file systems"
         evaluate = build_evaluate(s2, _shortlist()).to_dict()
@@ -216,17 +206,16 @@ class S3S4Tests(unittest.TestCase):
             for key, payload in (("s1", s1), ("s2", s2), ("s3", evaluate)):
                 paths[key].write_text(json.dumps(payload), encoding="utf-8")
             approval = {
-                "validation_type": "paid_poc", "approved_by": "Cleo", "estimated_usd": 1.0,
-                "automatic_poc_start": False, "selected_candidate_id": "CAND-1",
-                "deployment_authorized": True, "region_warning_acknowledged": True,
-                "deployment": {"profile": "intern", "target_region": "ap-southeast-1"},
-                "success_criteria": ["CloudFormation completes."], "cleanup_scope": ["Delete the stack."],
+                "approved_by": "Cleo", "selected_candidate_id": "CAND-1",
+                "deployment_authorized": True,
                 "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
             }
             context = build_deployment_context(evaluate, approval)
 
         self.assertEqual(context["status"], "ready_for_manual_deployment")
-        self.assertTrue(context["authorization"]["region_warning_acknowledged"])
+        self.assertEqual(context["deployment"]["target_region"], "ap-southeast-1")
+        self.assertTrue(context["success_criteria"])
+        self.assertTrue(context["cleanup_scope"])
 
     def test_cleanup_identity_must_be_derived_from_the_run(self):
         context = {"run_id": "unit-test-run"}
@@ -248,10 +237,7 @@ class S3S4Tests(unittest.TestCase):
             for key, payload in (("s1", s1), ("s2", s2), ("s3", evaluate)):
                 paths[key].write_text(json.dumps(payload), encoding="utf-8")
             approval = {
-                "validation_type": "paid_poc", "approved_by": "Cleo", "estimated_usd": 1.0,
-                "automatic_poc_start": False, "selected_candidate_id": "CAND-1", "deployment_authorized": True,
-                "deployment": {"profile": "intern", "target_region": "ap-southeast-1"},
-                "success_criteria": ["Lambda invocation succeeds."], "cleanup_scope": ["Delete the stack."],
+                "approved_by": "Cleo", "selected_candidate_id": "CAND-1", "deployment_authorized": True,
                 "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
             }
             context = build_deployment_context(evaluate, approval)

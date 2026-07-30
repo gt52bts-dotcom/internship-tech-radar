@@ -10,7 +10,7 @@
 
 ## 專案狀態
 
-目前主線是 artifact-first 的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，人工 shortlist 後進入 Skill 3，Skill 4 僅在人工核准後部署候選專用 PoC，Skill 5 只依 artifact 產出可回查報告。既有實體 PoC 僅代表 intern 非 production 環境，不能延伸為公司環境結論。
+目前主線是 artifact-first 的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，人工 shortlist 後進入 Skill 3，Skill 4 僅在人工核准後部署候選專用 PoC，Skill 5 只依 artifact 產出可回查報告。日常使用只需選候選，不必提供公司問題或複雜的環境設定；既有實體 PoC 僅代表隔離測試結果，不外推到未測環境。
 
 五個階段已整理為 repository 內的正式 Skill packages，入口位於 [`radar-redesign/skills/`](./radar-redesign/skills/)。每個 Skill 均有獨立 `SKILL.md` 與 UI metadata，並共用同一套已測試的 S1-S5 核心。
 
@@ -67,13 +67,13 @@ flowchart LR
 
 ## 最終發表驗證衝刺
 
-2026-07-31（五）仍是第一版完整交付硬截止，但剩下兩天不再擴充功能，改採「證據收斂」：把已完成的 S1-S4 實作與兩條真實 PoC 證據接回 S5 報告，補齊可重跑說明、檢測結果、限制與 Mentor review package。2026-07-29 的基線已確認：S3 Files 已完成實際部署、回驗與 cleanup；Lambda self-managed code storage 已完成部署與 invoke，仍待人工 Console review 與 cleanup 決策。這些都只代表 intern 非 production 環境，不延伸為公司環境結論。
+2026-07-31（五）仍是第一版完整交付硬截止，但剩下兩天不再擴充功能，改採「證據收斂」：把已完成的 S1-S4 實作與兩條真實 PoC 證據接回 S5 報告，補齊可重跑說明、檢測結果、限制與 Mentor review package。2026-07-29 的基線已確認：S3 Files 已完成實際部署、回驗與 cleanup；Lambda self-managed code storage 已完成部署與 invoke，仍待人工 Console review 與 cleanup 決策。這些只代表隔離測試結果，不延伸為未測環境結論。
 
 | 日期 | 主軸 | 當日完成條件 |
 |---|---|---|
 | 2026-07-30（四）下午 | 文件與風險收斂。 | 上午公司活動後，只整理 S1-S5 跑法、artifact lineage、S5 報告與已知限制；不新增大型功能。 |
 | 2026-07-31（五） | 第一版完整交付與 Mentor review。 | 至少一條公開 AWS URL 完整走完 S1-S5 並保留輸出；五個 Skills 的輸入、輸出、跑法與限制可閱讀；完成檢測清單、Mentor review package 與 CIP 雙週工作進度（7/20-7/31）。 |
-| 2026-08-03（一）至 2026-08-05（三） | 將第一版轉成 final proposal 證據素材。 | 補齊研究方法與比較基準、專案執行軌跡圖、現況架構圖、驗證矩陣與失敗邊界；不把 intern PoC 寫成公司環境結論。 |
+| 2026-08-03（一）至 2026-08-05（三） | 將第一版轉成 final proposal 證據素材。 | 補齊研究方法與比較基準、專案執行軌跡圖、現況架構圖、驗證矩陣與失敗邊界；不把隔離 PoC 外推到未測環境。 |
 | 2026-08-11（二） | AI PM 科會報告。 | 直接使用已完成的原訂 2026-07-28 簡報與講稿，準時完成 10 分鐘報告。 |
 | 2026-08-12（三）至 2026-08-14（五） | 完成 final proposal 展示版與第二段 CIP 進度。 | 有可展示的簡報初稿、demo checklist、口說稿與限制標籤；CIP 雙週工作進度（8/3-8/14）依成果與影響匯出。 |
 
@@ -97,7 +97,7 @@ flowchart LR
 |---|---|---|---|---|
 | 2026-07-30（四）上午 | 參加人壽高管交流活動（總公司）。 | 累積公司情境與成長證據。 | 活動後把可公開、非敏感重點整理進當日 inbox / 日誌。 | 未開始 |
 | 2026-07-31（五） | 完成 Lambda self-managed code storage 的 S4 人工 Console review 與 cleanup 決策。 | 封閉第二條真實 PoC 的驗證鏈路，或清楚保留未結案原因。 | Cleo 在 AWS Console 檢視 CloudFormation、Lambda 與測試 S3 bucket；明確決定 cleanup 或保留，並留下人工確認證據。 | 待人工確認 |
-| 2026-07-31（五） | 拆分 Skill 4 低風險驗證建議與付費 PoC 資格。 | 避免同一技術因缺少部署脈絡而被誤讀為不值得研究。 | 定義 `recommend_low_risk_validation` 與 `eligible_for_paid_poc_review` 的獨立規則、相容策略與回歸測試；若未完成，列入 Mentor package 已知限制。 | 已完成：S3 v2、S4／S5／GUI 與 22 項測試通過 |
+| 2026-07-31（五） | 簡化 Skill 3／Skill 4 使用方式。 | 只選候選即可依公開證據評估，不要求公司問題或複雜環境表單。 | 使用 `eligible_for_poc_review`、內建 sandbox 預設、簡化 approval 與回歸測試。 | 已完成：S3 v3、S4／S5／GUI 與 22 項測試通過 |
 | 2026-07-31（五） | 完成 S1-S5 第一版 Mentor review package。 | 本週五完整 Skills 交付。 | 一條公開 AWS URL 的 S1-S5 artifact、S5 報告、五個 Skills 的跑法、檢測清單與限制清單可供 Mentor 回查。 | 進行中 |
 | 2026-07-31（五） | 匯出 CIP 雙週工作進度（7/20-7/31）。 | 完成本期正式實習文件。 | 正式檔案依成果、影響、問題與下一步整理完成。 | 未開始 |
 | 2026-08-03 10:30 | 出席部會並聆聽。 | 掌握部會資訊與行程安排。 | 準時出席；不需準備或進行報告。 | 未開始 |

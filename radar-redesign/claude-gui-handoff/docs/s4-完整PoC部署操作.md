@@ -1,6 +1,6 @@
 # S4 完整 PoC 部署操作：從 S3 artifact 到 cleanup
 
-`agentic_cloud_radar.s4` 仍負責判定 paid-PoC gate；`s4_deployer.py` 才負責已核准後的完整 S4。兩者合起來才符合「部署、驗證、Console 回驗、cleanup」的交付定義。
+`agentic_cloud_radar.s4` 負責判定 PoC gate；`s4_deployer.py` 才負責已核准後的完整 S4。兩者合起來才符合「部署、驗證、Console 回驗、cleanup」的交付定義。
 
 ## 1. 不會自動建資源的保證
 
@@ -12,18 +12,18 @@
 - S1/S2/S3 路徑、run ID、candidate ID 或 S3 內容不一致。
 - 沒有此候選專用的 recipe。
 
-目前已註冊兩個 recipe：`s3_files_cdk` 位於 `poc/s3-files-cdk-poc/`，曾在 intern 環境完成端到端回驗；`lambda_self_managed_s3_code_storage_cdk` 位於 `poc/lambda-self-managed-storage-cdk-poc/`，已通過 CDK synth 與 CloudFormation contract 驗證，等待本次人工核准後首次 live PoC。其他新聞候選仍必須先新增自己的 CDK recipe 與驗證 handler，否則結果會是 `needs_poc_recipe`。
+目前已註冊兩個 recipe：`s3_files_cdk` 位於 `poc/s3-files-cdk-poc/`，曾在隔離測試環境完成端到端回驗；`lambda_self_managed_s3_code_storage_cdk` 位於 `poc/lambda-self-managed-storage-cdk-poc/`，已通過 CDK synth 與 CloudFormation contract 驗證。其他新聞候選仍必須先新增自己的 CDK recipe 與驗證 handler，否則結果會是 `needs_poc_recipe`。
 
 ## 2. Approval 契約
 
-以 [s4-deployment-approval.example.json](../samples/s4-deployment-approval.example.json) 為起點。它必須包含：
+以 [s4-deployment-approval.example.json](../samples/s4-deployment-approval.example.json) 為起點。最小內容只有：
 
 - `selected_candidate_id`：S3 裡的其中一個候選。
 - `lineage`：這一次 S1、S2、S3 artifact 的絕對或可解析路徑。S4 會重新讀取、核對 stage、run ID、candidate ID，並記錄 SHA-256。
-- `validation_type: paid_poc`、`approved_by`、`approved_cost_ceiling_usd`（或有官方數字時的 `estimated_usd`）、`automatic_poc_start: false`。成本上限是人類授權的 spend cap，不可寫成 AWS 官方報價。
-- `deployment_authorized: true`：Cleo 看過 S3 通知後的明確部署核准。
-- 若 `region_status=region_unknown`，還要以 `region_warning_acknowledged: true` 明確承認證據缺口；這只放行 Region warning，不會略過成本、核准、lineage 或 recipe gate。
-- `deployment.profile`、`deployment.target_region`、成功標準與 cleanup 範圍。
+- `approved_by`：具名核准人。
+- `deployment_authorized: true`：看過 Skill 3 結果後的明確部署核准。
+
+Region、小額成本上限、profile、recipe 成功標準與 cleanup scope 由系統提供預設；只有要改得更嚴格時才放進 approval 覆寫。`--execute`、Console review 與 cleanup 仍不可省略。
 
 ## 3. 命令順序
 

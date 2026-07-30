@@ -664,3 +664,14 @@
 - 後續 schema 應把目前的 paid-PoC gate 再拆為 `intern sandbox PoC review` 與 `company adoption／company-environment PoC review`。沒有公司資料只阻擋公司採用結論；隔離 intern sandbox 仍可在合成資料、USD 3 內成本上限、具名核准、Console review 與 run-scoped cleanup 等既有安全條件下另行審查。
 - 現況限制：本次只先確立長期規則，尚未修改 S3/S4 schema；目前 `eligible_for_paid_poc_review=false` 不得再口語化為「不能做 PoC」或「技術不適合」，只能說現行通用付費 gate 尚未完成。
 - 目標關係：直接扣回五個 Skill 的日常可用性與評估語意修正。
+
+### 五個 Skill 改為一般版公開證據流程（取代複雜環境表單）
+
+- Cleo 明確決定不再特別強調「實習版本」，並要求一般使用時移除公司問題、自訂使用環境、禁止資料／權限等複雜前置設定。這項決策取代上一節規劃中的 `intern sandbox`／公司環境多層介面。
+- Skill 3 升級為 `s3.evaluation.v3`：真人只需選擇候選；系統依公開官方證據、固定 rubric、信心與 hard blocker 評估。Region 或 pricing 尚未確認時寫入 `poc_review_notes`，不再要求 Cleo 補公司內部資料或環境表單。
+- 新主欄位為 `eligible_for_poc_review`；舊 `recommend_s4` 與 `eligible_for_paid_poc_review` 僅保留舊 artifact 相容性。Skill 4／Skill 5／GUI 與五個 repository-backed Skill 說明均改用一般 PoC 語意。
+- Skill 4 真正建立 AWS 資源前只保留必要安全閘門：選定候選、Cleo 具名核准、固定小額成本上限、已登錄 recipe、三階段 lineage、明確 `--execute`、Console review 與受限 cleanup。Region、測試資料、成功條件與 cleanup 範圍使用專案安全預設值；沒有 `--execute` 不會建立資源。
+- 以同一篇 S3 Files 官方新聞與原本只有 candidate ID 的 shortlist 重跑：Skill 3 score=`4.4/5`、confidence=`medium`、`eligible_for_poc_review=true`；Skill 4 低風險 artifact 為 `validated_low_risk`；Skill 5 結論為公開證據已達 PoC 審查門檻，尚無 runtime 證據。
+- 另以只有 `approved_by=Cleo`、candidate ID、`deployment_authorized=true` 與 S1/S2/S3 lineage 的最小 approval 建立部署 context：status=`ready_for_manual_deployment`、recipe=`s3_files_cdk`、預設 Region=`ap-southeast-1`、AWS profile=`intern`（只屬內部實作設定）。本次未加 `--execute`，沒有建立或修改 AWS 資源。
+- 驗證：核心 `compileall`、GUI `node --check`、完整 22 項 unittest、Claude GUI handoff 的 Python compile 與 JavaScript syntax check 均通過。五個 Skill 的官方 `quick_validate.py` 因執行環境缺少其 `PyYAML` 相依套件而無法啟動；未擅自安裝套件，這不是內容驗證失敗。
+- 目標關係：直接扣回五個 Skill 的日常可用性、決策一致性與 GUI 操作簡化。

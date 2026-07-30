@@ -1,16 +1,16 @@
 ---
 name: validate-cloud-poc
-description: Validate an evaluated cloud candidate with low-risk checks or a tightly controlled AWS PoC while preserving artifact lineage and human gates. Use for Skill 4 validation, CDK or CloudFormation review, named-human approval, cost ceilings, runtime evidence, Console review, or run-scoped cleanup.
+description: Validate an evaluated cloud candidate with low-risk checks or a controlled AWS PoC while preserving artifact lineage and a short human gate. Use for Skill 4 validation, CDK or CloudFormation review, named-human approval, runtime evidence, Console review, or run-scoped cleanup without requiring custom environment configuration.
 ---
 
 # Skill 4 · Validate
 
-Default to low-risk validation. Never create paid AWS resources through the normal `s4` command.
+Default to low-risk validation. Never create AWS resources through the normal `s4` command.
 
 Read Skill 3 decisions independently:
 
 - `recommend_low_risk_validation` controls document, local, schema, template, or validator work.
-- `eligible_for_paid_poc_review` controls entry to the separate paid-PoC approval gate.
+- `eligible_for_poc_review` controls entry to the separate PoC approval gate.
 - Legacy `recommend_s4` is only a compatibility alias for low-risk validation.
 
 ## Low-risk validation
@@ -32,11 +32,12 @@ Read `docs/s4-完整PoC部署操作.md` before any live action.
 Require all of the following:
 
 - Matching S1/S2/S3 lineage and artifact hashes.
-- Skill 3 `eligible_for_paid_poc_review=true`, unless a recorded Region warning is explicitly acknowledged without any other governance or context gap.
+- Skill 3 `eligible_for_poc_review=true`.
 - A registered candidate-specific recipe.
 - Named human approval and `deployment_authorized=true`.
-- Target Region, success criteria, cost ceiling, permissions, forbidden data, and cleanup scope.
 - A second explicit CLI `--execute`.
+
+Use the built-in small-cost ceiling, target Region, recipe success criteria, and cleanup scope unless the reviewer supplies a stricter override.
 
 Commands:
 
@@ -64,7 +65,7 @@ python -m agentic_cloud_radar.cli s4-cleanup `
 
 1. Validate lineage and approval before contacting AWS.
 2. Synthesize the candidate recipe and inspect CloudFormation.
-3. Create only run-derived resources in the approved intern non-production scope.
+3. Create only run-derived sandbox resources.
 4. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
 5. Pause for the named human to inspect CloudFormation and service-specific Console pages.
 6. Run cleanup only after confirmed review and only for the reviewed run.

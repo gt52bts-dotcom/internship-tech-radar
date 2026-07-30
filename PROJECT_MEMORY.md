@@ -8,7 +8,7 @@
 
 - The web demo title is `AI Agentic 雲端技術雷達與評估系統`.
 - Preserve the original cute game scene and its block-eating, score, and platform-jump feedback. The side panel should be a larger, designed task-control panel showing stage progress, current goal, completion criteria, status metrics, and the human action required, rather than a sparse terminal log.
-- In the GUI, `problem_to_solve`, `available_environment`, and `forbidden_data_and_permissions` are optional context. A human candidate selection remains required for Skill 3, while omitted context must be represented as a data gap rather than fabricated.
+- In the GUI, Skill 3 only asks the human to select candidates. Do not show or require `problem_to_solve`, `available_environment`, or `forbidden_data_and_permissions`; public-evidence limits are recorded by the system as review notes.
 
 ## Web Delivery Decision
 
@@ -22,20 +22,19 @@
 
 ## 2026-07-30 Skill 3 / Skill 4 Decision Model Gap
 
-- The current single `recommend_s4` field conflates two different decisions: whether a candidate merits low-risk document/local validation, and whether it is eligible for paid AWS PoC review.
+- Historical problem: the former single `recommend_s4` field conflated low-risk validation with AWS PoC review.
 - This caused the same Lambda self-managed S3 code storage technology to appear contradictory across runs: a context-rich run recommended the lowest-risk Skill 4 path, while a context-free run rejected Skill 4 because deployment governance boundaries were missing.
-- Future schema work should separate at least `recommend_low_risk_validation` from `eligible_for_paid_poc_review`. Paid-PoC eligibility must independently require problem context, environment, forbidden data/permissions, feature-level Region evidence, cost ceiling, success criteria, and cleanup scope.
-- Until fixed, never interpret `recommend_s4` alone as either intrinsic technical value or deployment authorization. Read recommendation reason, validation path, governance flags, Region, cost, and approval artifact together.
-- Resolution: S3 schema `s3.evaluation.v2` now emits `recommend_low_risk_validation` and `eligible_for_paid_poc_review` separately. Legacy `recommend_s4` remains temporarily as a compatibility alias for low-risk validation only; S4 paid-PoC checks use the explicit paid-review field.
-- A context-free Lambda rerun now correctly yields low-risk validation `true`, paid-PoC review eligibility `false`, S4 `validated_low_risk`, and an S5 conclusion that states the distinction. Existing S3 v1 artifacts remain readable by S4 fallback logic.
+- Resolution superseding the v2 design: S3 schema `s3.evaluation.v3` uses public official evidence by default and emits `recommend_low_risk_validation` plus `eligible_for_poc_review`. Missing company context, custom environment, feature-level Region confirmation, or an official pricing link is a review note, not a technical rejection or configuration gate.
+- Legacy `recommend_s4` and `eligible_for_paid_poc_review` remain compatibility aliases only. New user-facing output and decisions use the generic PoC terminology.
+- Deployment authorization remains separate from technical eligibility: a real resource-creating run still requires the selected candidate, named human approval, a fixed small cost ceiling, a registered recipe, explicit `--execute`, Console review, and controlled cleanup.
 
 ## 2026-07-30 Default Context-Free Usage
 
-- Cleo 多數時候無法取得公司內部問題、環境或資料，因此公開 AWS 新聞的日常評估不得把公司內部脈絡當成必要輸入，也不應反覆要求 Cleo 提供她原本就無權取得的資料。
-- 沒有公司內部脈絡時，預設使用「公開技術探索模式」：Skill 1～Skill 3 依公開官方證據判斷技術價值、前提、限制與可驗證性；公司適配度只能標成 `unknown`，不可因此把技術判成不值得研究。
-- 後續決策模型應區分三層：低風險文件／本機驗證、隔離的 intern sandbox PoC 審查、公司採用／公司環境 PoC 審查。缺少公司資料只應阻擋第三層。
-- intern sandbox PoC 不使用公司資料，可沿用既有固定安全邊界：`intern` 非 production 帳號、`ap-southeast-1`、合成測試資料、不得使用 PII／公司／production 資源、run-derived 隔離資源、成本上限、Cleo 具名核准、Console review 與受限 cleanup。這些條件仍須在每次建立付費資源前確認。
-- 現行 `eligible_for_paid_poc_review` 仍同時涵蓋 sandbox 與公司 PoC 語意；在 schema 再拆分前，context-free 的 `false` 只能解讀為「尚未完成目前這個通用 paid-PoC gate」，不能解讀為技術不適合 intern sandbox 或公司不適用。
+- 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。
+- 不要求使用者提供公司問題、公司內部資料、自訂環境或禁止資料／權限表單。工作負載適配、Region 與價格尚未確認時，系統寫入 review notes，不要求使用者先完成複雜設定。
+- Skill 3 的唯一必要人類輸入是候選選擇；技術評估依固定 rubric、公開官方證據、信心與 hard blocker 決定。
+- 真的要建立 AWS 資源時，才保留最小且必要的安全閘門：選定候選、具名核准、固定小額成本上限、已登錄 recipe、明確 `--execute`、Console review 與受限 cleanup。Region、測試資料、成功條件與 cleanup 範圍使用專案安全預設值。
+- 程式內可保留既有 AWS profile 名稱作為實作設定，但文件與 GUI 只描述為隔離測試／sandbox，不以「intern」作為產品版本或使用限制。
 
 ## Presentation Schedule
 

@@ -52,7 +52,7 @@ class S2CompareTests(unittest.TestCase):
             result["candidates"][0]["comparison_dimensions"]["target_region_eligibility"]["blocks_s3"]
         )
         card = result["candidates"][0]["proposal_card"]
-        self.assertEqual(card["proposal_status"], "candidate_hypothesis_requires_human_problem_selection")
+        self.assertEqual(card["proposal_status"], "public_evidence_candidate")
         self.assertIn("improvement_hypothesis", card)
         self.assertIn("tradeoffs_and_risks", card)
         self.assertIn("validation_design", card)
@@ -69,6 +69,12 @@ class S2CompareTests(unittest.TestCase):
             lookup["status"],
             {"search_completed", "search_completed_no_new_official_pages"},
         )
+        region = result["candidates"][0]["comparison_dimensions"]["target_region_eligibility"]
+        if region["status"] == "available_ap_southeast_1":
+            self.assertNotIn(
+                "No candidate-relevant official AWS Region or availability page was fetched in this S2 run.",
+                result["candidates"][0]["evidence_limits"],
+            )
 
 
 if __name__ == "__main__":

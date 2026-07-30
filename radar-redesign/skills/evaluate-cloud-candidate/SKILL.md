@@ -1,19 +1,18 @@
 ---
 name: evaluate-cloud-candidate
-description: Evaluate human-shortlisted cloud candidates from a Skill 2 artifact with the fixed Skill 3 rubric and explicit evidence limits. Use after a person selects up to three candidates and needs a reproducible score, confidence level, risk analysis, or recommendation for low-risk validation or controlled PoC review.
+description: Evaluate human-shortlisted cloud candidates from a Skill 2 artifact with the fixed Skill 3 public-evidence rubric. Use after a person selects up to three candidates and needs a reproducible score, confidence level, risk analysis, or recommendation for low-risk validation or PoC review without supplying company or environment details.
 ---
 
 # Skill 3 · Evaluate
 
-Evaluate only a human shortlist. Do not silently select candidates or reinterpret missing context as facts.
+Evaluate only a human shortlist. Do not silently select candidates or require custom environment forms.
 
 ## Inputs
 
 - S2 comparison artifact with a stable `run_id`.
 - Human shortlist request naming no more than three S2 candidate IDs.
-- Optional `problem_to_solve`, `available_environment`, and `forbidden_data_and_permissions`.
 
-Omitted optional context remains a data gap. Human candidate selection is mandatory.
+Human candidate selection is mandatory. Public-evidence evaluation does not require a business problem, environment description, or data-boundary form.
 
 ## Run
 
@@ -35,8 +34,9 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 3. Score only evidence-supported dimensions with the fixed rubric.
 4. Record weighted score, confidence, Region state, governance flags, cost state, stop conditions, and evidence limits.
 5. Set `recommend_low_risk_validation` from technical value, confidence, and hard blockers.
-6. Set `eligible_for_paid_poc_review` separately from business context, environment, forbidden boundaries, governance flags, and Region evidence.
-7. Keep legacy `recommend_s4` mapped only to low-risk validation for v1 consumer compatibility; never treat it as deployment eligibility.
+6. Set `eligible_for_poc_review` when the public-evidence score reaches 3.75 with at least medium confidence and no hard blocker.
+7. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
+8. Keep legacy `recommend_s4` and `eligible_for_paid_poc_review` only as compatibility aliases.
 
 ## Guardrails
 
@@ -44,7 +44,7 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 - Do not convert `region_unknown` into unavailable or available.
 - Do not call a human-approved spending ceiling an official estimate.
 - Do not describe a rubric fallback as an LLM or external API result.
-- Missing optional context may block paid-PoC review, but must not by itself block document, local, or other low-risk validation.
+- Do not infer workload fit from public evidence; report it as not assessed.
 
 ## Validation
 

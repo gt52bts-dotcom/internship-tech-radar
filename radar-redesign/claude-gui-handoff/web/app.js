@@ -179,11 +179,11 @@ function radarShowCandidates() {
   var region = candidate.comparison_dimensions && candidate.comparison_dimensions.target_region_eligibility || {};
   var facts = candidate.proposal_card && candidate.proposal_card.candidate_opportunity && candidate.proposal_card.candidate_opportunity.source_backed_mechanism || [];
   radarSetStage(1,
-    ["<span class=\"h\">$ compare -- " + radarEscape(candidates.length) + " 張候選證據卡可供人工檢視</span>", "<span class=\"ok\">✓</span> Region：" + radarEscape(region.status || "unknown"), "<span class=\"num\">!</span> 定價、公司環境與 cleanup 必須另行證實。"],
+    ["<span class=\"h\">$ compare -- " + radarEscape(candidates.length) + " 張候選證據卡可供人工檢視</span>", "<span class=\"ok\">✓</span> Region：" + radarEscape(region.status || "unknown"), "<span class=\"num\">!</span> 未證實的定價與 Region 資訊會保留為提醒。"],
     [{ label: "候選", value: String(candidates.length) }, { label: "Region", value: region.status === "available_ap_southeast_1" ? "ready" : "check" }],
-    candidates.length ? "先選候選即可評估；問題、環境與資料邊界都可在知道後再補。" : "沒有可比較候選，請回到 Skill 1 檢查來源。"
+    candidates.length ? "直接選擇候選即可依公開證據評估，不需要額外填寫使用環境。" : "沒有可比較候選，請回到 Skill 1 檢查來源。"
   );
-  var content = candidates.length ? "<form class=\"radar-form\" id=\"radar-shortlist-form\"><div class=\"candidate-pick\"><label><input type=\"radio\" name=\"candidate\" value=\"" + radarEscape(candidate.candidate_id) + "\" checked><span><b>" + radarEscape(candidate.title) + "</b><small>" + radarEscape((facts[0] || "官方來源尚未提供足夠的候選機制說明。").slice(0, 170)) + "</small></span></label></div><div class=\"radar-optional-note\">以下資訊都是選填。尚未知道時可直接開始評估，系統會在 artifact 中標示資料缺口。</div><label>想解決的問題 <small>選填</small><textarea name=\"problem\" placeholder=\"例如：想改善的作業、風險或使用情境\"></textarea></label><label>可用環境 <small>選填</small><textarea name=\"environment\" placeholder=\"例如：non-production 帳號與可用權限\"></textarea></label><label>不可碰的資料與權限 <small>選填</small><textarea name=\"boundary\" placeholder=\"例如：PII、production data、production role\"></textarea></label><button type=\"submit\">確認 shortlist，開始評估</button></form>" : "<div class=\"radar-empty\">此來源沒有可供 Skill 3 評估的候選。</div>";
+  var content = candidates.length ? "<form class=\"radar-form\" id=\"radar-shortlist-form\"><div class=\"candidate-pick\"><label><input type=\"radio\" name=\"candidate\" value=\"" + radarEscape(candidate.candidate_id) + "\" checked><span><b>" + radarEscape(candidate.title) + "</b><small>" + radarEscape((facts[0] || "官方來源尚未提供足夠的候選機制說明。").slice(0, 170)) + "</small></span></label></div><div class=\"radar-optional-note\">Skill 3 會直接依公開證據評估；不需要填寫公司問題、使用環境或資料限制。</div><button type=\"submit\">確認候選，開始評估</button></form>" : "<div class=\"radar-empty\">此來源沒有可供 Skill 3 評估的候選。</div>";
   document.getElementById("log").insertAdjacentHTML("beforeend", content);
   var form = document.getElementById("radar-shortlist-form");
   if (form) form.addEventListener("submit", radarEvaluate);
@@ -193,11 +193,7 @@ function radarEvaluate(event) {
   event.preventDefault();
   var form = new FormData(event.currentTarget);
   radarState.selectedId = form.get("candidate");
-  var payload = {
-    selected_candidate_ids: [radarState.selectedId], selected_by: "GUI human reviewer",
-    problem_to_solve: form.get("problem"), available_environment: form.get("environment"),
-    forbidden_data_and_permissions: form.get("boundary")
-  };
+  var payload = { selected_candidate_ids: [radarState.selectedId], selected_by: "GUI human reviewer" };
   radarSetBusy("正在依固定 rubric 計算評估結果與停損條件。");
   radarApi("/runs/" + radarState.runId + "/shortlist", { method: "POST", body: JSON.stringify(payload) }).then(function (artifact) {
     radarFinishCurrentStage(2, function () { radarState.s3 = artifact; radarShowEvaluation(); });
@@ -208,15 +204,17 @@ function radarShowEvaluation() {
   var candidate = radarState.s3.evaluated_candidates[0];
   var score = candidate.dimension_scores || {};
   var lowRisk = candidate.recommend_low_risk_validation !== undefined ? candidate.recommend_low_risk_validation : candidate.recommend_s4;
-  var paidReview = candidate.eligible_for_paid_poc_review !== undefined ? candidate.eligible_for_paid_poc_review : candidate.recommend_s4;
+  var pocReview = candidate.eligible_for_poc_review !== undefined
+    ? candidate.eligible_for_poc_review
+    : (candidate.eligible_for_paid_poc_review !== undefined ? candidate.eligible_for_paid_poc_review : candidate.recommend_s4);
   var decisionText = lowRisk
-    ? (paidReview
-      ? "建議建立低風險驗證 artifact；付費 PoC 仍需獨立人工核准、成本與 cleanup gate。"
-      : "建議建立低風險驗證 artifact，但目前不具付費 PoC 審查資格。")
+    ? (pocReview
+      ? "建議建立低風險驗證 artifact；公開證據也已達 PoC 審查門檻。"
+      : "建議建立低風險驗證 artifact；公開證據尚未達 PoC 審查門檻。")
     : "目前不建議低風險 Skill 4 驗證，報告會保留原因。";
   radarSetStage(2,
     ["<span class=\"h\">$ evaluate -- 固定 rubric 已完成</span>", "<span class=\"ok\">✓</span> 技術價值 " + radarEscape(score.technical_value) + " · 導入前提 " + radarEscape(score.adoption_prerequisites), "<span class=\"ok\">✓</span> 可驗證性 " + radarEscape(score.verifiability) + " · 風險與停損 " + radarEscape(score.risk_and_stop_conditions), "<span class=\"num\">★</span> 加權分 " + radarEscape(candidate.weighted_score) + " / 5 · " + radarEscape(candidate.confidence) + " confidence"],
-    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "Low-risk", value: lowRisk ? "review" : "hold" }, { label: "Paid PoC", value: paidReview ? "eligible" : "blocked" }],
+    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "Low-risk", value: lowRisk ? "review" : "hold" }, { label: "PoC", value: pocReview ? "eligible" : "hold" }],
     decisionText
   );
   document.getElementById("log").insertAdjacentHTML("beforeend", "<div class=\"radar-action\"><b>下一關：Skill 4 Validate</b><p>現在只會建立低風險驗證 artifact，不會自行部署任何 AWS 資源。</p><button id=\"radar-validate\">建立驗證 artifact</button></div>");

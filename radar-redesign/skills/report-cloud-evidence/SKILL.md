@@ -50,7 +50,7 @@ Reuse `agentic_cloud_radar/s5.py`.
 - A named-human cost ceiling is not an official price.
 - `CREATE_COMPLETE` is deployment evidence, not cleanup evidence.
 - Automated checks do not replace Console review.
-- Intern non-production evidence does not prove company-environment fitness.
+- Sandbox evidence proves only the tested recipe and workload; do not generalize it to every environment.
 - Missing evidence must remain `unknown`.
 
 ## Validation

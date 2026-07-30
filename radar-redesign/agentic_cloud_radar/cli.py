@@ -39,7 +39,7 @@ def main(argv: list[str] | None = None) -> int:
     s3_parser.add_argument("--shortlist", help="Optional path to a human shortlist request JSON file.")
     s3_parser.add_argument("--output", help="Optional path for the S3 evaluation artifact.")
 
-    s4_parser = subparsers.add_parser("s4", help="Validate S3 results without automatically starting paid cloud resources.")
+    s4_parser = subparsers.add_parser("s4", help="Validate S3 results without automatically starting cloud resources.")
     s4_parser.add_argument("--input", required=True, help="Path to an S3 evaluation artifact JSON file.")
     s4_parser.add_argument("--approval", help="Optional path to an S4 approval request JSON file.")
     s4_parser.add_argument("--output", help="Optional path for the S4 validation artifact.")

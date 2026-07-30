@@ -1,4 +1,4 @@
 interface:
   display_name: "Skill 5 · Report"
-  short_description: "Render cloud evidence into traceable technical reports"
-  default_prompt: "Use $report-cloud-evidence to render S1-S4 artifacts into an evidence-bound technical report."
+  short_description: "Report verified cloud evidence without overclaiming"
+  default_prompt: "Use $report-cloud-evidence to produce a traceable report from Skill 1 through Skill 4 artifacts."

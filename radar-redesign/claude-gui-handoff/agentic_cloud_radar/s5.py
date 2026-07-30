@@ -166,14 +166,14 @@ def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None
             return {"status": "poc_passed_pending_closure", "text": "PoC 技術驗證通過。CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過。AWS Console review 與 cleanup 尚待完成。"}
         return {"status": "poc_passed_pending_closure", "text": "PoC 技術驗證已通過自動化檢查。AWS Console review 與 cleanup 尚待完成。"}
     if candidate and _recommend_low_risk_validation(candidate):
-        if _eligible_for_paid_poc_review(candidate):
+        if _eligible_for_poc_review(candidate):
             return {
-                "status": "low_risk_and_paid_review_recommended",
-                "text": "Skill 3 建議進入低風險 Skill 4 驗證，且候選可另行申請付費 PoC 審查；尚無完整 PoC runtime 證據。",
+                "status": "low_risk_and_poc_review_recommended",
+                "text": "Skill 3 建議進入低風險 Skill 4 驗證，且公開證據已達 PoC 審查門檻；尚無完整 PoC runtime 證據。",
             }
         return {
             "status": "low_risk_validation_recommended",
-            "text": "Skill 3 建議進入低風險 Skill 4 驗證，但候選尚不具付費 PoC 審查資格。",
+            "text": "Skill 3 建議進入低風險 Skill 4 驗證；公開證據尚未達 PoC 審查門檻。",
         }
     return {"status": "unknown", "text": "尚無足夠的 Skill 3 或 Skill 4 證據形成 PoC 結論。"}
 
@@ -191,7 +191,7 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
             ("信心", candidate.get("confidence") or "unknown"),
             ("區域狀態", region.get("status") or "unknown"),
             ("建議低風險 Skill 4 驗證", _yes_no_unknown(_recommend_low_risk_validation(candidate))),
-            ("具備付費 PoC 審查資格", _yes_no_unknown(_eligible_for_paid_poc_review(candidate))),
+            ("達到 PoC 審查門檻", _yes_no_unknown(_eligible_for_poc_review(candidate))),
             ("成本", ((candidate.get("cost_estimate") or {}).get("status") or "unknown")),
         ],
     }
@@ -291,7 +291,9 @@ def _recommend_low_risk_validation(candidate: dict[str, Any]) -> bool:
     return bool(candidate.get("recommend_s4"))
 
 
-def _eligible_for_paid_poc_review(candidate: dict[str, Any]) -> bool:
+def _eligible_for_poc_review(candidate: dict[str, Any]) -> bool:
+    if "eligible_for_poc_review" in candidate:
+        return bool(candidate.get("eligible_for_poc_review"))
     if "eligible_for_paid_poc_review" in candidate:
         return bool(candidate.get("eligible_for_paid_poc_review"))
     return bool(candidate.get("recommend_s4"))

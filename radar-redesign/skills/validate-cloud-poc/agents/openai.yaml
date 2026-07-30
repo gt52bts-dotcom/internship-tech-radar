@@ -1,4 +1,4 @@
 interface:
   display_name: "Skill 4 · Validate"
-  short_description: "Validate cloud candidates with controlled PoC gates"
-  default_prompt: "Use $validate-cloud-poc to validate an evaluated candidate without bypassing approval, cost, review, or cleanup gates."
+  short_description: "Validate candidates with a short controlled PoC gate"
+  default_prompt: "Use $validate-cloud-poc to validate a candidate with built-in sandbox defaults and a short human approval gate."

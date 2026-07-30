@@ -64,7 +64,7 @@ S2 不再只是補連結。它將每個可追溯候選做成 `proposal_card`，�
 
 S2 先重新抓 S1 原始文章與其中候選相關連結，再用 AWS 的公開搜尋索引補找原文未連出的官方 docs／產品頁／公告。搜尋結果只用來發現 URL；每個 URL 都要重新抓取並通過「候選功能名稱與 Singapore 同段出現」的檢查，才會成為 Region 證據。
 
-它不自動選冠軍、不假裝已知公司痛點，也不自動開 PoC。人類可從有證據卡片的候選中選最多三項進 S3；正式付費 PoC 到 S4 才要求確認 target Region、成本、權限與 cleanup，若確認不了就降級為文件／本機／低風險驗證。
+它不自動選冠軍，也不自動開 PoC。人類只要從有證據卡片的候選中選最多三項進 S3，不必另外填公司問題、使用環境或資料限制；Region 與定價缺口保留為提醒。
 
 ```powershell
 python -m agentic_cloud_radar.cli s2 `
@@ -74,9 +74,9 @@ python -m agentic_cloud_radar.cli s2 `
 
 ## S3/S4：評估、受控部署與驗證
 
-S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 預設只建立低風險 validation artifact，不會建立 AWS 資源，也不會自動啟動付費 PoC。
+S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 預設只建立低風險 validation artifact，不會建立 AWS 資源，也不會自動啟動 PoC。
 
-S3 v2 將原本混在 `recommend_s4` 的決策拆開：`recommend_low_risk_validation` 判斷是否值得做文件／本機／validator 驗證，`eligible_for_paid_poc_review` 則獨立檢查公司問題脈絡、可用環境、禁止資料／權限、治理旗標與 Region 證據。舊 `recommend_s4` 暫時保留並只映射到低風險建議；S4 的付費 gate 不再依賴這個相容欄位。
+S3 v3 採公開證據模式：`recommend_low_risk_validation` 判斷是否值得做文件／本機／validator 驗證；`eligible_for_poc_review` 則要求分數至少 3.75、信心至少 medium，且沒有真正的硬性阻擋。Region 與定價不確定性放進 `poc_review_notes`，不要求使用者填一整套環境表單。舊 `recommend_s4` 與 `eligible_for_paid_poc_review` 只保留作相容欄位。
 
 ```powershell
 python -m agentic_cloud_radar.cli s3 `
@@ -89,7 +89,7 @@ python -m agentic_cloud_radar.cli s4 `
   --output .\out\s4-local-validate.json
 ```
 
-完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。`s4-deploy` 先產生 deployment context，只有 approval 具有完整 S1/S2/S3 lineage、指定 recipe、Region、成本、真人核准與 `deployment_authorized=true`，且命令再附 `--execute` 才能建立資源。部署後必須由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；兩者都有 intern 非 production live PoC 證據。S3 Files 已完成 Console review 與 cleanup；Lambda 已部署並 invoke，已確認 CloudFormation 架構與 `CREATE_COMPLETE`，仍待儲存設定人工確認及 cleanup 決策。未註冊的候選會停在 `needs_poc_recipe`，不會套用別的模板。
+完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。最小 approval 只需記錄核准人、候選、`deployment_authorized=true` 與 S1/S2/S3 artifact 路徑；Region、小額成本上限、recipe 成功條件與 cleanup scope 使用系統預設，必要時才覆寫。命令仍須另附 `--execute` 才能建立資源。部署後由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
 
 ## S5：證據報告
 
@@ -111,7 +111,7 @@ python -m agentic_cloud_radar.cli s5 `
 - `agentic_cloud_radar/s1.py`：掃描與 URL 匯入。
 - `agentic_cloud_radar/s2.py`：證據比較、候選提案卡、比較矩陣。
 - `agentic_cloud_radar/s3.py`：固定 rubric 評估 human shortlist。
-- `agentic_cloud_radar/s4.py`：低風險驗證 artifact 與 paid-PoC gate 檢查。
+- `agentic_cloud_radar/s4.py`：低風險驗證 artifact 與簡化 PoC gate 檢查。
 - `agentic_cloud_radar/s5.py`：artifact-only JSON、Markdown 與 GUI report renderer。
 - `skills/`：五個可被 Codex 識別與重用的正式 Skill packages。
 - `docs/s1-極細註解版.md`：S1 資料流與命令說明。
