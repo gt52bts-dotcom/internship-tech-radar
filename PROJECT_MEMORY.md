@@ -29,6 +29,14 @@
 - Resolution: S3 schema `s3.evaluation.v2` now emits `recommend_low_risk_validation` and `eligible_for_paid_poc_review` separately. Legacy `recommend_s4` remains temporarily as a compatibility alias for low-risk validation only; S4 paid-PoC checks use the explicit paid-review field.
 - A context-free Lambda rerun now correctly yields low-risk validation `true`, paid-PoC review eligibility `false`, S4 `validated_low_risk`, and an S5 conclusion that states the distinction. Existing S3 v1 artifacts remain readable by S4 fallback logic.
 
+## 2026-07-30 Default Context-Free Usage
+
+- Cleo 多數時候無法取得公司內部問題、環境或資料，因此公開 AWS 新聞的日常評估不得把公司內部脈絡當成必要輸入，也不應反覆要求 Cleo 提供她原本就無權取得的資料。
+- 沒有公司內部脈絡時，預設使用「公開技術探索模式」：Skill 1～Skill 3 依公開官方證據判斷技術價值、前提、限制與可驗證性；公司適配度只能標成 `unknown`，不可因此把技術判成不值得研究。
+- 後續決策模型應區分三層：低風險文件／本機驗證、隔離的 intern sandbox PoC 審查、公司採用／公司環境 PoC 審查。缺少公司資料只應阻擋第三層。
+- intern sandbox PoC 不使用公司資料，可沿用既有固定安全邊界：`intern` 非 production 帳號、`ap-southeast-1`、合成測試資料、不得使用 PII／公司／production 資源、run-derived 隔離資源、成本上限、Cleo 具名核准、Console review 與受限 cleanup。這些條件仍須在每次建立付費資源前確認。
+- 現行 `eligible_for_paid_poc_review` 仍同時涵蓋 sandbox 與公司 PoC 語意；在 schema 再拆分前，context-free 的 `false` 只能解讀為「尚未完成目前這個通用 paid-PoC gate」，不能解讀為技術不適合 intern sandbox 或公司不適用。
+
 ## Presentation Schedule
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.

@@ -656,3 +656,11 @@
 - 驗證：`python -m unittest discover -s tests -v` 共 22 項通過；`python -m compileall agentic_cloud_radar tests`、`node --check web/app.js` 與 `git diff --check` 通過。
 - 新發現的報告品質問題：Skill 2 正確從 AWS News Blog 的「所有商業 AWS Regions」敘述將 `ap-southeast-1` 判為 available，但同一 artifact／Skill 5 仍保留「沒有抓到候選專用 Region 頁面」的 data gap，造成「Region available」與「Region evidence gap」同時出現。這不影響本次 paid-PoC=false 的安全結果，但後續應區分「已有主來源的全商業區域證據」和「沒有獨立 Region 頁面」，避免報告看起來矛盾。
 - 目標關係：直接扣回五個 Skill 產品化與 7/31 Mentor review 主線；本次是完整 artifact 流程與低風險驗證，不是新的 AWS live PoC。
+
+### 無公司內部資料時的預設使用模式
+
+- Cleo 指出，多數時候她根本沒有公司內部問題、環境與資料可提供，因此不能把這三項當成平常使用 Skill 1～Skill 5 的必要前提。
+- 決策修正：日常 AWS 新聞評估預設走公開技術探索模式；公開官方證據足以支持掃描、比較、技術評估與低風險驗證，公司適配度保留 `unknown`，不再反覆要求 Cleo 提供無權取得的內部資料。
+- 後續 schema 應把目前的 paid-PoC gate 再拆為 `intern sandbox PoC review` 與 `company adoption／company-environment PoC review`。沒有公司資料只阻擋公司採用結論；隔離 intern sandbox 仍可在合成資料、USD 3 內成本上限、具名核准、Console review 與 run-scoped cleanup 等既有安全條件下另行審查。
+- 現況限制：本次只先確立長期規則，尚未修改 S3/S4 schema；目前 `eligible_for_paid_poc_review=false` 不得再口語化為「不能做 PoC」或「技術不適合」，只能說現行通用付費 gate 尚未完成。
+- 目標關係：直接扣回五個 Skill 的日常可用性與評估語意修正。
