@@ -644,3 +644,15 @@
 - S5 報告與 GUI 已分開顯示「低風險驗證」和「Paid PoC」，不再只顯示一個模糊的 S4 review／hold。
 - 以同一 Lambda context-free run 真實重跑：score=`3.35`、`recommend_low_risk_validation=true`、`eligible_for_paid_poc_review=false`、S4=`validated_low_risk`；S5 結論為「建議低風險 Skill 4 驗證，但尚不具付費 PoC 審查資格」。
 - 驗證：兩個更新後 Skills 通過 `quick_validate.py`；`compileall`、`node --check web/app.js` 通過；完整 22 項 unittest 全部通過；昨天的 S3 v1 artifact 可由新版 S4 讀取並產生 `validated_low_risk`。
+
+### S3 Files 官方新聞完整重跑 Skill 1～Skill 5
+
+- Cleo 指定 AWS 官方文章 `https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/`，要求用正式 Skill 1～Skill 5 再跑一次。因為是單一指定候選，將 Cleo 的指令視為人工 shortlist；沒有補造公司問題、可用環境或禁止資料／權限邊界。
+- Skill 1 產出 `radar-redesign/out/s1-s3-files-rerun-20260730.json`：run=`direct-url-20260730-042936c9`、candidate=`S1-C72A08080855`、status=`scanned_with_gaps`。AWS 官方頁面抓取成功，偵測到 S3 Files、Amazon S3、EC2、EFS、VPC 與 Lambda；主要資料缺口是沒有公司問題脈絡。
+- Skill 2 產出 `radar-redesign/out/s2-s3-files-rerun-20260730.json`：status=`ready_for_human_shortlist`，找到 AWS 官方 S3 Files 使用文件、掛載文件與 S3 定價頁。官方證據支持 S3 Files 可把 S3 bucket 以共享檔案系統方式掛載到 AWS compute，並涉及 IAM role、VPC、mount target、access point、S3 Versioning、雙向同步與額外儲存／讀寫／同步費用。
+- Skill 3 產出 `radar-redesign/out/s3-s3-files-rerun-20260730.json`：schema=`s3.evaluation.v2`、score=`4.15/5`、confidence=`medium`；分項為 technical value=`4`、adoption prerequisites=`3`、verifiability=`5`、risk and stop conditions=`5`。雙軌結果為 `recommend_low_risk_validation=true`、`eligible_for_paid_poc_review=false`；後者被問題脈絡、環境、禁止資料／權限與成本核准缺口擋住。
+- Skill 4 產出 `radar-redesign/out/s4-s3-files-rerun-20260730.json`：status=`validated_low_risk`、`cloud_resources_created=false`。只驗證來源、停止條件、分數與信心欄位；沒有部署 CloudFormation、EC2、S3 Files 或其他 AWS 資源，也沒有取用公司資料。
+- Skill 5 產出 `radar-redesign/out/s5-s3-files-rerun-20260730.json` 與 `.md`：status=`interim`，一句結論為「Skill 3 建議進入低風險 Skill 4 驗證，但候選尚不具付費 PoC 審查資格。」CloudFormation、runtime、自動化驗證、Console review 與正式 cleanup 均維持 unknown／not applicable，不得寫成已完成 PoC。
+- 驗證：`python -m unittest discover -s tests -v` 共 22 項通過；`python -m compileall agentic_cloud_radar tests`、`node --check web/app.js` 與 `git diff --check` 通過。
+- 新發現的報告品質問題：Skill 2 正確從 AWS News Blog 的「所有商業 AWS Regions」敘述將 `ap-southeast-1` 判為 available，但同一 artifact／Skill 5 仍保留「沒有抓到候選專用 Region 頁面」的 data gap，造成「Region available」與「Region evidence gap」同時出現。這不影響本次 paid-PoC=false 的安全結果，但後續應區分「已有主來源的全商業區域證據」和「沒有獨立 Region 頁面」，避免報告看起來矛盾。
+- 目標關係：直接扣回五個 Skill 產品化與 7/31 Mentor review 主線；本次是完整 artifact 流程與低風險驗證，不是新的 AWS live PoC。
