@@ -817,3 +817,10 @@
 - 已補 `tests/test_s3_s4.py` 測試，覆蓋 blocked quote report 與 estimated quote report 兩種路徑。
 - 已補出本次 run 的報價單：`radar-redesign/out/connect-customer-data-lake-20260731/s3-connect-data-lake-quote.md`，Quote ID `POC-QUOTE-D457A8453933`，狀態 `needs_registered_cost_model`。
 - 驗證：主 repo `python -m unittest discover -s tests -p 'test_*.py' -v` 39 passed；`claude-gui-handoff` 同測試 39 passed；本次 S3/S4/S5 JSON 皆通過 `python -m json.tool`。
+
+## 2026-07-31 報告狀態中文化
+
+- Cleo 指示後續報告不要再直接顯示英文狀態碼，要用中文狀態。
+- 已更新 Skill 3 quote report 與 Skill 5 Markdown/GUI 顯示層，將 `interim`、`needs_registered_cost_model`、`pending_actual_cost`、`region_unknown`、`unknown`、`not_available` 等人類可見狀態翻成中文；底層 JSON code 保留給流程判斷。
+- 已重產 Amazon Connect Customer Data Lake 本次報告與報價單，並掃描 Markdown 確認上述英文狀態碼未再出現。
+- 驗證：主 repo 39 passed；`claude-gui-handoff` 39 passed。

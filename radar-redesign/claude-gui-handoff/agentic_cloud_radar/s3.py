@@ -394,20 +394,21 @@ def _summary(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
 def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
     quote = ((evaluated.get("cost_estimate") or {}).get("quote") or {})
     status = str(quote.get("status") or "unknown")
+    status_label = _display_status(status)
     quote_id = str(quote.get("quote_id") or "unknown")
     report_id = f"{quote_id}-skill3-quote"
     lines = [
-        f"# Skill 3 PoC 報價單：{evaluated.get('title') or 'unknown'}",
+        f"# Skill 3 PoC 報價單：{evaluated.get('title') or '未記錄'}",
         "",
         f"- Quote ID：{quote_id}",
-        f"- 狀態：{status}",
-        f"- Run ID：{quote.get('run_id') or 'unknown'}",
-        f"- Candidate ID：{quote.get('candidate_id') or evaluated.get('candidate_id') or 'unknown'}",
-        f"- 目標區域：{quote.get('target_region') or 'unknown'}",
-        f"- 報價性質：{quote.get('quote_kind') or 'non_binding_public_price_estimate'}",
+        f"- 狀態：{status_label}",
+        f"- Run ID：{quote.get('run_id') or '未記錄'}",
+        f"- Candidate ID：{quote.get('candidate_id') or evaluated.get('candidate_id') or '未記錄'}",
+        f"- 目標區域：{quote.get('target_region') or '未記錄'}",
+        f"- 報價性質：{_display_status(quote.get('quote_kind') or 'non_binding_public_price_estimate')}",
         f"- 即時 AWS Pricing API：{'是' if quote.get('live_pricing_api_used') else '否'}",
         f"- 正式採購報價：{'是' if quote.get('formal_procurement_quote_ready') else '否'}",
-        f"- 有效期限：{quote.get('valid_until') or 'unknown'}",
+        f"- 有效期限：{quote.get('valid_until') or '未記錄'}",
         "",
     ]
     if status == "estimated":
@@ -417,7 +418,7 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
                 f"- 預期費用 USD：{quote.get('expected_total_usd')}",
                 f"- 低/中/高情境 USD：{price_range.get('low')} / {price_range.get('expected')} / {price_range.get('high')}",
                 f"- 建議核准上限 USD：{quote.get('recommended_approval_ceiling_usd')}",
-                f"- Recipe：{quote.get('recipe') or 'unknown'}",
+                f"- Recipe：{quote.get('recipe') or '未記錄'}",
                 "",
                 "## 明細",
                 "",
@@ -438,8 +439,8 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
             [
                 "## 為什麼不能給金額",
                 "",
-                f"- 原因：{quote.get('pricing_basis') or 'No pricing basis recorded.'}",
-                f"- 缺少輸入：{', '.join(str(item) for item in missing) if missing else 'unknown'}",
+                f"- 原因：{quote.get('pricing_basis') or '未記錄報價依據。'}",
+                f"- 缺少輸入：{', '.join(str(item) for item in missing) if missing else '未記錄'}",
                 "- 這仍然是一張 Skill 3 報價單，但它的結論是目前不能報價，不能進入實際 Skill 4 付費 PoC。",
             ]
         )
@@ -450,6 +451,17 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
         "status": status,
         "markdown": "\n".join(lines) + "\n",
     }
+
+
+def _display_status(value: Any) -> str:
+    labels = {
+        "estimated": "已完成估算",
+        "needs_registered_cost_model": "缺少已註冊成本模型",
+        "non_binding_public_price_estimate": "非正式公開牌價估算",
+        "unknown": "未記錄",
+    }
+    text = str(value or "unknown")
+    return labels.get(text, text)
 
 
 def _dedupe(values: list[str]) -> list[str]:

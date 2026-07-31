@@ -85,7 +85,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines = [
         f"# 技術驗證報告｜{candidate['title'] or 'unknown'}",
         "",
-        f"- 報告狀態：{report['report_type']}",
+        f"- 報告狀態：{_display_status(report['report_type'])}",
         f"- Run ID：{report['run_id']}",
         f"- 來源：{candidate['source_url'] or 'unknown'}",
         "",
@@ -113,7 +113,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(f"- {item}" for item in report["next_reminders"] or ["無額外提醒"])
     lines.extend(["", "## 證據帳本", "", "| 敘述 | 類型 | 狀態 | 證據 |", "| --- | --- | --- | --- |"])
     for entry in report["evidence_ledger"]:
-        lines.append(f"| {entry['claim']} | {entry['type']} | {entry['status']} | {entry['source']} |")
+        lines.append(f"| {entry['claim']} | {entry['type']} | {_display_status(entry['status'])} | {entry['source']} |")
     return "\n".join(lines) + "\n"
 
 
@@ -127,6 +127,7 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
             "title": report["candidate"]["title"],
             "source_url": report["candidate"]["source_url"],
             "report_type": report["report_type"],
+            "report_type_label": _display_status(report["report_type"]),
             "conclusion": report["conclusion"],
         },
         "score": {
@@ -134,8 +135,11 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
             "confidence": report["evaluation"].get("confidence"),
             "dimensions": dimensions,
         },
-        "cost_quote": report["cost_quote"],
-        "cost_reconciliation": report["cost_reconciliation"],
+        "cost_quote": {**report["cost_quote"], "status_label": _display_status(report["cost_quote"].get("status"))},
+        "cost_reconciliation": {
+            **report["cost_reconciliation"],
+            "status_label": _display_status(report["cost_reconciliation"].get("status")),
+        },
         "console_review": _gui_console_review(report),
         "validation_checks": checks,
         "verified_facts": report["verified_facts"],
@@ -247,10 +251,10 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
         "dimensions": dimensions,
         "rows": [
             ("Skill 3 加權分", candidate.get("weighted_score", "unknown")),
-            ("信心", candidate.get("confidence") or "unknown"),
-            ("區域狀態", region.get("status") or "unknown"),
+            ("信心", _display_status(candidate.get("confidence") or "unknown")),
+            ("區域狀態", _display_status(region.get("status") or "unknown")),
             ("建議進入實際 Skill 4 PoC", _yes_no_unknown(_recommend_poc(candidate))),
-            ("成本", ((candidate.get("cost_estimate") or {}).get("status") or "unknown")),
+            ("成本", _display_status((candidate.get("cost_estimate") or {}).get("status") or "unknown")),
         ],
     }
 
@@ -353,7 +357,7 @@ def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
     if quote.get("status") != "estimated":
         lines.extend(
             [
-                f"- 報價狀態：{quote.get('status') or 'unknown'}",
+                f"- 報價狀態：{_display_status(quote.get('status') or 'unknown')}",
                 f"- Quote ID：{quote.get('quote_id') or 'unknown'}",
                 "- 結果：目前沒有已登錄且可稽核的費率模型，不填造金額。",
             ]
@@ -375,7 +379,7 @@ def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
                 f"高 **${_format_money(price_range.get('high'))}**"
             ),
             f"- 建議核准上限：**${_format_money(quote.get('recommended_approval_ceiling_usd'))}**",
-            f"- 報價性質：{quote.get('quote_kind') or 'non_binding_public_price_estimate'}；即時 Pricing API：{_yes_no_unknown(quote.get('live_pricing_api_used'))}",
+            f"- 報價性質：{_display_status(quote.get('quote_kind') or 'non_binding_public_price_estimate')}；即時 Pricing API：{_yes_no_unknown(quote.get('live_pricing_api_used'))}",
             "",
             "### 預期情境明細",
             "",
@@ -431,22 +435,22 @@ def _render_cost_reconciliation(reconciliation: dict[str, Any]) -> list[str]:
         "| 項目 | 狀態 | 金額 USD | 證據 |",
         "| --- | --- | ---: | --- |",
         (
-            f"| Skill 3 公開牌價估算 | {estimated.get('status') or 'unknown'} | "
+            f"| Skill 3 公開牌價估算 | {_display_status(estimated.get('status') or 'unknown')} | "
             f"{_format_money(estimated.get('expected_total_usd'))} | "
             f"{estimated.get('quote_id') or estimated.get('source') or 'unknown'} |"
         ),
     ]
-    actual_source = actual.get("source_artifact") or actual.get("source_type") or "not_available"
+    actual_source = _display_status(actual.get("source_artifact") or actual.get("source_type") or "not_available")
     lines.append(
-        f"| 可歸因實際帳務成本 | {actual.get('status') or 'unknown'} | "
+        f"| 可歸因實際帳務成本 | {_display_status(actual.get('status') or 'unknown')} | "
         f"{_format_money(actual.get('amount_usd'))} | {actual_source} |"
     )
     lines.append(
-        f"| 差異（實際 - 預估） | {reconciliation.get('status') or 'unknown'} | "
+        f"| 差異（實際 - 預估） | {_display_status(reconciliation.get('status') or 'unknown')} | "
         f"{_format_money(reconciliation.get('delta_usd'))} | {reconciliation.get('rule')} |"
     )
     if actual.get("status") == "pending":
-        lines.extend(["", f"- 實際成本狀態：pending。{actual.get('reason')}"])
+        lines.extend(["", f"- 實際成本狀態：{_display_status('pending')}。{actual.get('reason')}"])
         lines.append("- 不以 EC2 執行時間、CloudFormation 狀態或 runtime artifact 推算實際 AWS 帳務成本。")
     return lines
 
@@ -457,12 +461,12 @@ def _validation_summary(validation: dict[str, Any] | None, runtime: dict[str, An
     cleanup = runtime.get("cleanup") or {}
     return {
         "rows": [
-            ("Skill 4 validation", (validation or {}).get("validation_status") or "unknown"),
-            ("CloudFormation", (runtime.get("deployment") or {}).get("stack_status") or "unknown"),
+            ("Skill 4 validation", _display_status((validation or {}).get("validation_status") or "unknown")),
+            ("CloudFormation", _display_status((runtime.get("deployment") or {}).get("stack_status") or "unknown")),
             ("自動化驗證", _verification_status(verification)),
-            ("AWS Console review", (runtime.get("console_review") or {}).get("status") or "unknown"),
+            ("AWS Console review", _display_status((runtime.get("console_review") or {}).get("status") or "unknown")),
             ("Console 截圖證據", _console_screenshot_status(runtime)),
-            ("cleanup", cleanup.get("status") or (validation or {}).get("cleanup_status") or "unknown"),
+            ("cleanup", _display_status(cleanup.get("status") or (validation or {}).get("cleanup_status") or "unknown")),
         ]
     }
 
@@ -473,7 +477,9 @@ def _verification_status(verification: dict[str, Any]) -> str:
         for key, value in verification.items()
         if key not in {"success_criteria", "recipe"} and isinstance(value, str)
     ]
-    return "verified" if known and all(value == "verified" for value in known) else (", ".join(known) if known else "unknown")
+    if known and all(value == "verified" for value in known):
+        return _display_status("verified")
+    return ", ".join(_display_status(value) for value in known) if known else _display_status("unknown")
 
 
 def _verified_facts(
@@ -617,7 +623,44 @@ def _yes_no_unknown(value: Any) -> str:
         return "是"
     if value is False:
         return "否"
-    return "unknown"
+    return "未記錄"
+
+
+def _display_status(value: Any) -> str:
+    text = str(value or "unknown")
+    labels = {
+        "actual_available_without_estimate": "已有實際成本但缺少預估基準",
+        "attributed": "已歸因",
+        "awaiting_console_review": "等待 Console 人工確認",
+        "awaiting_poc_approval": "等待 PoC 授權",
+        "captured_and_confirmed": "已截圖並經人類確認",
+        "captured_channel_unconfirmed": "已截圖但尚未確認顯示管道",
+        "cleanup_verified": "清除已驗證",
+        "closed_without_console_review": "已關閉但未完成 Console 確認",
+        "compared": "已完成比較",
+        "confirmed": "已確認",
+        "CREATE_COMPLETE": "CloudFormation 建立完成",
+        "estimated": "已完成估算",
+        "final": "最終報告",
+        "interim": "階段性報告",
+        "medium": "中等",
+        "high": "高",
+        "low": "低",
+        "needs_registered_cost_model": "缺少已註冊成本模型",
+        "non_binding_public_price_estimate": "非正式公開牌價估算",
+        "not_applicable_no_cloud_resources_created": "不適用，未建立雲端資源",
+        "not_available": "無可用資料",
+        "not_recorded": "未記錄",
+        "not_recommended_for_poc": "不建議進入實際 PoC",
+        "pending": "待補實際帳務證據",
+        "pending_actual_cost": "待補實際成本",
+        "poc_ready_for_manual_start": "PoC 可由人類授權啟動",
+        "region_unknown": "區域支援尚未確認",
+        "available_ap_southeast_1": "新加坡區域可用",
+        "unknown": "未記錄",
+        "verified": "已驗證",
+    }
+    return labels.get(text, text)
 
 
 def _console_screenshot_count(runtime: dict[str, Any] | None) -> int:
@@ -644,9 +687,9 @@ def _console_screenshot_status(runtime: dict[str, Any] | None) -> str:
     count = _console_screenshot_count(runtime)
     if count:
         if _console_display_channel_confirmed(runtime):
-            return f"captured_and_confirmed ({count})"
-        return f"captured_channel_unconfirmed ({count})"
-    return ((runtime or {}).get("console_review") or {}).get("evidence_status") or "not_recorded"
+            return f"已截圖並經人類確認（{count} 張）"
+        return f"已截圖但尚未確認顯示管道（{count} 張）"
+    return _display_status(((runtime or {}).get("console_review") or {}).get("evidence_status") or "not_recorded")
 
 
 def _recommend_poc(candidate: dict[str, Any]) -> bool:
@@ -665,13 +708,13 @@ def _dedupe(values: list[str]) -> list[str]:
 
 def _format_number(value: Any) -> str:
     if not isinstance(value, (int, float)):
-        return str(value if value is not None else "unknown")
+        return str(value if value is not None else "未記錄")
     return f"{float(value):.9f}".rstrip("0").rstrip(".")
 
 
 def _format_money(value: Any) -> str:
     if not isinstance(value, (int, float)):
-        return str(value if value is not None else "unknown")
+        return str(value if value is not None else "未記錄")
     text = f"{float(value):.6f}".rstrip("0").rstrip(".")
     if "." not in text:
         return text + ".00"

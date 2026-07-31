@@ -328,3 +328,8 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Skill 3 Evaluate must expose a human-readable PoC quote report for the single selected candidate, not only an embedded JSON quote object.
 - If the selected candidate has no registered recipe/rate card, Skill 3 still emits a quote report with status `needs_registered_cost_model`, the quote id, missing inputs, and the reason no dollar amount can be produced.
 - The Amazon Connect Customer Data Lake article run now has an added quote report at `radar-redesign/out/connect-customer-data-lake-20260731/s3-connect-data-lake-quote.md`; it correctly says no price can be estimated until a candidate-specific registered recipe and rate card are added.
+
+## 2026-07-31 Human-Facing Report Language Rule
+
+- Human-facing Skill reports, quote reports, Markdown output, and GUI display labels must show statuses in Traditional Chinese instead of raw machine codes such as `interim`, `needs_registered_cost_model`, `pending_actual_cost`, `region_unknown`, `unknown`, or `not_available`.
+- Machine-readable JSON status fields may remain stable English codes for tests and workflow logic, but every user-visible report layer should include or render a Chinese label.

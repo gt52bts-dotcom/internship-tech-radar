@@ -77,7 +77,7 @@ class Skill5Tests(unittest.TestCase):
 
         self.assertEqual(report["status"], "final")
         self.assertIn("Infrastructure Composer 截圖人工確認", report["conclusion"]["text"])
-        self.assertEqual(report["gui_model"]["console_review"]["screenshot_status"], "captured_and_confirmed (1)")
+        self.assertEqual(report["gui_model"]["console_review"]["screenshot_status"], "已截圖並經人類確認（1 張）")
 
     def test_v3_cleanup_verified_without_screenshot_is_not_final(self):
         s1 = {"stage": "S1", "run_id": "run-cleaned", "candidates": [{"candidate_id": "C6"}]}
@@ -152,12 +152,16 @@ class Skill5Tests(unittest.TestCase):
 
         self.assertIn("## PoC 成本估算報價單", report["markdown"])
         self.assertIn("## 預估成本 vs 可歸因實際帳務成本", report["markdown"])
-        self.assertIn("實際成本狀態：pending", report["markdown"])
+        self.assertIn("實際成本狀態：待補實際帳務證據", report["markdown"])
+        self.assertNotIn("| pending |", report["markdown"])
+        self.assertNotIn("| pending_actual_cost |", report["markdown"])
         self.assertIn("預期總額", report["markdown"])
         self.assertEqual(report["cost_quote"]["expected_total_usd"], 0.04719)
         self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
         self.assertEqual(report["gui_model"]["cost_quote"]["recommended_approval_ceiling_usd"], 0.2)
+        self.assertEqual(report["gui_model"]["cost_quote"]["status_label"], "已完成估算")
         self.assertEqual(report["gui_model"]["cost_reconciliation"]["status"], "pending_actual_cost")
+        self.assertEqual(report["gui_model"]["cost_reconciliation"]["status_label"], "待補實際成本")
 
     def test_attributable_billing_artifact_is_compared_to_estimate(self):
         from agentic_cloud_radar.costing import build_cost_quote
