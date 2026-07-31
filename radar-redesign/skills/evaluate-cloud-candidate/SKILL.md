@@ -10,7 +10,7 @@ Evaluate only one human-selected candidate. Do not silently select candidates or
 ## Inputs
 
 - S2 comparison artifact with a stable `run_id`.
-- Human selection request naming exactly one S2 candidate ID.
+- Human selection request naming exactly one S2 candidate ID (`.\out\run\shortlist.json`).
 
 Human candidate selection is mandatory. Public-evidence evaluation does not require a business problem, environment description, or data-boundary form.
 
@@ -20,9 +20,9 @@ From `radar-redesign/`:
 
 ```powershell
 python -m agentic_cloud_radar.cli s3 `
-  --input .\out\s2.json `
-  --shortlist .\out\shortlist.json `
-  --output .\out\s3.json
+  --input .\out\run\s2.json `
+  --shortlist .\out\run\shortlist.json `
+  --output .\out\run\s3.json
 ```
 
 Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
@@ -33,7 +33,7 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 2. Stop with `needs_human_shortlist` when no human selection exists or more than one candidate is selected.
 3. Score only evidence-supported dimensions with the fixed rubric.
 4. Record weighted score, confidence, Region state, governance flags, stop conditions, and evidence limits.
-5. For the selected candidate, create the entire PoC quote before Skill 4: low/expected/high usage, itemized rates, formulas, official sources, validity, exclusions, and a recommended approval ceiling. An unknown recipe must return `needs_registered_cost_model`, never an invented amount.
+5. For the selected candidate, create the entire PoC quote before Skill 4: low/expected/high usage, itemized rates, formulas, official sources, validity, exclusions, quoted Region, `live_pricing_api_used`, and a recommended approval ceiling. An unknown recipe must return `needs_registered_cost_model`, never an invented amount.
 6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, confidence is at least `medium`, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit.
 7. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
 8. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
@@ -47,6 +47,7 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 - Do not convert `region_unknown` into unavailable or available.
 - Do not call a human-approved spending ceiling an official estimate.
 - Do not call a public-price estimate an AWS invoice, tax invoice or binding sales quote.
+- Treat the quote as a static public rate-card estimate unless `live_pricing_api_used=true`; it is not a real-time AWS Pricing API result by default.
 - Keep cost outside the technical rubric score.
 - Do not describe a rubric fallback as an LLM or external API result.
 - Do not infer workload fit from public evidence; report it as not assessed.

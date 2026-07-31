@@ -12,6 +12,14 @@
 - 另同步修正本機安裝的 `C:\Users\youhs\.codex\skills\aws-architecture-scout\SKILL.md`，移除舊 top 3 / 全候選跑五步規則，改為目前的單項評估政策；此檔不屬於 Git repository。
 - 驗證：`python -m unittest discover -s tests -p 'test_*.py' -v` 共 37 項通過；`python -m compileall agentic_cloud_radar tests` 通過；`node --check scripts\s4-capture-infrastructure-composer.mjs` 通過；`git diff --check -- radar-redesign` 只有 Windows LF/CRLF 提醒，無 whitespace error。
 
+## 2026-07-31 Claude Skill Package Review Integration
+
+- 時間判定：2026-07-31 13:21 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。
+- 審閱 Claude 提供的五份 Skill 與 Console template；採用其單一候選、Skill 3 完整報價、截圖由人判讀、強制 cleanup 不得當成正常 final 的方向，但未直接覆蓋不符合現有程式的跨 Region 自動 fallback 說明。
+- 實作 `review_deadline`：`s4-console-review-packet --review-timeout-minutes` 會寫入 deadline；timeout abort 必須帶回 packet 且只能在 deadline 後執行。新增 close-time `--shared-via`，以 `display_channel_confirmed` 記錄人類實際看到圖片的 GUI 或對話管道。
+- Skill 5 新增 `final_without_console_review` 與 `closed_without_console_review`，把成本控制 cleanup 和正常截圖人工確認的 actual-PoC final 明確分開。五份 repository Skill 文件、Console template、README 與 S4 操作文件同步改為同一個 `out/run` 路徑與命令契約。
+- 驗證：完整 unittest 38 項通過；`compileall`、Playwright 腳本語法檢查與三個更新後 CLI `--help` 均通過。未建立、修改或清除任何 AWS 資源。
+
 ## 2026-07-31 Skill 5 成本對帳補強
 
 - 時間判定：2026-07-31 08:18 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。

@@ -7,6 +7,10 @@ description: Scan trusted public AWS and open-source sources, remove irrelevant 
 
 Create a source-bound S1 artifact. Do not rank candidates, evaluate business fit, or start a PoC.
 
+## Run directory convention
+
+Keep every artifact for one evaluation in the same dedicated folder, for example `./out/run/`. Skill 1 mints the immutable `run_id`; later stages must preserve it and keep their outputs beside the S1 artifact. Do not combine artifacts from different runs in one folder.
+
 ## Work from the project core
 
 Run commands from `radar-redesign/`. Reuse `agentic_cloud_radar/s1.py` through the CLI; do not duplicate its scanning logic inside this skill.
@@ -16,7 +20,7 @@ Direct URL:
 ```powershell
 python -m agentic_cloud_radar.cli s1-url `
   --url "<trusted-public-url>" `
-  --output .\out\s1.json
+  --output .\out\run\s1.json
 ```
 
 Discovery:
@@ -24,7 +28,7 @@ Discovery:
 ```powershell
 python -m agentic_cloud_radar.cli s1 `
   --input .\samples\landscape-ga-singapore-request.json `
-  --output .\out\s1.json
+  --output .\out\run\s1.json
 ```
 
 ## Workflow
@@ -41,6 +45,7 @@ python -m agentic_cloud_radar.cli s1 `
 - Stop on invalid input before making external requests.
 - Do not turn GitHub metadata into AWS GA evidence.
 - Do not claim an annual archive is complete when RSS only exposes recent entries.
+- Do not drop a candidate merely because an official Region statement is missing; preserve it as a review gap for Skill 2 and the controlled deployment gate.
 - Exclude Bedrock recommendations unless the human explicitly changes the project constraint.
 
 ## Validation

@@ -284,20 +284,39 @@ class S3S4Tests(unittest.TestCase):
             "console_review": {},
             "cleanup": {},
         }
-        packet = build_console_review_packet(runtime)
+        packet = build_console_review_packet(runtime, review_timeout_minutes=60)
         evidence = _console_evidence_for(runtime)
 
-        reviewed = record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet)
+        reviewed = record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet, shared_via="conversation")
 
         self.assertEqual(packet["required_screenshots"][0]["view"], "infrastructure_composer")
         self.assertIn("composer/home?region=ap-southeast-1", packet["review_target"]["composer_url"])
+        self.assertIn("+00:00", packet["review_deadline"])
+        self.assertEqual(packet["timeout_policy"]["review_timeout_minutes"], 60)
         self.assertIn("s4-capture-infrastructure-composer.mjs", packet["automation"]["command"])
         self.assertTrue(packet["automation"]["human_display_required"])
         self.assertFalse(packet["evidence_contract"]["automated_image_understanding"])
         self.assertEqual(reviewed["status"], "ready_for_cleanup")
         self.assertEqual(reviewed["console_review"]["status"], "confirmed")
         self.assertEqual(reviewed["console_review"]["evidence_status"], "captured_and_confirmed")
+        self.assertEqual(reviewed["console_review"]["display_channel_confirmed"], "conversation")
         self.assertTrue(reviewed["console_review"]["evidence"]["screenshots"][0]["redacted"])
+
+    def test_console_review_rejects_missing_confirmed_display_channel(self):
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "unit-test-run",
+            "status": "awaiting_console_review",
+            "deployment": {"stack_name": "AgenticRadarS4ABC12345", "target_region": "ap-southeast-1", "recipe": "s3_files_cdk"},
+            "console_review": {},
+            "cleanup": {},
+        }
+        packet = build_console_review_packet(runtime)
+        evidence = _console_evidence_for(runtime)
+
+        with self.assertRaisesRegex(DeploymentError, "GUI or conversation"):
+            record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet)
 
     def test_console_review_rejects_missing_infrastructure_composer_screenshot(self):
         runtime = {
@@ -314,7 +333,7 @@ class S3S4Tests(unittest.TestCase):
         evidence["screenshots"][0]["view"] = "resource_inventory"
 
         with self.assertRaisesRegex(DeploymentError, "Infrastructure Composer"):
-            record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet)
+            record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet, shared_via="conversation")
 
     def test_console_review_requires_packet_binding(self):
         runtime = {
@@ -329,7 +348,7 @@ class S3S4Tests(unittest.TestCase):
         evidence = _console_evidence_for(runtime)
 
         with self.assertRaisesRegex(DeploymentError, "packet"):
-            record_console_review(runtime, "Cleo", review_evidence=evidence)
+            record_console_review(runtime, "Cleo", review_evidence=evidence, shared_via="conversation")
 
     def test_s4_deployment_context_uses_defaults_without_environment_configuration(self):
         s2 = _sample_s2()

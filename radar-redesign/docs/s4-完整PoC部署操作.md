@@ -63,6 +63,7 @@ python -m agentic_cloud_radar.cli s4-deploy `
 # 產生本次 Infrastructure Composer 截圖與人工確認清單；不會 cleanup。
 python -m agentic_cloud_radar.cli s4-console-review-packet `
   --input .\out\run\s4-runtime.json `
+  --review-timeout-minutes 60 `
   --output .\out\run\s4-console-review-packet.json
 
 node .\scripts\s4-capture-infrastructure-composer.mjs `
@@ -79,6 +80,7 @@ python -m agentic_cloud_radar.cli s4-close `
   --packet .\out\run\s4-console-review-packet.json `
   --review-evidence .\out\run\s4-console-review-evidence.json `
   --confirmed-by "Cleo" `
+  --shared-via conversation `
   --notes "Infrastructure Composer screenshot reviewed; cleanup approved." `
   --execute `
   --output .\out\run\s4-runtime-cleaned.json
@@ -104,11 +106,11 @@ python -m agentic_cloud_radar.cli s5 `
 6. runtime artifact 停在 `awaiting_console_review`，不能直接 cleanup。
 7. Codex 依 packet 呼叫 Playwright，開啟可見瀏覽器進 AWS Console / CloudFormation / **Infrastructure Composer**，截取中間 canvas PNG，並在 GUI 或對話中交由具名人類確認。
 8. 明確確認後，`s4-close --execute` 先清空此 stack 的 versioned test bucket，再刪除 stack 並等 CloudFormation deletion 完成。
-9. 只有 `cleanup_verified` 且包含 Infrastructure Composer 截圖 metadata 的新版 runtime，可讓 Skill 5 寫出實際 PoC 的 final 結論。
+9. 只有 `cleanup_verified`、Infrastructure Composer 截圖 metadata 與 `display_channel_confirmed` 都齊全的新版 runtime，可讓 Skill 5 寫出實際 PoC 的 `final` 結論。
 
 runtime artifact 只保存 lineage、狀態、recipe、驗證結果與 cleanup 狀態；不保存 AWS account ID、ARN、IP 或 SSM command output。
 
-Console 截圖不要放進 Git；Playwright 會先隱藏 Console chrome，再截取中間 canvas，對遮蔽後 PNG 算 SHA-256，最後才顯示給人類。`samples/s4-console-review-evidence.example.json` 的 metadata 契約記錄受保護的參照、SHA-256、截圖時間、run-derived stack name、Region 與展示管道。程式只驗 metadata 與 packet binding，不會自動判讀圖片內容；完整人機流程請使用 `skills/validate-cloud-poc/templates/console-review-agent-template.md`。
+Console 截圖不要放進 Git；Playwright 會先隱藏 Console chrome，再截取中間 canvas，對遮蔽後 PNG 算 SHA-256，最後才顯示給人類。`samples/s4-console-review-evidence.example.json` 的 metadata 契約記錄受保護的參照、SHA-256、截圖時間、run-derived stack name、Region 與 capture 時宣告的展示管道；關閉時的 `--shared-via` 才是 `display_channel_confirmed`。程式只驗 metadata 與 packet binding，不會自動判讀圖片內容；完整人機流程請使用 `skills/validate-cloud-poc/templates/console-review-agent-template.md`。
 
 ## 5. 逾時、部署失敗與 cleanup 失敗
 
@@ -117,6 +119,7 @@ Console 截圖不要放進 Git；Playwright 會先隱藏 Console chrome，再截
 ```powershell
 python -m agentic_cloud_radar.cli s4-abort `
   --input .\out\run\s4-runtime.json `
+  --packet .\out\run\s4-console-review-packet.json `
   --confirmed-by "Cleo" `
   --reason "Console review timed out; emergency cleanup approved for cost control." `
   --execute `

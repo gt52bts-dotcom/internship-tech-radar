@@ -89,7 +89,7 @@ python -m agentic_cloud_radar.cli s4 `
   --output .\out\s4-local-validate.json
 ```
 
-完整 PoC 使用明確命令，正常 `s4` 不會部署。`s4-approval-template` 先從 Skill 3 artifact 產生 approval 檔，核准人再檢查候選、`deployment_authorized=true`、成本上限與 S1/S2/S3 artifact 路徑。若 Skill 3 有已登錄的成本模型，S4 會帶入報價單的預期總額與建議核准上限；有效上限一律取 Skill 3 建議、人類核准、內建 sandbox ceiling 三者最小值。命令仍須另附 `--execute` 才能建立資源。部署完成後，Codex 必須在 AWS Console 檢視 Infrastructure Composer、截圖並上傳 GUI 或對話供具名人類確認；`s4-close --execute` 必須同時讀 `s4-console-review-packet.json` 與 evidence JSON，才會自動清除該次 stack 與測試資料。若 review 逾時或失敗，`s4-abort --execute` 可在具名成本控制確認後執行緊急 cleanup，但 Skill 5 不會把它當成正常截圖確認。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
+完整 PoC 使用明確命令，正常 `s4` 不會部署。`s4-approval-template` 先從 Skill 3 artifact 產生 approval 檔，核准人再檢查候選、`deployment_authorized=true`、成本上限與 S1/S2/S3 artifact 路徑。若 Skill 3 有已登錄的成本模型，S4 會帶入報價單的預期總額與建議核准上限；有效上限一律取 Skill 3 建議、人類核准、內建 sandbox ceiling 三者最小值。命令仍須另附 `--execute` 才能建立資源。部署完成後，Codex 必須在 AWS Console 檢視 Infrastructure Composer、截圖並上傳 GUI 或對話供具名人類確認；`s4-console-review-packet` 會寫入 `review_deadline`，`s4-close --execute` 必須同時讀 packet、evidence JSON 與實際展示管道 `--shared-via`，才會自動清除該次 stack 與測試資料。逾時 abort 必須附回該 packet 讓 CLI 驗證截止時間；部署或正常 close 失敗才可省略 packet。Skill 5 會把強制 cleanup 顯示為 `final_without_console_review`，不會把它當成正常截圖確認。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
 
 S3 Files 報價模型目前採新加坡區 AWS 公開牌價與三種用量情境：低用量 1 小時／0.02 GB、預期 2 小時／0.10 GB、高用量 4 小時／0.50 GB。報價逐項列出 EC2、EBS、S3 Files 儲存與資料操作、S3 Standard 儲存與 requests；有效期七天。它是靜態 rate card 估算，不是即時 AWS Pricing API 查價，也不是 AWS 帳單或正式採購報價。Skill 5 會另列「預估成本 vs 可歸因實際帳務成本」；若沒有 Cost Explorer、Billing 或 CUR artifact，實際成本固定標示 `pending`，不得由 runtime 反推。
 

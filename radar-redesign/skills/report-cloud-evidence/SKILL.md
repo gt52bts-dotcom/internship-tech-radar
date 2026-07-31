@@ -13,14 +13,14 @@ From `radar-redesign/`:
 
 ```powershell
 python -m agentic_cloud_radar.cli s5 `
-  --s1 .\out\s1.json `
-  --s2 .\out\s2.json `
-  --s3 .\out\s3.json `
-  --s4 .\out\s4.json `
+  --s1 .\out\run\s1.json `
+  --s2 .\out\run\s2.json `
+  --s3 .\out\run\s3.json `
+  --s4 .\out\run\s4.json `
   --runtime .\out\run\s4-runtime-cleaned.json `
-  --billing .\out\cost-explorer-attribution.json `
-  --output .\out\s5-report.json `
-  --markdown-output .\out\s5-report.md
+  --billing .\out\run\cost-explorer-attribution.json `
+  --output .\out\run\s5-report.json `
+  --markdown-output .\out\run\s5-report.md
 ```
 
 `--runtime` and `--billing` are optional. Omit `--runtime` for interim reports before deployment or cleanup. Omit `--billing` when Cost Explorer, Billing, or CUR evidence is not yet attributable to the run; Skill 5 must then show actual cost as `pending`.
@@ -37,7 +37,7 @@ Reuse `agentic_cloud_radar/s5.py`.
 6. Separate verified facts from unknown or unverified statements.
 7. Build an evidence ledger linking claims to source, runtime, or billing artifacts.
 8. Produce one JSON report, embedded Markdown, and a stable GUI model.
-9. Mark the report `final` only when runtime status is `cleanup_verified`; for new `s4.runtime-evidence.v3`, Infrastructure Composer screenshot metadata must also be present. Otherwise keep it `interim` or `incomplete_artifacts`.
+9. Mark the report `final` only when runtime status is `cleanup_verified`; for new `s4.runtime-evidence.v3`, Infrastructure Composer screenshot metadata and `display_channel_confirmed` must both be present. A cost-control abort is `final_without_console_review` with report type `closed_without_console_review`, never a normal actual-PoC final.
 
 ## Required report sections
 
@@ -47,6 +47,7 @@ Reuse `agentic_cloud_radar/s5.py`.
 - PoC 成本估算報價單.
 - 預估成本 vs 可歸因實際帳務成本.
 - Skill 4 validation and runtime checks.
+- Console review outcome, including forced-cleanup reason and approver when applicable.
 - Verified facts.
 - Unknown or insufficiently supported claims.
 - Next reminders.
@@ -63,7 +64,8 @@ Reuse `agentic_cloud_radar/s5.py`.
 - Do not omit zero-charge recipe resources, usage assumptions, exclusions or source URLs.
 - `CREATE_COMPLETE` is deployment evidence, not cleanup evidence.
 - Automated checks do not replace Console review.
-- Console screenshot metadata proves only that a redacted PNG was captured, hashed, and shown through an approved channel. The program does not inspect image content; the named human confirmation carries that judgment.
+- Console screenshot metadata proves only that a redacted PNG was captured and hashed. `display_channel_confirmed` records where the named human actually saw it; the program does not inspect image content, so the named human confirmation carries that judgment.
+- A forced cleanup is cost control, not proof that the deployed stack received Console review.
 - Sandbox evidence proves only the tested recipe and workload; do not generalize it to every environment.
 - Missing evidence must remain `unknown`.
 

@@ -54,6 +54,13 @@
 - 新版 `s4.runtime-evidence.v3` 若缺 Infrastructure Composer 截圖 metadata，即使 cleanup 顯示 verified，Skill 5 也不得標成 final。報告文字需把 `recommend_poc` 解釋為「技術上具備受控 PoC 資格」，不是工作負載適配性或採用建議。
 - 目前五個 Skill 是可重做的雷達流程包與 PoC 證據鏈，不是完整 production AWS 系統；Cognito/API Gateway/EventBridge/Step Functions/CloudWatch alarms/正式 CI/CD 等屬下一階段產品化範圍。
 
+## 2026-07-31 Console Review Close Contract
+
+- Console review packet now carries an explicit `review_deadline` (default 60 minutes). A timeout-based `s4-abort` must receive that packet and is rejected before the deadline; deployment or normal-close failures may use the cost-control abort path without a packet.
+- The Playwright capture's `shared_via` is only the declared capture channel. `s4-close` and `s4-console-review` require `--shared-via` after human confirmation and store it as the authoritative `display_channel_confirmed` field.
+- A new v3 runtime becomes Skill 5 `final` only after cleanup, screenshot metadata, and `display_channel_confirmed`. Forced cleanup becomes `final_without_console_review` / `closed_without_console_review`, never an actual-PoC final conclusion.
+- Claude's proposed multi-Region `region_scope` and automatic fallback deployment were not adopted as current behavior because the core implements one target Region only. Keep that as a future enhancement, not an implemented claim in Skill documents.
+
 ## 2026-07-30 Default Context-Free Usage
 
 - 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。

@@ -69,7 +69,7 @@ class Skill5Tests(unittest.TestCase):
             "stage": "S4",
             "run_id": "run-screenshot",
             "status": "cleanup_verified",
-            "console_review": {"status": "confirmed", "evidence": {"screenshots": [{"view": "infrastructure_composer"}]}},
+            "console_review": {"status": "confirmed", "display_channel_confirmed": "conversation", "evidence": {"screenshots": [{"view": "infrastructure_composer"}]}},
             "cleanup": {"status": "verified"},
         }
 
@@ -98,6 +98,26 @@ class Skill5Tests(unittest.TestCase):
         self.assertEqual(report["status"], "incomplete_artifacts")
         self.assertEqual(report["report_type"], "interim")
         self.assertEqual(report["conclusion"]["status"], "cleanup_verified_missing_console_screenshot")
+
+    def test_abort_cleanup_is_never_a_console_reviewed_final(self):
+        s1 = {"stage": "S1", "run_id": "run-abort", "candidates": [{"candidate_id": "C7"}]}
+        s2 = {"stage": "S2", "run_id": "run-abort", "candidates": [{"candidate_id": "C7", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
+        s3 = {"stage": "S3", "run_id": "run-abort", "evaluated_candidates": [{"candidate_id": "C7", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
+        s4 = {"stage": "S4", "run_id": "run-abort", "validated_candidates": [{"candidate_id": "C7", "validation_status": "poc_ready_for_manual_start"}]}
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "run-abort",
+            "status": "cleanup_verified",
+            "console_review": {"status": "skipped_for_cost_control"},
+            "cleanup": {"status": "verified", "cleanup_mode": "abort_without_console_review"},
+        }
+
+        report = build_report(s1, s2, s3, s4, runtime)
+
+        self.assertEqual(report["status"], "final_without_console_review")
+        self.assertEqual(report["report_type"], "closed_without_console_review")
+        self.assertEqual(report["conclusion"]["status"], "cleaned_without_console_review")
 
     def test_mismatched_artifacts_are_reported_as_incomplete(self):
         report = build_report({"stage": "S1", "run_id": "run-a"}, {"stage": "S2", "run_id": "run-b"})

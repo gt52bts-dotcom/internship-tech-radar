@@ -76,6 +76,12 @@ def main(argv: list[str] | None = None) -> int:
         help="Create the Infrastructure Composer screenshot and human-confirmation checklist for one deployed PoC.",
     )
     packet_parser.add_argument("--input", required=True, help="Path to an S4 runtime evidence JSON awaiting Console review.")
+    packet_parser.add_argument(
+        "--review-timeout-minutes",
+        type=int,
+        default=60,
+        help="Minutes a screenshot review may wait before a cost-control abort is allowed (default: 60).",
+    )
     packet_parser.add_argument("--output", required=True, help="Path for the human-facing Console review packet JSON file.")
 
     console_parser = subparsers.add_parser("s4-console-review", help="Record screenshot-backed human AWS Console verification before cleanup.")
@@ -83,6 +89,7 @@ def main(argv: list[str] | None = None) -> int:
     console_parser.add_argument("--packet", required=True, help="Path to the Console review packet that defined required screenshots.")
     console_parser.add_argument("--review-evidence", required=True, help="Path to Console screenshot evidence JSON from the review packet.")
     console_parser.add_argument("--confirmed-by", required=True, help="Named human who completed the Console review.")
+    console_parser.add_argument("--shared-via", required=True, choices=["gui", "conversation"], help="Where the human actually saw the screenshot.")
     console_parser.add_argument("--notes", help="Optional concise Console review note.")
     console_parser.add_argument("--output", required=True, help="Path for the Console-reviewed S4 runtime JSON file.")
 
@@ -99,6 +106,7 @@ def main(argv: list[str] | None = None) -> int:
     close_parser.add_argument("--packet", required=True, help="Path to the Console review packet that defined required screenshots.")
     close_parser.add_argument("--review-evidence", required=True, help="Path to Console screenshot evidence JSON from the review packet.")
     close_parser.add_argument("--confirmed-by", required=True, help="Named human who approved cleanup after seeing the screenshots.")
+    close_parser.add_argument("--shared-via", required=True, choices=["gui", "conversation"], help="Where the human actually saw the screenshot.")
     close_parser.add_argument("--notes", help="Optional concise Console review note.")
     close_parser.add_argument("--execute", action="store_true", help="Actually clean the reviewed run after the explicit human confirmation.")
     close_parser.add_argument("--output", required=True, help="Path for the cleanup-verified S4 runtime JSON file.")
@@ -108,6 +116,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Emergency cleanup for a timed-out or failed S4 PoC without treating it as a normal Console-reviewed close.",
     )
     abort_parser.add_argument("--input", required=True, help="Path to an S4 runtime JSON file.")
+    abort_parser.add_argument("--packet", help="Required for a review-timeout abort; omit only after deployment or close failure.")
     abort_parser.add_argument("--confirmed-by", required=True, help="Named human approving emergency cost-control cleanup.")
     abort_parser.add_argument("--reason", required=True, help="Why the normal Console review path is being skipped.")
     abort_parser.add_argument("--execute", action="store_true", help="Actually delete only the run-derived PoC stack and test data.")
@@ -159,19 +168,21 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.runtime_output) if args.runtime_output else None,
         )
     if args.command == "s4-console-review-packet":
-        return _run_s4_console_review_packet(Path(args.input), Path(args.output))
+        return _run_s4_console_review_packet(Path(args.input), args.review_timeout_minutes, Path(args.output))
     if args.command == "s4-console-review":
         return _run_s4_console_review(
-            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.notes, Path(args.output)
+            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.shared_via, args.notes, Path(args.output)
         )
     if args.command == "s4-cleanup":
         return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output))
     if args.command == "s4-close":
         return _run_s4_close(
-            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.notes, args.execute, Path(args.output)
+            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.shared_via, args.notes, args.execute, Path(args.output)
         )
     if args.command == "s4-abort":
-        return _run_s4_abort(Path(args.input), args.confirmed_by, args.reason, args.execute, Path(args.output))
+        return _run_s4_abort(
+            Path(args.input), Path(args.packet) if args.packet else None, args.confirmed_by, args.reason, args.execute, Path(args.output)
+        )
     if args.command == "s5":
         return _run_s5(
             Path(args.s1),
@@ -324,9 +335,9 @@ def _run_s4_deploy(
         return 1
 
 
-def _run_s4_console_review_packet(input_path: Path, output_path: Path) -> int:
+def _run_s4_console_review_packet(input_path: Path, review_timeout_minutes: int, output_path: Path) -> int:
     try:
-        _write_json(output_path, build_console_review_packet(_read_json(input_path)))
+        _write_json(output_path, build_console_review_packet(_read_json(input_path), review_timeout_minutes))
         return 0
     except DeploymentError as exc:
         print(str(exc), file=sys.stderr)
@@ -338,6 +349,7 @@ def _run_s4_console_review(
     packet_path: Path,
     evidence_path: Path,
     confirmed_by: str,
+    shared_via: str,
     notes: str | None,
     output_path: Path,
 ) -> int:
@@ -350,6 +362,7 @@ def _run_s4_console_review(
                 notes,
                 _read_json(evidence_path),
                 _read_json(packet_path),
+                shared_via,
             ),
         )
         return 0
@@ -375,6 +388,7 @@ def _run_s4_close(
     packet_path: Path,
     evidence_path: Path,
     confirmed_by: str,
+    shared_via: str,
     notes: str | None,
     execute: bool,
     output_path: Path,
@@ -384,7 +398,7 @@ def _run_s4_close(
         return 1
     try:
         reviewed = record_console_review(
-            _read_json(input_path), confirmed_by, notes, _read_json(evidence_path), _read_json(packet_path)
+            _read_json(input_path), confirmed_by, notes, _read_json(evidence_path), _read_json(packet_path), shared_via
         )
         _write_json(output_path, execute_cleanup(reviewed))
         return 0
@@ -393,12 +407,17 @@ def _run_s4_close(
         return 1
 
 
-def _run_s4_abort(input_path: Path, confirmed_by: str, reason: str, execute: bool, output_path: Path) -> int:
+def _run_s4_abort(
+    input_path: Path, packet_path: Path | None, confirmed_by: str, reason: str, execute: bool, output_path: Path
+) -> int:
     if not execute:
         print("s4-abort only deletes resources when --execute is explicitly supplied by a named approver.", file=sys.stderr)
         return 1
     try:
-        _write_json(output_path, execute_abort_cleanup(_read_json(input_path), confirmed_by, reason))
+        _write_json(
+            output_path,
+            execute_abort_cleanup(_read_json(input_path), confirmed_by, reason, _read_json(packet_path) if packet_path else None),
+        )
         return 0
     except DeploymentError as exc:
         _write_runtime_failure_if_present(output_path, exc)

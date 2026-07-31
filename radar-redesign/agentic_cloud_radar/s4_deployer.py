@@ -13,7 +13,7 @@ an explicit CLI ``--execute`` flag.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 from pathlib import Path
@@ -274,22 +274,28 @@ def execute_deployment(context: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_console_review_packet(runtime: dict[str, Any]) -> dict[str, Any]:
+def build_console_review_packet(runtime: dict[str, Any], review_timeout_minutes: int = 60) -> dict[str, Any]:
     """Build the human-facing screenshot checklist for one deployed PoC run."""
 
     if runtime.get("stage") != "S4" or runtime.get("status") != "awaiting_console_review":
         raise DeploymentError("A Console review packet requires an S4 runtime artifact awaiting review.")
+    if not 1 <= review_timeout_minutes <= 1_440:
+        raise DeploymentError("Console review timeout must be between 1 and 1440 minutes.")
     deployment = runtime.get("deployment") or {}
     region = str(deployment.get("target_region") or DEFAULT_REGION)
     stack_name = str(deployment.get("stack_name") or "")
     run_id = str(runtime.get("run_id") or "unknown-run")
     screenshot_dir = f".\\out\\run\\s4-console-review\\{_safe_path_segment(run_id)}"
     evidence_path = f"{screenshot_dir}\\s4-console-review-evidence.json"
+    issued_at = datetime.now(timezone.utc)
+    review_deadline = issued_at + timedelta(minutes=review_timeout_minutes)
     return {
         "schema_version": "s4.console-review-packet.v1",
         "stage": "S4",
         "run_id": runtime.get("run_id"),
         "status": "awaiting_human_confirmation",
+        "issued_at": issued_at.isoformat(),
+        "review_deadline": review_deadline.isoformat(),
         "review_target": {
             "stack_name": stack_name,
             "target_region": region,
@@ -355,8 +361,8 @@ def build_console_review_packet(runtime: dict[str, Any]) -> dict[str, Any]:
             "The metadata contract cannot prove the pixels show the correct stack; a named human must confirm the screenshot content before cleanup.",
         ],
         "timeout_policy": {
-            "max_awaiting_console_review_hours": 4,
-            "on_timeout": "Use s4-abort --execute with a named cost-control approver and reason; record that Console screenshot review was skipped for cost control.",
+            "review_timeout_minutes": review_timeout_minutes,
+            "on_timeout": "After review_deadline, use s4-abort --packet <packet> --execute with a named cost-control approver and reason; record that Console screenshot review was skipped for cost control.",
         },
     }
 
@@ -367,6 +373,7 @@ def record_console_review(
     notes: str | None = None,
     review_evidence: dict[str, Any] | None = None,
     review_packet: dict[str, Any] | None = None,
+    shared_via: str | None = None,
 ) -> dict[str, Any]:
     """Record screenshot-backed human Console confirmation before cleanup is permitted."""
 
@@ -375,6 +382,9 @@ def record_console_review(
         raise DeploymentError("Console review requires an S4 runtime artifact awaiting review.")
     if not reviewer:
         raise DeploymentError("Console review requires a named human reviewer.")
+    confirmed_channel = str(shared_via or "").strip()
+    if confirmed_channel not in {"gui", "conversation"}:
+        raise DeploymentError("Console review requires the GUI or conversation channel where the human saw the screenshot.")
     evidence = _validated_review_evidence(runtime, review_evidence, review_packet)
     reviewed = dict(runtime)
     reviewed["status"] = "ready_for_cleanup"
@@ -385,6 +395,7 @@ def record_console_review(
         "confirmed_at": _now(),
         "notes": str(notes or "").strip() or None,
         "evidence_status": "captured_and_confirmed",
+        "display_channel_confirmed": confirmed_channel,
         "evidence": evidence,
     }
     reviewed["cleanup"] = {"status": "ready_for_manual_cleanup"}
@@ -398,6 +409,7 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
         raise DeploymentError("Cleanup requires a Console-reviewed S4 runtime artifact.")
     if runtime.get("schema_version") == "s4.runtime-evidence.v3" and (
         (runtime.get("console_review") or {}).get("evidence_status") != "captured_and_confirmed"
+        or (runtime.get("console_review") or {}).get("display_channel_confirmed") not in {"gui", "conversation"}
     ):
         raise DeploymentError("Cleanup requires screenshot-backed Console confirmation for this runtime schema.")
     try:
@@ -424,7 +436,9 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
     return cleaned
 
 
-def execute_abort_cleanup(runtime: dict[str, Any], confirmed_by: str, reason: str) -> dict[str, Any]:
+def execute_abort_cleanup(
+    runtime: dict[str, Any], confirmed_by: str, reason: str, review_packet: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Emergency cleanup for timed out or failed S4 runs without Console screenshots."""
 
     reviewer = str(confirmed_by or "").strip()
@@ -440,6 +454,8 @@ def execute_abort_cleanup(runtime: dict[str, Any], confirmed_by: str, reason: st
         raise DeploymentError("Abort cleanup requires a named cost-control approver.")
     if len(abort_reason) < 12:
         raise DeploymentError("Abort cleanup requires a concrete reason.")
+    if runtime.get("status") in {"awaiting_console_review", "ready_for_cleanup"}:
+        _validate_abort_review_deadline(runtime, review_packet)
     try:
         checks = _cleanup_stack_resources(runtime)
     except DeploymentError as exc:
@@ -477,6 +493,22 @@ def execute_abort_cleanup(runtime: dict[str, Any], confirmed_by: str, reason: st
         "checks": checks,
     }
     return cleaned
+
+
+def _validate_abort_review_deadline(runtime: dict[str, Any], review_packet: dict[str, Any] | None) -> None:
+    if not isinstance(review_packet, dict):
+        raise DeploymentError("A review-timeout abort requires the Console review packet.")
+    if str(review_packet.get("run_id") or "") != str(runtime.get("run_id") or ""):
+        raise DeploymentError("Abort cleanup packet does not belong to this PoC run.")
+    deadline = str(review_packet.get("review_deadline") or "").strip()
+    try:
+        deadline_at = datetime.fromisoformat(deadline.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise DeploymentError("Abort cleanup packet has no valid review_deadline.") from exc
+    if deadline_at.tzinfo is None:
+        raise DeploymentError("Abort cleanup packet review_deadline must include a timezone.")
+    if datetime.now(timezone.utc) < deadline_at.astimezone(timezone.utc):
+        raise DeploymentError("The Console review deadline has not passed; use the normal close path.")
 
 
 def _cleanup_stack_resources(runtime: dict[str, Any]) -> dict[str, str]:

@@ -31,10 +31,19 @@ def build_report(
     if (
         runtime
         and runtime.get("status") == "cleanup_verified"
+        and not _is_abort_cleanup(runtime)
         and _runtime_requires_screenshot(runtime)
         and not _console_screenshot_count(runtime)
     ):
         issues.append("missing_console_screenshot_metadata")
+    if (
+        runtime
+        and runtime.get("status") == "cleanup_verified"
+        and not _is_abort_cleanup(runtime)
+        and _runtime_requires_screenshot(runtime)
+        and not _console_display_channel_confirmed(runtime)
+    ):
+        issues.append("missing_console_display_channel_confirmation")
     run_id = str(scan.get("run_id") or "unknown-run")
     evaluated = list((evaluate or {}).get("evaluated_candidates") or [])
     selected = evaluated[0] if evaluated else _first_candidate(compare)
@@ -46,7 +55,7 @@ def build_report(
         "run_id": run_id,
         "reported_at": datetime.now(timezone.utc).isoformat(),
         "status": status,
-        "report_type": "final" if status == "final" else "interim",
+        "report_type": "final" if status == "final" else "closed_without_console_review" if status == "final_without_console_review" else "interim",
         "input_contract": {
             "rule": "Only S1, S2, S3, and S4 artifacts may support report claims; missing evidence is unknown.",
             "stages_received": [name for name, artifact in inputs.items() if artifact],
@@ -187,7 +196,11 @@ def _report_status(issues: list[str], runtime: dict[str, Any] | None) -> str:
     if issues:
         return "incomplete_artifacts"
     if runtime and runtime.get("status") == "cleanup_verified":
+        if _is_abort_cleanup(runtime):
+            return "final_without_console_review"
         if _runtime_requires_screenshot(runtime) and not _console_screenshot_count(runtime):
+            return "incomplete_artifacts"
+        if _runtime_requires_screenshot(runtime) and not _console_display_channel_confirmed(runtime):
             return "incomplete_artifacts"
         return "final"
     return "interim"
@@ -195,6 +208,11 @@ def _report_status(issues: list[str], runtime: dict[str, Any] | None) -> str:
 
 def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> dict[str, str]:
     if runtime and runtime.get("status") == "cleanup_verified":
+        if _is_abort_cleanup(runtime):
+            return {
+                "status": "cleaned_without_console_review",
+                "text": "PoC 已因成本控制完成受控 cleanup，但未完成 Infrastructure Composer 截圖人工確認；不能作為 actual-PoC final 結論。",
+            }
         if _console_screenshot_count(runtime):
             return {
                 "status": "validated_and_cleaned",
@@ -608,6 +626,16 @@ def _console_screenshot_count(runtime: dict[str, Any] | None) -> int:
     return len(screenshots) if isinstance(screenshots, list) else 0
 
 
+def _console_display_channel_confirmed(runtime: dict[str, Any] | None) -> bool:
+    return ((runtime or {}).get("console_review") or {}).get("display_channel_confirmed") in {"gui", "conversation"}
+
+
+def _is_abort_cleanup(runtime: dict[str, Any] | None) -> bool:
+    cleanup = (runtime or {}).get("cleanup") or {}
+    review = (runtime or {}).get("console_review") or {}
+    return cleanup.get("cleanup_mode") == "abort_without_console_review" or review.get("status") == "skipped_for_cost_control"
+
+
 def _runtime_requires_screenshot(runtime: dict[str, Any] | None) -> bool:
     return (runtime or {}).get("schema_version") == "s4.runtime-evidence.v3"
 
@@ -615,7 +643,9 @@ def _runtime_requires_screenshot(runtime: dict[str, Any] | None) -> bool:
 def _console_screenshot_status(runtime: dict[str, Any] | None) -> str:
     count = _console_screenshot_count(runtime)
     if count:
-        return f"captured_and_confirmed ({count})"
+        if _console_display_channel_confirmed(runtime):
+            return f"captured_and_confirmed ({count})"
+        return f"captured_channel_unconfirmed ({count})"
     return ((runtime or {}).get("console_review") or {}).get("evidence_status") or "not_recorded"
 
 
