@@ -18,12 +18,15 @@ def build_report(
     evaluate: dict[str, Any] | None = None,
     validate: dict[str, Any] | None = None,
     runtime: dict[str, Any] | None = None,
+    billing: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Create a source-bound Skill 5 artifact from the available stage artifacts."""
 
     inputs = {"S1": scan, "S2": compare, "S3": evaluate, "S4": validate}
     if runtime:
         inputs["S4 runtime"] = runtime
+    if billing:
+        inputs["Billing"] = billing
     issues = _input_issues(inputs)
     run_id = str(scan.get("run_id") or "unknown-run")
     evaluated = list((evaluate or {}).get("evaluated_candidates") or [])
@@ -45,12 +48,13 @@ def build_report(
         "conclusion": _conclusion(selected, runtime),
         "evaluation": _evaluation_summary(selected),
         "cost_quote": _cost_quote(selected),
+        "cost_reconciliation": _cost_reconciliation(selected, billing),
         "validation": _validation_summary(validation, runtime),
-        "verified_facts": _verified_facts(scan, compare, selected, runtime),
-        "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime),
+        "verified_facts": _verified_facts(scan, compare, selected, runtime, billing),
+        "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime, billing),
         "next_reminders": _next_reminders(selected, runtime),
         "funnel": _funnel(scan, compare, evaluate, validate),
-        "evidence_ledger": _evidence_ledger(scan, compare, selected, runtime),
+        "evidence_ledger": _evidence_ledger(scan, compare, selected, runtime, billing),
     }
     report["markdown"] = render_markdown(report)
     report["gui_model"] = build_gui_model(report)
@@ -80,6 +84,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     for label, value in report["evaluation"]["rows"]:
         lines.append(f"| {label} | {value} |")
     lines.extend(_render_cost_quote(report["cost_quote"]))
+    lines.extend(_render_cost_reconciliation(report["cost_reconciliation"]))
     lines.extend(["", "## 技術驗證", "", "| 檢查 | 狀態 |", "| --- | --- |"])
     for label, value in report["validation"]["rows"]:
         lines.append(f"| {label} | {value} |")
@@ -113,6 +118,7 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
             "dimensions": dimensions,
         },
         "cost_quote": report["cost_quote"],
+        "cost_reconciliation": report["cost_reconciliation"],
         "validation_checks": checks,
         "verified_facts": report["verified_facts"],
         "unknown_or_not_verified": report["unknown_or_not_verified"],
@@ -217,6 +223,82 @@ def _cost_quote(candidate: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
+def _cost_reconciliation(candidate: dict[str, Any] | None, billing: dict[str, Any] | None) -> dict[str, Any]:
+    quote = _cost_quote(candidate)
+    expected = quote.get("expected_total_usd")
+    actual = _actual_billing_cost(billing)
+    status = "pending_actual_cost"
+    delta = None
+    if actual["status"] == "attributed" and isinstance(expected, (int, float)):
+        delta = round(float(actual["amount_usd"]) - float(expected), 6)
+        status = "compared"
+    elif actual["status"] == "attributed":
+        status = "actual_available_without_estimate"
+    return {
+        "schema_version": "poc.cost-reconciliation.v1",
+        "status": status,
+        "estimated": {
+            "status": quote.get("status") or "unknown",
+            "quote_id": quote.get("quote_id"),
+            "expected_total_usd": expected,
+            "range_usd": quote.get("estimated_range_usd") or {},
+            "currency": quote.get("currency") or "USD",
+            "source": "Skill 3 public list-price quote" if quote.get("status") == "estimated" else "not_available",
+        },
+        "actual": actual,
+        "delta_usd": delta,
+        "rule": "Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost.",
+    }
+
+
+def _actual_billing_cost(billing: dict[str, Any] | None) -> dict[str, Any]:
+    if not billing:
+        return _pending_actual_cost("No attributable AWS Billing, Cost Explorer, or CUR artifact was provided.")
+
+    payload = billing.get("actual_cost") if isinstance(billing.get("actual_cost"), dict) else billing
+    amount = (
+        payload.get("amount_usd")
+        if payload.get("amount_usd") is not None
+        else payload.get("total_usd")
+    )
+    source_type = str(payload.get("source_type") or payload.get("source") or "").lower()
+    attribution = str(
+        payload.get("attribution_status")
+        or payload.get("attribution")
+        or payload.get("status")
+        or ""
+    ).lower()
+    is_attributed = payload.get("attributable") is True or attribution in {"attributed", "attributable", "final"}
+    is_billing_source = source_type in {"cost_explorer", "aws_cost_explorer", "billing", "aws_billing", "cur", "aws_cur"}
+    if not isinstance(amount, (int, float)) or not is_attributed or not is_billing_source:
+        return _pending_actual_cost(
+            "Billing artifact is present, but it does not prove an attributable actual AWS cost."
+        )
+
+    return {
+        "status": "attributed",
+        "amount_usd": round(float(amount), 6),
+        "currency": payload.get("currency") or "USD",
+        "source_type": payload.get("source_type") or payload.get("source"),
+        "source_artifact": payload.get("source_artifact") or billing.get("source_artifact"),
+        "period_start": payload.get("period_start"),
+        "period_end": payload.get("period_end"),
+        "attribution_key": payload.get("attribution_key"),
+        "note": payload.get("note"),
+    }
+
+
+def _pending_actual_cost(reason: str) -> dict[str, Any]:
+    return {
+        "status": "pending",
+        "amount_usd": None,
+        "currency": "USD",
+        "source_type": "not_available",
+        "source_artifact": None,
+        "reason": reason,
+    }
+
+
 def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
     lines = ["", "## PoC 成本估算報價單", ""]
     if quote.get("status") != "estimated":
@@ -280,6 +362,36 @@ def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _render_cost_reconciliation(reconciliation: dict[str, Any]) -> list[str]:
+    estimated = reconciliation.get("estimated") or {}
+    actual = reconciliation.get("actual") or {}
+    lines = [
+        "",
+        "## 預估成本 vs 可歸因實際帳務成本",
+        "",
+        "| 項目 | 狀態 | 金額 USD | 證據 |",
+        "| --- | --- | ---: | --- |",
+        (
+            f"| Skill 3 公開牌價估算 | {estimated.get('status') or 'unknown'} | "
+            f"{_format_money(estimated.get('expected_total_usd'))} | "
+            f"{estimated.get('quote_id') or estimated.get('source') or 'unknown'} |"
+        ),
+    ]
+    actual_source = actual.get("source_artifact") or actual.get("source_type") or "not_available"
+    lines.append(
+        f"| 可歸因實際帳務成本 | {actual.get('status') or 'unknown'} | "
+        f"{_format_money(actual.get('amount_usd'))} | {actual_source} |"
+    )
+    lines.append(
+        f"| 差異（實際 - 預估） | {reconciliation.get('status') or 'unknown'} | "
+        f"{_format_money(reconciliation.get('delta_usd'))} | {reconciliation.get('rule')} |"
+    )
+    if actual.get("status") == "pending":
+        lines.extend(["", f"- 實際成本狀態：pending。{actual.get('reason')}"])
+        lines.append("- 不以 EC2 執行時間、CloudFormation 狀態或 runtime artifact 推算實際 AWS 帳務成本。")
+    return lines
+
+
 def _validation_summary(validation: dict[str, Any] | None, runtime: dict[str, Any] | None) -> dict[str, Any]:
     runtime = runtime or {}
     verification = runtime.get("verification") or {}
@@ -304,7 +416,13 @@ def _verification_status(verification: dict[str, Any]) -> str:
     return "verified" if known and all(value == "verified" for value in known) else (", ".join(known) if known else "unknown")
 
 
-def _verified_facts(scan: dict[str, Any], compare: dict[str, Any] | None, candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[str]:
+def _verified_facts(
+    scan: dict[str, Any],
+    compare: dict[str, Any] | None,
+    candidate: dict[str, Any] | None,
+    runtime: dict[str, Any] | None,
+    billing: dict[str, Any] | None,
+) -> list[str]:
     facts: list[str] = []
     if candidate and candidate.get("source_url"):
         facts.append(f"官方來源已記錄：{candidate['source_url']}")
@@ -316,6 +434,12 @@ def _verified_facts(scan: dict[str, Any], compare: dict[str, Any] | None, candid
             f"PoC 成本估算報價單已建立：{quote.get('quote_id')}，"
             f"預期 USD {quote.get('expected_total_usd')}。"
         )
+    actual = _actual_billing_cost(billing)
+    if actual.get("status") == "attributed":
+        facts.append(
+            f"可歸因實際帳務成本已由 {actual.get('source_type')} 記錄："
+            f"USD {actual.get('amount_usd')}。"
+        )
     if (runtime or {}).get("deployment", {}).get("stack_status") == "CREATE_COMPLETE":
         facts.append("CloudFormation stack 已達 CREATE_COMPLETE。")
     for key, value in ((runtime or {}).get("verification") or {}).items():
@@ -324,12 +448,20 @@ def _verified_facts(scan: dict[str, Any], compare: dict[str, Any] | None, candid
     return facts
 
 
-def _unknowns(compare: dict[str, Any] | None, candidate: dict[str, Any] | None, validation: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[str]:
+def _unknowns(
+    compare: dict[str, Any] | None,
+    candidate: dict[str, Any] | None,
+    validation: dict[str, Any] | None,
+    runtime: dict[str, Any] | None,
+    billing: dict[str, Any] | None,
+) -> list[str]:
     items = list(((candidate or {}).get("evidence_refs") or {}).get("evidence_limits") or [])
     if ((candidate or {}).get("cost_estimate") or {}).get("status") != "estimated":
         items.append("官方定價或實際成本尚未在 artifact 中證實。")
     elif not runtime:
         items.append("報價單是公開牌價估算；實際 AWS 費用需在部署後以帳務資料核對。")
+    if _actual_billing_cost(billing).get("status") != "attributed":
+        items.append("可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。")
     if (runtime or {}).get("console_review", {}).get("status") != "confirmed":
         items.append("AWS Console review 尚未完成或尚未記錄。")
     if (runtime or {}).get("cleanup", {}).get("status") != "verified":
@@ -355,7 +487,13 @@ def _funnel(scan: dict[str, Any], compare: dict[str, Any] | None, evaluate: dict
     }
 
 
-def _evidence_ledger(scan: dict[str, Any], compare: dict[str, Any] | None, candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[dict[str, str]]:
+def _evidence_ledger(
+    scan: dict[str, Any],
+    compare: dict[str, Any] | None,
+    candidate: dict[str, Any] | None,
+    runtime: dict[str, Any] | None,
+    billing: dict[str, Any] | None,
+) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
     source_url = (candidate or {}).get("source_url") or "unknown"
     if source_url != "unknown":
@@ -371,6 +509,25 @@ def _evidence_ledger(scan: dict[str, Any], compare: dict[str, Any] | None, candi
                 "type": "public list-price estimate",
                 "status": "estimated",
                 "source": str(quote.get("quote_id") or "Skill 3 cost quote"),
+            }
+        )
+    actual = _actual_billing_cost(billing)
+    if actual.get("status") == "attributed":
+        entries.append(
+            {
+                "claim": "PoC 可歸因實際帳務成本",
+                "type": "AWS billing evidence",
+                "status": "attributed",
+                "source": str(actual.get("source_artifact") or actual.get("source_type") or "billing artifact"),
+            }
+        )
+    else:
+        entries.append(
+            {
+                "claim": "PoC 可歸因實際帳務成本",
+                "type": "AWS billing evidence",
+                "status": "pending",
+                "source": str(actual.get("reason") or "billing artifact data gap"),
             }
         )
     if not entries:

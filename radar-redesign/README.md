@@ -10,7 +10,7 @@
 | Skill 2 Compare | [`compare-cloud-candidates`](./skills/compare-cloud-candidates/SKILL.md) | 建立證據提案卡與比較矩陣，準備人工 shortlist。 |
 | Skill 3 Evaluate | [`evaluate-cloud-candidate`](./skills/evaluate-cloud-candidate/SKILL.md) | 依固定 rubric 評估人工選定候選；已登錄 recipe 同時產出可稽核的 PoC 成本估算報價單。 |
 | Skill 4 Validate | [`validate-cloud-poc`](./skills/validate-cloud-poc/SKILL.md) | 獨立檢查報價、人工核准、成本上限與 cleanup gate，再執行低風險驗證或受控 PoC。 |
-| Skill 5 Report | [`report-cloud-evidence`](./skills/report-cloud-evidence/SKILL.md) | 只依 S1-S4 artifact 產出含逐項報價的 JSON、Markdown 與 GUI 報告。 |
+| Skill 5 Report | [`report-cloud-evidence`](./skills/report-cloud-evidence/SKILL.md) | 只依 S1-S4 artifact 產出含逐項報價與估算／實際帳務對帳的 JSON、Markdown 與 GUI 報告。 |
 
 ## 新入口與流程
 
@@ -91,7 +91,7 @@ python -m agentic_cloud_radar.cli s4 `
 
 完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。最小 approval 只需記錄核准人、候選、`deployment_authorized=true` 與 S1/S2/S3 artifact 路徑；Region、recipe 成功條件與 cleanup scope 使用系統預設。若 Skill 3 有已登錄的成本模型，S4 會帶入報價單的預期總額與建議核准上限；沒有費率模型時只保留待補報價 artifact，不虛構金額。命令仍須另附 `--execute` 才能建立資源。部署後由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
 
-S3 Files 報價模型目前採新加坡區 AWS 公開牌價與三種用量情境：低用量 1 小時／0.02 GB、預期 2 小時／0.10 GB、高用量 4 小時／0.50 GB。報價逐項列出 EC2、EBS、S3 Files 儲存與資料操作、S3 Standard 儲存與 requests；有效期七天。它是非約束性估算，不是 AWS 帳單，實際費用仍須在部署後核對。
+S3 Files 報價模型目前採新加坡區 AWS 公開牌價與三種用量情境：低用量 1 小時／0.02 GB、預期 2 小時／0.10 GB、高用量 4 小時／0.50 GB。報價逐項列出 EC2、EBS、S3 Files 儲存與資料操作、S3 Standard 儲存與 requests；有效期七天。它是非約束性估算，不是 AWS 帳單。Skill 5 會另列「預估成本 vs 可歸因實際帳務成本」；若沒有 Cost Explorer、Billing 或 CUR artifact，實際成本固定標示 `pending`，不得由 runtime 反推。
 
 ## S5：證據報告
 
@@ -104,9 +104,12 @@ python -m agentic_cloud_radar.cli s5 `
   --s3 .\out\s3.json `
   --s4 .\out\s4.json `
   --runtime .\out\s4-runtime.json `
+  --billing .\out\cost-explorer-attribution.json `
   --output .\out\s5-report.json `
   --markdown-output .\out\s5-report.md
 ```
+
+`--billing` 是可選參數；帳務資料尚未可歸因時不要提供，報告會保留 `pending_actual_cost`。
 
 ## 檔案
 

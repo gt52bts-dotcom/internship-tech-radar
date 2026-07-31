@@ -30,6 +30,8 @@ class Skill5Tests(unittest.TestCase):
         self.assertEqual(report["status"], "interim")
         self.assertIn("REFERENCE 設定", report["conclusion"]["text"])
         self.assertIn("官方定價或實際成本", " ".join(report["unknown_or_not_verified"]))
+        self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
+        self.assertIn("不得以 runtime 估算代替", " ".join(report["unknown_or_not_verified"]))
         self.assertIn("CloudFormation", report["markdown"])
         self.assertEqual(report["gui_model"]["score"]["weighted_score"], 4.0)
 
@@ -91,9 +93,54 @@ class Skill5Tests(unittest.TestCase):
         report = build_report(s1, s2, s3)
 
         self.assertIn("## PoC 成本估算報價單", report["markdown"])
+        self.assertIn("## 預估成本 vs 可歸因實際帳務成本", report["markdown"])
+        self.assertIn("實際成本狀態：pending", report["markdown"])
         self.assertIn("預期總額", report["markdown"])
         self.assertEqual(report["cost_quote"]["expected_total_usd"], 0.04719)
+        self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
         self.assertEqual(report["gui_model"]["cost_quote"]["recommended_approval_ceiling_usd"], 0.2)
+        self.assertEqual(report["gui_model"]["cost_reconciliation"]["status"], "pending_actual_cost")
+
+    def test_attributable_billing_artifact_is_compared_to_estimate(self):
+        from agentic_cloud_radar.costing import build_cost_quote
+
+        candidate = {
+            "candidate_id": "C4",
+            "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+            "source_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+            "weighted_score": 4.4,
+            "confidence": "medium",
+            "recommend_low_risk_validation": True,
+            "eligible_for_poc_review": True,
+        }
+        quote = build_cost_quote(candidate, "run-4", "ap-southeast-1")
+        candidate["cost_estimate"] = {
+            "status": quote["status"],
+            "estimated_usd": quote["expected_total_usd"],
+            "quote_id": quote["quote_id"],
+            "quote": quote,
+        }
+        billing = {
+            "run_id": "run-4",
+            "source_type": "cost_explorer",
+            "attributable": True,
+            "amount_usd": 0.031,
+            "currency": "USD",
+            "source_artifact": "cost-explorer-run-4.json",
+            "period_start": "2026-07-30",
+            "period_end": "2026-07-31",
+            "attribution_key": "agentic-radar-s4",
+        }
+        s1 = {"stage": "S1", "run_id": "run-4", "candidates": [{"candidate_id": "C4"}]}
+        s2 = {"stage": "S2", "run_id": "run-4", "candidates": [candidate]}
+        s3 = {"stage": "S3", "run_id": "run-4", "evaluated_candidates": [candidate]}
+
+        report = build_report(s1, s2, s3, billing=billing)
+
+        self.assertEqual(report["cost_reconciliation"]["status"], "compared")
+        self.assertEqual(report["cost_reconciliation"]["actual"]["amount_usd"], 0.031)
+        self.assertEqual(report["cost_reconciliation"]["delta_usd"], -0.01619)
+        self.assertIn("可歸因實際帳務成本已由 cost_explorer 記錄", " ".join(report["verified_facts"]))
 
 
 if __name__ == "__main__":

@@ -1,5 +1,31 @@
 # AI PM 當日進度暫存
 
+## 2026-07-31 Skill 5 成本對帳補強
+
+- 時間判定：2026-07-31 08:18 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。
+- 接續 2026-07-30 日誌的下一步，將 Skill 5 加入「預估成本 vs 可歸因實際帳務成本」對帳區塊。Skill 5 現在保留 Skill 3 公開牌價估算，同時新增 `cost_reconciliation`，只有在提供可歸因 AWS Billing、Cost Explorer 或 CUR artifact 時才顯示 actual cost。
+- 若沒有帳務 artifact，實際成本固定為 `pending_actual_cost`／`actual.status=pending`，並明確寫出「不得以 EC2 執行時間、CloudFormation 狀態或 runtime artifact 推算實際 AWS 帳務成本」。
+- CLI `s5` 新增可選 `--billing` 參數；未提供時不影響既有報告流程。`report-cloud-evidence` Skill 說明、metadata 與 `radar-redesign/README.md` 已同步更新。
+- 已用昨天 S3 Files final runtime 重產對帳版報告：`radar-redesign/out/s5-s3-files-20260731-cost-reconciliation.json` 與 `.md`。報告仍是 `final`、結論為 `validated_and_cleaned`，但實際帳務成本正確標示 pending，沒有把 runtime 估算成帳單。
+- 驗證：`python -m unittest discover -s tests -v` 共 28 項通過；`python -m compileall agentic_cloud_radar tests` 通過；`node --check web/app.js` 通過；`git diff --check` 只有 Windows LF/CRLF 提醒，沒有 whitespace error。
+
+## 2026-07-31 S1-S5 Mentor Review Package
+
+- 接續 7/31 第一版完整交付硬截止，建立 `radar-redesign/mentor-review-package-2026-07-31.md`，整理五個 repository-backed Skills、S3 Files 完整案例、重跑方式、檢測清單、已知限制與 Mentor 建議檢查點。
+- Package 明確標示 S3 Files 已完成 Scan→Report、live PoC、Console review、cleanup 與 final report；Lambda self-managed S3 code storage 仍只列為 deployment / invoke 已驗證、Console review 與 cleanup 決策待人工確認。
+- 主 `README.md` 已更新：S1-S5 Skills 第一版完整交付狀態改為 28 項核心測試通過、Mentor review package 已建立；近期待辦中 Mentor package 改為已完成。
+- 已確認主要引用檔案存在：對帳版 S5 report、cleanup runtime artifact、Skill 5 說明與 Mentor package 本身。
+
+## 2026-07-31 CIP 雙週工作進度（7/20-7/31）
+
+- 依 7/31 硬截止完成第二份 CIP 雙週工作進度檔：`2026CIP_WangGuanting_biweekly_worklog2_20260720-20260731.docx`。
+- 內容採成果與影響式整理，不寫逐日流水帳；主要分成 S1-S5 Skill 化、S3 Files 端到端 PoC 與報價 cleanup、Lambda 候選驗證、AI PM / Mentor review package，以及心得與下期重點。
+- 使用 `2026CIP_王冠婷_雙週工作週誌1_格式正確版.docx` 作為版型參考；舊稿 SHA-256 回查未變，未修改參考檔。
+- QA：python-docx 結構檢查確認 1 section、2 tables、進度表 6 列 3 欄；Word COM 匯出 PDF 後用 Poppler 轉為 2 頁 PNG，逐頁檢查無文字重疊、截斷或表格爆版，且跨頁表格已補 repeated header。
+- `render_docx.py` 因環境缺少 LibreOffice / `soffice` 無法直接 render；已改用本機 Word COM + Poppler 完成視覺 QA。
+- 主 `README.md` 已更新：CIP 雙週工作進度（7/20-7/31）狀態改為已完成。
+
+
 ## 2026-07-29 Side Panel Redesign and Restored Game Feedback
 
 - Renamed the web experience to `AI Agentic 雲端技術雷達與評估系統`.

@@ -83,8 +83,8 @@ flowchart LR
 | 交付物 | 日期 / 時點 | 目前狀態 | 完成條件 |
 |---|---|---|---|
 | AI PM 科會 10 分鐘報告 | 2026-08-11（二）15:30 | 簡報與講稿已完成；直接沿用原訂 2026-07-28 報告版本。 | 準時完成 10 分鐘報告；依既有版本呈現 2-3 組去識別化 input/output 前後差異、限制與下一步。 |
-| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 五個正式 Skill packages 已建立；27 項核心測試通過。S3 Files fresh run 已完整走過 Scan→Report、live PoC、Cleo Console review、cleanup 與 final report；Lambda 候選仍待另一條 run 的完整 Console review 與 cleanup 決策。尚待 Mentor review package 與 CIP 雙週進度收斂。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor review package。 |
-| CIP 雙週工作進度（7/20-7/31） | 2026-07-31（五） | 待依第一版完整交付的真實證據彙整。 | 匯出正式檔案，內容按成果與影響整理，不寫成逐日流水帳。 |
+| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 五個正式 Skill packages 已建立；28 項核心測試通過。S3 Files fresh run 已完整走過 Scan→Report、live PoC、Cleo Console review、cleanup、final report 與成本對帳 pending 標示；Mentor review package 已建立。Lambda 候選仍待另一條 run 的完整 Console review 與 cleanup 決策。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor review package。 |
+| CIP 雙週工作進度（7/20-7/31） | 2026-07-31（五） | 已匯出 `2026CIP_WangGuanting_biweekly_worklog2_20260720-20260731.docx`，內容按成果與影響整理。 | 匯出正式檔案，內容按成果與影響整理，不寫成逐日流水帳。 |
 | CIP 雙週工作進度（8/3-8/14） | 2026-08-14（五） | 未開始。 | 匯出正式檔案，補齊該期間成果、問題、學習與下期重點。 |
 | 最終部會實習成果簡報 / 展示 | 2026-08-17（一） | 素材累積中。 | 完成最終簡報、展示路線、時間控制與可驗證成果標註。 |
 | 國泰主管評分表 | 2026-08-24（一） | 表單集合已建立。 | 完成自評補證據與填答建議，清楚標示正式分數由主管 / mentor 決定。 |
@@ -98,8 +98,8 @@ flowchart LR
 |---|---|---|---|---|
 | 2026-07-31（五） | 完成 Lambda self-managed code storage 的 S4 人工 Console review 與 cleanup 決策。 | 封閉第二條真實 PoC 的驗證鏈路，或清楚保留未結案原因。 | Cleo 在 AWS Console 檢視 CloudFormation、Lambda 與測試 S3 bucket；明確決定 cleanup 或保留，並留下人工確認證據。 | 待人工確認 |
 | 2026-07-31（五） | 簡化 Skill 3／Skill 4 使用方式。 | 只選候選即可依公開證據評估，不要求公司問題或複雜環境表單。 | 使用 `eligible_for_poc_review`、內建 sandbox 預設、簡化 approval 與回歸測試。 | 已完成：S3 v3、S4／S5／GUI 與 22 項測試通過 |
-| 2026-07-31（五） | 完成 S1-S5 第一版 Mentor review package。 | 本週五完整 Skills 交付。 | 一條公開 AWS URL 的 S1-S5 artifact、S5 報告、五個 Skills 的跑法、檢測清單與限制清單可供 Mentor 回查。 | 進行中 |
-| 2026-07-31（五） | 匯出 CIP 雙週工作進度（7/20-7/31）。 | 完成本期正式實習文件。 | 正式檔案依成果、影響、問題與下一步整理完成。 | 未開始 |
+| 2026-07-31（五） | 完成 S1-S5 第一版 Mentor review package。 | 本週五完整 Skills 交付。 | 一條公開 AWS URL 的 S1-S5 artifact、S5 報告、五個 Skills 的跑法、檢測清單與限制清單可供 Mentor 回查。 | 已完成：`radar-redesign/mentor-review-package-2026-07-31.md` |
+| 2026-07-31（五） | 匯出 CIP 雙週工作進度（7/20-7/31）。 | 完成本期正式實習文件。 | 正式檔案依成果、影響、問題與下一步整理完成。 | 已完成：`2026CIP_WangGuanting_biweekly_worklog2_20260720-20260731.docx` |
 | 2026-08-03 10:30 | 出席部會並聆聽。 | 掌握部會資訊與行程安排。 | 準時出席；不需準備或進行報告。 | 未開始 |
 | 2026-08-06（四）至 2026-08-07（五） | 到信義區參加集團 AI 競賽，當日不進內湖辦公室。 | 行程監督，避免工作安排衝突。 | 競賽完成後補活動紀錄與可用素材。 | 未開始 |
 | 2026-08-10（一） | 參加人壽 1st 共融活動（六度空間）。 | 累積公司情境與團隊合作證據。 | 活動後補進當日 inbox / 日誌，保留可用於 final proposal 的成長素材。 | 未開始 |

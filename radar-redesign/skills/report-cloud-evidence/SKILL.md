@@ -1,6 +1,6 @@
 ---
 name: report-cloud-evidence
-description: Render S1 through S4 artifacts, PoC cost quotations, and optional runtime evidence into traceable JSON, Markdown, and GUI report models without adding unsupported claims. Use for Skill 5 interim or final technical reports, itemized quote sheets, evidence ledgers, verified-versus-unknown summaries, artifact lineage checks, or presentation-ready report data.
+description: Render S1 through S4 artifacts, PoC cost quotations, optional runtime evidence, and optional attributable AWS billing evidence into traceable JSON, Markdown, and GUI report models without adding unsupported claims. Use for Skill 5 interim or final technical reports, itemized quote sheets, estimate-versus-actual cost reconciliation, evidence ledgers, verified-versus-unknown summaries, artifact lineage checks, or presentation-ready report data.
 ---
 
 # Skill 5 · Report
@@ -18,9 +18,12 @@ python -m agentic_cloud_radar.cli s5 `
   --s3 .\out\s3.json `
   --s4 .\out\s4.json `
   --runtime .\out\s4-runtime.json `
+  --billing .\out\cost-explorer-attribution.json `
   --output .\out\s5-report.json `
   --markdown-output .\out\s5-report.md
 ```
+
+`--billing` is optional. Omit it when Cost Explorer, Billing, or CUR evidence is not yet attributable to the run; Skill 5 must then show actual cost as `pending`.
 
 Reuse `agentic_cloud_radar/s5.py`.
 
@@ -30,10 +33,11 @@ Reuse `agentic_cloud_radar/s5.py`.
 2. Mark mismatched or missing required artifacts as `incomplete_artifacts`.
 3. Summarize the Skill 3 score and confidence without recalculation.
 4. Render the Skill 3 quote without recalculation: ID, validity, low/expected/high totals, expected line items, assumptions, exclusions and official sources.
-5. Separate verified facts from unknown or unverified statements.
-6. Build an evidence ledger linking claims to source or runtime artifacts.
-7. Produce one JSON report, embedded Markdown, and a stable GUI model.
-8. Mark the report `final` only when runtime status is `cleanup_verified`; otherwise keep it `interim`.
+5. Compare the public-price estimate with actual AWS cost only if an attributable Billing, Cost Explorer, or CUR artifact is provided.
+6. Separate verified facts from unknown or unverified statements.
+7. Build an evidence ledger linking claims to source, runtime, or billing artifacts.
+8. Produce one JSON report, embedded Markdown, and a stable GUI model.
+9. Mark the report `final` only when runtime status is `cleanup_verified`; otherwise keep it `interim`.
 
 ## Required report sections
 
@@ -41,6 +45,7 @@ Reuse `agentic_cloud_radar/s5.py`.
 - One-sentence conclusion.
 - Skill 3 evaluation.
 - PoC 成本估算報價單.
+- 預估成本 vs 可歸因實際帳務成本.
 - Skill 4 validation and runtime checks.
 - Verified facts.
 - Unknown or insufficiently supported claims.
@@ -51,6 +56,8 @@ Reuse `agentic_cloud_radar/s5.py`.
 
 - A named-human cost ceiling is not an official price.
 - A public-price quotation is a non-binding estimate, not an AWS invoice or formal AWS sales quote.
+- Runtime duration, CloudFormation status, and cleanup status are not actual billing evidence.
+- If no attributable Cost Explorer, Billing, or CUR artifact is present, actual cost must remain `pending`.
 - Do not omit zero-charge recipe resources, usage assumptions, exclusions or source URLs.
 - `CREATE_COMPLETE` is deployment evidence, not cleanup evidence.
 - Automated checks do not replace Console review.
