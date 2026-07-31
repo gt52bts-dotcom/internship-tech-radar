@@ -143,7 +143,7 @@ def _base_comparison(scan: dict[str, Any]) -> dict[str, Any]:
         "comparison_contract": {
             "method": "normalized_source_backed_comparison_without_automatic_ranking",
             "automatic_shortlist": False,
-            "maximum_human_shortlist_size": 3,
+            "maximum_human_shortlist_size": 1,
             "required_dimensions": [
                 "technology_scope",
                 "delivery_model",
@@ -166,9 +166,9 @@ def _base_comparison(scan: dict[str, Any]) -> dict[str, Any]:
         "cross_candidate_findings": {},
         "data_gaps": [],
         "human_review_required": {
-            "decision": "Choose at most three evidence-backed candidates for S3.",
+            "decision": "Choose exactly one evidence-backed candidate for S3.",
             "required_inputs": [
-                "Which candidate or candidates should continue to Skill 3?",
+                "Which single candidate should continue to Skill 3?",
             ],
         },
         "shortlist_policy": {

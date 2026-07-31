@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill 4 · Validate"
+  short_description: "Validate quotes and candidates before a controlled PoC"
+  default_prompt: "Use $validate-cloud-poc to independently check the candidate, PoC cost quote, sandbox ceiling and short human approval gate."

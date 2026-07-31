@@ -13,16 +13,17 @@ an explicit CLI ``--execute`` flag.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 from pathlib import Path
 import platform
+import re
 import subprocess
 import time
 from typing import Any
 
-from .s4 import build_validate
+from .s4 import DEFAULT_MAX_SMALL_POC_USD, build_validate
 
 
 RADAR_ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +39,9 @@ DEFAULT_CLEANUP_SCOPE = (
     "Remove only test data owned by that stack.",
     "Verify the stack and active test resources are gone.",
 )
+CONSOLE_REVIEW_EVIDENCE_SCHEMA = "s4.console-review-evidence.v1"
+DEPLOYMENT_APPROVAL_SCHEMA = "s4.deployment-approval.v1"
+REQUIRED_CONSOLE_VIEW = "infrastructure_composer"
 
 
 class DeploymentError(RuntimeError):
@@ -78,6 +82,72 @@ LAMBDA_SELF_MANAGED_STORAGE_RECIPE = PocRecipe(
         "The function can be invoked from the sandbox test account.",
     ),
 )
+
+
+def build_approval_template(
+    evaluate: dict[str, Any],
+    selected_candidate_id: str | None = None,
+    approved_by: str | None = None,
+    authorize: bool = False,
+) -> dict[str, Any]:
+    """Create the human-editable S4 approval file from a Skill 3 artifact."""
+
+    if evaluate.get("stage") != "S3" or evaluate.get("status") != "evaluated":
+        raise DeploymentError("S4 approval template requires an evaluated Skill 3 artifact.")
+    candidates = evaluate.get("evaluated_candidates") or []
+    selected = _select_approval_candidate(candidates, selected_candidate_id)
+    candidate_id = str(selected.get("candidate_id") or "")
+    if not candidate_id:
+        raise DeploymentError("Selected Skill 3 candidate has no candidate_id.")
+    quote = ((selected.get("cost_estimate") or {}).get("quote") or {})
+    recipe = _recipe_for(selected)
+    recommended_ceiling = quote.get("recommended_approval_ceiling_usd")
+    policy_ceiling = float((evaluate.get("policy") or {}).get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
+    effective_ceiling = _minimum_numeric(
+        recommended_ceiling,
+        policy_ceiling,
+    )
+    return {
+        "schema_version": DEPLOYMENT_APPROVAL_SCHEMA,
+        "run_id": evaluate.get("run_id"),
+        "selected_candidate_id": candidate_id,
+        "approved_by": str(approved_by or "").strip() or None,
+        "deployment_authorized": bool(authorize),
+        "approval_basis": (
+            "Review the Skill 3 score, confidence, quote, Region status, recipe, success criteria, "
+            "cleanup scope, and known limits before setting deployment_authorized=true."
+        ),
+        "approved_cost_ceiling_usd": effective_ceiling,
+        "cost_ceiling_policy": {
+            "rule": "effective_ceiling_usd = min(Skill 3 recommended approval ceiling, human approved ceiling, built-in small-cost ceiling)",
+            "skill3_recommended_approval_ceiling_usd": recommended_ceiling,
+            "built_in_small_cost_ceiling_usd": policy_ceiling,
+            "human_may_lower_ceiling": True,
+            "human_may_raise_above_built_in_ceiling": False,
+        },
+        "region_warning_acknowledged": False,
+        "quote_snapshot": {
+            "quote_id": quote.get("quote_id"),
+            "status": quote.get("status") or (selected.get("cost_estimate") or {}).get("status"),
+            "expected_total_usd": quote.get("expected_total_usd"),
+            "recommended_approval_ceiling_usd": recommended_ceiling,
+            "valid_until": quote.get("valid_until"),
+            "live_pricing_api_used": quote.get("live_pricing_api_used") is True,
+            "formal_procurement_quote_ready": quote.get("formal_procurement_quote_ready") is True,
+        },
+        "deployment": {
+            "profile": DEFAULT_PROFILE,
+            "target_region": DEFAULT_REGION,
+            "create_test_instance": True,
+        },
+        "lineage": {
+            "s1_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S1_JSON",
+            "s2_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S2_JSON",
+            "s3_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S3_JSON",
+        },
+        "success_criteria": list(recipe.success_criteria if recipe else []),
+        "cleanup_scope": list(DEFAULT_CLEANUP_SCOPE),
+    }
 
 
 def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any]) -> dict[str, Any]:
@@ -146,28 +216,34 @@ def execute_deployment(context: dict[str, Any]) -> dict[str, Any]:
     stack_name = str(deployment["stack_name"])
 
     _aws(["cloudformation", "validate-template", "--template-body", f"file://{template_path}"], profile, region)
-    _aws(
-        [
-            "cloudformation",
-            "create-stack",
-            "--stack-name",
-            stack_name,
-            "--template-body",
-            f"file://{template_path}",
-            "--capabilities",
-            "CAPABILITY_IAM",
-            "--on-failure",
-            "DELETE",
-        ],
-        profile,
-        region,
-    )
-    _aws(["cloudformation", "wait", "stack-create-complete", "--stack-name", stack_name], profile, region)
+    stack_status = _stack_status_or_none(stack_name, profile, region)
+    if stack_status is None:
+        _aws(
+            [
+                "cloudformation",
+                "create-stack",
+                "--stack-name",
+                stack_name,
+                "--template-body",
+                f"file://{template_path}",
+                "--capabilities",
+                "CAPABILITY_IAM",
+                "--on-failure",
+                "DELETE",
+            ],
+            profile,
+            region,
+        )
+        _aws(["cloudformation", "wait", "stack-create-complete", "--stack-name", stack_name], profile, region)
+    elif stack_status == "CREATE_IN_PROGRESS":
+        _aws(["cloudformation", "wait", "stack-create-complete", "--stack-name", stack_name], profile, region)
+    elif stack_status != "CREATE_COMPLETE":
+        raise DeploymentError(f"Existing PoC stack cannot resume verification from status {stack_status}.")
     outputs = _stack_outputs(stack_name, profile, region)
     verification = _verify_recipe(recipe, context, outputs, work_dir)
 
     return {
-        "schema_version": "s4.runtime-evidence.v2",
+        "schema_version": "s4.runtime-evidence.v3",
         "stage": "S4",
         "run_id": context.get("run_id"),
         "status": "awaiting_console_review",
@@ -185,24 +261,131 @@ def execute_deployment(context: dict[str, Any]) -> dict[str, Any]:
         "verification": verification,
         "console_review": {
             "status": "required",
+            "evidence_status": "awaiting_capture",
             "required_checks": [
                 "CloudFormation stack Resources and Template",
                 "Recipe resources and their expected relationships",
                 "Test workload result",
             ],
+            "required_screenshot_views": [REQUIRED_CONSOLE_VIEW],
+            "recommended_screenshot_views": ["resource_inventory"],
         },
         "cleanup": {"status": "pending_console_review"},
     }
 
 
-def record_console_review(runtime: dict[str, Any], confirmed_by: str, notes: str | None = None) -> dict[str, Any]:
-    """Record the human Console check before cleanup is permitted."""
+def build_console_review_packet(runtime: dict[str, Any], review_timeout_minutes: int = 60) -> dict[str, Any]:
+    """Build the human-facing screenshot checklist for one deployed PoC run."""
+
+    if runtime.get("stage") != "S4" or runtime.get("status") != "awaiting_console_review":
+        raise DeploymentError("A Console review packet requires an S4 runtime artifact awaiting review.")
+    if not 1 <= review_timeout_minutes <= 1_440:
+        raise DeploymentError("Console review timeout must be between 1 and 1440 minutes.")
+    deployment = runtime.get("deployment") or {}
+    region = str(deployment.get("target_region") or DEFAULT_REGION)
+    stack_name = str(deployment.get("stack_name") or "")
+    run_id = str(runtime.get("run_id") or "unknown-run")
+    screenshot_dir = f".\\out\\run\\s4-console-review\\{_safe_path_segment(run_id)}"
+    evidence_path = f"{screenshot_dir}\\s4-console-review-evidence.json"
+    issued_at = datetime.now(timezone.utc)
+    review_deadline = issued_at + timedelta(minutes=review_timeout_minutes)
+    return {
+        "schema_version": "s4.console-review-packet.v1",
+        "stage": "S4",
+        "run_id": runtime.get("run_id"),
+        "status": "awaiting_human_confirmation",
+        "issued_at": issued_at.isoformat(),
+        "review_deadline": review_deadline.isoformat(),
+        "review_target": {
+            "stack_name": stack_name,
+            "target_region": region,
+            "recipe": deployment.get("recipe"),
+            "composer_url": _composer_url(region),
+            "cloudformation_stack_url": _cloudformation_stack_url(region, stack_name),
+        },
+        "automation": {
+            "mode": "playwright_headful_browser",
+            "command": (
+                "node .\\scripts\\s4-capture-infrastructure-composer.mjs "
+                f"--runtime .\\out\\run\\s4-runtime.json --packet .\\out\\run\\s4-console-review-packet.json "
+                f"--output-dir {screenshot_dir} --evidence-output {evidence_path} --shared-via conversation"
+            ),
+            "outputs": {
+                "required_png": f"{screenshot_dir}\\infrastructure-composer.png",
+                "review_evidence": evidence_path,
+            },
+            "human_display_required": True,
+            "cleanup_must_wait_for_named_confirmation": True,
+        },
+        "required_screenshots": [
+            {
+                "view": REQUIRED_CONSOLE_VIEW,
+                "console_location": "CloudFormation stack > Infrastructure Composer",
+                "must_show": [
+                    "The run-derived stack's resource relationship canvas",
+                    "The deployed resources are visible and match the selected recipe",
+                ],
+            }
+        ],
+        "recommended_screenshots": [
+            {
+                "view": "resource_inventory",
+                "console_location": "CloudFormation stack > Resources or candidate-service resource page",
+                "must_show": ["Resource statuses", "The test workload result when the Console exposes it"],
+            }
+        ],
+        "human_confirmation": {
+            "required": True,
+            "instruction": "Show the screenshots in the GUI or this conversation, then wait for a named human to approve cleanup.",
+        },
+        "evidence_contract": {
+            "schema_version": CONSOLE_REVIEW_EVIDENCE_SCHEMA,
+            "required_review_target_fields": ["stack_name", "target_region", "run_id"],
+            "required_fields_per_screenshot": [
+                "view",
+                "screenshot_ref",
+                "sha256",
+                "captured_at",
+                "shared_via",
+                "redacted",
+                "hash_scope",
+            ],
+            "allowed_shared_via": ["gui", "conversation"],
+            "privacy_order": "capture visible canvas -> hide/redact Console chrome -> hash the redacted PNG -> show the redacted PNG to the human",
+            "automated_image_understanding": False,
+            "human_confirmation_record_only": True,
+        },
+        "privacy": [
+            "Do not commit Console screenshots or unredacted Console URLs to Git.",
+            "Store only redacted screenshot references, SHA-256 hashes, run-derived stack name, Region, and capture time in the review evidence JSON.",
+            "The metadata contract cannot prove the pixels show the correct stack; a named human must confirm the screenshot content before cleanup.",
+        ],
+        "timeout_policy": {
+            "review_timeout_minutes": review_timeout_minutes,
+            "on_timeout": "After review_deadline, use s4-abort --packet <packet> --execute with a named cost-control approver and reason; record that Console screenshot review was skipped for cost control.",
+        },
+    }
+
+
+def record_console_review(
+    runtime: dict[str, Any],
+    confirmed_by: str,
+    notes: str | None = None,
+    review_evidence: dict[str, Any] | None = None,
+    review_packet: dict[str, Any] | None = None,
+    shared_via: str | None = None,
+) -> dict[str, Any]:
+    """Record screenshot-backed human Console confirmation before cleanup is permitted."""
 
     reviewer = str(confirmed_by or "").strip()
     if runtime.get("stage") != "S4" or runtime.get("status") != "awaiting_console_review":
         raise DeploymentError("Console review requires an S4 runtime artifact awaiting review.")
     if not reviewer:
         raise DeploymentError("Console review requires a named human reviewer.")
+    confirmed_channel = str(shared_via or "").strip()
+    if confirmed_channel not in {"gui", "conversation"}:
+        raise DeploymentError("Console review requires the GUI or conversation channel where the human saw the screenshot.")
+    evidence = _validated_review_evidence(runtime, review_evidence, review_packet)
     reviewed = dict(runtime)
     reviewed["status"] = "ready_for_cleanup"
     reviewed["console_review"] = {
@@ -211,6 +394,9 @@ def record_console_review(runtime: dict[str, Any], confirmed_by: str, notes: str
         "confirmed_by": reviewer,
         "confirmed_at": _now(),
         "notes": str(notes or "").strip() or None,
+        "evidence_status": "captured_and_confirmed",
+        "display_channel_confirmed": confirmed_channel,
+        "evidence": evidence,
     }
     reviewed["cleanup"] = {"status": "ready_for_manual_cleanup"}
     return reviewed
@@ -221,6 +407,111 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
 
     if runtime.get("stage") != "S4" or runtime.get("status") != "ready_for_cleanup":
         raise DeploymentError("Cleanup requires a Console-reviewed S4 runtime artifact.")
+    if runtime.get("schema_version") == "s4.runtime-evidence.v3" and (
+        (runtime.get("console_review") or {}).get("evidence_status") != "captured_and_confirmed"
+        or (runtime.get("console_review") or {}).get("display_channel_confirmed") not in {"gui", "conversation"}
+    ):
+        raise DeploymentError("Cleanup requires screenshot-backed Console confirmation for this runtime schema.")
+    try:
+        checks = _cleanup_stack_resources(runtime)
+    except DeploymentError as exc:
+        failed = dict(runtime)
+        failed["status"] = "cleanup_failed"
+        failed["cleanup"] = {
+            "status": "failed",
+            "failed_at": _now(),
+            "error": str(exc),
+            "orphan_resource_risk": True,
+            "next_action": "Inspect the run-derived stack and re-run scoped cleanup after the blocker is removed.",
+        }
+        raise DeploymentError(json.dumps(failed, ensure_ascii=False)) from exc
+
+    cleaned = dict(runtime)
+    cleaned["status"] = "cleanup_verified"
+    cleaned["cleanup"] = {
+        "status": "verified",
+        "verified_at": _now(),
+        "checks": checks,
+    }
+    return cleaned
+
+
+def execute_abort_cleanup(
+    runtime: dict[str, Any], confirmed_by: str, reason: str, review_packet: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Emergency cleanup for timed out or failed S4 runs without Console screenshots."""
+
+    reviewer = str(confirmed_by or "").strip()
+    abort_reason = str(reason or "").strip()
+    if runtime.get("stage") != "S4" or runtime.get("status") not in {
+        "awaiting_console_review",
+        "ready_for_cleanup",
+        "deployment_failed",
+        "cleanup_failed",
+    }:
+        raise DeploymentError("Abort cleanup requires an S4 runtime that is deployed, failed, or already partially closing.")
+    if not reviewer:
+        raise DeploymentError("Abort cleanup requires a named cost-control approver.")
+    if len(abort_reason) < 12:
+        raise DeploymentError("Abort cleanup requires a concrete reason.")
+    if runtime.get("status") in {"awaiting_console_review", "ready_for_cleanup"}:
+        _validate_abort_review_deadline(runtime, review_packet)
+    try:
+        checks = _cleanup_stack_resources(runtime)
+    except DeploymentError as exc:
+        failed = dict(runtime)
+        failed["status"] = "cleanup_failed"
+        failed["console_review"] = {
+            **dict(runtime.get("console_review") or {}),
+            "status": "skipped_for_cost_control",
+            "evidence_status": "not_captured_abort_cleanup_failed",
+            "confirmed_by": reviewer,
+            "reason": abort_reason,
+        }
+        failed["cleanup"] = {
+            "status": "failed",
+            "failed_at": _now(),
+            "error": str(exc),
+            "orphan_resource_risk": True,
+            "next_action": "Escalate the run-derived residual resources for manual remediation.",
+        }
+        raise DeploymentError(json.dumps(failed, ensure_ascii=False)) from exc
+    cleaned = dict(runtime)
+    cleaned["status"] = "cleanup_verified"
+    cleaned["console_review"] = {
+        **dict(runtime.get("console_review") or {}),
+        "status": "skipped_for_cost_control",
+        "evidence_status": "not_captured_emergency_cleanup",
+        "confirmed_by": reviewer,
+        "confirmed_at": _now(),
+        "reason": abort_reason,
+    }
+    cleaned["cleanup"] = {
+        "status": "verified",
+        "verified_at": _now(),
+        "cleanup_mode": "abort_without_console_review",
+        "checks": checks,
+    }
+    return cleaned
+
+
+def _validate_abort_review_deadline(runtime: dict[str, Any], review_packet: dict[str, Any] | None) -> None:
+    if not isinstance(review_packet, dict):
+        raise DeploymentError("A review-timeout abort requires the Console review packet.")
+    if str(review_packet.get("run_id") or "") != str(runtime.get("run_id") or ""):
+        raise DeploymentError("Abort cleanup packet does not belong to this PoC run.")
+    deadline = str(review_packet.get("review_deadline") or "").strip()
+    try:
+        deadline_at = datetime.fromisoformat(deadline.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise DeploymentError("Abort cleanup packet has no valid review_deadline.") from exc
+    if deadline_at.tzinfo is None:
+        raise DeploymentError("Abort cleanup packet review_deadline must include a timezone.")
+    if datetime.now(timezone.utc) < deadline_at.astimezone(timezone.utc):
+        raise DeploymentError("The Console review deadline has not passed; use the normal close path.")
+
+
+def _cleanup_stack_resources(runtime: dict[str, Any]) -> dict[str, str]:
     deployment = runtime.get("deployment") or {}
     stack_name = str(deployment.get("stack_name") or "")
     resource_prefix = str(deployment.get("resource_prefix") or "")
@@ -234,19 +525,120 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
     _empty_versioned_bucket(bucket_name, profile, region)
     _aws(["cloudformation", "delete-stack", "--stack-name", stack_name], profile, region)
     _aws(["cloudformation", "wait", "stack-delete-complete", "--stack-name", stack_name], profile, region)
-
-    cleaned = dict(runtime)
-    cleaned["status"] = "cleanup_verified"
-    cleaned["cleanup"] = {
-        "status": "verified",
-        "verified_at": _now(),
-        "checks": {
-            "cloudformation_stack": "deleted",
-            "versioned_test_bucket": "emptied_before_stack_delete",
-            "run_derived_resource_prefix": "matched",
-        },
+    return {
+        "cloudformation_stack": "deleted",
+        "versioned_test_bucket": "emptied_before_stack_delete",
+        "run_derived_resource_prefix": "matched",
     }
-    return cleaned
+
+
+def _validated_review_evidence(
+    runtime: dict[str, Any],
+    evidence: dict[str, Any] | None,
+    review_packet: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Validate review metadata and packet binding, not screenshot pixels."""
+
+    if not isinstance(evidence, dict):
+        raise DeploymentError("Console review requires screenshot evidence JSON from the review packet.")
+    if evidence.get("schema_version") != CONSOLE_REVIEW_EVIDENCE_SCHEMA:
+        raise DeploymentError("Console review evidence has an unsupported schema version.")
+    if str(evidence.get("run_id") or "") != str(runtime.get("run_id") or ""):
+        raise DeploymentError("Console review evidence does not belong to this PoC run.")
+    _validate_review_packet_binding(runtime, evidence, review_packet)
+    screenshots = evidence.get("screenshots")
+    if not isinstance(screenshots, list):
+        raise DeploymentError("Console review evidence must include a screenshot list.")
+    accepted: list[dict[str, Any]] = []
+    seen_views: set[str] = set()
+    for item in screenshots:
+        if not isinstance(item, dict):
+            continue
+        view = str(item.get("view") or "").strip()
+        screenshot_ref = str(item.get("screenshot_ref") or "").strip()
+        sha256 = str(item.get("sha256") or "").strip().lower()
+        captured_at = str(item.get("captured_at") or "").strip()
+        shared_via = str(item.get("shared_via") or "").strip()
+        redacted = item.get("redacted") is True
+        hash_scope = str(item.get("hash_scope") or "").strip()
+        if not view or not screenshot_ref or not captured_at or shared_via not in {"gui", "conversation"}:
+            raise DeploymentError("Each Console screenshot needs view, reference, capture time, and GUI or conversation sharing.")
+        if not redacted or hash_scope != "redacted_png":
+            raise DeploymentError("Each Console screenshot must be redacted before hashing and sharing.")
+        if not re.fullmatch(r"[0-9a-f]{64}", sha256):
+            raise DeploymentError("Each Console screenshot needs a SHA-256 hash.")
+        accepted.append(
+            {
+                "view": view,
+                "screenshot_ref": screenshot_ref,
+                "sha256": sha256,
+                "captured_at": captured_at,
+                "shared_via": shared_via,
+                "redacted": True,
+                "hash_scope": "redacted_png",
+            }
+        )
+        seen_views.add(view)
+    if REQUIRED_CONSOLE_VIEW not in seen_views:
+        raise DeploymentError("Console review evidence must include an Infrastructure Composer screenshot.")
+    return {
+        "schema_version": CONSOLE_REVIEW_EVIDENCE_SCHEMA,
+        "review_target": evidence.get("review_target"),
+        "capture_contract": evidence.get("capture_contract"),
+        "screenshots": accepted,
+        "automated_image_understanding": False,
+        "human_confirmation_record_only": True,
+    }
+
+
+def _validate_review_packet_binding(
+    runtime: dict[str, Any],
+    evidence: dict[str, Any],
+    review_packet: dict[str, Any] | None,
+) -> None:
+    deployment = runtime.get("deployment") or {}
+    expected_target = {
+        "stack_name": str(deployment.get("stack_name") or ""),
+        "target_region": str(deployment.get("target_region") or ""),
+        "run_id": str(runtime.get("run_id") or ""),
+    }
+    evidence_target = evidence.get("review_target") or {}
+    for field, expected in expected_target.items():
+        if not expected:
+            continue
+        if str(evidence_target.get(field) or "") != expected:
+            raise DeploymentError(f"Console review evidence {field} does not match the runtime.")
+    contract = evidence.get("capture_contract") or {}
+    if contract.get("hash_scope") != "redacted_png" or contract.get("redacted_before_hash") is not True:
+        raise DeploymentError("Console review evidence must record the redact-before-hash capture contract.")
+    if contract.get("automated_image_understanding") is not False:
+        raise DeploymentError("Console review evidence must not claim automated screenshot-content verification.")
+    if not review_packet:
+        raise DeploymentError("Console review requires the packet that defined the screenshot checklist.")
+    if review_packet.get("schema_version") != "s4.console-review-packet.v1":
+        raise DeploymentError("Console review packet has an unsupported schema version.")
+    if str(review_packet.get("run_id") or "") != expected_target["run_id"]:
+        raise DeploymentError("Console review packet does not belong to this PoC run.")
+    packet_target = review_packet.get("review_target") or {}
+    for field in ("stack_name", "target_region"):
+        if str(packet_target.get(field) or "") != expected_target[field]:
+            raise DeploymentError(f"Console review packet {field} does not match the runtime.")
+    required_views = {
+        str(item.get("view") or "")
+        for item in review_packet.get("required_screenshots") or []
+        if isinstance(item, dict)
+    }
+    evidence_views = {
+        str(item.get("view") or "")
+        for item in evidence.get("screenshots") or []
+        if isinstance(item, dict)
+    }
+    missing_views = sorted(view for view in required_views if view and view not in evidence_views)
+    if missing_views:
+        detail = ", ".join(missing_views)
+        if REQUIRED_CONSOLE_VIEW in missing_views:
+            detail += " (Infrastructure Composer)"
+        raise DeploymentError(f"Console review evidence is missing required packet views: {detail}.")
 
 
 def _context_errors(
@@ -255,6 +647,10 @@ def _context_errors(
     errors: list[str] = []
     if evaluate.get("stage") != "S3" or evaluate.get("status") != "evaluated":
         errors.append("s3_not_usable")
+    if approval.get("schema_version") not in {None, "", DEPLOYMENT_APPROVAL_SCHEMA}:
+        errors.append("approval_schema_unsupported")
+    if approval.get("run_id") and str(approval.get("run_id")) != str(evaluate.get("run_id") or ""):
+        errors.append("approval_run_id_mismatch")
     if not selected:
         errors.append("selected_candidate_id_not_in_s3")
         return errors
@@ -266,6 +662,16 @@ def _context_errors(
     deployment = approval.get("deployment") or {}
     if deployment.get("target_region") not in {None, "", DEFAULT_REGION}:
         errors.append("deployment_target_region_invalid")
+    region = deployment.get("target_region") or DEFAULT_REGION
+    region_status = (selected.get("region_status") or {}).get("status")
+    if region_status != f"available_{str(region).replace('-', '_')}" and not (
+        region_status == "region_unknown" and approval.get("region_warning_acknowledged") is True
+    ):
+        errors.append("target_region_not_verified_or_acknowledged")
+    quote_recipe = (((selected.get("cost_estimate") or {}).get("quote") or {}).get("recipe"))
+    recipe = _recipe_for(selected)
+    if quote_recipe and recipe and quote_recipe != recipe.key:
+        errors.append("cost_model_and_deployment_recipe_mismatch")
     return errors
 
 
@@ -327,6 +733,40 @@ def _candidate_summary(candidate: dict[str, Any] | None) -> dict[str, Any] | Non
         "confidence": candidate.get("confidence"),
         "region_status": (candidate.get("region_status") or {}).get("status"),
     }
+
+
+def _select_approval_candidate(
+    candidates: list[dict[str, Any]], selected_candidate_id: str | None
+) -> dict[str, Any]:
+    if selected_candidate_id:
+        selected = next(
+            (item for item in candidates if str(item.get("candidate_id") or "") == str(selected_candidate_id)),
+            None,
+        )
+        if not selected:
+            raise DeploymentError("Selected candidate ID is not present in the Skill 3 artifact.")
+        return selected
+    recommended = [item for item in candidates if _candidate_recommends_poc(item)]
+    if len(recommended) == 1:
+        return recommended[0]
+    if len(candidates) == 1:
+        return candidates[0]
+    raise DeploymentError("Approval template needs exactly one selected candidate ID.")
+
+
+def _candidate_recommends_poc(candidate: dict[str, Any]) -> bool:
+    if "recommend_poc" in candidate:
+        return bool(candidate.get("recommend_poc"))
+    if "eligible_for_poc_review" in candidate:
+        return bool(candidate.get("eligible_for_poc_review"))
+    if "eligible_for_paid_poc_review" in candidate:
+        return bool(candidate.get("eligible_for_paid_poc_review"))
+    return bool(candidate.get("recommend_s4"))
+
+
+def _minimum_numeric(*values: Any) -> float | None:
+    numeric = [float(value) for value in values if isinstance(value, (int, float))]
+    return min(numeric) if numeric else None
 
 
 def _selected_validation(validation: dict[str, Any], selected_id: str) -> dict[str, Any]:
@@ -403,7 +843,9 @@ def _verify_recipe(recipe: PocRecipe, context: dict[str, Any], outputs: dict[str
     if invocation.get("Status") != "Success":
         raise DeploymentError("SSM validation command did not succeed.")
     round_trip_file = work_dir / "from-mount.txt"
-    _aws(["s3api", "get-object", "--bucket", outputs["BucketName"], "--key", "poc/from-mount.txt", str(round_trip_file)], profile, region)
+    _get_s3_object_with_retry(
+        outputs["BucketName"], "poc/from-mount.txt", round_trip_file, profile, region
+    )
     expected = f"S4 mount-to-S3 verification for run {context['run_id']}"
     if expected not in round_trip_file.read_text(encoding="utf-8"):
         raise DeploymentError("S3 read-back did not contain the mount-to-S3 verification marker.")
@@ -519,6 +961,37 @@ def _stack_outputs(stack_name: str, profile: str, region: str) -> dict[str, str]
     return {str(item.get("OutputKey")): str(item.get("OutputValue")) for item in stacks[0].get("Outputs") or []}
 
 
+def _stack_status_or_none(stack_name: str, profile: str, region: str) -> str | None:
+    try:
+        payload = _aws_json(["cloudformation", "describe-stacks", "--stack-name", stack_name], profile, region)
+    except DeploymentError as exc:
+        if "does not exist" in str(exc):
+            return None
+        raise
+    stacks = payload.get("Stacks") or []
+    return str(stacks[0].get("StackStatus") or "") if stacks else None
+
+
+def _get_s3_object_with_retry(
+    bucket_name: str,
+    key: str,
+    output_path: Path,
+    profile: str,
+    region: str,
+    attempts: int = 30,
+    interval_seconds: int = 20,
+) -> None:
+    for attempt in range(attempts):
+        try:
+            _aws(["s3api", "get-object", "--bucket", bucket_name, "--key", key, str(output_path)], profile, region)
+            return
+        except DeploymentError as exc:
+            if "NoSuchKey" not in str(exc) or attempt == attempts - 1:
+                raise
+            time.sleep(interval_seconds)
+    raise DeploymentError("S3 Files did not export the mount-written object before the validation timeout.")
+
+
 def _stack_resource_physical_id(stack_name: str, logical_id: str, profile: str, region: str) -> str:
     payload = _aws_json(
         ["cloudformation", "describe-stack-resource", "--stack-name", stack_name, "--logical-resource-id", logical_id], profile, region
@@ -603,6 +1076,24 @@ def _work_dir(context: dict[str, Any]) -> Path:
 def _matches_run_identity(run_id: str, stack_name: str, resource_prefix: str) -> bool:
     suffix = hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:8]
     return stack_name == f"AgenticRadarS4{suffix.upper()}" and resource_prefix == f"agentic-radar-s4-{suffix}"
+
+
+def _composer_url(region: str) -> str:
+    region = region or DEFAULT_REGION
+    return f"https://{region}.console.aws.amazon.com/composer/home?region={region}"
+
+
+def _cloudformation_stack_url(region: str, stack_name: str) -> str:
+    region = region or DEFAULT_REGION
+    safe_stack = stack_name.replace("/", "%2F").replace(":", "%3A")
+    return (
+        f"https://{region}.console.aws.amazon.com/cloudformation/home?region={region}"
+        f"#/stacks/stackinfo?stackId={safe_stack}"
+    )
+
+
+def _safe_path_segment(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.-]+", "-", value or "unknown-run").strip("-") or "unknown-run"
 
 
 def _sha256(path: Path) -> str:

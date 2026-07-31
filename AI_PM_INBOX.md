@@ -20,6 +20,15 @@
 - Skill 5 新增 `final_without_console_review` 與 `closed_without_console_review`，把成本控制 cleanup 和正常截圖人工確認的 actual-PoC final 明確分開。五份 repository Skill 文件、Console template、README 與 S4 操作文件同步改為同一個 `out/run` 路徑與命令契約。
 - 驗證：完整 unittest 38 項通過；`compileall`、Playwright 腳本語法檢查與三個更新後 CLI `--help` 均通過。未建立、修改或清除任何 AWS 資源。
 
+## 2026-07-31 Claude GUI Handoff 完整同步
+
+- 將 `radar-redesign/claude-gui-handoff` 同步為可獨立交接的現行版本：更新五個 Skill、核心 Python 模組、樣本、測試、Infrastructure Composer Playwright 截圖腳本與操作文件。
+- 重寫交接說明與設計基線，明確採用「人類選定一個候選後，依序走 Skill 3、4、5」；Skill 3 先產出完整 PoC 預估報價，Skill 4 是唯一可能產生成本的驗證階段，沒有另一套低風險標準。
+- 交接版 Skill 4 會先完成受控部署與驗證，再建立含期限的 Console review packet，以 Playwright 擷取遮罩後的 Infrastructure Composer 畫布，待人類確認後自動清除資源；逾期或失敗則以受控中止收尾，Skill 5 清楚標示結論。
+- 已在 handoff 目錄執行 39 項單元測試、Python 編譯檢查與 Playwright 腳本語法檢查，皆通過；核心模組與主專案雜湊一致。
+- 架構掃描為 20/26，缺項是 Bedrock、RAG、CloudWatch/CloudTrail 等正式產品化元件，不影響現階段五個 Skill 的單項 PoC 流程。掃描器的「top 3」提示為舊規則，不採用。
+- 本次只整理本機交接檔與文件，未執行 AWS Console 操作、部署或清除雲端資源。
+
 ## 2026-07-31 Skill 5 成本對帳補強
 
 - 時間判定：2026-07-31 08:18 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。

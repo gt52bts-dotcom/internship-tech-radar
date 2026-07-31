@@ -25,6 +25,7 @@ AWS_EC2_SINGAPORE_PRICE_URL = (
     "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/"
     "ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json"
 )
+AWS_LAMBDA_PRICING_URL = "https://aws.amazon.com/lambda/pricing/"
 
 
 RATE_CARD = {
@@ -108,6 +109,22 @@ RATE_CARD = {
         "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
         "effective_date": "2026-07-01",
     },
+    "lambda_request": {
+        "label": "AWS Lambda requests",
+        "rate": Decimal("0.0000002"),
+        "unit": "USD/request",
+        "source_url": AWS_LAMBDA_PRICING_URL,
+        "source_basis": "AWS Lambda public request price",
+        "effective_date": "2026-07-31",
+    },
+    "lambda_x86_duration": {
+        "label": "AWS Lambda x86 duration",
+        "rate": Decimal("0.0000166667"),
+        "unit": "USD/GB-second",
+        "source_url": AWS_LAMBDA_PRICING_URL,
+        "source_basis": "AWS Lambda public on-demand duration price",
+        "effective_date": "2026-07-31",
+    },
 }
 
 
@@ -148,6 +165,13 @@ S3_FILES_SCENARIOS = {
 }
 
 
+LAMBDA_SELF_MANAGED_SCENARIOS = {
+    "low": {"label": "Low", "hours": Decimal("0.5"), "artifact_gb": Decimal("0.01"), "lambda_requests": Decimal("5"), "lambda_gb_seconds": Decimal("1"), "s3_put_requests": Decimal("10"), "s3_get_requests": Decimal("10")},
+    "expected": {"label": "Expected", "hours": Decimal("1"), "artifact_gb": Decimal("0.02"), "lambda_requests": Decimal("15"), "lambda_gb_seconds": Decimal("5"), "s3_put_requests": Decimal("30"), "s3_get_requests": Decimal("30")},
+    "high": {"label": "High", "hours": Decimal("2"), "artifact_gb": Decimal("0.05"), "lambda_requests": Decimal("50"), "lambda_gb_seconds": Decimal("20"), "s3_put_requests": Decimal("100"), "s3_get_requests": Decimal("100")},
+}
+
+
 def build_cost_quote(
     candidate: dict[str, Any],
     run_id: str,
@@ -172,22 +196,31 @@ def build_cost_quote(
         "currency": "USD",
         "target_region": target_region or "ap-southeast-1",
         "quote_kind": "non_binding_public_price_estimate",
+        "rate_card_source": "static_public_rate_card",
+        "live_pricing_api_used": False,
+        "formal_procurement_quote_ready": False,
         "disclaimer": (
             "這是依 AWS 公開牌價與明列用量假設產生的非約束性 PoC 成本估算，"
-            "不是 AWS 帳單、發票或正式銷售報價。實際費用以部署後的 AWS 帳務資料為準。"
+            "不是 AWS 帳單、發票、即時 AWS Pricing API 查詢或正式銷售報價。"
+            "實際費用以部署後的 AWS 帳務資料為準；正式採購前需重新查價。"
         ),
     }
-    if not _is_s3_files(candidate):
-        return {
-            **base,
-            "status": "needs_registered_cost_model",
-            "pricing_basis": "No registered cost model matches this candidate.",
-            "scenarios": {},
-            "expected_total_usd": None,
-            "recommended_approval_ceiling_usd": None,
-            "missing_inputs": ["registered_recipe_and_rate_card"],
-        }
+    if _is_s3_files(candidate):
+        return _build_s3_files_quote(base)
+    if _is_lambda_self_managed_storage(candidate):
+        return _build_lambda_self_managed_quote(base)
+    return {
+        **base,
+        "status": "needs_registered_cost_model",
+        "pricing_basis": "No registered cost model matches this candidate.",
+        "scenarios": {},
+        "expected_total_usd": None,
+        "recommended_approval_ceiling_usd": None,
+        "missing_inputs": ["registered_recipe_and_rate_card"],
+    }
 
+
+def _build_s3_files_quote(base: dict[str, Any]) -> dict[str, Any]:
     scenarios = {
         name: _price_s3_files_scenario(name, assumptions)
         for name, assumptions in S3_FILES_SCENARIOS.items()
@@ -225,7 +258,66 @@ def build_cost_quote(
             "Unexpected data transfer, retries, log ingestion and resources outside the registered recipe are excluded.",
             "S3 Files access rates are public example rates; recheck the AWS pricing page before deployment if the quote has expired.",
         ],
-        "sources": _quote_sources(),
+        "sources": _quote_sources(
+            "ec2_t3_micro", "ebs_gp3", "s3_files_storage", "s3_files_write", "s3_files_export_read",
+            "s3_files_small_read", "s3_files_import_write", "s3_standard_storage", "s3_tier1_request", "s3_tier2_request",
+        ),
+    }
+
+
+def _build_lambda_self_managed_quote(base: dict[str, Any]) -> dict[str, Any]:
+    scenarios = {
+        name: _price_lambda_self_managed_scenario(name, assumptions)
+        for name, assumptions in LAMBDA_SELF_MANAGED_SCENARIOS.items()
+    }
+    high_total = Decimal(str(scenarios["high"]["total_usd"]))
+    ceiling = _round_up(high_total, Decimal("0.05"))
+    return {
+        **base,
+        "status": "estimated",
+        "confidence": "medium",
+        "recipe": "lambda_self_managed_s3_code_storage_cdk",
+        "pricing_basis": "AWS public Lambda and S3 list prices for the registered single-function, versioned-S3-object PoC.",
+        "price_snapshot_date": "2026-07-31",
+        "scenarios": scenarios,
+        "expected_total_usd": scenarios["expected"]["total_usd"],
+        "estimated_range_usd": {name: scenarios[name]["total_usd"] for name in ("low", "expected", "high")},
+        "recommended_approval_ceiling_usd": _money(ceiling),
+        "approval_ceiling_basis": "High-use scenario rounded up to the next USD 0.05.",
+        "verified_recipe_facts": [
+            "The registered recipe creates one versioned S3 bucket and one Lambda function using S3ObjectStorageMode=REFERENCE.",
+            "CloudFormation, IAM roles, bucket policies, and deletion requests have no separate direct line item in this recipe.",
+        ],
+        "zero_direct_charge_resources": [
+            "CloudFormation, IAM role, S3 bucket policy, and Lambda function configuration have no separate direct charge.",
+        ],
+        "exclusions": [
+            "Tax, private pricing, Savings Plans, credits and Free Tier are excluded.",
+            "Unexpected data transfer, retries, CloudWatch log ingestion, and resources outside the registered recipe are excluded.",
+            "Recheck the Lambda and S3 pricing pages before deployment if the quote has expired.",
+        ],
+        "sources": _quote_sources(
+            "lambda_request", "lambda_x86_duration", "s3_standard_storage", "s3_tier1_request", "s3_tier2_request",
+        ),
+    }
+
+
+def _price_lambda_self_managed_scenario(name: str, assumptions: dict[str, Decimal]) -> dict[str, Any]:
+    items = [
+        _line("lambda_request", assumptions["lambda_requests"], "requests", "invocations x USD/request"),
+        _line("lambda_x86_duration", assumptions["lambda_gb_seconds"], "GB-seconds", "allocated GB-seconds x USD/GB-second"),
+        _line("s3_standard_storage", assumptions["artifact_gb"] * assumptions["hours"] / HOURS_PER_MONTH, "GB-month", "artifact GB x hours / 730 x USD/GB-month"),
+        _line("s3_tier1_request", assumptions["s3_put_requests"], "requests", "PUT/COPY/POST/LIST count x USD/request"),
+        _line("s3_tier2_request", assumptions["s3_get_requests"], "requests", "GET count x USD/request"),
+    ]
+    total = sum((Decimal(str(item["subtotal_usd"])) for item in items), Decimal("0"))
+    return {
+        "scenario": name,
+        "label": assumptions["label"],
+        "assumptions": {key: _number(value) for key, value in assumptions.items() if key != "label"},
+        "line_items": items,
+        "total_usd": _money(total),
+        "display_total_usd": f"{total.quantize(Decimal('0.01'), rounding=ROUND_CEILING):.2f}",
     }
 
 
@@ -272,10 +364,11 @@ def _line(rate_key: str, quantity: Decimal, quantity_unit: str, formula: str) ->
     }
 
 
-def _quote_sources() -> list[dict[str, str]]:
+def _quote_sources(*rate_keys: str) -> list[dict[str, str]]:
     seen: set[str] = set()
     sources = []
-    for rate in RATE_CARD.values():
+    for rate_key in rate_keys or tuple(RATE_CARD):
+        rate = RATE_CARD[rate_key]
         url = str(rate["source_url"])
         if url in seen:
             continue
@@ -292,6 +385,14 @@ def _is_s3_files(candidate: dict[str, Any]) -> bool:
         for key in ("title", "source_url")
     )
     return "s3 files" in haystack or "launching-s3-files" in haystack
+
+
+def _is_lambda_self_managed_storage(candidate: dict[str, Any]) -> bool:
+    haystack = " ".join(
+        str(candidate.get(key) or "").lower()
+        for key in ("title", "source_url")
+    )
+    return "self-managed" in haystack and ("lambda" in haystack or "function-code" in haystack)
 
 
 def _quote_id(run_id: str, candidate_id: str) -> str:

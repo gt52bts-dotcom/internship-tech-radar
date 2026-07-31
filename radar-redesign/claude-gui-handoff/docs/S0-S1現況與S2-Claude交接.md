@@ -18,7 +18,7 @@
 
 ## 下一步
 
-1. 用 S2 matrix 選最多三張提案卡。
+1. 用 S2 matrix 選一張提案卡進行單項評估。
 2. 對每張補真實 workflow、target user、baseline、成功標準與預算／權限邊界。
 3. S3 只評估這些已有人類情境的 proposal；S4 前維持 human PoC gate。
 

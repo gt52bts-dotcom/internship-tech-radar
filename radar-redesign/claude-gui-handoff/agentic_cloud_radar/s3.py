@@ -1,8 +1,8 @@
-"""S3: score a human-shortlisted set of S2 proposal cards.
+"""S3: score one human-selected S2 proposal card.
 
 S3 is intentionally conservative. It only reads the S2 comparison artifact and
-an explicit human shortlist request. It does not discover new sources, tune the
-rubric per candidate, or authorize a PoC. Registered recipes may produce a
+an explicit human selection request. It does not discover new sources, tune the
+rubric for the selected candidate, or authorize a PoC. Registered recipes may produce a
 source-backed, non-binding cost quotation from explicit assumptions.
 """
 
@@ -16,7 +16,7 @@ from .costing import build_cost_quote
 
 
 ALLOWED_S2_STATUSES = {"ready_for_human_shortlist"}
-MAX_SHORTLIST_SIZE = 3
+MAX_SHORTLIST_SIZE = 1
 DEFAULT_MAX_SMALL_POC_USD = 3.0
 RUBRIC_WEIGHTS = {
     "technical_value": 0.35,
@@ -61,7 +61,7 @@ class EvaluateResult:
 
 
 def build_evaluate(compare: dict[str, Any], shortlist_request: dict[str, Any] | None = None) -> EvaluateResult:
-    """Build an S3 artifact from S2 and a human shortlist request."""
+    """Build an S3 artifact from S2 and a single human selection request."""
 
     issues = _validate_s2(compare)
     artifact = _base_artifact(compare, shortlist_request)
@@ -104,7 +104,7 @@ def _validate_s2(compare: dict[str, Any]) -> list[EvaluateIssue]:
 def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | None) -> dict[str, Any]:
     policy = (shortlist_request or {}).get("policy") or {}
     return {
-        "schema_version": "s3.evaluation.v3",
+        "schema_version": "s3.evaluation.v4",
         "run_id": compare.get("run_id", "unknown-run"),
         "stage": "S3",
         "status": "draft",
@@ -125,7 +125,7 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
                 "verifiability",
                 "risk_and_stop_conditions",
             ],
-            "cost_policy": "Cost is recorded for S4 budget checks only; it is not part of the technical score.",
+            "cost_policy": "The single human-selected candidate receives a complete registered-recipe quote before it can be recommended for Skill 4. Cost is not part of the technical score.",
         },
         "policy": {
             "max_small_poc_usd": float(policy.get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD)),
@@ -134,7 +134,7 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
         "human_shortlist_gate": {
             "status": "missing",
             "required_inputs": [
-                "selected_candidate_ids, at most three",
+                "selected_candidate_ids, exactly one",
             ],
             "evaluation_mode": "public_evidence",
         },
@@ -149,7 +149,7 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
             "status": "missing",
             "selected_candidate_ids": [],
             "required_inputs": [
-                "selected_candidate_ids, at most three",
+                "selected_candidate_ids, exactly one",
             ],
             "evaluation_mode": "public_evidence",
             "message": "S3 stops until a human shortlist request is provided.",
@@ -167,7 +167,7 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
         return {
             "status": "invalid",
             "selected_candidate_ids": selected_ids,
-            "message": f"Human shortlist may contain at most {MAX_SHORTLIST_SIZE} candidates.",
+            "message": "Human selection must contain exactly one candidate.",
             "missing_inputs": [],
         }
     return {
@@ -175,7 +175,7 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
         "selected_candidate_ids": selected_ids,
         "evaluation_mode": "public_evidence",
         "selected_by": str(shortlist_request.get("selected_by") or "human_unspecified"),
-        "selection_reason": str(shortlist_request.get("selection_reason") or "Human selected these candidates for S3 evaluation."),
+        "selection_reason": str(shortlist_request.get("selection_reason") or "Human selected this candidate for S3 evaluation."),
     }
 
 
@@ -204,24 +204,19 @@ def _evaluate_candidate(
     )
     confidence = _confidence(coverage, unknowns, gate)
     governance_flags = _governance_flags(candidate, region)
-    low_risk_blockers = _low_risk_blockers(governance_flags)
-    recommend_low_risk_validation = (
-        weighted_score >= 3.25
-        and confidence in {"medium", "high"}
-        and not low_risk_blockers
-    )
-    eligible_for_poc_review = (
-        weighted_score >= 3.75
-        and confidence in {"medium", "high"}
-        and not low_risk_blockers
-    )
-    poc_review_notes = _poc_review_notes(coverage, region)
     quote = build_cost_quote(
         candidate,
         str(compare.get("run_id") or "unknown-run"),
         region.get("target_region"),
         datetime.fromisoformat(evaluated_at),
     )
+    poc_blockers = _poc_blockers(governance_flags, region, quote)
+    recommend_poc = (
+        weighted_score >= 3.75
+        and confidence in {"medium", "high"}
+        and not poc_blockers
+    )
+    poc_review_notes = _poc_review_notes(coverage, region, quote)
 
     return {
         "candidate_id": candidate.get("candidate_id"),
@@ -230,25 +225,18 @@ def _evaluate_candidate(
         "dimension_scores": dimension_scores,
         "weighted_score": weighted_score,
         "confidence": confidence,
-        "recommend_low_risk_validation": recommend_low_risk_validation,
-        "eligible_for_poc_review": eligible_for_poc_review,
-        "eligible_for_paid_poc_review": eligible_for_poc_review,
-        "recommend_s4": recommend_low_risk_validation,
+        "recommend_poc": recommend_poc,
         "recommend_s4_compatibility": {
             "deprecated": True,
-            "maps_to": "recommend_low_risk_validation",
-            "reason": "Kept for v1 consumers; use eligible_for_poc_review for the separate PoC decision.",
-        },
-        "eligible_for_paid_poc_review_compatibility": {
-            "deprecated": True,
-            "maps_to": "eligible_for_poc_review",
-            "reason": "Kept for v2 consumers; the current workflow uses one generic PoC review path.",
+            "maps_to": "recommend_poc",
+            "value": recommend_poc,
+            "reason": "Kept only for readers of older artifacts; new consumers must use recommend_poc.",
         },
         "recommendation_reason": _recommendation_reason(
             weighted_score,
             confidence,
-            low_risk_blockers,
-            eligible_for_poc_review,
+            poc_blockers,
+            recommend_poc,
             poc_review_notes,
         ),
         "cost_estimate": {
@@ -265,7 +253,7 @@ def _evaluate_candidate(
             "status": region.get("status", "region_unknown"),
             "severity": region.get("severity", "warning"),
             "blocks_s3": bool(region.get("blocks_s3")),
-            "blocks_paid_poc": bool(region.get("blocks_paid_poc", True)),
+            "requires_region_confirmation": bool(region.get("blocks_paid_poc", True)),
         },
         "governance_flags": governance_flags,
         "poc_review_notes": poc_review_notes,
@@ -275,10 +263,7 @@ def _evaluate_candidate(
             "custom_environment_required": False,
         },
         "stop_conditions": _dedupe(stop_conditions),
-        "s4_validation_path": _s4_validation_path(
-            recommend_low_risk_validation,
-            eligible_for_poc_review,
-        ),
+        "s4_path": "poc" if recommend_poc else "not_recommended",
         "evidence_refs": {
             "source_url": candidate.get("source_url"),
             "linked_evidence_count": len((candidate.get("linked_evidence") or {}).get("linked_sources") or []),
@@ -355,75 +340,50 @@ def _governance_flags(candidate: dict[str, Any], region: dict[str, Any]) -> list
     return flags
 
 
-def _low_risk_blockers(governance_flags: list[str]) -> list[str]:
-    """Return flags that make even document/local validation inappropriate."""
+def _poc_blockers(governance_flags: list[str], region: dict[str, Any], quote: dict[str, Any]) -> list[str]:
+    """Return the single set of blockers for a paid Skill 4 PoC."""
 
-    return [
-        flag
-        for flag in governance_flags
-        if flag in {"excluded_service_bedrock", "region_blocks_s3"}
+    blockers = [
+        flag for flag in governance_flags if flag in {"excluded_service_bedrock", "region_blocks_s3"}
     ]
+    if quote.get("status") != "estimated":
+        blockers.append("poc_quote_not_ready")
+    return blockers
 
 
-def _poc_review_notes(coverage: dict[str, Any], region: dict[str, Any]) -> list[str]:
+def _poc_review_notes(coverage: dict[str, Any], region: dict[str, Any], quote: dict[str, Any]) -> list[str]:
     notes: list[str] = []
     if region.get("status") == "region_unknown":
         notes.append("target_region_support_not_verified")
     if not coverage.get("official_pricing_linked"):
         notes.append("official_pricing_not_linked")
+    if quote.get("status") != "estimated":
+        notes.append("registered_poc_quote_required")
     return notes
-
-
-def _s4_validation_path(
-    recommend_low_risk_validation: bool,
-    eligible_for_poc_review: bool,
-) -> str:
-    if not recommend_low_risk_validation:
-        return "not_recommended"
-    if not eligible_for_poc_review:
-        return "low_risk_validation_only"
-    return "eligible_for_poc_review"
 
 
 def _recommendation_reason(
     weighted_score: float,
     confidence: str,
-    low_risk_blockers: list[str],
-    eligible_for_poc_review: bool,
+    poc_blockers: list[str],
+    recommend_poc: bool,
     poc_review_notes: list[str],
 ) -> str:
-    if low_risk_blockers:
-        return "Low-risk Skill 4 validation is not recommended until hard blockers are resolved."
-    if weighted_score < 3.25:
-        return "Low-risk Skill 4 validation is not recommended because the weighted score is below the S3 threshold."
+    if poc_blockers:
+        return "Skill 4 PoC is not recommended until its blockers are resolved: " + ", ".join(_dedupe(poc_blockers)) + "."
+    if weighted_score < 3.75:
+        return "Skill 4 PoC is not recommended because the weighted score is below the 3.75 threshold."
     if confidence == "low":
-        return "Low-risk Skill 4 validation is not recommended because evidence confidence is low."
-    if not eligible_for_poc_review:
-        return (
-            "Recommend low-risk Skill 4 validation; the public-evidence score is below the PoC review threshold."
-        )
+        return "Skill 4 PoC is not recommended because evidence confidence is low."
     if poc_review_notes:
-        return (
-            "Recommend low-risk Skill 4 validation and PoC review. Review notes: "
-            + ", ".join(_dedupe(poc_review_notes))
-            + "."
-        )
-    return "Recommend low-risk Skill 4 validation; candidate evidence is also ready for PoC review."
+        return "Recommend Skill 4 PoC. Review notes: " + ", ".join(_dedupe(poc_review_notes)) + "."
+    return "Recommend Skill 4 PoC; the quote is ready for named-human approval."
 
 
 def _summary(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "evaluated_count": len(evaluated),
-        "recommend_low_risk_validation_count": sum(
-            1 for item in evaluated if item.get("recommend_low_risk_validation")
-        ),
-        "eligible_for_poc_review_count": sum(
-            1 for item in evaluated if item.get("eligible_for_poc_review")
-        ),
-        "eligible_for_paid_poc_review_count": sum(
-            1 for item in evaluated if item.get("eligible_for_poc_review")
-        ),
-        "recommend_s4_count": sum(1 for item in evaluated if item.get("recommend_s4")),
+        "recommend_poc_count": sum(1 for item in evaluated if item.get("recommend_poc")),
         "highest_score": max((item["weighted_score"] for item in evaluated), default=None),
         "automatic_poc_start": False,
     }

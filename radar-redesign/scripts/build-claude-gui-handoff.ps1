@@ -13,7 +13,7 @@ if (Test-Path -LiteralPath $Destination) {
 }
 New-Item -ItemType Directory -Path $Destination | Out-Null
 
-$directories = @("agentic_cloud_radar", "web_api", "web", "web-demo-cdk", "docs")
+$directories = @("agentic_cloud_radar", "web_api", "web", "web-demo-cdk", "docs", "skills", "samples", "tests", "scripts")
 foreach ($directory in $directories) {
     Copy-Item -LiteralPath (Join-Path $RadarRoot $directory) -Destination (Join-Path $Destination $directory) -Recurse
 }
@@ -57,11 +57,25 @@ Get-ChildItem -LiteralPath $Destination -Recurse -Directory -Filter "__pycache__
 @'
 # Agentic Cloud Radar GUI Handoff
 
-This folder is self-contained: it includes the current S1-S5 core, a deployable AWS web demo, two controlled S4 PoC recipes, real redacted artifact examples, and the GUI contract for Claude.
+This folder is self-contained: it includes the synchronized S1-S5 core, five reusable Skill packages, a deployable AWS web demo, two controlled S4 PoC recipes, redacted artifact examples, Console-review automation, tests, and the GUI contract for Claude.
 
 Start with `CLAUDE_GUI_HANDOFF.md`. Run `python web_demo_local.py` for a local GUI, or deploy from `web-demo-cdk/README.md`.
 
-Do not add a browser action that bypasses the S4 approval and cleanup flow.
+For the controlled PoC runner, use `skills/validate-cloud-poc/SKILL.md` and `docs/s4-完整PoC部署操作.md`. A Console review packet has an explicit deadline; normal cleanup requires packet-bound screenshot evidence, a named human confirmation, and `--shared-via`.
+
+Do not add a browser action that bypasses the S4 approval, cost ceiling, Console review, or cleanup flow.
 '@ | Set-Content -LiteralPath (Join-Path $Destination "README.md") -Encoding utf8
+
+@'
+__pycache__/
+*.py[cod]
+.tmp/
+out/
+node_modules/
+playwright-report/
+test-results/
+aws-console-playwright-profile/
+*.png
+'@ | Set-Content -LiteralPath (Join-Path $Destination ".gitignore") -Encoding utf8
 
 Write-Host "Claude GUI handoff created at: $Destination"

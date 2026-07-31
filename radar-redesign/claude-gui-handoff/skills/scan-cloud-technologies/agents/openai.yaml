@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill 1 · Scan"
+  short_description: "Scan trusted cloud sources into traceable candidates"
+  default_prompt: "Use $scan-cloud-technologies to scan trusted public cloud sources and produce a traceable S1 artifact."

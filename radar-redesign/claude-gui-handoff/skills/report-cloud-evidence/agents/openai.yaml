@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill 5 · Report"
+  short_description: "Report evidence with PoC quote and billing reconciliation"
+  default_prompt: "Use $report-cloud-evidence to produce a traceable Skill 1 through Skill 4 report including the recorded PoC cost quotation and any attributable AWS billing evidence."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill 3 · Evaluate"
+  short_description: "Evaluate candidates and build an auditable PoC quote"
+  default_prompt: "Use $evaluate-cloud-candidate to evaluate a selected technology and produce a source-backed PoC cost quotation without requiring company or environment details."

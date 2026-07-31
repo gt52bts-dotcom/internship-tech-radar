@@ -61,6 +61,14 @@
 - A new v3 runtime becomes Skill 5 `final` only after cleanup, screenshot metadata, and `display_channel_confirmed`. Forced cleanup becomes `final_without_console_review` / `closed_without_console_review`, never an actual-PoC final conclusion.
 - Claude's proposed multi-Region `region_scope` and automatic fallback deployment were not adopted as current behavior because the core implements one target Region only. Keep that as a future enhancement, not an implemented claim in Skill documents.
 
+## 2026-07-31 Self-Contained GUI Handoff Synchronization
+
+- `radar-redesign/claude-gui-handoff` is a portable handoff package and must stay synchronized with the current five-Skill core, including `agentic_cloud_radar`, Skills, samples, tests, and the Infrastructure Composer capture script.
+- The package is rebuilt through `radar-redesign/scripts/build-claude-gui-handoff.ps1`; the builder must preserve the current single-candidate Skill 3-5 workflow, complete Skill 3 cost estimate, Skill 4 Console review/cleanup contract, and Skill 5 final outcome rules.
+- The GUI layer is intentionally retained during core synchronization; only its runtime contracts and portable package assets are refreshed.
+- The portable package passed its standalone 39-test suite on 2026-07-31. Its architecture scan reports known productionization gaps (for example Bedrock/RAG/CloudWatch), which are outside the current five-Skill workflow scope.
+- The architecture scanner contains an obsolete "top 3" matcher. The project decision remains one human-selected candidate evaluated through Skill 3, Skill 4, and Skill 5.
+
 ## 2026-07-30 Default Context-Free Usage
 
 - 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。
