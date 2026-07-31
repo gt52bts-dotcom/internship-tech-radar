@@ -15,15 +15,15 @@
 
 ## 累積分數
 
-截至 2026-07-30，嚴格審核後累積總分為 `107`。每日總分最高 10 分。
+截至 2026-07-31，嚴格審核後累積總分為 `117`。每日總分最高 10 分。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 18 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
-| Skill 2 - Compare | 16 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
-| Skill 3 - Evaluate | 20 | 已把成本、權限、安全、GA 證據、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 33 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC；今日 S3 Files 雙向驗證、Console review、cleanup 與獨立回查通過。 |
-| Skill 5 - Report | 20 | 已能產出 artifact-only final／interim report、教學書、證據包與主管可讀入口。 |
+| Skill 1 - Scan | 19 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
+| Skill 2 - Compare | 17 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
+| Skill 3 - Evaluate | 22 | 已把成本、權限、安全、GA 證據、fallback 與 cleanup 納入判斷。 |
+| Skill 4 - Validate | 37 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並完成 approval、Console review 與 cleanup 契約硬化。 |
+| Skill 5 - Report | 22 | 已能產出 artifact-only final／interim report、成本對帳、交接包與主管可讀入口。 |
 
 ## 每日趨勢
 
@@ -43,14 +43,15 @@
 | 2026-07-28 | 3 | 2 | 1 | 1 | 1 | 8 |
 | 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 |
 | 2026-07-30 | 1 | 1 | 2 | 4 | 2 | 10 |
+| 2026-07-31 | 1 | 1 | 2 | 4 | 2 | 10 |
 
 ## 今日判定
 
-2026-07-30 的核心成果是將 S1-S5 核心正式包裝為五個可重用 Skill，並以 S3 Files fresh run 完成 artifact chain、公開牌價 PoC quote、CloudFormation、掛載、雙向資料驗證、Cleo Console review、cleanup 與 Skill 5 final report。實際帳務成本仍待 AWS 帳務資料核對。
+2026-07-31 的核心成果是完成 Amazon Connect Customer Data Lake 的不部署 evidence chain、Lambda 與 S3 Files 的受控 live PoC、人工 Console 確認與 cleanup 回查，並同步 S4/S5 結案契約、可攜 GUI handoff、成本對帳與 Mentor review package。實際帳務成本與公司環境驗證仍待完成。
 
 ## 相關檔案
 
-- [正式日誌](../logs/daily/work-log-2026-07-30.md)
+- [正式日誌](../logs/daily/work-log-2026-07-31.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)
 - [Skill JSON 資料](./skill-score-data.json)
 - [互動式 Skill dashboard](./cleo-skill-dashboard.html)
@@ -59,5 +60,6 @@
 
 ## 待修正流程
 
-- Lambda self-managed code storage PoC 仍待 Cleo 完成 AWS Console review，再以同一 run 的受限範圍 cleanup 並回查。
+- Amazon Connect Customer Data Lake 若要進入真實 PoC，仍須補齊候選專屬 recipe、rate card、新加坡可用性／定價證據、可用 instance 與具名授權。
+- Lambda self-managed code storage 的歷史 runtime 尚未取得可作為新版 final 的完整 cleanup 證據；不得外推為結案。
 - `cdk deploy` 仍受 bootstrap role 權限限制；目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑，這不代表 CDK 部署已成功。

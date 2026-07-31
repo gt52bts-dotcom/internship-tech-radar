@@ -34,7 +34,8 @@
 | 2026-07-28 | 3 | 2 | 1 | 1 | 1 | 8 | direct |
 | 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 | direct |
 | 2026-07-30 | 1 | 1 | 2 | 4 | 2 | 10 | direct |
-| **累積** | **18** | **16** | **20** | **33** | **20** | **107** |  |
+| 2026-07-31 | 1 | 1 | 2 | 4 | 2 | 10 | direct |
+| **累積** | **19** | **17** | **22** | **37** | **22** | **117** |  |
 
 ## 2026-07-21 評分理由
 
@@ -46,7 +47,7 @@
 
 ## 當前狀態
 
-截至 2026-07-30，累積總分為 107。S1-S5 已整理為五個 repository-backed Skills。今日 S3 Files fresh run 已完成 CloudFormation `CREATE_COMPLETE`、掛載、S3→mount、mount→S3、Cleo Console review、cleanup 與獨立回查；Skill 5 已產出 final report。這些只代表隔離測試證據，不外推到未測環境。
+截至 2026-07-31，累積總分為 117。S1-S5 已整理為五個 repository-backed Skills；今日完成單一 Amazon Connect Customer Data Lake 候選的 S1-S5 artifact 流程、可攜 GUI handoff 同步、成本對帳規則與 Mentor review package。今日沒有建立或清除 AWS 資源；實際帳務成本與公司環境驗證仍未完成。
 
 ## 2026-07-24 評分理由
 
@@ -95,6 +96,14 @@
 - Evaluate +2：導入 s3.evaluation.v3，完成人工 shortlist 評估並串接可稽核 PoC quote。
 - Validate +4：新 S3 Files stack 達 `CREATE_COMPLETE`，掛載、雙向資料、人工 Console review 與 cleanup 回查通過；另修正同步延遲的有限重試與同 stack 續驗。
 - Report +2：產出包含完整報價、runtime、人工覆核與 cleanup 證據的 S5 final report，並保留實際帳務尚待核對的界線。
+
+## 2026-07-31 評分理由
+
+- Scan +1：以 AWS 官方 Amazon Connect Customer Data Lake 文章完成新的單一候選 Scan artifact；未進行廣泛新聞掃描。
+- Compare +1：建立唯一候選比較卡與限制清單；未主張已完成多候選採用比較。
+- Evaluate +2：完成單項固定 rubric、公開證據成本報價與缺少 recipe／rate card 的停止條件，並把預估成本與實際帳務成本明確分離。
+- Validate +4：完成 S4/S5 approval、Console review、timeout abort 與 final 狀態規則硬化；另有 Lambda 與 S3 Files 的受控 live PoC、人工 Console 確認、cleanup 回查，以及 43 項主專案測試、編譯與腳本語法檢查證據。
+- Report +2：完成 Mentor review package、可攜交接說明、成本對帳版報告與雙週工作進度，且保留 productionization、帳務與公司環境限制。
 
 ## 2026-07-29 評分理由
 
