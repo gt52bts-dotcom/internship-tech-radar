@@ -8,7 +8,7 @@
 
 - The web demo title is `AI Agentic 雲端技術雷達與評估系統`.
 - Preserve the original cute game scene and its block-eating, score, and platform-jump feedback. The side panel should be a larger, designed task-control panel showing stage progress, current goal, completion criteria, status metrics, and the human action required, rather than a sparse terminal log.
-- In the GUI, Skill 3 only asks the human to select candidates. Do not show or require `problem_to_solve`, `available_environment`, or `forbidden_data_and_permissions`; public-evidence limits are recorded by the system as review notes.
+- In the GUI, Skill 3 only asks the human to select one candidate for single-item evaluation. Do not show or require `problem_to_solve`, `available_environment`, or `forbidden_data_and_permissions`; public-evidence limits are recorded by the system as review notes.
 
 ## Web Delivery Decision
 
@@ -31,6 +31,7 @@
 ## 2026-07-31 Skill 3 / Skill 4 Single-PoC Decision
 
 - Cleo 定義的 Skill 4 是唯一會建立受控 AWS 資源、可能產生費用的 PoC 階段；不得再把文件、本機或 schema 檢查稱為「低風險 Skill 4 驗證」。
+- 後續正式流程採單項評估：Skill 1 / Skill 2 可以掃描與比較多個候選，但 Skill 3 起一次只接受一個由人類選定的候選，不再追求「所有候選跑完五步再取 top 3」或一次挑三項。
 - Skill 3 必須在候選進入 Skill 4 前產出整套可稽核的 PoC 預估報價單（low/expected/high、品項、費率、假設、排除項、來源與核准上限）。沒有已登錄費率模型時，Skill 3 必須標示 `needs_registered_cost_model`，Skill 4 不可開始。
 - S3 v4 的新決策僅使用 `recommend_poc`；舊 `recommend_s4`、`recommend_low_risk_validation`、`eligible_for_poc_review` 只可作舊 artifact 的讀取相容，不得出現在新報告或 UI 作為第二套標準。
 - Lambda self-managed S3 code storage 的 2026-07-29 runtime 已由 Cleo 確認 AWS Console review 成功，狀態為 `ready_for_cleanup`；cleanup 尚未執行。
@@ -267,9 +268,9 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - 2026-07-28 使用者補充真正目標是先了解全方位的新技術，不限 CI/CD，近期至一年內皆可。S1 新增 `discovery_scope`：`focused` 用於一條明確問題；`landscape` 用於跨領域雷達盤點，會掃完整 AWS Blogs directory、What's New 與 GitHub public sources，再從每個 feed 的最新項目中選近期候選。S0 artifact 新增 `max_source_age_days`（預設 365）與 `max_candidates`（預設 20）。RSS 每個 feed 目前只讀最新 20 項，因此 365 天是候選時間上限，不可誤稱已讀完完整年度 archive。真跑 landscape：44 categories、45 feeds 都抓取成功，輸出 12 個跨領域 AWS 候選；此仍只是 S1 Scan，不是推薦或 S2-S5 完成。
 - 2026-07-28 選題標準再校正：使用者真正優先的是「已正式可用（GA）」的 AWS 技術，不是最新文章。S0 的 `maturity_requirement=ga_evidence_required` 必須讓 S1 只保留本次抓到的 AWS 官方來源中有明確 `generally available`／`general availability` 字樣的候選，並在 artifact 留下原文摘錄。沒有字樣只能說本次來源未能證明 GA，不能猜成 preview 或非 GA；GitHub 開源 metadata 也不能證明 AWS GA，故該模式不納入 GitHub 候選。此為初篩證據門檻，不可稱完整 AWS GA／release archive 搜尋。
 - GA 初篩需排除假陽性：文章若是 Preview／只提到未來才會 GA，即使出現 `generally available` 也不能納入；標題屬 monthly／weekly roundup、歷史熱門文章回顧或 recap 的來源，不可整篇當成一項技術候選。多項技術月報可作為發現線索，但後續比較需回到它引用的單一官方公告，不能以彙整文代替原子技術的證據。
-- S2 Compare 的固定界線：只讀 S1 的可回查候選，整理技術路線、官方／GA 證據、導入前提與待確認問題；若 S0 只是全方位技術地圖、未指定公司痛點，S2 不得自動排名或推薦。成本、USD 3 PoC 可行性、公司環境可用性與業務適配性在沒有官方價格及人類脈絡前必須標示未確認；由人類最多挑三項再進 S3。
+- S2 Compare 的固定界線：只讀 S1 的可回查候選，整理技術路線、官方／GA 證據、導入前提與待確認問題；若 S0 只是全方位技術地圖、未指定公司痛點，S2 不得自動排名或推薦。成本、USD 3 PoC 可行性、公司環境可用性與業務適配性在沒有官方價格及人類脈絡前必須標示未確認；2026-07-31 起由人類只挑一項再進 Skill 3。
 - 2026-07-28 使用者決定 S2 交由 Claude 協作設計。Codex 先產生的 `radar-redesign/agentic_cloud_radar/s2.py`、`tests/test_s2.py` 與 CLI `s2` 分支是未共同閱讀的草稿，不可算為 S2 完成，也可由 Claude 改寫；交接文件為 `radar-redesign/docs/S0-S1現況與S2-Claude交接.md`。
-- 2026-07-28 Claude 無法繼續後，使用者要求 Codex 接手 S2。S2 現在為 evidence-first 本機實作：只讀 S1 artifact，重新抓 S1 官方來源，從文章實際連出的且 candidate-relevant AWS docs／pricing／Region URL 收集最多 3 筆補充證據；沒有連結就保留 `not_found` data gap，不可自行拼接官方 URL 或估價。S2 不自動排名、推薦、選 Top 3 或啟動 PoC；本次 6 項 GA 候選真跑輸出為 `ready_for_human_shortlist`，需由 Cleo 最多挑三項進 S3。
+- 2026-07-28 Claude 無法繼續後，使用者要求 Codex 接手 S2。S2 現在為 evidence-first 本機實作：只讀 S1 artifact，重新抓 S1 官方來源，從文章實際連出的且 candidate-relevant AWS docs／pricing／Region URL 收集最多 3 筆補充證據；沒有連結就保留 `not_found` data gap，不可自行拼接官方 URL 或估價。S2 不自動排名、推薦、選 Top 3 或啟動 PoC；2026-07-31 起 S2 可保留多候選比較板，但 Skill 3 一次只接受 Cleo 選定的一項候選。
 - 使用者希望每個新增 Skill 都有可逐段閱讀的超詳細說明；S2 已新增 `radar-redesign/docs/s2-極細註解版.md`，作為程式碼、真實 artifact、測試與限制的閱讀地圖。
 - Windows PowerShell 相容規則：PowerShell 5.1 的 `Set-Content -Encoding utf8` 會寫 BOM；S0/S1 CLI input 必須用 `utf-8-sig` 讀取以同時接受 BOM／無 BOM JSON。CLI 產出的 UTF-8 無 BOM JSON 在 PowerShell 5.1 應以 `Get-Content -Encoding utf8 -Raw | ConvertFrom-Json` 讀取，否則中文可能被系統字碼誤解而使 JSON parser 失敗。
 

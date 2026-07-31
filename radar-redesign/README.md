@@ -64,7 +64,7 @@ S2 不再只是補連結。它將每個可追溯候選做成 `proposal_card`，�
 
 S2 先重新抓 S1 原始文章與其中候選相關連結，再用 AWS 的公開搜尋索引補找原文未連出的官方 docs／產品頁／公告。搜尋結果只用來發現 URL；每個 URL 都要重新抓取並通過「候選功能名稱與 Singapore 同段出現」的檢查，才會成為 Region 證據。
 
-它不自動選冠軍，也不自動開 PoC。人類只要從有證據卡片的候選中選最多三項進 S3，不必另外填公司問題、使用環境或資料限制；Region 與定價缺口保留為提醒。
+它不自動選冠軍，也不自動開 PoC。人類只要從有證據卡片的候選中選一項進 S3，不必另外填公司問題、使用環境或資料限制；Region 與定價缺口保留為提醒。
 
 ```powershell
 python -m agentic_cloud_radar.cli s2 `
@@ -74,9 +74,9 @@ python -m agentic_cloud_radar.cli s2 `
 
 ## S3/S4：評估、受控部署與驗證
 
-S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 的 gate artifact 不會建立 AWS 資源，也不會自動啟動 PoC；Skill 4 本身只有一種含資源、可能產生成本的受控 PoC。
+S3 只接受 S2 artifact 和單項 human selection request；沒有人工選定候選，或一次選超過一項，就會停在 `needs_human_shortlist`。S4 的 gate artifact 不會建立 AWS 資源，也不會自動啟動 PoC；Skill 4 本身只有一種含資源、可能產生成本的受控 PoC。
 
-S3 v4 採公開證據模式：每個 shortlist 候選都必須先產出完整 PoC 預估報價單。唯一決策欄位 `recommend_poc` 要求分數至少 3.75、信心至少 medium、沒有 PoC blocker，且報價狀態為 `estimated`。Skill 4 只代表受控、會建立 AWS 資源的付費 PoC；Region 與定價不確定性會列在 `poc_review_notes`，不要求使用者填一整套環境表單。舊決策欄位只作讀取舊 artifact 的相容 fallback。
+S3 v4 採公開證據模式：單項候選必須先產出完整 PoC 預估報價單。唯一決策欄位 `recommend_poc` 要求分數至少 3.75、信心至少 medium、沒有 PoC blocker，且報價狀態為 `estimated`。Skill 4 只代表受控、會建立 AWS 資源的付費 PoC；Region 與定價不確定性會列在 `poc_review_notes`，不要求使用者填一整套環境表單。舊決策欄位只作讀取舊 artifact 的相容 fallback。
 
 ```powershell
 python -m agentic_cloud_radar.cli s3 `

@@ -18,11 +18,21 @@ Use this template after `s4-deploy --execute` has produced an S4 runtime artifac
      --output .\out\run\s4-console-review-packet.json
    ```
 
-2. In AWS Console, open the runtime's CloudFormation stack in its recorded Region. Open **Infrastructure Composer** and inspect the resource relationship canvas. Confirm visually that it is the run-derived stack and the displayed resources match the recorded recipe.
-3. Capture a PNG screenshot of Infrastructure Composer. Optionally capture the stack Resources page or service-specific resource page as `resource_inventory`.
+2. Run the Playwright capture command recorded in the packet. It opens a visible browser, uses an existing AWS Console session or waits for manual login, navigates to CloudFormation / **Infrastructure Composer**, and captures the center canvas as a PNG:
+
+   ```powershell
+   node .\scripts\s4-capture-infrastructure-composer.mjs `
+     --runtime .\out\run\s4-runtime.json `
+     --packet .\out\run\s4-console-review-packet.json `
+     --output-dir .\out\run\s4-console-review `
+     --evidence-output .\out\run\s4-console-review-evidence.json `
+     --shared-via conversation
+   ```
+
+3. Inspect the PNG before showing it. Confirm visually that it is the run-derived stack and the displayed resources match the recorded recipe. If the canvas is blank, logged out, cropped incorrectly, or not the reviewed stack, rerun the capture.
 4. Show the screenshot image in the authenticated GUI or this conversation. State only the observable result and ask one explicit question: `是否確認依此 Console 截圖清除這次 PoC？`
 5. Stop and wait. A prior deployment approval is not cleanup approval.
-6. After an explicit named-human confirmation, create a local evidence JSON based on `samples/s4-console-review-evidence.example.json`. Screenshot files stay outside Git and the JSON must use a non-secret local or protected-storage reference plus the SHA-256 of each image.
+6. After an explicit named-human confirmation, use the local evidence JSON created by the Playwright script. Screenshot files stay outside Git and the JSON must use a non-secret local or protected-storage reference plus the SHA-256 of each image.
 7. Run the single close command:
 
    ```powershell

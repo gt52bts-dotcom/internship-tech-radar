@@ -57,8 +57,15 @@ python -m agentic_cloud_radar.cli s4-console-review-packet `
   --input .\out\run\s4-runtime.json `
   --output .\out\run\s4-console-review-packet.json
 
-# Codex 在已登入 AWS Console 截取 Infrastructure Composer 圖片，
-# 上傳到 GUI 或這段對話供 Cleo 確認後，才執行這個單一 close 指令。
+node .\scripts\s4-capture-infrastructure-composer.mjs `
+  --runtime .\out\run\s4-runtime.json `
+  --packet .\out\run\s4-console-review-packet.json `
+  --output-dir .\out\run\s4-console-review `
+  --evidence-output .\out\run\s4-console-review-evidence.json `
+  --shared-via conversation
+
+# Codex 將 Playwright 截下的 Infrastructure Composer canvas PNG
+# 顯示到 GUI 或這段對話供 Cleo 確認後，才執行這個單一 close 指令。
 python -m agentic_cloud_radar.cli s4-close `
   --input .\out\run\s4-runtime.json `
   --review-evidence .\out\run\s4-console-review-evidence.json `
@@ -76,7 +83,7 @@ python -m agentic_cloud_radar.cli s4-close `
 4. 等待 EC2 的 SSM Online，透過 SSM 確認 S3 Files mount、讀取 S3 放入的檔案、寫回 mount。
 5. 由 S3 讀回 mount 寫入的檔案，建立雙向驗證。
 6. runtime artifact 停在 `awaiting_console_review`，不能直接 cleanup。
-7. Codex 在 CloudFormation 的 **Infrastructure Composer** 檢視 resource relationship，截取 PNG 並在 GUI 或對話中交由具名人類確認。
+7. Codex 依 packet 呼叫 Playwright，開啟可見瀏覽器進 AWS Console / CloudFormation / **Infrastructure Composer**，截取中間 canvas PNG，並在 GUI 或對話中交由具名人類確認。
 8. 明確確認後，`s4-close --execute` 先清空此 stack 的 versioned test bucket，再刪除 stack 並等 CloudFormation deletion 完成。
 9. 只有 `cleanup_verified` runtime 可讓 Skill 5 寫出實際 PoC 的 final 結論。
 

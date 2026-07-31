@@ -139,6 +139,15 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(evaluated["assessment_scope"]["company_fit"], "not_assessed")
         self.assertNotIn("paid_poc_context_gaps", evaluated)
 
+    def test_s3_rejects_multiple_selected_candidates(self):
+        request = {"selected_candidate_ids": ["CAND-1", "CAND-2"], "selected_by": "Cleo"}
+
+        result = build_evaluate(_sample_s2(), request).to_dict()
+
+        self.assertEqual(result["status"], "needs_human_shortlist")
+        self.assertEqual(result["human_shortlist_gate"]["status"], "invalid")
+        self.assertIn("exactly one candidate", result["human_shortlist_gate"]["message"])
+
     def test_s4_does_not_create_a_second_low_risk_track(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
         s3 = build_evaluate(_sample_s2(), request).to_dict()
@@ -247,6 +256,9 @@ class S3S4Tests(unittest.TestCase):
         reviewed = record_console_review(runtime, "Cleo", review_evidence=evidence)
 
         self.assertEqual(packet["required_screenshots"][0]["view"], "infrastructure_composer")
+        self.assertIn("composer/home?region=ap-southeast-1", packet["review_target"]["composer_url"])
+        self.assertIn("s4-capture-infrastructure-composer.mjs", packet["automation"]["command"])
+        self.assertTrue(packet["automation"]["human_display_required"])
         self.assertEqual(reviewed["status"], "ready_for_cleanup")
         self.assertEqual(reviewed["console_review"]["status"], "confirmed")
         self.assertEqual(reviewed["console_review"]["evidence_status"], "captured_and_confirmed")

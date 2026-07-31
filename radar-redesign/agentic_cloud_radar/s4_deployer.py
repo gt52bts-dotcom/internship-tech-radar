@@ -213,15 +213,36 @@ def build_console_review_packet(runtime: dict[str, Any]) -> dict[str, Any]:
     if runtime.get("stage") != "S4" or runtime.get("status") != "awaiting_console_review":
         raise DeploymentError("A Console review packet requires an S4 runtime artifact awaiting review.")
     deployment = runtime.get("deployment") or {}
+    region = str(deployment.get("target_region") or DEFAULT_REGION)
+    stack_name = str(deployment.get("stack_name") or "")
+    run_id = str(runtime.get("run_id") or "unknown-run")
+    screenshot_dir = f".\\out\\s4-console-review\\{_safe_path_segment(run_id)}"
+    evidence_path = f"{screenshot_dir}\\s4-console-review-evidence.json"
     return {
         "schema_version": "s4.console-review-packet.v1",
         "stage": "S4",
         "run_id": runtime.get("run_id"),
         "status": "awaiting_human_confirmation",
         "review_target": {
-            "stack_name": deployment.get("stack_name"),
-            "target_region": deployment.get("target_region"),
+            "stack_name": stack_name,
+            "target_region": region,
             "recipe": deployment.get("recipe"),
+            "composer_url": _composer_url(region),
+            "cloudformation_stack_url": _cloudformation_stack_url(region, stack_name),
+        },
+        "automation": {
+            "mode": "playwright_headful_browser",
+            "command": (
+                "node .\\scripts\\s4-capture-infrastructure-composer.mjs "
+                f"--runtime .\\out\\s4-runtime.json --packet .\\out\\s4-console-review-packet.json "
+                f"--output-dir {screenshot_dir} --evidence-output {evidence_path} --shared-via conversation"
+            ),
+            "outputs": {
+                "required_png": f"{screenshot_dir}\\infrastructure-composer.png",
+                "review_evidence": evidence_path,
+            },
+            "human_display_required": True,
+            "cleanup_must_wait_for_named_confirmation": True,
         },
         "required_screenshots": [
             {
@@ -747,6 +768,24 @@ def _work_dir(context: dict[str, Any]) -> Path:
 def _matches_run_identity(run_id: str, stack_name: str, resource_prefix: str) -> bool:
     suffix = hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:8]
     return stack_name == f"AgenticRadarS4{suffix.upper()}" and resource_prefix == f"agentic-radar-s4-{suffix}"
+
+
+def _composer_url(region: str) -> str:
+    region = region or DEFAULT_REGION
+    return f"https://{region}.console.aws.amazon.com/composer/home?region={region}"
+
+
+def _cloudformation_stack_url(region: str, stack_name: str) -> str:
+    region = region or DEFAULT_REGION
+    safe_stack = stack_name.replace("/", "%2F").replace(":", "%3A")
+    return (
+        f"https://{region}.console.aws.amazon.com/cloudformation/home?region={region}"
+        f"#/stacks/stackinfo?stackId={safe_stack}"
+    )
+
+
+def _safe_path_segment(value: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_.-]+", "-", value or "unknown-run").strip("-") or "unknown-run"
 
 
 def _sha256(path: Path) -> str:

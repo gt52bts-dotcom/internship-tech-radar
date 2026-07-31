@@ -765,3 +765,10 @@
 - 已產生本機交付檔 `2026CIP_王冠婷_雙週工作週誌1_重寫版.docx`，原始的格式正確版未覆寫。結構核對通過：保留一頁、兩張原表格與所有原有版面元素；OOXML 比對確認只有 `word/document.xml` 內容被改寫。
 - 文件渲染檢查受環境缺少 LibreOffice/soffice 限制而無法產生 PNG；已完成 DOCX 可開啟、欄位文字、表格數量、頁面段落數與套件差異的結構檢查，尚未宣稱已完成視覺版面驗收。
 - 目標關係：直接支援 7/31 CIP 雙週工作進度的可讀性與正式提交準備。
+
+### 2026-07-31 Skill 4 Playwright Console 截圖與單項評估決策
+
+- Cleo 要求未來 Skill 4 PoC 自動驗證後，Codex 可呼叫 Playwright 開啟 AWS Console / Infrastructure Composer，截取中間 canvas PNG，並把圖片顯示在 GUI 或對話中供人類確認。
+- 已開始把 `s4-console-review-packet` 擴充為可輸出 Playwright capture command、Composer URL、CloudFormation stack URL、截圖輸出路徑與 evidence JSON 路徑；截圖與 browser profile 仍放在 Git ignore 的本機資料夾。
+- Cleo 明確修正流程方向：後續正式流程採單項評估。Skill 1 / Skill 2 可以掃描與比較多個候選，但 Skill 3 起一次只接受一個人類選定候選；不再追求「所有候選跑完五步再取 top 3」或一次挑三項。
+- 已同步更新專案記憶、Skill 2 / Skill 3 核心 contract 與相關文件，新增測試要求多選候選會被 Skill 3 擋下。

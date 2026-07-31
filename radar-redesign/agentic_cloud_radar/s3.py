@@ -1,8 +1,8 @@
-"""S3: score a human-shortlisted set of S2 proposal cards.
+"""S3: score one human-selected S2 proposal card.
 
 S3 is intentionally conservative. It only reads the S2 comparison artifact and
-an explicit human shortlist request. It does not discover new sources, tune the
-rubric per candidate, or authorize a PoC. Registered recipes may produce a
+an explicit human selection request. It does not discover new sources, tune the
+rubric for the selected candidate, or authorize a PoC. Registered recipes may produce a
 source-backed, non-binding cost quotation from explicit assumptions.
 """
 
@@ -16,7 +16,7 @@ from .costing import build_cost_quote
 
 
 ALLOWED_S2_STATUSES = {"ready_for_human_shortlist"}
-MAX_SHORTLIST_SIZE = 3
+MAX_SHORTLIST_SIZE = 1
 DEFAULT_MAX_SMALL_POC_USD = 3.0
 RUBRIC_WEIGHTS = {
     "technical_value": 0.35,
@@ -61,7 +61,7 @@ class EvaluateResult:
 
 
 def build_evaluate(compare: dict[str, Any], shortlist_request: dict[str, Any] | None = None) -> EvaluateResult:
-    """Build an S3 artifact from S2 and a human shortlist request."""
+    """Build an S3 artifact from S2 and a single human selection request."""
 
     issues = _validate_s2(compare)
     artifact = _base_artifact(compare, shortlist_request)
@@ -125,7 +125,7 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
                 "verifiability",
                 "risk_and_stop_conditions",
             ],
-            "cost_policy": "Every shortlisted candidate receives a complete registered-recipe quote before it can be recommended for Skill 4. Cost is not part of the technical score.",
+            "cost_policy": "The single human-selected candidate receives a complete registered-recipe quote before it can be recommended for Skill 4. Cost is not part of the technical score.",
         },
         "policy": {
             "max_small_poc_usd": float(policy.get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD)),
@@ -134,7 +134,7 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
         "human_shortlist_gate": {
             "status": "missing",
             "required_inputs": [
-                "selected_candidate_ids, at most three",
+                "selected_candidate_ids, exactly one",
             ],
             "evaluation_mode": "public_evidence",
         },
@@ -149,7 +149,7 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
             "status": "missing",
             "selected_candidate_ids": [],
             "required_inputs": [
-                "selected_candidate_ids, at most three",
+                "selected_candidate_ids, exactly one",
             ],
             "evaluation_mode": "public_evidence",
             "message": "S3 stops until a human shortlist request is provided.",
@@ -167,7 +167,7 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
         return {
             "status": "invalid",
             "selected_candidate_ids": selected_ids,
-            "message": f"Human shortlist may contain at most {MAX_SHORTLIST_SIZE} candidates.",
+            "message": "Human selection must contain exactly one candidate.",
             "missing_inputs": [],
         }
     return {
@@ -175,7 +175,7 @@ def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str,
         "selected_candidate_ids": selected_ids,
         "evaluation_mode": "public_evidence",
         "selected_by": str(shortlist_request.get("selected_by") or "human_unspecified"),
-        "selection_reason": str(shortlist_request.get("selection_reason") or "Human selected these candidates for S3 evaluation."),
+        "selection_reason": str(shortlist_request.get("selection_reason") or "Human selected this candidate for S3 evaluation."),
     }
 
 

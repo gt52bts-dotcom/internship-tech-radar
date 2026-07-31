@@ -54,10 +54,17 @@ python -m agentic_cloud_radar.cli s4-console-review-packet `
   --input .\out\s4-runtime.json `
   --output .\out\s4-console-review-packet.json
 
-# Capture and show the required screenshots, obtain human confirmation, then:
+node .\scripts\s4-capture-infrastructure-composer.mjs `
+  --runtime .\out\s4-runtime.json `
+  --packet .\out\s4-console-review-packet.json `
+  --output-dir .\out\s4-console-review\<run-id> `
+  --evidence-output .\out\s4-console-review\<run-id>\s4-console-review-evidence.json `
+  --shared-via conversation
+
+# Show the generated PNG in the GUI or active conversation, obtain human confirmation, then:
 python -m agentic_cloud_radar.cli s4-close `
   --input .\out\s4-runtime.json `
-  --review-evidence .\out\s4-console-review-evidence.json `
+  --review-evidence .\out\s4-console-review\<run-id>\s4-console-review-evidence.json `
   --confirmed-by "<named-human>" `
   --notes "<concise-review-note>" `
   --output .\out\s4-runtime-cleaned.json `
@@ -72,7 +79,7 @@ python -m agentic_cloud_radar.cli s4-close `
 4. If the same run-derived stack is already `CREATE_COMPLETE`, resume its verification instead of creating duplicate resources.
 5. Treat candidate-service propagation as eventually consistent: use a bounded retry for expected transient read-back gaps, and fail after the timeout.
 6. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
-7. Open CloudFormation Infrastructure Composer, capture the required image, and show it in the GUI or active conversation.
+7. Run the Playwright capture command from the Console review packet. It opens a headful browser, uses an existing or newly authenticated AWS Console session, navigates to CloudFormation / Infrastructure Composer, captures the canvas PNG, and writes local evidence JSON.
 8. Pause for explicit named-human cleanup confirmation. Do not infer confirmation from a prior deployment approval.
 9. Run `s4-close --execute`; it records screenshot evidence, cleans only the reviewed run, and re-queries the scoped resources.
 10. Produce Skill 5's actual-PoC conclusion only from the resulting `cleanup_verified` runtime artifact.
@@ -85,6 +92,17 @@ python -m agentic_cloud_radar.cli s4-close `
 Unknown candidates must stop at `needs_poc_recipe`.
 
 The fixed sandbox ceiling is a policy control, not a quotation. Do not substitute it for missing rates.
+
+## Playwright setup
+
+If the workspace does not already have Playwright available, install it locally before the Console review step:
+
+```powershell
+npm install --save-dev playwright
+npx playwright install chromium
+```
+
+The Playwright script may pause for manual AWS login in the visible browser. Screenshot files and browser profile data stay in ignored local folders and must not be committed.
 
 ## Validation
 

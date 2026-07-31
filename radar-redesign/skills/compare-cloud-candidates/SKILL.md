@@ -27,7 +27,7 @@ Reuse `agentic_cloud_radar/s2.py`. Do not invent official URLs, pricing, workloa
 4. Build a fixed comparison matrix so candidates use the same dimensions.
 5. Mark Singapore availability only when candidate-specific official evidence supports it. Otherwise use `region_unknown`.
 6. Treat pricing pages as evidence to review, not as a PoC cost estimate unless a usable amount is recorded.
-7. Finish with `ready_for_human_shortlist`; ask a human to choose no more than three candidates.
+7. Finish with `ready_for_human_shortlist`; ask a human to choose exactly one candidate for Skill 3.
 
 ## Evidence rules
 
