@@ -323,3 +323,8 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Region 仍不應卡死 S4：若 S3 為 `region_unknown`，Cleo 可在完整 approval 加上 `region_warning_acknowledged=true` 後進行人工核准部署；此只接受已明示的 Region 證據缺口，不能略過成本、lineage、recipe、成功條件、cleanup 或人工核准。
 - 2026-07-29 新增 `lambda_self_managed_s3_code_storage_cdk` S4 recipe：使用 run 衍生名稱的 versioned/encrypted/non-public S3 bucket、CloudFormation custom resource 上傳非敏感 zip、bucket policy 只允許 Lambda service principal 讀取該 object version，並以 `AWS::Lambda::Function.Code.S3ObjectStorageMode=REFERENCE` 建立測試函數。S4 驗證會檢查 CloudFormation output 的 reference mode 與 S3 version，再 invoke 函數。已通過 CDK synth/模板契約檢查，但尚未取得此 Lambda 候選的 paid-PoC 人工核准，不能宣稱已 live deployed 或 cleanup。
 - 2026-07-29 S4 成本欄位語意修正：若官方來源未提供可用於本次 PoC 的數字，approval 使用 `approved_cost_ceiling_usd` 記錄 Cleo 明確授權的 spend cap（不得超過 policy 的 USD 3），而不是把它偽裝成 AWS 官方估價；有官方數字時才可使用 `estimated_usd`。兩者都要通過同一成本上限檢查。
+## 2026-07-31 Skill 3 Quote Report Rule
+
+- Skill 3 Evaluate must expose a human-readable PoC quote report for the single selected candidate, not only an embedded JSON quote object.
+- If the selected candidate has no registered recipe/rate card, Skill 3 still emits a quote report with status `needs_registered_cost_model`, the quote id, missing inputs, and the reason no dollar amount can be produced.
+- The Amazon Connect Customer Data Lake article run now has an added quote report at `radar-redesign/out/connect-customer-data-lake-20260731/s3-connect-data-lake-quote.md`; it correctly says no price can be estimated until a candidate-specific registered recipe and rate card are added.

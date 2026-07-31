@@ -160,6 +160,11 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(evaluated["s4_path"], "not_recommended")
         self.assertIn("target_region_support_not_verified", evaluated["poc_review_notes"])
         self.assertEqual(evaluated["cost_estimate"]["status"], "needs_registered_cost_model")
+        quote_report = result["cost_quote_reports"][0]
+        self.assertEqual(quote_report["status"], "needs_registered_cost_model")
+        self.assertIn("Skill 3 PoC 報價單", quote_report["markdown"])
+        self.assertIn("不能報價", quote_report["markdown"])
+        self.assertIn("registered_recipe_and_rate_card", quote_report["markdown"])
 
     def test_s3_public_evidence_mode_requires_only_a_candidate_selection(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
@@ -228,6 +233,10 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(evaluated["cost_estimate"]["status"], "estimated")
         self.assertEqual(evaluated["cost_estimate"]["estimated_usd"], 0.04719)
         self.assertEqual(evaluated["cost_estimate"]["recommended_approval_ceiling_usd"], 0.2)
+        quote_report = result["cost_quote_reports"][0]
+        self.assertEqual(quote_report["status"], "estimated")
+        self.assertIn("建議核准上限 USD：0.2", quote_report["markdown"])
+        self.assertIn("## 明細", quote_report["markdown"])
 
     def test_skill3_produces_a_lambda_recipe_quote(self):
         s2 = _deployable_s2()

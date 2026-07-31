@@ -810,3 +810,10 @@
 - 已開始把 `s4-console-review-packet` 擴充為可輸出 Playwright capture command、Composer URL、CloudFormation stack URL、截圖輸出路徑與 evidence JSON 路徑；截圖與 browser profile 仍放在 Git ignore 的本機資料夾。
 - Cleo 明確修正流程方向：後續正式流程採單項評估。Skill 1 / Skill 2 可以掃描與比較多個候選，但 Skill 3 起一次只接受一個人類選定候選；不再追求「所有候選跑完五步再取 top 3」或一次挑三項。
 - 已同步更新專案記憶、Skill 2 / Skill 3 核心 contract 與相關文件，新增測試要求多選候選會被 Skill 3 擋下。
+## 2026-07-31 Skill 3 報價單補強
+
+- 針對 Amazon Connect Customer Data Lake run `direct-url-20260731-766826d4`，確認原本 Skill 3 只有在 JSON 內嵌 quote object，沒有另存成人類可直接閱讀的報價單檔案。
+- 已在 `agentic_cloud_radar/s3.py` 補上 `cost_quote_reports`，讓 Skill 3 對單一候選產出可閱讀 quote markdown；若無註冊 recipe/rate card，仍輸出 `needs_registered_cost_model` 的「不能報價原因」報價單。
+- 已補 `tests/test_s3_s4.py` 測試，覆蓋 blocked quote report 與 estimated quote report 兩種路徑。
+- 已補出本次 run 的報價單：`radar-redesign/out/connect-customer-data-lake-20260731/s3-connect-data-lake-quote.md`，Quote ID `POC-QUOTE-D457A8453933`，狀態 `needs_registered_cost_model`。
+- 驗證：主 repo `python -m unittest discover -s tests -p 'test_*.py' -v` 39 passed；`claude-gui-handoff` 同測試 39 passed；本次 S3/S4/S5 JSON 皆通過 `python -m json.tool`。

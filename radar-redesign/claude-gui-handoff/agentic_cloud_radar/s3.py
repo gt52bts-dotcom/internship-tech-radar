@@ -85,6 +85,7 @@ def build_evaluate(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
         )
 
     artifact["evaluated_candidates"].sort(key=lambda item: (-item["weighted_score"], item["candidate_id"]))
+    artifact["cost_quote_reports"] = [_cost_quote_report(item) for item in artifact["evaluated_candidates"]]
     artifact["summary"] = _summary(artifact["evaluated_candidates"])
     return EvaluateResult(artifact, issues)
 
@@ -139,6 +140,7 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
             "evaluation_mode": "public_evidence",
         },
         "evaluated_candidates": [],
+        "cost_quote_reports": [],
         "summary": {},
     }
 
@@ -386,6 +388,67 @@ def _summary(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
         "recommend_poc_count": sum(1 for item in evaluated if item.get("recommend_poc")),
         "highest_score": max((item["weighted_score"] for item in evaluated), default=None),
         "automatic_poc_start": False,
+    }
+
+
+def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
+    quote = ((evaluated.get("cost_estimate") or {}).get("quote") or {})
+    status = str(quote.get("status") or "unknown")
+    quote_id = str(quote.get("quote_id") or "unknown")
+    report_id = f"{quote_id}-skill3-quote"
+    lines = [
+        f"# Skill 3 PoC 報價單：{evaluated.get('title') or 'unknown'}",
+        "",
+        f"- Quote ID：{quote_id}",
+        f"- 狀態：{status}",
+        f"- Run ID：{quote.get('run_id') or 'unknown'}",
+        f"- Candidate ID：{quote.get('candidate_id') or evaluated.get('candidate_id') or 'unknown'}",
+        f"- 目標區域：{quote.get('target_region') or 'unknown'}",
+        f"- 報價性質：{quote.get('quote_kind') or 'non_binding_public_price_estimate'}",
+        f"- 即時 AWS Pricing API：{'是' if quote.get('live_pricing_api_used') else '否'}",
+        f"- 正式採購報價：{'是' if quote.get('formal_procurement_quote_ready') else '否'}",
+        f"- 有效期限：{quote.get('valid_until') or 'unknown'}",
+        "",
+    ]
+    if status == "estimated":
+        price_range = quote.get("estimated_range_usd") or {}
+        lines.extend(
+            [
+                f"- 預期費用 USD：{quote.get('expected_total_usd')}",
+                f"- 低/中/高情境 USD：{price_range.get('low')} / {price_range.get('expected')} / {price_range.get('high')}",
+                f"- 建議核准上限 USD：{quote.get('recommended_approval_ceiling_usd')}",
+                f"- Recipe：{quote.get('recipe') or 'unknown'}",
+                "",
+                "## 明細",
+                "",
+            ]
+        )
+        expected = (quote.get("scenarios") or {}).get("expected") or {}
+        for item in expected.get("line_items") or []:
+            lines.append(
+                f"- {item.get('item')}: qty={item.get('quantity')} {item.get('quantity_unit')}, "
+                f"rate={item.get('rate_usd')} {item.get('rate_unit')}, subtotal={item.get('subtotal_usd')} USD"
+            )
+        lines.extend(["", "## 來源", ""])
+        for source in quote.get("sources") or []:
+            lines.append(f"- {source.get('purpose')}: {source.get('url')}")
+    else:
+        missing = quote.get("missing_inputs") or []
+        lines.extend(
+            [
+                "## 為什麼不能給金額",
+                "",
+                f"- 原因：{quote.get('pricing_basis') or 'No pricing basis recorded.'}",
+                f"- 缺少輸入：{', '.join(str(item) for item in missing) if missing else 'unknown'}",
+                "- 這仍然是一張 Skill 3 報價單，但它的結論是目前不能報價，不能進入實際 Skill 4 付費 PoC。",
+            ]
+        )
+    return {
+        "report_id": report_id,
+        "quote_id": quote.get("quote_id"),
+        "candidate_id": evaluated.get("candidate_id"),
+        "status": status,
+        "markdown": "\n".join(lines) + "\n",
     }
 
 
