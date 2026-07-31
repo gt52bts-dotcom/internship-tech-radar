@@ -646,6 +646,7 @@ def _display_status(value: Any) -> str:
         "medium": "中等",
         "high": "高",
         "low": "低",
+        "incomplete": "估價資料不足",
         "needs_registered_cost_model": "缺少已註冊成本模型",
         "non_binding_public_price_estimate": "非正式公開牌價估算",
         "not_applicable_no_cloud_resources_created": "不適用，未建立雲端資源",

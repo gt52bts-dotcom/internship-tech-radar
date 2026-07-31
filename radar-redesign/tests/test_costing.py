@@ -27,14 +27,39 @@ class CostQuoteTests(unittest.TestCase):
         self.assertEqual(len(quote["scenarios"]["expected"]["line_items"]), 10)
         self.assertTrue(all(item["url"].startswith("https://") for item in quote["sources"]))
 
-    def test_unknown_recipe_still_returns_a_pending_quote_artifact(self):
+    def test_service_hints_use_generic_usage_model(self):
+        quote = build_cost_quote(
+            {
+                "candidate_id": "GENERIC-1",
+                "title": "Build a customer data lake automation with Lambda and Glue",
+                "comparison_dimensions": {
+                    "technology_scope": {"services_detected": ["Lambda", "Glue", "CloudFormation"]}
+                },
+            },
+            "unit-test-run",
+            "ap-southeast-1",
+            datetime(2026, 7, 31, 8, 0, tzinfo=timezone.utc),
+        )
+
+        self.assertEqual(quote["status"], "estimated")
+        self.assertEqual(quote["pricing_level"], "Level B generic usage model")
+        self.assertEqual(quote["pricing_confidence"], "medium")
+        self.assertEqual(quote["recipe"], "generic_usage_model")
+        self.assertFalse(quote["deployable_recipe_registered"])
+        self.assertGreater(quote["expected_total_usd"], 0)
+        self.assertGreaterEqual(quote["recommended_approval_ceiling_usd"], 0.05)
+        self.assertIn("lambda", quote["detected_services"])
+        self.assertIn("glue", quote["detected_services"])
+
+    def test_unknown_scope_returns_incomplete_quote_artifact(self):
         quote = build_cost_quote(
             {"candidate_id": "OTHER-1", "title": "Unknown cloud feature"},
             "unit-test-run",
             "ap-southeast-1",
         )
 
-        self.assertEqual(quote["status"], "needs_registered_cost_model")
+        self.assertEqual(quote["status"], "incomplete")
+        self.assertEqual(quote["pricing_level"], "Level C incomplete")
         self.assertIsNone(quote["expected_total_usd"])
         self.assertTrue(quote["quote_id"].startswith("POC-QUOTE-"))
 

@@ -333,3 +333,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - Human-facing Skill reports, quote reports, Markdown output, and GUI display labels must show statuses in Traditional Chinese instead of raw machine codes such as `interim`, `needs_registered_cost_model`, `pending_actual_cost`, `region_unknown`, `unknown`, or `not_available`.
 - Machine-readable JSON status fields may remain stable English codes for tests and workflow logic, but every user-visible report layer should include or render a Chinese label.
+
+## 2026-07-31 Reusable Skill 3 Cost Estimation Decision
+
+- Skill 3 cost estimation is no longer a per-news special case. It uses a reusable pre-deployment / shift-left FinOps estimator with three levels: Level A registered recipe, Level B generic usage model from detected AWS services or IaC resource types, and Level C incomplete when service/resource scope is still too vague.
+- Level B may produce an estimated quote, recommended approval ceiling, formulas, assumptions, and official pricing sources even when no candidate-specific cost recipe exists. This resolves the old `needs_registered_cost_model` blocker for candidates that have enough billable service evidence.
+- Cost estimation and deployable Skill 4 recipe registration are separate gates. A Level B quote can support review, but real AWS resource creation still requires a matching Skill 4 deployable recipe; otherwise the deployment context must stop with `needs_poc_recipe`.
+- The Amazon Connect Customer Data Lake run `direct-url-20260731-766826d4` now uses the generic estimator instead of a hand-written special case: detected services include CloudFormation, IAM, Lake Formation, Lambda, RAM, and S3; expected estimate is USD 0.003246 with a USD 0.05 approval ceiling. Skill 4 remains approval-gated and creates no resources automatically.

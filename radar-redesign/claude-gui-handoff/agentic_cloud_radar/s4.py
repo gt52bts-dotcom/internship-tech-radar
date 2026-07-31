@@ -230,7 +230,7 @@ def _poc_checks(
         {
             "name": "cost_quote_ready",
             "passed": (candidate.get("cost_estimate") or {}).get("status") == "estimated",
-            "detail": "Skill 3 must provide a registered-recipe public-price quote before Skill 4.",
+            "detail": "Skill 3 must provide an estimated public-price PoC quote before Skill 4.",
         },
         {
             "name": "approved_cost_within_limit",

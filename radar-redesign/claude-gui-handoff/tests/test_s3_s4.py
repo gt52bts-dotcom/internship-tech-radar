@@ -146,25 +146,27 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(result["status"], "needs_human_shortlist")
         self.assertEqual(result["evaluated_candidates"], [])
 
-    def test_s3_records_a_blocked_poc_when_region_and_quote_are_not_ready(self):
+    def test_s3_uses_generic_quote_when_services_are_detected(self):
         request = _shortlist()
 
         result = build_evaluate(_sample_s2(), request).to_dict()
 
         self.assertEqual(result["status"], "evaluated")
         evaluated = result["evaluated_candidates"][0]
-        self.assertFalse(evaluated["recommend_poc"])
+        self.assertTrue(evaluated["recommend_poc"])
         self.assertEqual(evaluated["region_status"]["status"], "region_unknown")
         self.assertFalse(evaluated["region_status"]["blocks_s3"])
         self.assertTrue(evaluated["region_status"]["requires_region_confirmation"])
-        self.assertEqual(evaluated["s4_path"], "not_recommended")
+        self.assertEqual(evaluated["s4_path"], "poc")
         self.assertIn("target_region_support_not_verified", evaluated["poc_review_notes"])
-        self.assertEqual(evaluated["cost_estimate"]["status"], "needs_registered_cost_model")
+        self.assertEqual(evaluated["cost_estimate"]["status"], "estimated")
+        self.assertEqual(evaluated["cost_estimate"]["quote"]["pricing_level"], "Level B generic usage model")
+        self.assertFalse(evaluated["cost_estimate"]["quote"]["deployable_recipe_registered"])
         quote_report = result["cost_quote_reports"][0]
-        self.assertEqual(quote_report["status"], "needs_registered_cost_model")
-        self.assertIn("Skill 3 PoC 報價單", quote_report["markdown"])
-        self.assertIn("不能報價", quote_report["markdown"])
-        self.assertIn("registered_recipe_and_rate_card", quote_report["markdown"])
+        self.assertEqual(quote_report["status"], "estimated")
+        self.assertIn("Skill 3 PoC", quote_report["markdown"])
+        self.assertIn("已完成估算", quote_report["markdown"])
+        self.assertIn("generic_usage_model", quote_report["markdown"])
 
     def test_s3_public_evidence_mode_requires_only_a_candidate_selection(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
@@ -175,7 +177,7 @@ class S3S4Tests(unittest.TestCase):
         gate = result["human_shortlist_gate"]
         self.assertEqual(gate["evaluation_mode"], "public_evidence")
         evaluated = result["evaluated_candidates"][0]
-        self.assertFalse(evaluated["recommend_poc"])
+        self.assertTrue(evaluated["recommend_poc"])
         self.assertEqual(evaluated["assessment_scope"]["company_fit"], "not_assessed")
         self.assertNotIn("paid_poc_context_gaps", evaluated)
 
@@ -194,10 +196,32 @@ class S3S4Tests(unittest.TestCase):
 
         result = build_validate(s3).to_dict()
 
-        self.assertEqual(result["status"], "no_poc_candidates")
+        self.assertEqual(result["status"], "awaiting_poc_approval")
         validated = result["validated_candidates"][0]
-        self.assertFalse(validated["recommend_poc"])
-        self.assertEqual(validated["validation_status"], "not_recommended_for_poc")
+        self.assertTrue(validated["recommend_poc"])
+        self.assertEqual(validated["validation_status"], "awaiting_poc_approval")
+        self.assertFalse(validated["automatic_poc_start"])
+
+    def test_s4_deployment_context_blocks_generic_quote_without_deployable_recipe(self):
+        evaluate = build_evaluate(_sample_s2(), _shortlist()).to_dict()
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            s1 = {"stage": "S1", "run_id": "unit-test-run", "candidates": [{"candidate_id": "CAND-1"}]}
+            s2 = _sample_s2()
+            paths = {"s1": root / "s1.json", "s2": root / "s2.json", "s3": root / "s3.json"}
+            for key, payload in (("s1", s1), ("s2", s2), ("s3", evaluate)):
+                paths[key].write_text(json.dumps(payload), encoding="utf-8")
+            approval = {
+                "approved_by": "Cleo",
+                "selected_candidate_id": "CAND-1",
+                "deployment_authorized": True,
+                "region_warning_acknowledged": True,
+                "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
+            }
+            context = build_deployment_context(evaluate, approval)
+
+        self.assertEqual(context["status"], "not_deployable")
+        self.assertIn("needs_poc_recipe", context["errors"])
 
     def test_s4_waits_for_approval_after_skill3_recommends_poc(self):
         s3 = build_evaluate(_deployable_s2(), _shortlist()).to_dict()

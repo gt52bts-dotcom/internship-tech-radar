@@ -824,3 +824,11 @@
 - 已更新 Skill 3 quote report 與 Skill 5 Markdown/GUI 顯示層，將 `interim`、`needs_registered_cost_model`、`pending_actual_cost`、`region_unknown`、`unknown`、`not_available` 等人類可見狀態翻成中文；底層 JSON code 保留給流程判斷。
 - 已重產 Amazon Connect Customer Data Lake 本次報告與報價單，並掃描 Markdown 確認上述英文狀態碼未再出現。
 - 驗證：主 repo 39 passed；`claude-gui-handoff` 39 passed。
+## 2026-07-31 14:37 - Skill 3 reusable PoC cost estimator
+
+- 依 Cleo 修正方向，將 Skill 3 估價從「每篇新聞補一個專用 cost model」改為可重用的 pre-deployment / shift-left FinOps 估價系統。
+- `radar-redesign/agentic_cloud_radar/costing.py` 改為三層估價：Level A registered recipe、Level B generic usage model、Level C incomplete。Level B 會從 S2 service hints / candidate text / IaC resource type 偵測 Lambda、S3、Glue、CloudWatch、DynamoDB、SQS、SNS、Athena 等服務，套用低/中/高 PoC 用量假設和公開牌價 rate card。
+- 明確切開「能估價」與「能部署」：Level B 可以產出 quote 與 approval ceiling，但沒有 Skill 4 deployable recipe 時，真正 deployment context 仍會停在 `needs_poc_recipe`。
+- 重跑 Amazon Connect Customer Data Lake run `direct-url-20260731-766826d4`：Skill 3 quote 從缺模型改為 `estimated`，pricing level 為 `Level B generic usage model`，detected services 包含 CloudFormation、IAM、Lake Formation、Lambda、RAM、S3，expected total USD 0.003246，recommended approval ceiling USD 0.05；Skill 4 狀態仍是 awaiting PoC approval，沒有建立 AWS 資源。
+- 同步更新 `skills/evaluate-cloud-candidate/SKILL.md` 與 `radar-redesign/claude-gui-handoff/`，讓 GUI handoff package 使用同一套估價邏輯。
+- 驗證：主 repo `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 41 tests；`claude-gui-handoff` 同套測試通過 41 tests；額外跑過 S5 單元測試 8 tests。

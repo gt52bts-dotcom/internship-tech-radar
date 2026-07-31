@@ -54,19 +54,20 @@ $sampleSource = Join-Path $RadarRoot "out\lambda-self-managed-code-storage-s4-20
 Get-ChildItem -LiteralPath $sampleSource -File | Copy-Item -Destination $sampleDestination
 Get-ChildItem -LiteralPath $Destination -Recurse -Directory -Filter "__pycache__" | Remove-Item -Recurse -Force
 
-@'
+$readme = @'
 # Agentic Cloud Radar GUI Handoff
 
 This folder is self-contained: it includes the synchronized S1-S5 core, five reusable Skill packages, a deployable AWS web demo, two controlled S4 PoC recipes, redacted artifact examples, Console-review automation, tests, and the GUI contract for Claude.
 
 Start with `CLAUDE_GUI_HANDOFF.md`. Run `python web_demo_local.py` for a local GUI, or deploy from `web-demo-cdk/README.md`.
 
-For the controlled PoC runner, use `skills/validate-cloud-poc/SKILL.md` and `docs/s4-完整PoC部署操作.md`. A Console review packet has an explicit deadline; normal cleanup requires packet-bound screenshot evidence, a named human confirmation, and `--shared-via`.
+For the controlled PoC runner, use `skills/validate-cloud-poc/SKILL.md` and the Skill 4 deployment guide in `docs/`. A Console review packet has an explicit deadline; normal cleanup requires packet-bound screenshot evidence, a named human confirmation, and `--shared-via`.
 
 Do not add a browser action that bypasses the S4 approval, cost ceiling, Console review, or cleanup flow.
-'@ | Set-Content -LiteralPath (Join-Path $Destination "README.md") -Encoding utf8
+'@
+[System.IO.File]::WriteAllText((Join-Path $Destination "README.md"), $readme + "`n", [System.Text.UTF8Encoding]::new($false))
 
-@'
+$gitignore = @'
 __pycache__/
 *.py[cod]
 .tmp/
@@ -76,6 +77,7 @@ playwright-report/
 test-results/
 aws-console-playwright-profile/
 *.png
-'@ | Set-Content -LiteralPath (Join-Path $Destination ".gitignore") -Encoding utf8
+'@
+[System.IO.File]::WriteAllText((Join-Path $Destination ".gitignore"), $gitignore + "`n", [System.Text.UTF8Encoding]::new($false))
 
 Write-Host "Claude GUI handoff created at: $Destination"

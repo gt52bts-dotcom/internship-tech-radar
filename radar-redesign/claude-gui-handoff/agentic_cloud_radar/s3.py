@@ -2,8 +2,9 @@
 
 S3 is intentionally conservative. It only reads the S2 comparison artifact and
 an explicit human selection request. It does not discover new sources, tune the
-rubric for the selected candidate, or authorize a PoC. Registered recipes may produce a
-source-backed, non-binding cost quotation from explicit assumptions.
+rubric for the selected candidate, or authorize a PoC. Cost quotes may come from
+a registered recipe or a reusable generic usage model, but deployable Skill 4
+recipes are still checked separately.
 """
 
 from __future__ import annotations
@@ -126,7 +127,7 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
                 "verifiability",
                 "risk_and_stop_conditions",
             ],
-            "cost_policy": "The single human-selected candidate receives a complete registered-recipe quote before it can be recommended for Skill 4. Cost is not part of the technical score.",
+            "cost_policy": "The single human-selected candidate receives a complete PoC quote before it can be recommended for Skill 4. Level A uses a registered recipe; Level B uses a reusable generic usage model; Level C incomplete quotes block PoC recommendation. Cost is not part of the technical score.",
         },
         "policy": {
             "max_small_poc_usd": float(policy.get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD)),
@@ -360,7 +361,7 @@ def _poc_review_notes(coverage: dict[str, Any], region: dict[str, Any], quote: d
     if not coverage.get("official_pricing_linked"):
         notes.append("official_pricing_not_linked")
     if quote.get("status") != "estimated":
-        notes.append("registered_poc_quote_required")
+        notes.append("cost_quote_incomplete")
     return notes
 
 
@@ -456,6 +457,7 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
 def _display_status(value: Any) -> str:
     labels = {
         "estimated": "已完成估算",
+        "incomplete": "估價資料不足",
         "needs_registered_cost_model": "缺少已註冊成本模型",
         "non_binding_public_price_estimate": "非正式公開牌價估算",
         "unknown": "未記錄",

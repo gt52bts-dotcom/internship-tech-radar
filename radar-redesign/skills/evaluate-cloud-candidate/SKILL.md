@@ -1,6 +1,6 @@
 ---
 name: evaluate-cloud-candidate
-description: Evaluate one human-selected cloud candidate from a Skill 2 artifact with the fixed Skill 3 public-evidence rubric and produce an auditable full-PoC cost quotation for a registered recipe. Use after a person selects one candidate and needs a reproducible score, confidence level, risk analysis, cost estimate, and technical eligibility for a controlled Skill 4 PoC.
+description: Evaluate one human-selected cloud candidate from a Skill 2 artifact with the fixed Skill 3 public-evidence rubric and produce an auditable reusable PoC cost quotation. Use after a person selects one candidate and needs a reproducible score, confidence level, risk analysis, cost estimate, and technical eligibility for a controlled Skill 4 PoC.
 ---
 
 # Skill 3 · Evaluate
@@ -33,7 +33,10 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 2. Stop with `needs_human_shortlist` when no human selection exists or more than one candidate is selected.
 3. Score only evidence-supported dimensions with the fixed rubric.
 4. Record weighted score, confidence, Region state, governance flags, stop conditions, and evidence limits.
-5. For the selected candidate, create the entire PoC quote before Skill 4: low/expected/high usage, itemized rates, formulas, official sources, validity, exclusions, quoted Region, `live_pricing_api_used`, and a recommended approval ceiling. An unknown recipe must return `needs_registered_cost_model`, never an invented amount.
+5. For the selected candidate, create the entire PoC quote before Skill 4: low/expected/high usage, itemized rates, formulas, official sources, validity, exclusions, quoted Region, `live_pricing_api_used`, and a recommended approval ceiling.
+   - Level A: use a registered candidate-specific PoC recipe and rate card.
+   - Level B: when no registered cost recipe exists but S2/IaC/service evidence identifies billable AWS services, use the reusable generic usage model and mark `pricing_level=Level B generic usage model`.
+   - Level C: when the service/resource scope is still too vague, return `status=incomplete` with missing inputs instead of inventing a number.
 6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, confidence is at least `medium`, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit.
 7. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
 8. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
@@ -41,8 +44,8 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 ## Guardrails
 
 - Confidence enum is ordered `low < medium < high`; only `medium` and `high` can pass the PoC eligibility gate.
-- PoC blocker codes are concrete stop conditions such as `not_ga`, `no_public_source`, `forbidden_service`, `no_registered_cost_model`, `no_registered_poc_recipe`, `target_region_unavailable`, `unsafe_permissions`, or `production_data_required`.
-- Cost model and deployment recipe registration must be paired. A candidate must not be PoC-eligible if Skill 3 has a cost model but Skill 4 has no matching recipe.
+- PoC blocker codes are concrete stop conditions such as `not_ga`, `no_public_source`, `forbidden_service`, `incomplete_cost_quote`, `no_registered_poc_recipe`, `target_region_unavailable`, `unsafe_permissions`, or `production_data_required`.
+- Cost estimation and deployment recipe registration are separate gates. Skill 3 may produce a Level B generic estimate for review; Skill 4 deployment context must still block real AWS resource creation with `needs_poc_recipe` until a deployable recipe exists.
 - Do not award points from an unverified static case study.
 - Do not convert `region_unknown` into unavailable or available.
 - Do not call a human-approved spending ceiling an official estimate.
