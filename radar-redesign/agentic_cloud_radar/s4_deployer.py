@@ -18,6 +18,7 @@ import hashlib
 import json
 from pathlib import Path
 import platform
+import re
 import subprocess
 import time
 from typing import Any
@@ -38,6 +39,8 @@ DEFAULT_CLEANUP_SCOPE = (
     "Remove only test data owned by that stack.",
     "Verify the stack and active test resources are gone.",
 )
+CONSOLE_REVIEW_EVIDENCE_SCHEMA = "s4.console-review-evidence.v1"
+REQUIRED_CONSOLE_VIEW = "infrastructure_composer"
 
 
 class DeploymentError(RuntimeError):
@@ -173,7 +176,7 @@ def execute_deployment(context: dict[str, Any]) -> dict[str, Any]:
     verification = _verify_recipe(recipe, context, outputs, work_dir)
 
     return {
-        "schema_version": "s4.runtime-evidence.v2",
+        "schema_version": "s4.runtime-evidence.v3",
         "stage": "S4",
         "run_id": context.get("run_id"),
         "status": "awaiting_console_review",
@@ -191,24 +194,79 @@ def execute_deployment(context: dict[str, Any]) -> dict[str, Any]:
         "verification": verification,
         "console_review": {
             "status": "required",
+            "evidence_status": "awaiting_capture",
             "required_checks": [
                 "CloudFormation stack Resources and Template",
                 "Recipe resources and their expected relationships",
                 "Test workload result",
             ],
+            "required_screenshot_views": [REQUIRED_CONSOLE_VIEW],
+            "recommended_screenshot_views": ["resource_inventory"],
         },
         "cleanup": {"status": "pending_console_review"},
     }
 
 
-def record_console_review(runtime: dict[str, Any], confirmed_by: str, notes: str | None = None) -> dict[str, Any]:
-    """Record the human Console check before cleanup is permitted."""
+def build_console_review_packet(runtime: dict[str, Any]) -> dict[str, Any]:
+    """Build the human-facing screenshot checklist for one deployed PoC run."""
+
+    if runtime.get("stage") != "S4" or runtime.get("status") != "awaiting_console_review":
+        raise DeploymentError("A Console review packet requires an S4 runtime artifact awaiting review.")
+    deployment = runtime.get("deployment") or {}
+    return {
+        "schema_version": "s4.console-review-packet.v1",
+        "stage": "S4",
+        "run_id": runtime.get("run_id"),
+        "status": "awaiting_human_confirmation",
+        "review_target": {
+            "stack_name": deployment.get("stack_name"),
+            "target_region": deployment.get("target_region"),
+            "recipe": deployment.get("recipe"),
+        },
+        "required_screenshots": [
+            {
+                "view": REQUIRED_CONSOLE_VIEW,
+                "console_location": "CloudFormation stack > Infrastructure Composer",
+                "must_show": [
+                    "The run-derived stack's resource relationship canvas",
+                    "The deployed resources are visible and match the selected recipe",
+                ],
+            }
+        ],
+        "recommended_screenshots": [
+            {
+                "view": "resource_inventory",
+                "console_location": "CloudFormation stack > Resources or candidate-service resource page",
+                "must_show": ["Resource statuses", "The test workload result when the Console exposes it"],
+            }
+        ],
+        "human_confirmation": {
+            "required": True,
+            "instruction": "Show the screenshots in the GUI or this conversation, then wait for a named human to approve cleanup.",
+        },
+        "evidence_contract": {
+            "schema_version": CONSOLE_REVIEW_EVIDENCE_SCHEMA,
+            "required_fields_per_screenshot": ["view", "screenshot_ref", "sha256", "captured_at", "shared_via"],
+            "allowed_shared_via": ["gui", "conversation"],
+        },
+        "privacy": [
+            "Do not commit Console screenshots or unredacted Console URLs to Git.",
+            "Store only screenshot references and SHA-256 hashes in the review evidence JSON.",
+        ],
+    }
+
+
+def record_console_review(
+    runtime: dict[str, Any], confirmed_by: str, notes: str | None = None, review_evidence: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Record screenshot-backed human Console confirmation before cleanup is permitted."""
 
     reviewer = str(confirmed_by or "").strip()
     if runtime.get("stage") != "S4" or runtime.get("status") != "awaiting_console_review":
         raise DeploymentError("Console review requires an S4 runtime artifact awaiting review.")
     if not reviewer:
         raise DeploymentError("Console review requires a named human reviewer.")
+    evidence = _validated_review_evidence(runtime, review_evidence)
     reviewed = dict(runtime)
     reviewed["status"] = "ready_for_cleanup"
     reviewed["console_review"] = {
@@ -217,6 +275,8 @@ def record_console_review(runtime: dict[str, Any], confirmed_by: str, notes: str
         "confirmed_by": reviewer,
         "confirmed_at": _now(),
         "notes": str(notes or "").strip() or None,
+        "evidence_status": "captured_and_confirmed",
+        "evidence": evidence,
     }
     reviewed["cleanup"] = {"status": "ready_for_manual_cleanup"}
     return reviewed
@@ -227,6 +287,10 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
 
     if runtime.get("stage") != "S4" or runtime.get("status") != "ready_for_cleanup":
         raise DeploymentError("Cleanup requires a Console-reviewed S4 runtime artifact.")
+    if runtime.get("schema_version") == "s4.runtime-evidence.v3" and (
+        (runtime.get("console_review") or {}).get("evidence_status") != "captured_and_confirmed"
+    ):
+        raise DeploymentError("Cleanup requires screenshot-backed Console confirmation for this runtime schema.")
     deployment = runtime.get("deployment") or {}
     stack_name = str(deployment.get("stack_name") or "")
     resource_prefix = str(deployment.get("resource_prefix") or "")
@@ -253,6 +317,47 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
         },
     }
     return cleaned
+
+
+def _validated_review_evidence(runtime: dict[str, Any], evidence: dict[str, Any] | None) -> dict[str, Any]:
+    """Validate only metadata, never screenshots or Console account details."""
+
+    if not isinstance(evidence, dict):
+        raise DeploymentError("Console review requires screenshot evidence JSON from the review packet.")
+    if evidence.get("schema_version") != CONSOLE_REVIEW_EVIDENCE_SCHEMA:
+        raise DeploymentError("Console review evidence has an unsupported schema version.")
+    if str(evidence.get("run_id") or "") != str(runtime.get("run_id") or ""):
+        raise DeploymentError("Console review evidence does not belong to this PoC run.")
+    screenshots = evidence.get("screenshots")
+    if not isinstance(screenshots, list):
+        raise DeploymentError("Console review evidence must include a screenshot list.")
+    accepted: list[dict[str, str]] = []
+    seen_views: set[str] = set()
+    for item in screenshots:
+        if not isinstance(item, dict):
+            continue
+        view = str(item.get("view") or "").strip()
+        screenshot_ref = str(item.get("screenshot_ref") or "").strip()
+        sha256 = str(item.get("sha256") or "").strip().lower()
+        captured_at = str(item.get("captured_at") or "").strip()
+        shared_via = str(item.get("shared_via") or "").strip()
+        if not view or not screenshot_ref or not captured_at or shared_via not in {"gui", "conversation"}:
+            raise DeploymentError("Each Console screenshot needs view, reference, capture time, and GUI or conversation sharing.")
+        if not re.fullmatch(r"[0-9a-f]{64}", sha256):
+            raise DeploymentError("Each Console screenshot needs a SHA-256 hash.")
+        accepted.append(
+            {
+                "view": view,
+                "screenshot_ref": screenshot_ref,
+                "sha256": sha256,
+                "captured_at": captured_at,
+                "shared_via": shared_via,
+            }
+        )
+        seen_views.add(view)
+    if REQUIRED_CONSOLE_VIEW not in seen_views:
+        raise DeploymentError("Console review evidence must include an Infrastructure Composer screenshot.")
+    return {"schema_version": CONSOLE_REVIEW_EVIDENCE_SCHEMA, "screenshots": accepted}
 
 
 def _context_errors(

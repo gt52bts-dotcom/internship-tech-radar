@@ -1,0 +1,20 @@
+{
+  "schema_version": "s4.console-review-evidence.v1",
+  "run_id": "replace-with-runtime-run-id",
+  "screenshots": [
+    {
+      "view": "infrastructure_composer",
+      "screenshot_ref": "protected://s4-review/replace-with-run/infrastructure-composer.png",
+      "sha256": "replace-with-the-64-character-lowercase-sha256-of-the-png",
+      "captured_at": "2026-07-31T09:00:00+08:00",
+      "shared_via": "conversation"
+    },
+    {
+      "view": "resource_inventory",
+      "screenshot_ref": "protected://s4-review/replace-with-run/resources.png",
+      "sha256": "replace-with-the-64-character-lowercase-sha256-of-the-png",
+      "captured_at": "2026-07-31T09:01:00+08:00",
+      "shared_via": "conversation"
+    }
+  ]
+}

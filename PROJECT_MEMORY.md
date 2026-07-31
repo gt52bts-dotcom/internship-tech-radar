@@ -35,6 +35,13 @@
 - S3 v4 的新決策僅使用 `recommend_poc`；舊 `recommend_s4`、`recommend_low_risk_validation`、`eligible_for_poc_review` 只可作舊 artifact 的讀取相容，不得出現在新報告或 UI 作為第二套標準。
 - Lambda self-managed S3 code storage 的 2026-07-29 runtime 已由 Cleo 確認 AWS Console review 成功，狀態為 `ready_for_cleanup`；cleanup 尚未執行。
 
+## 2026-07-31 Screenshot-Backed Console Cleanup Decision
+
+- 後續新建的 Skill 4 runtime 一律使用 `s4.runtime-evidence.v3`：Codex 必須在已登入 AWS Console 檢視 CloudFormation Infrastructure Composer、截取圖片並上傳到具驗證的 GUI 或目前對話，讓具名人類確認後才可 cleanup。
+- 截圖證據 JSON 必須包含 run ID、Infrastructure Composer 圖片參照、SHA-256、截圖時間與 `gui` 或 `conversation` 的分享管道。圖片本體及未遮蔽 Console URL 不可提交 Git。
+- 人類明確確認後使用 `s4-close --execute` 自動執行 run-scoped AWS API / CloudFormation cleanup 與回查；不得用廣泛 Console 刪除動作，也不得跨 run 清除資源。
+- Skill 5 只有讀到 `cleanup_verified` 的 runtime 才可輸出 actual-PoC final；新版 runtime 的 final 結論需呈現 Infrastructure Composer 截圖人工確認與 cleanup 回查。此規則不追溯阻擋已存在的 v2 runtime。
+
 ## 2026-07-30 Default Context-Free Usage
 
 - 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。

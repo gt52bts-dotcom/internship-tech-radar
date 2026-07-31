@@ -34,6 +34,12 @@ Require all of the following:
 
 Use the built-in small-cost ceiling, target Region, recipe success criteria, and cleanup scope unless the reviewer supplies a stricter override.
 
+## Console Screenshot Gate
+
+After deployment verification, use [`templates/console-review-agent-template.md`](./templates/console-review-agent-template.md). The agent must open the logged-in AWS Console, inspect the deployed stack's **Infrastructure Composer**, capture a screenshot, and show that image in the authenticated GUI or the active conversation. Do not start cleanup until a named human explicitly confirms after seeing the screenshot.
+
+Screenshots are sensitive operational evidence: do not commit them or unredacted Console URLs. The review-evidence JSON stores only a reference, SHA-256, capture time, and whether it was shown through `gui` or `conversation`.
+
 Commands:
 
 ```powershell
@@ -44,14 +50,16 @@ python -m agentic_cloud_radar.cli s4-deploy `
   --runtime-output .\out\s4-runtime.json `
   --execute
 
-python -m agentic_cloud_radar.cli s4-console-review `
+python -m agentic_cloud_radar.cli s4-console-review-packet `
   --input .\out\s4-runtime.json `
+  --output .\out\s4-console-review-packet.json
+
+# Capture and show the required screenshots, obtain human confirmation, then:
+python -m agentic_cloud_radar.cli s4-close `
+  --input .\out\s4-runtime.json `
+  --review-evidence .\out\s4-console-review-evidence.json `
   --confirmed-by "<named-human>" `
   --notes "<concise-review-note>" `
-  --output .\out\s4-runtime-reviewed.json
-
-python -m agentic_cloud_radar.cli s4-cleanup `
-  --input .\out\s4-runtime-reviewed.json `
   --output .\out\s4-runtime-cleaned.json `
   --execute
 ```
@@ -64,9 +72,10 @@ python -m agentic_cloud_radar.cli s4-cleanup `
 4. If the same run-derived stack is already `CREATE_COMPLETE`, resume its verification instead of creating duplicate resources.
 5. Treat candidate-service propagation as eventually consistent: use a bounded retry for expected transient read-back gaps, and fail after the timeout.
 6. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
-7. Pause for the named human to inspect CloudFormation and service-specific Console pages.
-8. Run cleanup only after confirmed review and only for the reviewed run.
-9. Re-query stack, bucket, compute, and candidate-specific resources; mark cleanup verified only from evidence.
+7. Open CloudFormation Infrastructure Composer, capture the required image, and show it in the GUI or active conversation.
+8. Pause for explicit named-human cleanup confirmation. Do not infer confirmation from a prior deployment approval.
+9. Run `s4-close --execute`; it records screenshot evidence, cleans only the reviewed run, and re-queries the scoped resources.
+10. Produce Skill 5's actual-PoC conclusion only from the resulting `cleanup_verified` runtime artifact.
 
 ## Registered recipes
 

@@ -11,7 +11,14 @@ from .s1 import build_direct_url_scan, build_scan
 from .s2 import build_compare
 from .s3 import build_evaluate
 from .s4 import build_validate
-from .s4_deployer import DeploymentError, build_deployment_context, execute_cleanup, execute_deployment, record_console_review
+from .s4_deployer import (
+    DeploymentError,
+    build_console_review_packet,
+    build_deployment_context,
+    execute_cleanup,
+    execute_deployment,
+    record_console_review,
+)
 from .s5 import build_report
 
 
@@ -51,8 +58,16 @@ def main(argv: list[str] | None = None) -> int:
     deploy_parser.add_argument("--execute", action="store_true", help="Actually create AWS resources after all approval checks pass.")
     deploy_parser.add_argument("--runtime-output", help="Required with --execute; path for S4 runtime evidence JSON.")
 
-    console_parser = subparsers.add_parser("s4-console-review", help="Record required human AWS Console verification before cleanup.")
+    packet_parser = subparsers.add_parser(
+        "s4-console-review-packet",
+        help="Create the Infrastructure Composer screenshot and human-confirmation checklist for one deployed PoC.",
+    )
+    packet_parser.add_argument("--input", required=True, help="Path to an S4 runtime evidence JSON awaiting Console review.")
+    packet_parser.add_argument("--output", required=True, help="Path for the human-facing Console review packet JSON file.")
+
+    console_parser = subparsers.add_parser("s4-console-review", help="Record screenshot-backed human AWS Console verification before cleanup.")
     console_parser.add_argument("--input", required=True, help="Path to an S4 runtime evidence JSON file.")
+    console_parser.add_argument("--review-evidence", required=True, help="Path to Console screenshot evidence JSON from the review packet.")
     console_parser.add_argument("--confirmed-by", required=True, help="Named human who completed the Console review.")
     console_parser.add_argument("--notes", help="Optional concise Console review note.")
     console_parser.add_argument("--output", required=True, help="Path for the Console-reviewed S4 runtime JSON file.")
@@ -61,6 +76,17 @@ def main(argv: list[str] | None = None) -> int:
     cleanup_parser.add_argument("--input", required=True, help="Path to a Console-reviewed S4 runtime JSON file.")
     cleanup_parser.add_argument("--execute", action="store_true", help="Actually delete only the reviewed PoC stack and its test data.")
     cleanup_parser.add_argument("--output", required=True, help="Path for the cleanup-complete S4 runtime JSON file.")
+
+    close_parser = subparsers.add_parser(
+        "s4-close",
+        help="After screenshot-backed human confirmation, automatically clean only this PoC run and record verification.",
+    )
+    close_parser.add_argument("--input", required=True, help="Path to an S4 runtime evidence JSON awaiting Console review.")
+    close_parser.add_argument("--review-evidence", required=True, help="Path to Console screenshot evidence JSON from the review packet.")
+    close_parser.add_argument("--confirmed-by", required=True, help="Named human who approved cleanup after seeing the screenshots.")
+    close_parser.add_argument("--notes", help="Optional concise Console review note.")
+    close_parser.add_argument("--execute", action="store_true", help="Actually clean the reviewed run after the explicit human confirmation.")
+    close_parser.add_argument("--output", required=True, help="Path for the cleanup-verified S4 runtime JSON file.")
 
     s5_parser = subparsers.add_parser("s5", help="Render a source-bound JSON and Markdown report from S1-S4 artifacts.")
     s5_parser.add_argument("--s1", required=True, help="Path to an S1 scan artifact JSON file.")
@@ -99,10 +125,18 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.input), Path(args.approval), Path(args.output), args.execute,
             Path(args.runtime_output) if args.runtime_output else None,
         )
+    if args.command == "s4-console-review-packet":
+        return _run_s4_console_review_packet(Path(args.input), Path(args.output))
     if args.command == "s4-console-review":
-        return _run_s4_console_review(Path(args.input), args.confirmed_by, args.notes, Path(args.output))
+        return _run_s4_console_review(
+            Path(args.input), Path(args.review_evidence), args.confirmed_by, args.notes, Path(args.output)
+        )
     if args.command == "s4-cleanup":
         return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output))
+    if args.command == "s4-close":
+        return _run_s4_close(
+            Path(args.input), Path(args.review_evidence), args.confirmed_by, args.notes, args.execute, Path(args.output)
+        )
     if args.command == "s5":
         return _run_s5(
             Path(args.s1),
@@ -236,9 +270,20 @@ def _run_s4_deploy(
         return 1
 
 
-def _run_s4_console_review(input_path: Path, confirmed_by: str, notes: str | None, output_path: Path) -> int:
+def _run_s4_console_review_packet(input_path: Path, output_path: Path) -> int:
     try:
-        _write_json(output_path, record_console_review(_read_json(input_path), confirmed_by, notes))
+        _write_json(output_path, build_console_review_packet(_read_json(input_path)))
+        return 0
+    except DeploymentError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+
+def _run_s4_console_review(
+    input_path: Path, evidence_path: Path, confirmed_by: str, notes: str | None, output_path: Path
+) -> int:
+    try:
+        _write_json(output_path, record_console_review(_read_json(input_path), confirmed_by, notes, _read_json(evidence_path)))
         return 0
     except DeploymentError as exc:
         print(str(exc), file=sys.stderr)
@@ -251,6 +296,26 @@ def _run_s4_cleanup(input_path: Path, execute: bool, output_path: Path) -> int:
         return 1
     try:
         _write_json(output_path, execute_cleanup(_read_json(input_path)))
+        return 0
+    except DeploymentError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+
+def _run_s4_close(
+    input_path: Path,
+    evidence_path: Path,
+    confirmed_by: str,
+    notes: str | None,
+    execute: bool,
+    output_path: Path,
+) -> int:
+    if not execute:
+        print("s4-close only deletes resources when --execute is explicitly supplied after human screenshot confirmation.", file=sys.stderr)
+        return 1
+    try:
+        reviewed = record_console_review(_read_json(input_path), confirmed_by, notes, _read_json(evidence_path))
+        _write_json(output_path, execute_cleanup(reviewed))
         return 0
     except DeploymentError as exc:
         print(str(exc), file=sys.stderr)

@@ -1,4 +1,4 @@
-# S4 完整 PoC 部署操作：從 S3 artifact 到 cleanup
+# S4 完整 PoC 部署操作：從 Skill 3 artifact 到截圖確認 cleanup
 
 `agentic_cloud_radar.s4` 負責判定 PoC gate；`s4_deployer.py` 才負責已核准後的完整 S4。兩者合起來才符合「部署、驗證、Console 回驗、cleanup」的交付定義。
 
@@ -52,15 +52,18 @@ python -m agentic_cloud_radar.cli s4-deploy `
   --execute `
   --runtime-output .\out\run\s4-runtime.json
 
-# 在 CloudFormation / Infrastructure Composer 完成真人回驗後記錄確認。
-python -m agentic_cloud_radar.cli s4-console-review `
+# 產生本次 Infrastructure Composer 截圖與人工確認清單；不會 cleanup。
+python -m agentic_cloud_radar.cli s4-console-review-packet `
   --input .\out\run\s4-runtime.json `
-  --confirmed-by "Cleo" `
-  --output .\out\run\s4-console-reviewed.json
+  --output .\out\run\s4-console-review-packet.json
 
-# 最後才明確清理；會只處理此 runtime artifact 指向的 stack。
-python -m agentic_cloud_radar.cli s4-cleanup `
-  --input .\out\run\s4-console-reviewed.json `
+# Codex 在已登入 AWS Console 截取 Infrastructure Composer 圖片，
+# 上傳到 GUI 或這段對話供 Cleo 確認後，才執行這個單一 close 指令。
+python -m agentic_cloud_radar.cli s4-close `
+  --input .\out\run\s4-runtime.json `
+  --review-evidence .\out\run\s4-console-review-evidence.json `
+  --confirmed-by "Cleo" `
+  --notes "Infrastructure Composer screenshot reviewed; cleanup approved." `
   --execute `
   --output .\out\run\s4-cleanup.json
 ```
@@ -73,9 +76,13 @@ python -m agentic_cloud_radar.cli s4-cleanup `
 4. 等待 EC2 的 SSM Online，透過 SSM 確認 S3 Files mount、讀取 S3 放入的檔案、寫回 mount。
 5. 由 S3 讀回 mount 寫入的檔案，建立雙向驗證。
 6. runtime artifact 停在 `awaiting_console_review`，不能直接 cleanup。
-7. Console review 後，先清空此 stack 的 versioned test bucket，再刪除 stack 並等 CloudFormation deletion 完成。
+7. Codex 在 CloudFormation 的 **Infrastructure Composer** 檢視 resource relationship，截取 PNG 並在 GUI 或對話中交由具名人類確認。
+8. 明確確認後，`s4-close --execute` 先清空此 stack 的 versioned test bucket，再刪除 stack 並等 CloudFormation deletion 完成。
+9. 只有 `cleanup_verified` runtime 可讓 Skill 5 寫出實際 PoC 的 final 結論。
 
 runtime artifact 只保存 lineage、狀態、recipe、驗證結果與 cleanup 狀態；不保存 AWS account ID、ARN、IP 或 SSM command output。
+
+Console 截圖不要放進 Git；使用 `samples/s4-console-review-evidence.example.json` 的 metadata 契約記錄受保護的參照、SHA-256、截圖時間與展示管道。完整人機流程請使用 `skills/validate-cloud-poc/templates/console-review-agent-template.md`。
 
 ## 5. Lambda self-managed S3 code storage recipe
 

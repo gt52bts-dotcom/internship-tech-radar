@@ -9,7 +9,7 @@
 | Skill 1 Scan | [`scan-cloud-technologies`](./skills/scan-cloud-technologies/SKILL.md) | 掃描可信公開來源、清理雜訊並建立可追溯候選。 |
 | Skill 2 Compare | [`compare-cloud-candidates`](./skills/compare-cloud-candidates/SKILL.md) | 建立證據提案卡與比較矩陣，準備人工 shortlist。 |
 | Skill 3 Evaluate | [`evaluate-cloud-candidate`](./skills/evaluate-cloud-candidate/SKILL.md) | 依固定 rubric 評估人工選定候選；已登錄 recipe 同時產出可稽核的 PoC 成本估算報價單。 |
-| Skill 4 Validate | [`validate-cloud-poc`](./skills/validate-cloud-poc/SKILL.md) | 獨立檢查報價、人工核准、成本上限與 cleanup gate，再執行低風險驗證或受控 PoC。 |
+| Skill 4 Validate | [`validate-cloud-poc`](./skills/validate-cloud-poc/SKILL.md) | 檢查 Skill 3 報價、人工核准、成本上限與 cleanup gate，並執行唯一的受控付費 PoC。 |
 | Skill 5 Report | [`report-cloud-evidence`](./skills/report-cloud-evidence/SKILL.md) | 只依 S1-S4 artifact 產出含逐項報價與估算／實際帳務對帳的 JSON、Markdown 與 GUI 報告。 |
 
 ## 新入口與流程
@@ -74,7 +74,7 @@ python -m agentic_cloud_radar.cli s2 `
 
 ## S3/S4：評估、受控部署與驗證
 
-S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 預設只建立低風險 validation artifact，不會建立 AWS 資源，也不會自動啟動 PoC。
+S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 的 gate artifact 不會建立 AWS 資源，也不會自動啟動 PoC；Skill 4 本身只有一種含資源、可能產生成本的受控 PoC。
 
 S3 v4 採公開證據模式：每個 shortlist 候選都必須先產出完整 PoC 預估報價單。唯一決策欄位 `recommend_poc` 要求分數至少 3.75、信心至少 medium、沒有 PoC blocker，且報價狀態為 `estimated`。Skill 4 只代表受控、會建立 AWS 資源的付費 PoC；Region 與定價不確定性會列在 `poc_review_notes`，不要求使用者填一整套環境表單。舊決策欄位只作讀取舊 artifact 的相容 fallback。
 
@@ -89,7 +89,7 @@ python -m agentic_cloud_radar.cli s4 `
   --output .\out\s4-local-validate.json
 ```
 
-完整 PoC 使用另外三個明確命令，正常 `s4` 不會部署。最小 approval 只需記錄核准人、候選、`deployment_authorized=true` 與 S1/S2/S3 artifact 路徑；Region、recipe 成功條件與 cleanup scope 使用系統預設。若 Skill 3 有已登錄的成本模型，S4 會帶入報價單的預期總額與建議核准上限；沒有費率模型時只保留待補報價 artifact，不虛構金額。命令仍須另附 `--execute` 才能建立資源。部署後由人執行 `s4-console-review`，再用 `s4-cleanup --execute` 刪除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
+完整 PoC 使用明確命令，正常 `s4` 不會部署。最小 approval 只需記錄核准人、候選、`deployment_authorized=true` 與 S1/S2/S3 artifact 路徑；Region、recipe 成功條件與 cleanup scope 使用系統預設。若 Skill 3 有已登錄的成本模型，S4 會帶入報價單的預期總額與建議核准上限；沒有費率模型時只保留待補報價 artifact，不虛構金額。命令仍須另附 `--execute` 才能建立資源。部署完成後，Codex 必須在 AWS Console 檢視 Infrastructure Composer、截圖並上傳 GUI 或對話供具名人類確認；`s4-close --execute` 才會自動清除該次 stack 與測試資料。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
 
 S3 Files 報價模型目前採新加坡區 AWS 公開牌價與三種用量情境：低用量 1 小時／0.02 GB、預期 2 小時／0.10 GB、高用量 4 小時／0.50 GB。報價逐項列出 EC2、EBS、S3 Files 儲存與資料操作、S3 Standard 儲存與 requests；有效期七天。它是非約束性估算，不是 AWS 帳單。Skill 5 會另列「預估成本 vs 可歸因實際帳務成本」；若沒有 Cost Explorer、Billing 或 CUR artifact，實際成本固定標示 `pending`，不得由 runtime 反推。
 
@@ -116,7 +116,7 @@ python -m agentic_cloud_radar.cli s5 `
 - `agentic_cloud_radar/s1.py`：掃描與 URL 匯入。
 - `agentic_cloud_radar/s2.py`：證據比較、候選提案卡、比較矩陣。
 - `agentic_cloud_radar/s3.py`：固定 rubric 評估 human shortlist。
-- `agentic_cloud_radar/s4.py`：低風險驗證 artifact 與簡化 PoC gate 檢查。
+- `agentic_cloud_radar/s4.py`：不建立資源的 approval gate 與簡化 PoC 檢查。
 - `agentic_cloud_radar/s5.py`：artifact-only JSON、Markdown 與 GUI report renderer。
 - `skills/`：五個可被 Codex 識別與重用的正式 Skill packages。
 - `docs/s1-極細註解版.md`：S1 資料流與命令說明。

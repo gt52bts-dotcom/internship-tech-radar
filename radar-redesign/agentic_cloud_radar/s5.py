@@ -119,12 +119,29 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
         },
         "cost_quote": report["cost_quote"],
         "cost_reconciliation": report["cost_reconciliation"],
+        "console_review": _gui_console_review(report),
         "validation_checks": checks,
         "verified_facts": report["verified_facts"],
         "unknown_or_not_verified": report["unknown_or_not_verified"],
         "next_reminders": report["next_reminders"],
         "evidence_ledger": report["evidence_ledger"],
         "funnel": report["funnel"],
+    }
+
+
+def _gui_console_review(report: dict[str, Any]) -> dict[str, Any]:
+    """Keep screenshot metadata available to an authenticated review UI."""
+
+    ledger = report.get("evidence_ledger") or []
+    evidence_entry = next(
+        (entry for entry in ledger if entry.get("claim") == "Infrastructure Composer Console review"),
+        None,
+    )
+    return {
+        "status": next((item[1] for item in report["validation"]["rows"] if item[0] == "AWS Console review"), "unknown"),
+        "screenshot_status": next((item[1] for item in report["validation"]["rows"] if item[0] == "Console 截圖證據"), "not_recorded"),
+        "evidence_recorded": evidence_entry is not None,
+        "privacy": "Render screenshot files only through an authenticated GUI or the active conversation; Git artifacts retain metadata only.",
     }
 
 
@@ -168,6 +185,11 @@ def _report_status(issues: list[str], runtime: dict[str, Any] | None) -> str:
 
 def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> dict[str, str]:
     if runtime and runtime.get("status") == "cleanup_verified":
+        if _console_screenshot_count(runtime):
+            return {
+                "status": "validated_and_cleaned",
+                "text": "實際 PoC 已通過自動化驗證與 Infrastructure Composer 截圖人工確認，cleanup 回查也已完成。",
+            }
         return {"status": "validated_and_cleaned", "text": "PoC 技術驗證通過，且 cleanup 已完成。"}
     verification = (runtime or {}).get("verification") or {}
     if (runtime or {}).get("status") == "awaiting_console_review":
@@ -407,6 +429,7 @@ def _validation_summary(validation: dict[str, Any] | None, runtime: dict[str, An
             ("CloudFormation", (runtime.get("deployment") or {}).get("stack_status") or "unknown"),
             ("自動化驗證", _verification_status(verification)),
             ("AWS Console review", (runtime.get("console_review") or {}).get("status") or "unknown"),
+            ("Console 截圖證據", _console_screenshot_status(runtime)),
             ("cleanup", cleanup.get("status") or (validation or {}).get("cleanup_status") or "unknown"),
         ]
     }
@@ -447,6 +470,9 @@ def _verified_facts(
         )
     if (runtime or {}).get("deployment", {}).get("stack_status") == "CREATE_COMPLETE":
         facts.append("CloudFormation stack 已達 CREATE_COMPLETE。")
+    screenshot_count = _console_screenshot_count(runtime)
+    if screenshot_count:
+        facts.append(f"AWS Console review 已以 {screenshot_count} 張截圖透過 GUI 或對話交由具名人員確認。")
     for key, value in ((runtime or {}).get("verification") or {}).items():
         if key != "success_criteria" and value == "verified":
             facts.append(f"Skill 4 自動化驗證已通過：{key}。")
@@ -469,6 +495,8 @@ def _unknowns(
         items.append("可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。")
     if (runtime or {}).get("console_review", {}).get("status") != "confirmed":
         items.append("AWS Console review 尚未完成或尚未記錄。")
+    elif (runtime or {}).get("schema_version") == "s4.runtime-evidence.v3" and not _console_screenshot_count(runtime):
+        items.append("此 PoC runtime 尚未記錄 Infrastructure Composer 截圖證據。")
     if (runtime or {}).get("cleanup", {}).get("status") != "verified":
         items.append("cleanup 尚未完成或尚未記錄。")
     return _dedupe(items)
@@ -477,7 +505,7 @@ def _unknowns(
 def _next_reminders(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None) -> list[str]:
     reminders = list((candidate or {}).get("stop_conditions") or [])
     if (runtime or {}).get("status") == "awaiting_console_review":
-        reminders.append("完成 AWS Console review 後，才能執行受控 cleanup。")
+        reminders.append("截取 Infrastructure Composer 畫面、在 GUI 或對話中交由人類確認後，才能執行受控 cleanup。")
     return _dedupe(reminders)
 
 
@@ -506,6 +534,16 @@ def _evidence_ledger(
     for key, value in ((runtime or {}).get("verification") or {}).items():
         if key != "success_criteria":
             entries.append({"claim": key, "type": "runtime evidence", "status": str(value), "source": "S4 runtime artifact"})
+    screenshot_count = _console_screenshot_count(runtime)
+    if screenshot_count:
+        entries.append(
+            {
+                "claim": "Infrastructure Composer Console review",
+                "type": "human-reviewed screenshot evidence",
+                "status": "confirmed",
+                "source": f"S4 Console review evidence ({screenshot_count} screenshot metadata records)",
+            }
+        )
     quote = ((candidate or {}).get("cost_estimate") or {}).get("quote") or {}
     if quote.get("status") == "estimated":
         entries.append(
@@ -546,6 +584,19 @@ def _yes_no_unknown(value: Any) -> str:
     if value is False:
         return "否"
     return "unknown"
+
+
+def _console_screenshot_count(runtime: dict[str, Any] | None) -> int:
+    evidence = ((runtime or {}).get("console_review") or {}).get("evidence") or {}
+    screenshots = evidence.get("screenshots") if isinstance(evidence, dict) else None
+    return len(screenshots) if isinstance(screenshots, list) else 0
+
+
+def _console_screenshot_status(runtime: dict[str, Any] | None) -> str:
+    count = _console_screenshot_count(runtime)
+    if count:
+        return f"captured_and_confirmed ({count})"
+    return ((runtime or {}).get("console_review") or {}).get("evidence_status") or "not_recorded"
 
 
 def _recommend_poc(candidate: dict[str, Any]) -> bool:

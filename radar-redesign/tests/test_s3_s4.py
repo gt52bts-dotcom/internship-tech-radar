@@ -13,6 +13,7 @@ from agentic_cloud_radar.s4_deployer import (
     _get_s3_object_with_retry,
     _matches_run_identity,
     _stack_status_or_none,
+    build_console_review_packet,
     build_deployment_context,
     record_console_review,
 )
@@ -218,12 +219,48 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(len(context["lineage"]["source_artifacts"]), 3)
         self.assertEqual(context["s4_validation"]["cost_estimate"]["status"], "estimated")
 
-    def test_console_review_is_required_before_cleanup(self):
-        runtime = {"stage": "S4", "status": "awaiting_console_review", "console_review": {}, "cleanup": {}}
-        reviewed = record_console_review(runtime, "Cleo")
+    def test_console_review_requires_infrastructure_composer_screenshot(self):
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "unit-test-run",
+            "status": "awaiting_console_review",
+            "deployment": {"stack_name": "AgenticRadarS4ABC12345", "target_region": "ap-southeast-1", "recipe": "s3_files_cdk"},
+            "console_review": {},
+            "cleanup": {},
+        }
+        packet = build_console_review_packet(runtime)
+        evidence = {
+            "schema_version": "s4.console-review-evidence.v1",
+            "run_id": "unit-test-run",
+            "screenshots": [
+                {
+                    "view": "infrastructure_composer",
+                    "screenshot_ref": "protected://review/infrastructure-composer.png",
+                    "sha256": "a" * 64,
+                    "captured_at": "2026-07-31T09:00:00+08:00",
+                    "shared_via": "conversation",
+                }
+            ],
+        }
 
+        reviewed = record_console_review(runtime, "Cleo", review_evidence=evidence)
+
+        self.assertEqual(packet["required_screenshots"][0]["view"], "infrastructure_composer")
         self.assertEqual(reviewed["status"], "ready_for_cleanup")
         self.assertEqual(reviewed["console_review"]["status"], "confirmed")
+        self.assertEqual(reviewed["console_review"]["evidence_status"], "captured_and_confirmed")
+
+    def test_console_review_rejects_missing_infrastructure_composer_screenshot(self):
+        runtime = {"stage": "S4", "run_id": "unit-test-run", "status": "awaiting_console_review", "console_review": {}, "cleanup": {}}
+        evidence = {
+            "schema_version": "s4.console-review-evidence.v1",
+            "run_id": "unit-test-run",
+            "screenshots": [{"view": "resource_inventory", "screenshot_ref": "protected://review/resources.png", "sha256": "b" * 64, "captured_at": "2026-07-31T09:00:00+08:00", "shared_via": "gui"}],
+        }
+
+        with self.assertRaisesRegex(DeploymentError, "Infrastructure Composer"):
+            record_console_review(runtime, "Cleo", review_evidence=evidence)
 
     def test_s4_deployment_context_uses_defaults_without_environment_configuration(self):
         s2 = _sample_s2()

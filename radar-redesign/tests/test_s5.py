@@ -58,6 +58,26 @@ class Skill5Tests(unittest.TestCase):
         self.assertNotIn("達到 PoC 審查門檻", rows)
         self.assertEqual(report["conclusion"]["status"], "poc_recommended")
 
+    def test_final_report_records_screenshot_backed_actual_poc_conclusion(self):
+        s1 = {"stage": "S1", "run_id": "run-screenshot", "candidates": [{"candidate_id": "C5"}]}
+        s2 = {"stage": "S2", "run_id": "run-screenshot", "candidates": [{"candidate_id": "C5", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
+        s3 = {"stage": "S3", "run_id": "run-screenshot", "evaluated_candidates": [{"candidate_id": "C5", "title": "Feature", "source_url": "https://aws.amazon.com/example", "recommend_poc": True}]}
+        s4 = {"stage": "S4", "run_id": "run-screenshot", "validated_candidates": [{"candidate_id": "C5", "validation_status": "poc_ready_for_manual_start"}]}
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "run-screenshot",
+            "status": "cleanup_verified",
+            "console_review": {"status": "confirmed", "evidence": {"screenshots": [{"view": "infrastructure_composer"}]}},
+            "cleanup": {"status": "verified"},
+        }
+
+        report = build_report(s1, s2, s3, s4, runtime)
+
+        self.assertEqual(report["status"], "final")
+        self.assertIn("Infrastructure Composer 截圖人工確認", report["conclusion"]["text"])
+        self.assertEqual(report["gui_model"]["console_review"]["screenshot_status"], "captured_and_confirmed (1)")
+
     def test_mismatched_artifacts_are_reported_as_incomplete(self):
         report = build_report({"stage": "S1", "run_id": "run-a"}, {"stage": "S2", "run_id": "run-b"})
         self.assertEqual(report["status"], "incomplete_artifacts")

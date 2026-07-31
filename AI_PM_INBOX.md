@@ -748,3 +748,12 @@
 - Cleo 確認 Lambda PoC 的 AWS Console review 成功，已建立 runtime evidence `radar-redesign/out/s4-runtime-lambda-self-managed-20260731-reviewed.json`，狀態 `ready_for_cleanup`；未執行 cleanup。更新後 Skill 5 在 `radar-redesign/out/s5-lambda-self-managed-20260731-reviewed.md`。
 - 驗證：30 項 Python unittest、Python `compileall`、`node --check web/app.js`、`git diff --check` 均通過；另以 AWS Architecture Scout 掃描本機架構，結果為 partial `21/26`，本次只處理 S3/S4 流程語意與報價模型，未擴張為完整架構補齊。
 - 目標關係：直接扣回五個 Skill 的決策一致性、成本治理與可追溯 PoC 交付。
+
+### 2026-07-31 Skill 4 Console 截圖確認與自動 cleanup 模板
+
+- Cleo 新增長期流程：每次未來的受控 Skill 4 PoC 在自動化驗證完成後，Codex 必須進入已登入 AWS Console 的 CloudFormation Infrastructure Composer 檢視資源關係、截圖，並將圖片顯示在 GUI 或目前對話，等待具名人類明確確認 cleanup。
+- 核心 runtime 升級為 `s4.runtime-evidence.v3`。新增 `s4-console-review-packet` 產生 run 專屬截圖 checklist；必要圖片為 `infrastructure_composer`，可附 `resource_inventory`。證據 JSON 記錄圖片受保護參照、SHA-256、截取時間與分享管道；圖片本體與未遮蔽 Console URL 不進 Git。
+- 新增 `s4-close --execute`：人類看過截圖且明確確認後，將同一 run 的截圖證據、具名確認、受限 AWS API / CloudFormation cleanup 與回查串成單一步驟。新版 runtime 缺少截圖證據不得 cleanup；既有 v2 runtime 保持相容，不被新規則追溯阻擋。
+- Skill 5 JSON、Markdown、GUI model 增列 Console 截圖證據狀態；只在 `cleanup_verified` 後輸出 actual-PoC final 結論，且新 runtime 會明載 Infrastructure Composer 截圖人工確認。新增 Skill 4 agent template 與 review-evidence sample。
+- 驗證：`python -m compileall agentic_cloud_radar tests` 與完整 `python -m unittest discover -s tests -v` 共 32 項通過；新增測試確認缺少 Infrastructure Composer 圖片會拒絕 Console review，截圖確認後的 Skill 5 final 會顯示正確結論。
+- 目標關係：直接強化五個 Skill 的實際 PoC 可理解性、人工決策留痕、cleanup 安全性與可對外說明的驗證證據。
