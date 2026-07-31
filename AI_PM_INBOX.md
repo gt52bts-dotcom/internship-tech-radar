@@ -29,6 +29,15 @@
 - 架構掃描為 20/26，缺項是 Bedrock、RAG、CloudWatch/CloudTrail 等正式產品化元件，不影響現階段五個 Skill 的單項 PoC 流程。掃描器的「top 3」提示為舊規則，不採用。
 - 本次只整理本機交接檔與文件，未執行 AWS Console 操作、部署或清除雲端資源。
 
+## 2026-07-31 Amazon Connect Customer Data Lake 單項 Skill 執行
+
+- 使用者指定 AWS 官方文章 `Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct`，以全球站同篇 URL 完成 Skill 1 至 Skill 5 單項流程；Run ID 為 `direct-url-20260731-766826d4`。
+- Skill 1 直接擷取官方文章，Skill 2 建立唯一候選比較卡，並由使用者指定文章做為唯一 Skill 3 評估對象。Skill 3 固定 rubric 分數為 3.75、信心為 medium。
+- Skill 3 已建立可稽核的非約束性報價 artifact `POC-QUOTE-D457A8453933`，但明確標示 `needs_registered_cost_model`，因為目前沒有這個 Amazon Connect / RAM / Lake Formation / Glue 工作流的已登錄 PoC recipe 與 rate card；沒有填造金額。
+- Skill 4 結果為 `no_poc_candidates` / `not_recommended_for_poc`，沒有執行部署、沒有建立或修改 AWS 資源，因此 cleanup 為 `not_applicable_no_cloud_resources_created`。
+- Skill 5 已產生 `interim` 技術驗證報告。後續若要做真實付費 PoC，需先完成候選專屬 recipe、完整報價、新加坡可用性與定價證據，並確認有可用的 Amazon Connect Customer instance 與具名授權。
+- artifacts 位於 `radar-redesign/out/connect-customer-data-lake-20260731/`；五個 JSON artifacts 皆已用 `python -m json.tool` 驗證。
+
 ## 2026-07-31 Skill 5 成本對帳補強
 
 - 時間判定：2026-07-31 08:18 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。

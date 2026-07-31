@@ -69,6 +69,12 @@
 - The portable package passed its standalone 39-test suite on 2026-07-31. Its architecture scan reports known productionization gaps (for example Bedrock/RAG/CloudWatch), which are outside the current five-Skill workflow scope.
 - The architecture scanner contains an obsolete "top 3" matcher. The project decision remains one human-selected candidate evaluated through Skill 3, Skill 4, and Skill 5.
 
+## 2026-07-31 Amazon Connect Customer Data Lake Article Run
+
+- A single-item S1-S5 run was completed for AWS's 2026-07-17 article, `Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct`, under run ID `direct-url-20260731-766826d4`.
+- Skill 3 gave the candidate a 3.75 technical score with medium confidence but did not recommend deployment because its Amazon Connect / RAM / Lake Formation / Glue workflow has no registered PoC recipe and rate card. Singapore availability and candidate-specific pricing evidence also remain unverified.
+- Skill 4 created no AWS resources and recorded `not_recommended_for_poc`; Skill 5 is an `interim` report. A future real PoC needs a reviewed recipe, a complete pre-deployment quote, an existing suitable Amazon Connect Customer instance, and explicit named approval.
+
 ## 2026-07-30 Default Context-Free Usage
 
 - 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。

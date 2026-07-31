@@ -54,9 +54,9 @@ class Skill5Tests(unittest.TestCase):
         report = build_report(s1, s2, s3)
 
         rows = dict(report["evaluation"]["rows"])
-        self.assertEqual(rows["技術上具備 Skill 4 PoC 資格"], "是")
+        self.assertEqual(rows["建議進入實際 Skill 4 PoC"], "是")
         self.assertNotIn("達到 PoC 審查門檻", rows)
-        self.assertEqual(report["conclusion"]["status"], "technically_eligible_for_poc")
+        self.assertEqual(report["conclusion"]["status"], "poc_recommended_awaiting_approval")
         self.assertIn("工作負載適配性未評估", " ".join(report["unknown_or_not_verified"]))
 
     def test_final_report_records_screenshot_backed_actual_poc_conclusion(self):

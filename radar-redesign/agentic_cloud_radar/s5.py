@@ -231,8 +231,8 @@ def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None
         return {"status": "poc_passed_ready_for_cleanup", "text": "PoC 技術驗證與 AWS Console review 均已確認成功；待執行受控 cleanup。"}
     if candidate and _recommend_poc(candidate):
         return {
-            "status": "technically_eligible_for_poc",
-            "text": "Skill 3 已完成 PoC 預估報價，且依公開技術證據具備進入 Skill 4 受控付費 PoC 的資格；工作負載適配性仍需人類另行判斷，尚無 runtime 證據。",
+            "status": "poc_recommended_awaiting_approval",
+            "text": "Skill 3 已完成 PoC 預估報價，建議進入實際 Skill 4 受控付費 PoC；仍須具名人員完成部署授權，且尚無 runtime 證據。",
         }
     return {"status": "unknown", "text": "尚無足夠的 Skill 3 或 Skill 4 證據形成 PoC 結論。"}
 
@@ -249,7 +249,7 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
             ("Skill 3 加權分", candidate.get("weighted_score", "unknown")),
             ("信心", candidate.get("confidence") or "unknown"),
             ("區域狀態", region.get("status") or "unknown"),
-            ("技術上具備 Skill 4 PoC 資格", _yes_no_unknown(_recommend_poc(candidate))),
+            ("建議進入實際 Skill 4 PoC", _yes_no_unknown(_recommend_poc(candidate))),
             ("成本", ((candidate.get("cost_estimate") or {}).get("status") or "unknown")),
         ],
     }
