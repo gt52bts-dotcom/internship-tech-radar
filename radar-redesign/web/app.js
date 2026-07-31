@@ -204,27 +204,24 @@ function radarShowEvaluation() {
   var candidate = radarState.s3.evaluated_candidates[0];
   var score = candidate.dimension_scores || {};
   var quote = candidate.cost_estimate && candidate.cost_estimate.quote || {};
-  var lowRisk = candidate.recommend_low_risk_validation !== undefined ? candidate.recommend_low_risk_validation : candidate.recommend_s4;
-  var pocReview = candidate.eligible_for_poc_review !== undefined
-    ? candidate.eligible_for_poc_review
-    : (candidate.eligible_for_paid_poc_review !== undefined ? candidate.eligible_for_paid_poc_review : candidate.recommend_s4);
-  var decisionText = lowRisk
-    ? (pocReview
-      ? "建議建立低風險驗證 artifact；公開證據也已達 PoC 審查門檻。"
-      : "建議建立低風險驗證 artifact；公開證據尚未達 PoC 審查門檻。")
-    : "目前不建議低風險 Skill 4 驗證，報告會保留原因。";
+  var pocRecommended = candidate.recommend_poc !== undefined
+    ? candidate.recommend_poc
+    : (candidate.eligible_for_poc_review !== undefined ? candidate.eligible_for_poc_review : candidate.recommend_s4);
+  var decisionText = pocRecommended
+    ? "Skill 3 的 PoC 預估報價已完成；可送交具名核准後進入 Skill 4 受控 PoC。"
+    : "此候選尚未通過 Skill 3 的單一 PoC 門檻，不能進入 Skill 4。";
   radarSetStage(2,
     ["<span class=\"h\">$ evaluate -- 固定 rubric 已完成</span>", "<span class=\"ok\">✓</span> 技術價值 " + radarEscape(score.technical_value) + " · 導入前提 " + radarEscape(score.adoption_prerequisites), "<span class=\"ok\">✓</span> 可驗證性 " + radarEscape(score.verifiability) + " · 風險與停損 " + radarEscape(score.risk_and_stop_conditions), "<span class=\"num\">★</span> 加權分 " + radarEscape(candidate.weighted_score) + " / 5 · " + radarEscape(candidate.confidence) + " confidence", "<span class=\"ok\">$</span> 報價單 " + radarEscape(quote.quote_id || "待建立") + " · 預期 USD " + radarEscape(quote.expected_total_usd == null ? "unknown" : quote.expected_total_usd) + " · 建議上限 USD " + radarEscape(quote.recommended_approval_ceiling_usd == null ? "unknown" : quote.recommended_approval_ceiling_usd)],
-    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "Estimate", value: quote.expected_total_usd == null ? "pending" : "$" + quote.expected_total_usd }, { label: "PoC", value: pocReview ? "eligible" : "hold" }],
+    [{ label: "Score", value: String(candidate.weighted_score) }, { label: "Estimate", value: quote.expected_total_usd == null ? "pending" : "$" + quote.expected_total_usd }, { label: "PoC", value: pocRecommended ? "recommended" : "hold" }],
     decisionText
   );
-  document.getElementById("log").insertAdjacentHTML("beforeend", "<div class=\"radar-action\"><b>下一關：Skill 4 Validate</b><p>現在只會建立低風險驗證 artifact，不會自行部署任何 AWS 資源。</p><button id=\"radar-validate\">建立驗證 artifact</button></div>");
+  document.getElementById("log").insertAdjacentHTML("beforeend", "<div class=\"radar-action\"><b>下一關：Skill 4 PoC</b><p>Skill 4 是受控付費 PoC；本頁只會建立核准前的 gate artifact，不會自行部署 AWS 資源。</p><button id=\"radar-validate\">檢查 PoC gate</button></div>");
   document.getElementById("radar-validate").addEventListener("click", radarValidate);
 }
 
 function radarValidate() {
-  radarSetBusy("正在檢查 lineage、停止條件與受控驗證規則。");
-  radarApi("/runs/" + radarState.runId + "/validate", { method: "POST", body: JSON.stringify({ validation_type: "low_risk_validation" }) }).then(function (artifact) {
+  radarSetBusy("正在檢查 lineage、報價單與受控 PoC 規則。");
+  radarApi("/runs/" + radarState.runId + "/validate", { method: "POST", body: "{}" }).then(function (artifact) {
     radarFinishCurrentStage(3, function () { radarState.s4 = artifact; radarShowValidation(); });
   }).catch(function (error) { alert(error.message); });
 }
@@ -234,9 +231,9 @@ function radarShowValidation() {
   radarSetStage(3,
     ["<span class=\"h\">$ validate -- " + radarEscape(candidate.validation_status || radarState.s4.status) + "</span>", "<span class=\"ok\">✓</span> Skill 3 lineage、來源與停損條件已檢查。", "<span class=\"num\">!</span> 完整 PoC 仍需要具名核准、成本上限、Console review 與 cleanup。"],
     [{ label: "Validation", value: "ready" }, { label: "Resources", value: "0" }],
-    "低風險驗證已完成；完整 PoC 要由受控的 S4 deployer 執行。"
+    "Skill 4 需要具名核准後，才可由受控的 S4 deployer 執行。"
   );
-  document.getElementById("log").insertAdjacentHTML("beforeend", "<div class=\"radar-action warning\"><b>完整 PoC gate 尚未開啟</b><p>這次沒有建立 AWS 資源。請先完成受控的 deploy approval，才可使用 S4 deployer。</p><button id=\"radar-report\">產生 artifact 報告</button></div>");
+  document.getElementById("log").insertAdjacentHTML("beforeend", "<div class=\"radar-action warning\"><b>PoC gate 尚未開啟</b><p>這次沒有建立 AWS 資源。請先完成具名 deploy approval，才可使用 S4 deployer。</p><button id=\"radar-report\">產生 artifact 報告</button></div>");
   document.getElementById("radar-report").addEventListener("click", radarReport);
 }
 

@@ -76,7 +76,7 @@ python -m agentic_cloud_radar.cli s2 `
 
 S3 只接受 S2 artifact 和 human shortlist request；沒有 shortlist 就會停在 `needs_human_shortlist`。S4 預設只建立低風險 validation artifact，不會建立 AWS 資源，也不會自動啟動 PoC。
 
-S3 v3 採公開證據模式：`recommend_low_risk_validation` 判斷是否值得做文件／本機／validator 驗證；`eligible_for_poc_review` 則要求分數至少 3.75、信心至少 medium，且沒有真正的硬性阻擋。Region 與定價不確定性放進 `poc_review_notes`，不要求使用者填一整套環境表單。舊 `recommend_s4` 與 `eligible_for_paid_poc_review` 只保留作相容欄位。
+S3 v4 採公開證據模式：每個 shortlist 候選都必須先產出完整 PoC 預估報價單。唯一決策欄位 `recommend_poc` 要求分數至少 3.75、信心至少 medium、沒有 PoC blocker，且報價狀態為 `estimated`。Skill 4 只代表受控、會建立 AWS 資源的付費 PoC；Region 與定價不確定性會列在 `poc_review_notes`，不要求使用者填一整套環境表單。舊決策欄位只作讀取舊 artifact 的相容 fallback。
 
 ```powershell
 python -m agentic_cloud_radar.cli s3 `

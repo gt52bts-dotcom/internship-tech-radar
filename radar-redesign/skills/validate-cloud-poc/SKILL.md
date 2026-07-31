@@ -1,19 +1,13 @@
 ---
 name: validate-cloud-poc
-description: Independently validate an evaluated cloud candidate, its cost quotation, and either low-risk checks or a controlled AWS PoC while preserving artifact lineage and a short human gate. Use for Skill 4 validation, quote-versus-ceiling checks, CDK or CloudFormation review, named-human approval, runtime evidence, Console review, or run-scoped cleanup without requiring custom environment configuration.
+description: Execute the single controlled AWS PoC stage after Skill 3 has produced a complete estimate, while preserving artifact lineage and a short human gate. Use for Skill 4 quote-versus-ceiling checks, CDK or CloudFormation deployment, named-human approval, runtime evidence, Console review, or run-scoped cleanup.
 ---
 
 # Skill 4 · Validate
 
-Default to low-risk validation. Never create AWS resources through the normal `s4` command.
+Skill 4 means one thing: a controlled PoC that creates bounded AWS resources. It never starts automatically, but it is not a second, low-risk validation track.
 
-Read Skill 3 decisions independently:
-
-- `recommend_low_risk_validation` controls document, local, schema, template, or validator work.
-- `eligible_for_poc_review` controls entry to the separate PoC approval gate.
-- Legacy `recommend_s4` is only a compatibility alias for low-risk validation.
-
-## Low-risk validation
+## PoC gate
 
 From `radar-redesign/`:
 
@@ -23,7 +17,7 @@ python -m agentic_cloud_radar.cli s4 `
   --output .\out\s4.json
 ```
 
-Use this path for document, schema, template, or local checks. State `cloud_resources_created=false` when no resources were created.
+This command creates the approval gate artifact only. With no approval it returns `awaiting_poc_approval`; it does not redefine Skill 4 as a no-cost validation.
 
 ## Controlled PoC
 
@@ -32,9 +26,9 @@ Read `docs/s4-完整PoC部署操作.md` before any live action.
 Require all of the following:
 
 - Matching S1/S2/S3 lineage and artifact hashes.
-- Skill 3 `eligible_for_poc_review=true`.
-- A registered candidate-specific recipe.
-- A recorded quote artifact; where a registered rate model exists, its high-use estimate must stay within the approved sandbox ceiling.
+- Skill 3 `recommend_poc=true`.
+- A registered candidate-specific recipe and its complete S3 quotation.
+- The quote's high-use estimate must stay within the approved sandbox ceiling.
 - Named human approval and `deployment_authorized=true`.
 - A second explicit CLI `--execute`.
 

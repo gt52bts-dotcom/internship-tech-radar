@@ -174,15 +174,12 @@ def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None
         if verification.get("cloudformation_reference_mode") == "verified" and verification.get("lambda_invoke") == "verified":
             return {"status": "poc_passed_pending_closure", "text": "PoC 技術驗證通過。CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過。AWS Console review 與 cleanup 尚待完成。"}
         return {"status": "poc_passed_pending_closure", "text": "PoC 技術驗證已通過自動化檢查。AWS Console review 與 cleanup 尚待完成。"}
-    if candidate and _recommend_low_risk_validation(candidate):
-        if _eligible_for_poc_review(candidate):
-            return {
-                "status": "low_risk_and_poc_review_recommended",
-                "text": "Skill 3 建議進入低風險 Skill 4 驗證，且公開證據已達 PoC 審查門檻；尚無完整 PoC runtime 證據。",
-            }
+    if (runtime or {}).get("status") == "ready_for_cleanup":
+        return {"status": "poc_passed_ready_for_cleanup", "text": "PoC 技術驗證與 AWS Console review 均已確認成功；待執行受控 cleanup。"}
+    if candidate and _recommend_poc(candidate):
         return {
-            "status": "low_risk_validation_recommended",
-            "text": "Skill 3 建議進入低風險 Skill 4 驗證；公開證據尚未達 PoC 審查門檻。",
+            "status": "poc_recommended",
+            "text": "Skill 3 已完成 PoC 預估報價，並建議進入 Skill 4 受控付費 PoC；尚無 runtime 證據。",
         }
     return {"status": "unknown", "text": "尚無足夠的 Skill 3 或 Skill 4 證據形成 PoC 結論。"}
 
@@ -199,8 +196,7 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
             ("Skill 3 加權分", candidate.get("weighted_score", "unknown")),
             ("信心", candidate.get("confidence") or "unknown"),
             ("區域狀態", region.get("status") or "unknown"),
-            ("建議低風險 Skill 4 驗證", _yes_no_unknown(_recommend_low_risk_validation(candidate))),
-            ("達到 PoC 審查門檻", _yes_no_unknown(_eligible_for_poc_review(candidate))),
+            ("建議進行 Skill 4 PoC", _yes_no_unknown(_recommend_poc(candidate))),
             ("成本", ((candidate.get("cost_estimate") or {}).get("status") or "unknown")),
         ],
     }
@@ -348,10 +344,7 @@ def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
         ]
     )
     assumptions = expected.get("assumptions") or {}
-    lines.append(
-        f"- 預期情境使用 {assumptions.get('hours')} 小時、"
-        f"{assumptions.get('active_gb')} GB active storage。"
-    )
+    lines.append(f"- 預期情境假設：{_format_quote_assumptions(assumptions)}。")
     lines.extend(f"- {item}" for item in quote.get("exclusions") or [])
     lines.append(f"- {quote.get('disclaimer')}")
     lines.extend(["", "### 官方價格來源", ""])
@@ -360,6 +353,18 @@ def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
         for source in quote.get("sources") or []
     )
     return lines
+
+
+def _format_quote_assumptions(assumptions: dict[str, Any]) -> str:
+    if "active_gb" in assumptions:
+        return f"{assumptions.get('hours')} 小時、{assumptions.get('active_gb')} GB active storage"
+    if "artifact_gb" in assumptions:
+        return (
+            f"{assumptions.get('hours')} 小時、{assumptions.get('artifact_gb')} GB artifact、"
+            f"{assumptions.get('lambda_requests')} 次 Lambda request、"
+            f"{assumptions.get('lambda_gb_seconds')} GB-seconds"
+        )
+    return "詳見情境明細"
 
 
 def _render_cost_reconciliation(reconciliation: dict[str, Any]) -> list[str]:
@@ -543,13 +548,9 @@ def _yes_no_unknown(value: Any) -> str:
     return "unknown"
 
 
-def _recommend_low_risk_validation(candidate: dict[str, Any]) -> bool:
-    if "recommend_low_risk_validation" in candidate:
-        return bool(candidate.get("recommend_low_risk_validation"))
-    return bool(candidate.get("recommend_s4"))
-
-
-def _eligible_for_poc_review(candidate: dict[str, Any]) -> bool:
+def _recommend_poc(candidate: dict[str, Any]) -> bool:
+    if "recommend_poc" in candidate:
+        return bool(candidate.get("recommend_poc"))
     if "eligible_for_poc_review" in candidate:
         return bool(candidate.get("eligible_for_poc_review"))
     if "eligible_for_paid_poc_review" in candidate:

@@ -1,0 +1,59 @@
+{
+  "schema_version": "s4.runtime-evidence.v2",
+  "stage": "S4",
+  "run_id": "direct-url-20260729-9d2a3d3c",
+  "status": "ready_for_cleanup",
+  "deployed_at": "2026-07-29T03:55:30.700209+00:00",
+  "lineage": {
+    "source_artifacts": [
+      {
+        "stage": "S1",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s1.json",
+        "sha256": "4f1981a800609ba29b3293e68aef21c0d02f433fd87f66f9c29ae5a2834f305e"
+      },
+      {
+        "stage": "S2",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s2.json",
+        "sha256": "911ba7cdec67c8f6185f6f2210c653cb23e605baa5b6116cbe33a21c26227120"
+      },
+      {
+        "stage": "S3",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-s4-20260729\\s3.json",
+        "sha256": "d42bd2fcc6aa59cd8d538047b4ef91babd0b00645cb09c16ce57fdef3f0c2cb1"
+      }
+    ]
+  },
+  "deployment": {
+    "recipe": "lambda_self_managed_s3_code_storage_cdk",
+    "stack_name": "AgenticRadarS49F518735",
+    "resource_prefix": "agentic-radar-s4-9f518735",
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "deployment_method": "CDK synth followed by CloudFormation create-stack",
+    "stack_status": "CREATE_COMPLETE"
+  },
+  "verification": {
+    "recipe": "lambda_self_managed_s3_code_storage_cdk",
+    "cloudformation_reference_mode": "verified",
+    "lambda_invoke": "verified",
+    "success_criteria": [
+      "CloudFormation stack reaches CREATE_COMPLETE.",
+      "The Lambda function is created with S3ObjectStorageMode=REFERENCE.",
+      "The function can be invoked from the non-production test account."
+    ]
+  },
+  "console_review": {
+    "status": "confirmed",
+    "required_checks": [
+      "CloudFormation stack Resources and Template",
+      "Recipe resources and their expected relationships",
+      "Test workload result"
+    ],
+    "confirmed_by": "Cleo",
+    "confirmed_at": "2026-07-31T00:52:13.544633+00:00",
+    "notes": "Console review confirmed successful by Cleo on 2026-07-31."
+  },
+  "cleanup": {
+    "status": "ready_for_manual_cleanup"
+  }
+}

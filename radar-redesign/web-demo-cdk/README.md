@@ -32,7 +32,7 @@ CDK prints `WebsiteUrl`, `ApiUrl`, and the artifact bucket name when deployment 
 | POST | `/runs/url` | Runs S1 URL import and S2 compare. |
 | POST | `/runs/discovery` | Runs S1 discovery and S2 compare. |
 | POST | `/runs/{run_id}/shortlist` | Runs Skill 3 after human shortlist context. |
-| POST | `/runs/{run_id}/validate` | Builds an S4 validation artifact only. |
+| POST | `/runs/{run_id}/validate` | Builds an S4 PoC approval-gate artifact only; it never deploys resources. |
 | POST | `/runs/{run_id}/report` | Builds an S5 JSON, Markdown, and GUI model report. |
 | GET | `/runs/{run_id}/artifacts/{stage}` | Reads an artifact, for example `s1`, `s2`, `s3`, `s4`, or `s5`. |
 

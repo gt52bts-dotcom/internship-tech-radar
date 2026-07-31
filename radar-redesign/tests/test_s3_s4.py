@@ -110,21 +110,20 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(result["status"], "needs_human_shortlist")
         self.assertEqual(result["evaluated_candidates"], [])
 
-    def test_s3_evaluates_shortlisted_candidate_without_region_blocking_s3(self):
+    def test_s3_records_a_blocked_poc_when_region_and_quote_are_not_ready(self):
         request = _shortlist()
 
         result = build_evaluate(_sample_s2(), request).to_dict()
 
         self.assertEqual(result["status"], "evaluated")
         evaluated = result["evaluated_candidates"][0]
-        self.assertTrue(evaluated["recommend_s4"])
-        self.assertTrue(evaluated["recommend_low_risk_validation"])
-        self.assertTrue(evaluated["eligible_for_poc_review"])
+        self.assertFalse(evaluated["recommend_poc"])
         self.assertEqual(evaluated["region_status"]["status"], "region_unknown")
         self.assertFalse(evaluated["region_status"]["blocks_s3"])
-        self.assertTrue(evaluated["region_status"]["blocks_paid_poc"])
-        self.assertEqual(evaluated["s4_validation_path"], "eligible_for_poc_review")
+        self.assertTrue(evaluated["region_status"]["requires_region_confirmation"])
+        self.assertEqual(evaluated["s4_path"], "not_recommended")
         self.assertIn("target_region_support_not_verified", evaluated["poc_review_notes"])
+        self.assertEqual(evaluated["cost_estimate"]["status"], "needs_registered_cost_model")
 
     def test_s3_public_evidence_mode_requires_only_a_candidate_selection(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
@@ -135,47 +134,66 @@ class S3S4Tests(unittest.TestCase):
         gate = result["human_shortlist_gate"]
         self.assertEqual(gate["evaluation_mode"], "public_evidence")
         evaluated = result["evaluated_candidates"][0]
-        self.assertTrue(evaluated["recommend_low_risk_validation"])
-        self.assertTrue(evaluated["eligible_for_poc_review"])
-        self.assertTrue(evaluated["recommend_s4"])
+        self.assertFalse(evaluated["recommend_poc"])
         self.assertEqual(evaluated["assessment_scope"]["company_fit"], "not_assessed")
         self.assertNotIn("paid_poc_context_gaps", evaluated)
 
-    def test_public_evidence_candidate_reaches_low_risk_s4_without_environment_form(self):
+    def test_s4_does_not_create_a_second_low_risk_track(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
         s3 = build_evaluate(_sample_s2(), request).to_dict()
 
         result = build_validate(s3).to_dict()
 
-        self.assertEqual(result["status"], "validated_low_risk")
+        self.assertEqual(result["status"], "no_poc_candidates")
         validated = result["validated_candidates"][0]
-        self.assertTrue(validated["recommend_low_risk_validation"])
-        self.assertTrue(validated["eligible_for_poc_review"])
-        self.assertEqual(validated["validation_status"], "validated_low_risk")
+        self.assertFalse(validated["recommend_poc"])
+        self.assertEqual(validated["validation_status"], "not_recommended_for_poc")
 
-    def test_s4_downgrades_region_unknown_candidate_to_low_risk_validation(self):
-        request = _shortlist()
-        s3 = build_evaluate(_sample_s2(), request).to_dict()
+    def test_s4_waits_for_approval_after_skill3_recommends_poc(self):
+        s3 = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
 
         result = build_validate(s3).to_dict()
 
-        self.assertEqual(result["status"], "validated_low_risk")
+        self.assertEqual(result["status"], "awaiting_poc_approval")
         validated = result["validated_candidates"][0]
-        self.assertEqual(validated["validation_status"], "validated_low_risk")
+        self.assertEqual(validated["validation_status"], "awaiting_poc_approval")
         self.assertEqual(validated["cleanup_status"], "not_applicable_no_cloud_resources_created")
         self.assertFalse(validated["automatic_poc_start"])
-        self.assertIn("approved_by_present", validated["downgrade_reasons"])
+        self.assertIn("approved_by_present", validated["pending_checks"])
 
-    def test_public_evidence_candidate_has_separate_poc_review_eligibility(self):
+    def test_s4_requires_explicit_deployment_authorization(self):
+        s3 = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
+        approval = {
+            "approved_by": "Cleo",
+            "selected_candidate_id": "CAND-1",
+            "approved_cost_ceiling_usd": 0.2,
+        }
+
+        result = build_validate(s3, approval).to_dict()
+
+        self.assertEqual(result["status"], "awaiting_poc_approval")
+        self.assertIn("deployment_authorized", result["validated_candidates"][0]["pending_checks"])
+
+    def test_skill3_produces_one_complete_quote_before_recommending_poc(self):
         result = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
 
         evaluated = result["evaluated_candidates"][0]
-        self.assertTrue(evaluated["recommend_low_risk_validation"])
-        self.assertTrue(evaluated["eligible_for_poc_review"])
-        self.assertEqual(evaluated["s4_validation_path"], "eligible_for_poc_review")
+        self.assertTrue(evaluated["recommend_poc"])
+        self.assertEqual(evaluated["s4_path"], "poc")
         self.assertEqual(evaluated["cost_estimate"]["status"], "estimated")
         self.assertEqual(evaluated["cost_estimate"]["estimated_usd"], 0.04719)
         self.assertEqual(evaluated["cost_estimate"]["recommended_approval_ceiling_usd"], 0.2)
+
+    def test_skill3_produces_a_lambda_recipe_quote(self):
+        s2 = _deployable_s2()
+        s2["candidates"][0]["title"] = "AWS Lambda self-managed S3 code storage"
+        s2["candidates"][0]["source_url"] = "https://aws.amazon.com/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+
+        evaluated = build_evaluate(s2, _shortlist()).to_dict()["evaluated_candidates"][0]
+
+        self.assertEqual(evaluated["cost_estimate"]["status"], "estimated")
+        self.assertEqual(evaluated["cost_estimate"]["quote"]["recipe"], "lambda_self_managed_s3_code_storage_cdk")
+        self.assertTrue(evaluated["recommend_poc"])
 
     def test_s4_deployment_context_requires_matching_lineage_and_registered_recipe(self):
         evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()

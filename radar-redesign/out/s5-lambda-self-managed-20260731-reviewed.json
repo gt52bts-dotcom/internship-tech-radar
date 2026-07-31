@@ -1,0 +1,880 @@
+{
+  "schema_version": "s5.report.v1",
+  "stage": "S5",
+  "run_id": "direct-url-20260729-9d2a3d3c",
+  "reported_at": "2026-07-31T00:54:02.924816+00:00",
+  "status": "interim",
+  "report_type": "interim",
+  "input_contract": {
+    "rule": "Only S1, S2, S3, and S4 artifacts may support report claims; missing evidence is unknown.",
+    "stages_received": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S4 runtime"
+    ]
+  },
+  "input_issues": [],
+  "candidate": {
+    "candidate_id": "S1-DAC246411151",
+    "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+    "source_url": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+  },
+  "conclusion": {
+    "status": "poc_passed_ready_for_cleanup",
+    "text": "PoC 技術驗證與 AWS Console review 均已確認成功；待執行受控 cleanup。"
+  },
+  "evaluation": {
+    "weighted_score": 4.0,
+    "confidence": "medium",
+    "dimensions": {
+      "technical_value": 4,
+      "adoption_prerequisites": 3,
+      "verifiability": 5,
+      "risk_and_stop_conditions": 4
+    },
+    "rows": [
+      [
+        "Skill 3 加權分",
+        4.0
+      ],
+      [
+        "信心",
+        "medium"
+      ],
+      [
+        "區域狀態",
+        "available_ap_southeast_1"
+      ],
+      [
+        "建議進行 Skill 4 PoC",
+        "是"
+      ],
+      [
+        "成本",
+        "estimated"
+      ]
+    ]
+  },
+  "cost_quote": {
+    "schema_version": "poc.cost-quote.v1",
+    "quote_id": "POC-QUOTE-09FE81935092",
+    "run_id": "direct-url-20260729-9d2a3d3c",
+    "candidate_id": "S1-DAC246411151",
+    "candidate_title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+    "generated_at": "2026-07-31T00:53:06.009477+00:00",
+    "valid_until": "2026-08-07",
+    "currency": "USD",
+    "target_region": "ap-southeast-1",
+    "quote_kind": "non_binding_public_price_estimate",
+    "disclaimer": "這是依 AWS 公開牌價與明列用量假設產生的非約束性 PoC 成本估算，不是 AWS 帳單、發票或正式銷售報價。實際費用以部署後的 AWS 帳務資料為準。",
+    "status": "estimated",
+    "confidence": "medium",
+    "recipe": "lambda_self_managed_s3_code_storage_cdk",
+    "pricing_basis": "AWS public Lambda and S3 list prices for the registered single-function, versioned-S3-object PoC.",
+    "price_snapshot_date": "2026-07-31",
+    "scenarios": {
+      "low": {
+        "scenario": "low",
+        "label": "Low",
+        "assumptions": {
+          "hours": 0.5,
+          "artifact_gb": 0.01,
+          "lambda_requests": 5,
+          "lambda_gb_seconds": 1,
+          "s3_put_requests": 10,
+          "s3_get_requests": 10
+        },
+        "line_items": [
+          {
+            "item": "AWS Lambda requests",
+            "rate_usd": 2e-07,
+            "rate_unit": "USD/request",
+            "quantity": 5,
+            "quantity_unit": "requests",
+            "formula": "invocations x USD/request",
+            "subtotal_usd": 1e-06,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public request price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "item": "AWS Lambda x86 duration",
+            "rate_usd": 1.66667e-05,
+            "rate_unit": "USD/GB-second",
+            "quantity": 1,
+            "quantity_unit": "GB-seconds",
+            "formula": "allocated GB-seconds x USD/GB-second",
+            "subtotal_usd": 1.7e-05,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public on-demand duration price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "item": "S3 Standard 儲存",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 6.849315068493151e-06,
+            "quantity_unit": "GB-month",
+            "formula": "artifact GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 0.0,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "item": "S3 Tier 1 PUT/COPY/POST/LIST",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 10,
+            "quantity_unit": "requests",
+            "formula": "PUT/COPY/POST/LIST count x USD/request",
+            "subtotal_usd": 5e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "item": "S3 Tier 2 GET 與其他請求",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 10,
+            "quantity_unit": "requests",
+            "formula": "GET count x USD/request",
+            "subtotal_usd": 4e-06,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          }
+        ],
+        "total_usd": 7.2e-05,
+        "display_total_usd": "0.01"
+      },
+      "expected": {
+        "scenario": "expected",
+        "label": "Expected",
+        "assumptions": {
+          "hours": 1,
+          "artifact_gb": 0.02,
+          "lambda_requests": 15,
+          "lambda_gb_seconds": 5,
+          "s3_put_requests": 30,
+          "s3_get_requests": 30
+        },
+        "line_items": [
+          {
+            "item": "AWS Lambda requests",
+            "rate_usd": 2e-07,
+            "rate_unit": "USD/request",
+            "quantity": 15,
+            "quantity_unit": "requests",
+            "formula": "invocations x USD/request",
+            "subtotal_usd": 3e-06,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public request price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "item": "AWS Lambda x86 duration",
+            "rate_usd": 1.66667e-05,
+            "rate_unit": "USD/GB-second",
+            "quantity": 5,
+            "quantity_unit": "GB-seconds",
+            "formula": "allocated GB-seconds x USD/GB-second",
+            "subtotal_usd": 8.3e-05,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public on-demand duration price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "item": "S3 Standard 儲存",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 2.7397260273972603e-05,
+            "quantity_unit": "GB-month",
+            "formula": "artifact GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 1e-06,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "item": "S3 Tier 1 PUT/COPY/POST/LIST",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 30,
+            "quantity_unit": "requests",
+            "formula": "PUT/COPY/POST/LIST count x USD/request",
+            "subtotal_usd": 0.00015,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "item": "S3 Tier 2 GET 與其他請求",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 30,
+            "quantity_unit": "requests",
+            "formula": "GET count x USD/request",
+            "subtotal_usd": 1.2e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          }
+        ],
+        "total_usd": 0.000249,
+        "display_total_usd": "0.01"
+      },
+      "high": {
+        "scenario": "high",
+        "label": "High",
+        "assumptions": {
+          "hours": 2,
+          "artifact_gb": 0.05,
+          "lambda_requests": 50,
+          "lambda_gb_seconds": 20,
+          "s3_put_requests": 100,
+          "s3_get_requests": 100
+        },
+        "line_items": [
+          {
+            "item": "AWS Lambda requests",
+            "rate_usd": 2e-07,
+            "rate_unit": "USD/request",
+            "quantity": 50,
+            "quantity_unit": "requests",
+            "formula": "invocations x USD/request",
+            "subtotal_usd": 1e-05,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public request price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "item": "AWS Lambda x86 duration",
+            "rate_usd": 1.66667e-05,
+            "rate_unit": "USD/GB-second",
+            "quantity": 20,
+            "quantity_unit": "GB-seconds",
+            "formula": "allocated GB-seconds x USD/GB-second",
+            "subtotal_usd": 0.000333,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public on-demand duration price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "item": "S3 Standard 儲存",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.000136986301369863,
+            "quantity_unit": "GB-month",
+            "formula": "artifact GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 3e-06,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "item": "S3 Tier 1 PUT/COPY/POST/LIST",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 100,
+            "quantity_unit": "requests",
+            "formula": "PUT/COPY/POST/LIST count x USD/request",
+            "subtotal_usd": 0.0005,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "item": "S3 Tier 2 GET 與其他請求",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 100,
+            "quantity_unit": "requests",
+            "formula": "GET count x USD/request",
+            "subtotal_usd": 4e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          }
+        ],
+        "total_usd": 0.000886,
+        "display_total_usd": "0.01"
+      }
+    },
+    "expected_total_usd": 0.000249,
+    "estimated_range_usd": {
+      "low": 7.2e-05,
+      "expected": 0.000249,
+      "high": 0.000886
+    },
+    "recommended_approval_ceiling_usd": 0.05,
+    "approval_ceiling_basis": "High-use scenario rounded up to the next USD 0.05.",
+    "verified_recipe_facts": [
+      "The registered recipe creates one versioned S3 bucket and one Lambda function using S3ObjectStorageMode=REFERENCE.",
+      "CloudFormation, IAM roles, bucket policies, and deletion requests have no separate direct line item in this recipe."
+    ],
+    "zero_direct_charge_resources": [
+      "CloudFormation, IAM role, S3 bucket policy, and Lambda function configuration have no separate direct charge."
+    ],
+    "exclusions": [
+      "Tax, private pricing, Savings Plans, credits and Free Tier are excluded.",
+      "Unexpected data transfer, retries, CloudWatch log ingestion, and resources outside the registered recipe are excluded.",
+      "Recheck the Lambda and S3 pricing pages before deployment if the quote has expired."
+    ],
+    "sources": [
+      {
+        "url": "https://aws.amazon.com/lambda/pricing/",
+        "purpose": "AWS Lambda public request price"
+      },
+      {
+        "url": "https://aws.amazon.com/s3/pricing/",
+        "purpose": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB"
+      },
+      {
+        "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html",
+        "purpose": "AWS Price List API interpretation"
+      },
+      {
+        "url": "https://aws.amazon.com/ec2/pricing/on-demand/",
+        "purpose": "EC2 On-Demand pricing terms"
+      }
+    ]
+  },
+  "cost_reconciliation": {
+    "schema_version": "poc.cost-reconciliation.v1",
+    "status": "pending_actual_cost",
+    "estimated": {
+      "status": "estimated",
+      "quote_id": "POC-QUOTE-09FE81935092",
+      "expected_total_usd": 0.000249,
+      "range_usd": {
+        "low": 7.2e-05,
+        "expected": 0.000249,
+        "high": 0.000886
+      },
+      "currency": "USD",
+      "source": "Skill 3 public list-price quote"
+    },
+    "actual": {
+      "status": "pending",
+      "amount_usd": null,
+      "currency": "USD",
+      "source_type": "not_available",
+      "source_artifact": null,
+      "reason": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+    },
+    "delta_usd": null,
+    "rule": "Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost."
+  },
+  "validation": {
+    "rows": [
+      [
+        "Skill 4 validation",
+        "poc_ready_for_manual_start"
+      ],
+      [
+        "CloudFormation",
+        "CREATE_COMPLETE"
+      ],
+      [
+        "自動化驗證",
+        "verified"
+      ],
+      [
+        "AWS Console review",
+        "confirmed"
+      ],
+      [
+        "cleanup",
+        "ready_for_manual_cleanup"
+      ]
+    ]
+  },
+  "verified_facts": [
+    "官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+    "Skill 3 加權分已依固定 rubric 計算：4.0",
+    "PoC 成本估算報價單已建立：POC-QUOTE-09FE81935092，預期 USD 0.000249。",
+    "CloudFormation stack 已達 CREATE_COMPLETE。",
+    "Skill 4 自動化驗證已通過：cloudformation_reference_mode。",
+    "Skill 4 自動化驗證已通過：lambda_invoke。"
+  ],
+  "unknown_or_not_verified": [
+    "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
+    "No candidate-relevant official AWS Region or availability page was fetched in this S2 run.",
+    "可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。",
+    "cleanup 尚未完成或尚未記錄。"
+  ],
+  "next_reminders": [
+    "No safe non-production environment or required permission is available.",
+    "Official pricing or cleanup cannot be bounded within the USD 3 cap.",
+    "No measurable baseline exists for the proposed workflow."
+  ],
+  "funnel": {
+    "s1_candidates": 1,
+    "s2_candidates": 1,
+    "s2_region_verified": 1,
+    "s3_evaluated": 1,
+    "s4_validated": 1
+  },
+  "evidence_ledger": [
+    {
+      "claim": "候選技術的公開來源",
+      "type": "source-backed fact",
+      "status": "recorded",
+      "source": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+    },
+    {
+      "claim": "recipe",
+      "type": "runtime evidence",
+      "status": "lambda_self_managed_s3_code_storage_cdk",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "cloudformation_reference_mode",
+      "type": "runtime evidence",
+      "status": "verified",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "lambda_invoke",
+      "type": "runtime evidence",
+      "status": "verified",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "PoC 成本估算",
+      "type": "public list-price estimate",
+      "status": "estimated",
+      "source": "POC-QUOTE-09FE81935092"
+    },
+    {
+      "claim": "PoC 可歸因實際帳務成本",
+      "type": "AWS billing evidence",
+      "status": "pending",
+      "source": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+    }
+  ],
+  "markdown": "# 技術驗證報告｜AWS Lambda 宣布自主管理程式碼儲存空間 - AWS\n\n- 報告狀態：interim\n- Run ID：direct-url-20260729-9d2a3d3c\n- 來源：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/\n\n## 一句結論\n\n> PoC 技術驗證與 AWS Console review 均已確認成功；待執行受控 cleanup。\n\n## 評估摘要\n\n| 指標 | 結果 |\n| --- | --- |\n| Skill 3 加權分 | 4.0 |\n| 信心 | medium |\n| 區域狀態 | available_ap_southeast_1 |\n| 建議進行 Skill 4 PoC | 是 |\n| 成本 | estimated |\n\n## PoC 成本估算報價單\n\n- Quote ID：POC-QUOTE-09FE81935092\n- 區域：ap-southeast-1\n- 幣別：USD\n- 價格快照：2026-07-31\n- 有效期限：2026-08-07\n- 情境總額：低 **$0.000072**／預期 **$0.000249**／高 **$0.000886**\n- 建議核准上限：**$0.05**\n\n### 預期情境明細\n\n| 項目 | 費率 | 用量 | 小計 USD |\n| --- | ---: | ---: | ---: |\n| AWS Lambda requests | 0.0000002 USD/request | 15 requests | 0.000003 |\n| AWS Lambda x86 duration | 0.000016667 USD/GB-second | 5 GB-seconds | 0.000083 |\n| S3 Standard 儲存 | 0.025 USD/GB-month | 0.000027397 GB-month | 0.000001 |\n| S3 Tier 1 PUT/COPY/POST/LIST | 0.000005 USD/request | 30 requests | 0.00015 |\n| S3 Tier 2 GET 與其他請求 | 0.0000004 USD/request | 30 requests | 0.000012 |\n| **預期總額** |  |  | **0.000249** |\n\n### 報價假設與限制\n\n- 預期情境假設：1 小時、0.02 GB artifact、15 次 Lambda request、5 GB-seconds。\n- Tax, private pricing, Savings Plans, credits and Free Tier are excluded.\n- Unexpected data transfer, retries, CloudWatch log ingestion, and resources outside the registered recipe are excluded.\n- Recheck the Lambda and S3 pricing pages before deployment if the quote has expired.\n- 這是依 AWS 公開牌價與明列用量假設產生的非約束性 PoC 成本估算，不是 AWS 帳單、發票或正式銷售報價。實際費用以部署後的 AWS 帳務資料為準。\n\n### 官方價格來源\n\n- [AWS Lambda public request price](https://aws.amazon.com/lambda/pricing/)\n- [AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB](https://aws.amazon.com/s3/pricing/)\n- [AWS Price List API interpretation](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html)\n- [EC2 On-Demand pricing terms](https://aws.amazon.com/ec2/pricing/on-demand/)\n\n## 預估成本 vs 可歸因實際帳務成本\n\n| 項目 | 狀態 | 金額 USD | 證據 |\n| --- | --- | ---: | --- |\n| Skill 3 公開牌價估算 | estimated | 0.000249 | POC-QUOTE-09FE81935092 |\n| 可歸因實際帳務成本 | pending | unknown | not_available |\n| 差異（實際 - 預估） | pending_actual_cost | unknown | Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost. |\n\n- 實際成本狀態：pending。No attributable AWS Billing, Cost Explorer, or CUR artifact was provided.\n- 不以 EC2 執行時間、CloudFormation 狀態或 runtime artifact 推算實際 AWS 帳務成本。\n\n## 技術驗證\n\n| 檢查 | 狀態 |\n| --- | --- |\n| Skill 4 validation | poc_ready_for_manual_start |\n| CloudFormation | CREATE_COMPLETE |\n| 自動化驗證 | verified |\n| AWS Console review | confirmed |\n| cleanup | ready_for_manual_cleanup |\n\n## 已證實的事實\n\n- 官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/\n- Skill 3 加權分已依固定 rubric 計算：4.0\n- PoC 成本估算報價單已建立：POC-QUOTE-09FE81935092，預期 USD 0.000249。\n- CloudFormation stack 已達 CREATE_COMPLETE。\n- Skill 4 自動化驗證已通過：cloudformation_reference_mode。\n- Skill 4 自動化驗證已通過：lambda_invoke。\n\n## 尚未驗證或證據不足\n\n- No candidate-relevant official AWS pricing page was fetched in this S2 run.\n- No candidate-relevant official AWS Region or availability page was fetched in this S2 run.\n- 可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。\n- cleanup 尚未完成或尚未記錄。\n\n## 後續提醒\n\n- No safe non-production environment or required permission is available.\n- Official pricing or cleanup cannot be bounded within the USD 3 cap.\n- No measurable baseline exists for the proposed workflow.\n\n## 證據帳本\n\n| 敘述 | 類型 | 狀態 | 證據 |\n| --- | --- | --- | --- |\n| 候選技術的公開來源 | source-backed fact | recorded | https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/ |\n| recipe | runtime evidence | lambda_self_managed_s3_code_storage_cdk | S4 runtime artifact |\n| cloudformation_reference_mode | runtime evidence | verified | S4 runtime artifact |\n| lambda_invoke | runtime evidence | verified | S4 runtime artifact |\n| PoC 成本估算 | public list-price estimate | estimated | POC-QUOTE-09FE81935092 |\n| PoC 可歸因實際帳務成本 | AWS billing evidence | pending | No attributable AWS Billing, Cost Explorer, or CUR artifact was provided. |\n",
+  "gui_model": {
+    "header": {
+      "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+      "source_url": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+      "report_type": "interim",
+      "conclusion": {
+        "status": "poc_passed_ready_for_cleanup",
+        "text": "PoC 技術驗證與 AWS Console review 均已確認成功；待執行受控 cleanup。"
+      }
+    },
+    "score": {
+      "weighted_score": 4.0,
+      "confidence": "medium",
+      "dimensions": {
+        "technical_value": 4,
+        "adoption_prerequisites": 3,
+        "verifiability": 5,
+        "risk_and_stop_conditions": 4
+      }
+    },
+    "cost_quote": {
+      "schema_version": "poc.cost-quote.v1",
+      "quote_id": "POC-QUOTE-09FE81935092",
+      "run_id": "direct-url-20260729-9d2a3d3c",
+      "candidate_id": "S1-DAC246411151",
+      "candidate_title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+      "generated_at": "2026-07-31T00:53:06.009477+00:00",
+      "valid_until": "2026-08-07",
+      "currency": "USD",
+      "target_region": "ap-southeast-1",
+      "quote_kind": "non_binding_public_price_estimate",
+      "disclaimer": "這是依 AWS 公開牌價與明列用量假設產生的非約束性 PoC 成本估算，不是 AWS 帳單、發票或正式銷售報價。實際費用以部署後的 AWS 帳務資料為準。",
+      "status": "estimated",
+      "confidence": "medium",
+      "recipe": "lambda_self_managed_s3_code_storage_cdk",
+      "pricing_basis": "AWS public Lambda and S3 list prices for the registered single-function, versioned-S3-object PoC.",
+      "price_snapshot_date": "2026-07-31",
+      "scenarios": {
+        "low": {
+          "scenario": "low",
+          "label": "Low",
+          "assumptions": {
+            "hours": 0.5,
+            "artifact_gb": 0.01,
+            "lambda_requests": 5,
+            "lambda_gb_seconds": 1,
+            "s3_put_requests": 10,
+            "s3_get_requests": 10
+          },
+          "line_items": [
+            {
+              "item": "AWS Lambda requests",
+              "rate_usd": 2e-07,
+              "rate_unit": "USD/request",
+              "quantity": 5,
+              "quantity_unit": "requests",
+              "formula": "invocations x USD/request",
+              "subtotal_usd": 1e-06,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public request price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "item": "AWS Lambda x86 duration",
+              "rate_usd": 1.66667e-05,
+              "rate_unit": "USD/GB-second",
+              "quantity": 1,
+              "quantity_unit": "GB-seconds",
+              "formula": "allocated GB-seconds x USD/GB-second",
+              "subtotal_usd": 1.7e-05,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public on-demand duration price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "item": "S3 Standard 儲存",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 6.849315068493151e-06,
+              "quantity_unit": "GB-month",
+              "formula": "artifact GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 0.0,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "item": "S3 Tier 1 PUT/COPY/POST/LIST",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 10,
+              "quantity_unit": "requests",
+              "formula": "PUT/COPY/POST/LIST count x USD/request",
+              "subtotal_usd": 5e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "item": "S3 Tier 2 GET 與其他請求",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 10,
+              "quantity_unit": "requests",
+              "formula": "GET count x USD/request",
+              "subtotal_usd": 4e-06,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            }
+          ],
+          "total_usd": 7.2e-05,
+          "display_total_usd": "0.01"
+        },
+        "expected": {
+          "scenario": "expected",
+          "label": "Expected",
+          "assumptions": {
+            "hours": 1,
+            "artifact_gb": 0.02,
+            "lambda_requests": 15,
+            "lambda_gb_seconds": 5,
+            "s3_put_requests": 30,
+            "s3_get_requests": 30
+          },
+          "line_items": [
+            {
+              "item": "AWS Lambda requests",
+              "rate_usd": 2e-07,
+              "rate_unit": "USD/request",
+              "quantity": 15,
+              "quantity_unit": "requests",
+              "formula": "invocations x USD/request",
+              "subtotal_usd": 3e-06,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public request price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "item": "AWS Lambda x86 duration",
+              "rate_usd": 1.66667e-05,
+              "rate_unit": "USD/GB-second",
+              "quantity": 5,
+              "quantity_unit": "GB-seconds",
+              "formula": "allocated GB-seconds x USD/GB-second",
+              "subtotal_usd": 8.3e-05,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public on-demand duration price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "item": "S3 Standard 儲存",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 2.7397260273972603e-05,
+              "quantity_unit": "GB-month",
+              "formula": "artifact GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 1e-06,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "item": "S3 Tier 1 PUT/COPY/POST/LIST",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 30,
+              "quantity_unit": "requests",
+              "formula": "PUT/COPY/POST/LIST count x USD/request",
+              "subtotal_usd": 0.00015,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "item": "S3 Tier 2 GET 與其他請求",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 30,
+              "quantity_unit": "requests",
+              "formula": "GET count x USD/request",
+              "subtotal_usd": 1.2e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            }
+          ],
+          "total_usd": 0.000249,
+          "display_total_usd": "0.01"
+        },
+        "high": {
+          "scenario": "high",
+          "label": "High",
+          "assumptions": {
+            "hours": 2,
+            "artifact_gb": 0.05,
+            "lambda_requests": 50,
+            "lambda_gb_seconds": 20,
+            "s3_put_requests": 100,
+            "s3_get_requests": 100
+          },
+          "line_items": [
+            {
+              "item": "AWS Lambda requests",
+              "rate_usd": 2e-07,
+              "rate_unit": "USD/request",
+              "quantity": 50,
+              "quantity_unit": "requests",
+              "formula": "invocations x USD/request",
+              "subtotal_usd": 1e-05,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public request price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "item": "AWS Lambda x86 duration",
+              "rate_usd": 1.66667e-05,
+              "rate_unit": "USD/GB-second",
+              "quantity": 20,
+              "quantity_unit": "GB-seconds",
+              "formula": "allocated GB-seconds x USD/GB-second",
+              "subtotal_usd": 0.000333,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public on-demand duration price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "item": "S3 Standard 儲存",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.000136986301369863,
+              "quantity_unit": "GB-month",
+              "formula": "artifact GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 3e-06,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "item": "S3 Tier 1 PUT/COPY/POST/LIST",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 100,
+              "quantity_unit": "requests",
+              "formula": "PUT/COPY/POST/LIST count x USD/request",
+              "subtotal_usd": 0.0005,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "item": "S3 Tier 2 GET 與其他請求",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 100,
+              "quantity_unit": "requests",
+              "formula": "GET count x USD/request",
+              "subtotal_usd": 4e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS Price List API snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            }
+          ],
+          "total_usd": 0.000886,
+          "display_total_usd": "0.01"
+        }
+      },
+      "expected_total_usd": 0.000249,
+      "estimated_range_usd": {
+        "low": 7.2e-05,
+        "expected": 0.000249,
+        "high": 0.000886
+      },
+      "recommended_approval_ceiling_usd": 0.05,
+      "approval_ceiling_basis": "High-use scenario rounded up to the next USD 0.05.",
+      "verified_recipe_facts": [
+        "The registered recipe creates one versioned S3 bucket and one Lambda function using S3ObjectStorageMode=REFERENCE.",
+        "CloudFormation, IAM roles, bucket policies, and deletion requests have no separate direct line item in this recipe."
+      ],
+      "zero_direct_charge_resources": [
+        "CloudFormation, IAM role, S3 bucket policy, and Lambda function configuration have no separate direct charge."
+      ],
+      "exclusions": [
+        "Tax, private pricing, Savings Plans, credits and Free Tier are excluded.",
+        "Unexpected data transfer, retries, CloudWatch log ingestion, and resources outside the registered recipe are excluded.",
+        "Recheck the Lambda and S3 pricing pages before deployment if the quote has expired."
+      ],
+      "sources": [
+        {
+          "url": "https://aws.amazon.com/lambda/pricing/",
+          "purpose": "AWS Lambda public request price"
+        },
+        {
+          "url": "https://aws.amazon.com/s3/pricing/",
+          "purpose": "AWS Price List API snapshot, Asia Pacific (Singapore), first 50 TB"
+        },
+        {
+          "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html",
+          "purpose": "AWS Price List API interpretation"
+        },
+        {
+          "url": "https://aws.amazon.com/ec2/pricing/on-demand/",
+          "purpose": "EC2 On-Demand pricing terms"
+        }
+      ]
+    },
+    "cost_reconciliation": {
+      "schema_version": "poc.cost-reconciliation.v1",
+      "status": "pending_actual_cost",
+      "estimated": {
+        "status": "estimated",
+        "quote_id": "POC-QUOTE-09FE81935092",
+        "expected_total_usd": 0.000249,
+        "range_usd": {
+          "low": 7.2e-05,
+          "expected": 0.000249,
+          "high": 0.000886
+        },
+        "currency": "USD",
+        "source": "Skill 3 public list-price quote"
+      },
+      "actual": {
+        "status": "pending",
+        "amount_usd": null,
+        "currency": "USD",
+        "source_type": "not_available",
+        "source_artifact": null,
+        "reason": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+      },
+      "delta_usd": null,
+      "rule": "Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost."
+    },
+    "validation_checks": [
+      {
+        "label": "Skill 4 validation",
+        "status": "poc_ready_for_manual_start"
+      },
+      {
+        "label": "CloudFormation",
+        "status": "CREATE_COMPLETE"
+      },
+      {
+        "label": "自動化驗證",
+        "status": "verified"
+      },
+      {
+        "label": "AWS Console review",
+        "status": "confirmed"
+      },
+      {
+        "label": "cleanup",
+        "status": "ready_for_manual_cleanup"
+      }
+    ],
+    "verified_facts": [
+      "官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
+      "Skill 3 加權分已依固定 rubric 計算：4.0",
+      "PoC 成本估算報價單已建立：POC-QUOTE-09FE81935092，預期 USD 0.000249。",
+      "CloudFormation stack 已達 CREATE_COMPLETE。",
+      "Skill 4 自動化驗證已通過：cloudformation_reference_mode。",
+      "Skill 4 自動化驗證已通過：lambda_invoke。"
+    ],
+    "unknown_or_not_verified": [
+      "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
+      "No candidate-relevant official AWS Region or availability page was fetched in this S2 run.",
+      "可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。",
+      "cleanup 尚未完成或尚未記錄。"
+    ],
+    "next_reminders": [
+      "No safe non-production environment or required permission is available.",
+      "Official pricing or cleanup cannot be bounded within the USD 3 cap.",
+      "No measurable baseline exists for the proposed workflow."
+    ],
+    "evidence_ledger": [
+      {
+        "claim": "候選技術的公開來源",
+        "type": "source-backed fact",
+        "status": "recorded",
+        "source": "https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+      },
+      {
+        "claim": "recipe",
+        "type": "runtime evidence",
+        "status": "lambda_self_managed_s3_code_storage_cdk",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "cloudformation_reference_mode",
+        "type": "runtime evidence",
+        "status": "verified",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "lambda_invoke",
+        "type": "runtime evidence",
+        "status": "verified",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "PoC 成本估算",
+        "type": "public list-price estimate",
+        "status": "estimated",
+        "source": "POC-QUOTE-09FE81935092"
+      },
+      {
+        "claim": "PoC 可歸因實際帳務成本",
+        "type": "AWS billing evidence",
+        "status": "pending",
+        "source": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+      }
+    ],
+    "funnel": {
+      "s1_candidates": 1,
+      "s2_candidates": 1,
+      "s2_region_verified": 1,
+      "s3_evaluated": 1,
+      "s4_validated": 1
+    }
+  }
+}

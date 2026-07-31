@@ -35,7 +35,7 @@ class Skill5Tests(unittest.TestCase):
         self.assertIn("CloudFormation", report["markdown"])
         self.assertEqual(report["gui_model"]["score"]["weighted_score"], 4.0)
 
-    def test_dual_s4_decisions_are_rendered_separately(self):
+    def test_single_poc_decision_is_rendered(self):
         s1 = {"stage": "S1", "run_id": "run-2", "candidates": [{"candidate_id": "C2"}]}
         s2 = {"stage": "S2", "run_id": "run-2", "candidates": [{"candidate_id": "C2", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
         s3 = {
@@ -47,18 +47,16 @@ class Skill5Tests(unittest.TestCase):
                 "source_url": "https://aws.amazon.com/example",
                 "weighted_score": 3.35,
                 "confidence": "medium",
-                "recommend_low_risk_validation": True,
-                "eligible_for_poc_review": False,
-                "recommend_s4": True,
+                "recommend_poc": True,
             }],
         }
 
         report = build_report(s1, s2, s3)
 
         rows = dict(report["evaluation"]["rows"])
-        self.assertEqual(rows["建議低風險 Skill 4 驗證"], "是")
-        self.assertEqual(rows["達到 PoC 審查門檻"], "否")
-        self.assertEqual(report["conclusion"]["status"], "low_risk_validation_recommended")
+        self.assertEqual(rows["建議進行 Skill 4 PoC"], "是")
+        self.assertNotIn("達到 PoC 審查門檻", rows)
+        self.assertEqual(report["conclusion"]["status"], "poc_recommended")
 
     def test_mismatched_artifacts_are_reported_as_incomplete(self):
         report = build_report({"stage": "S1", "run_id": "run-a"}, {"stage": "S2", "run_id": "run-b"})
@@ -74,8 +72,7 @@ class Skill5Tests(unittest.TestCase):
             "source_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
             "weighted_score": 4.4,
             "confidence": "medium",
-            "recommend_low_risk_validation": True,
-            "eligible_for_poc_review": True,
+            "recommend_poc": True,
             "region_status": {"status": "available_ap_southeast_1"},
             "evidence_refs": {"evidence_limits": []},
         }
@@ -110,8 +107,7 @@ class Skill5Tests(unittest.TestCase):
             "source_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
             "weighted_score": 4.4,
             "confidence": "medium",
-            "recommend_low_risk_validation": True,
-            "eligible_for_poc_review": True,
+            "recommend_poc": True,
         }
         quote = build_cost_quote(candidate, "run-4", "ap-southeast-1")
         candidate["cost_estimate"] = {

@@ -28,6 +28,13 @@
 - Legacy `recommend_s4` and `eligible_for_paid_poc_review` remain compatibility aliases only. New user-facing output and decisions use the generic PoC terminology.
 - Deployment authorization remains separate from technical eligibility: a real resource-creating run still requires the selected candidate, named human approval, a fixed small cost ceiling, a registered recipe, explicit `--execute`, Console review, and controlled cleanup.
 
+## 2026-07-31 Skill 3 / Skill 4 Single-PoC Decision
+
+- Cleo 定義的 Skill 4 是唯一會建立受控 AWS 資源、可能產生費用的 PoC 階段；不得再把文件、本機或 schema 檢查稱為「低風險 Skill 4 驗證」。
+- Skill 3 必須在候選進入 Skill 4 前產出整套可稽核的 PoC 預估報價單（low/expected/high、品項、費率、假設、排除項、來源與核准上限）。沒有已登錄費率模型時，Skill 3 必須標示 `needs_registered_cost_model`，Skill 4 不可開始。
+- S3 v4 的新決策僅使用 `recommend_poc`；舊 `recommend_s4`、`recommend_low_risk_validation`、`eligible_for_poc_review` 只可作舊 artifact 的讀取相容，不得出現在新報告或 UI 作為第二套標準。
+- Lambda self-managed S3 code storage 的 2026-07-29 runtime 已由 Cleo 確認 AWS Console review 成功，狀態為 `ready_for_cleanup`；cleanup 尚未執行。
+
 ## 2026-07-30 Default Context-Free Usage
 
 - 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。
@@ -64,7 +71,7 @@
 
 ## 2026-07-29 Active S4 PoC
 
-- Lambda self-managed S3 code storage 的 live S4 PoC 正等待 Cleo 必要的 AWS Console review，lineage 為官方 direct URL run `direct-url-20260729-9d2a3d3c`。
+- Lambda self-managed S3 code storage 的 live S4 PoC，lineage 為官方 direct URL run `direct-url-20260729-9d2a3d3c`。Cleo 已確認 AWS Console review 成功，runtime 現為 `ready_for_cleanup`；尚未執行 cleanup。
 - 已驗證：CloudFormation `CREATE_COMPLETE`、Lambda 為 `S3ObjectStorageMode=REFERENCE`、invoke 成功。這是 intern 非 production 帳號證據，不是公司環境驗證。
 - 不可自動 cleanup；Cleo 確認 Console review 後，使用 reviewed runtime artifact 與明確 `s4-cleanup --execute`。cleanup 僅限 run-derived stack 與其 versioned test bucket。
 

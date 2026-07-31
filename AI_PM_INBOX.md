@@ -739,3 +739,12 @@
 - 證據邊界：本報價為 AWS 公開牌價加明列假設的非約束性 PoC 估算，不是 AWS 帳單、發票或正式 AWS 銷售報價；稅、私人折扣、credits、Free Tier、非預期傳輸／重試／logs 不含在內，實際成本待部署後用 AWS 帳務資料核對。本次未建立或修改 AWS 資源。
 - 驗證：fresh S3→S5 artifact 已產出完整逐項報價；`python -m unittest discover -s tests -v` 共 25 項通過，Python compile、主版與可攜 handoff 的 JavaScript syntax、`git diff --check` 均通過。官方 `quick_validate.py` 仍因本機缺少 PyYAML 無法啟動；三個 Skill 的 frontmatter、名稱、描述與 `openai.yaml` 必要欄位已用不依賴套件的檢查確認。
 - 目標關係：直接扣回五個 Skill 的可用交付與成本決策能力。
+
+### 2026-07-31 Skill 3／Skill 4 單一 PoC 定義修正
+
+- Cleo 明確定義 Skill 4 就是會建立 AWS 資源、可能產生費用的受控 PoC；不再保留或顯示「低風險 Skill 4 驗證」與「付費 PoC 審查資格」兩套標準。
+- 核心 schema 升級為 `s3.evaluation.v4`：Skill 3 對每個 shortlist 候選先產出整套 PoC 報價單，再用唯一欄位 `recommend_poc` 判斷是否可進入 Skill 4。門檻為固定分數、信心、PoC blocker 與 `estimated` 報價；舊欄位只讀取舊 artifact 時相容。
+- 新增 Lambda self-managed S3 code storage 的 registered cost model。2026-07-29 run 重產後：Quote ID=`POC-QUOTE-09FE81935092`，低／預期／高為 USD `0.000072`／`0.000249`／`0.000886`，建議核准上限 USD `0.05`；這是公開牌價加明列假設的預估，不是實際帳單。
+- Cleo 確認 Lambda PoC 的 AWS Console review 成功，已建立 runtime evidence `radar-redesign/out/s4-runtime-lambda-self-managed-20260731-reviewed.json`，狀態 `ready_for_cleanup`；未執行 cleanup。更新後 Skill 5 在 `radar-redesign/out/s5-lambda-self-managed-20260731-reviewed.md`。
+- 驗證：30 項 Python unittest、Python `compileall`、`node --check web/app.js`、`git diff --check` 均通過；另以 AWS Architecture Scout 掃描本機架構，結果為 partial `21/26`，本次只處理 S3/S4 流程語意與報價模型，未擴張為完整架構補齊。
+- 目標關係：直接扣回五個 Skill 的決策一致性、成本治理與可追溯 PoC 交付。
