@@ -2,6 +2,15 @@
 
 這個原型把雲端技術探索拆成五個可重用 Skills：S1 Scan、S2 Compare、S3 Evaluate、S4 Validate、S5 Report。五個階段皆有本機 CLI、artifact contract 與測試；正式 Skill 入口位於 [`skills/`](./skills/)，共用 `agentic_cloud_radar/` 核心，不複製或改寫執行邏輯。
 
+## 目前狀態（2026-07-31）
+
+- 五個 Skills 已形成第一版可重用流程：Skill 1 / Skill 2 可處理多候選掃描與比較，Skill 3 起一次只評估一個由人類選定的候選。
+- Skill 3 已補上可重用 PoC 估價系統。已登錄 recipe 走候選專屬 rate card；沒有 recipe 時可用偵測到的 AWS 服務產生一般估價；證據不足時明確停在無法估價，不填造金額。
+- Skill 4 是唯一會建立 AWS 資源、可能產生費用的受控 PoC 階段。部署前需要報價單、具名核准、成本上限、候選專屬 recipe 與 `--execute`。
+- Skill 4 cleanup 前會先輸出 `pre_cleanup_usage_snapshot.json`，記錄立即可取得的用量證據，例如 CloudFormation 資源、S3 物件數與大小、EC2 / Lambda runtime facts。這不是 AWS 帳單；Skill 5 只有拿到 Billing / Cost Explorer / CUR 等帳務 artifact 才會填實際成本。
+- 2026-07-31 已完成兩條實際 AWS PoC：Lambda self-managed S3 code storage 與 S3 Files。兩者都完成部署驗證、人工 Console 確認、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final report。
+- Amazon Connect Customer Data Lake 已跑到 Skill 5 interim，但缺可部署 recipe 與合適測試環境，因此沒有建立 AWS 資源。
+
 ## 五個正式 Skills
 
 | Skill | 入口 | 責任 |
@@ -91,6 +100,19 @@ python -m agentic_cloud_radar.cli s4 `
 
 完整 PoC 使用明確命令，正常 `s4` 不會部署。`s4-approval-template` 先從 Skill 3 artifact 產生 approval 檔，核准人再檢查候選、`deployment_authorized=true`、成本上限與 S1/S2/S3 artifact 路徑。若 Skill 3 有已登錄的成本模型，S4 會帶入報價單的預期總額與建議核准上限；有效上限一律取 Skill 3 建議、人類核准、內建 sandbox ceiling 三者最小值。命令仍須另附 `--execute` 才能建立資源。部署完成後，Codex 必須在 AWS Console 檢視 Infrastructure Composer、截圖並上傳 GUI 或對話供具名人類確認；`s4-console-review-packet` 會寫入 `review_deadline`，`s4-close --execute` 必須同時讀 packet、evidence JSON 與實際展示管道 `--shared-via`，才會自動清除該次 stack 與測試資料。逾時 abort 必須附回該 packet 讓 CLI 驗證截止時間；部署或正常 close 失敗才可省略 packet。Skill 5 會把強制 cleanup 顯示為 `final_without_console_review`，不會把它當成正常截圖確認。已註冊的 recipe 是 S3 Files 與 Lambda self-managed S3 code storage；未註冊候選會停在 `needs_poc_recipe`。
 
+cleanup 前可加上 `--usage-snapshot-output`，把刪除前的即時用量證據另外寫成 JSON：
+
+```powershell
+python -m agentic_cloud_radar.cli s4-close `
+  --runtime .\out\s4-runtime.json `
+  --review-packet .\out\s4-console-review-packet.json `
+  --review-evidence .\out\s4-console-review-evidence.json `
+  --shared-via conversation `
+  --execute `
+  --output .\out\s4-runtime-cleaned.json `
+  --usage-snapshot-output .\out\pre_cleanup_usage_snapshot.json
+```
+
 S3 Files 報價模型目前採新加坡區 AWS 公開牌價與三種用量情境：低用量 1 小時／0.02 GB、預期 2 小時／0.10 GB、高用量 4 小時／0.50 GB。報價逐項列出 EC2、EBS、S3 Files 儲存與資料操作、S3 Standard 儲存與 requests；有效期七天。它是靜態 rate card 估算，不是即時 AWS Pricing API 查價，也不是 AWS 帳單或正式採購報價。Skill 5 會另列「預估成本 vs 可歸因實際帳務成本」；若沒有 Cost Explorer、Billing 或 CUR artifact，實際成本固定標示 `pending`，不得由 runtime 反推。
 
 ## S5：證據報告
@@ -110,6 +132,14 @@ python -m agentic_cloud_radar.cli s5 `
 ```
 
 `--billing` 是可選參數；帳務資料尚未可歸因時不要提供，報告會保留 `pending_actual_cost`。
+
+## 最新驗證案例
+
+| 案例 | 輸出位置 | 結論 |
+|---|---|---|
+| Lambda self-managed S3 code storage | [`out/s5-lambda-self-managed-20260731-reviewed.md`](./out/s5-lambda-self-managed-20260731-reviewed.md) | 已完成 S1-S5、Skill 4 live PoC、人工 Console 確認、cleanup 與 Skill 5 final report。 |
+| S3 Files | [`out/s5-s3-files-20260731-cost-reconciliation.md`](./out/s5-s3-files-20260731-cost-reconciliation.md) | 已完成 S1-S5、Skill 3 報價、Skill 4 live PoC、cleanup 前用量快照、cleanup 與 Skill 5 final report。 |
+| Amazon Connect Customer Data Lake | [`../logs/daily/work-log-2026-07-31.md`](../logs/daily/work-log-2026-07-31.md) | 已完成 S1-S5 interim；缺候選專屬部署 recipe 與測試環境，未建立 AWS 資源。 |
 
 ## 範圍界線
 
@@ -135,5 +165,7 @@ python -m agentic_cloud_radar.cli s5 `
 python -m compileall agentic_cloud_radar
 python -m unittest discover -s tests -v
 ```
+
+2026-07-31 驗證紀錄：`tests.test_s3_s4` 與 `tests.test_s5` 共 32 項通過；全測試 `unittest discover` 共 43 項通過；`compileall` 通過。
 
 PowerShell 5.1 用 `Set-Content -Encoding utf8` 產生 JSON 時可能加上 BOM；CLI 以 `utf-8-sig` 讀取 input，因此有 BOM 或無 BOM 都可讀取。
