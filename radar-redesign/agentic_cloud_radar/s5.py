@@ -28,17 +28,25 @@ def build_report(
     if billing:
         inputs["Billing"] = billing
     issues = _input_issues(inputs)
+    if (
+        runtime
+        and runtime.get("status") == "cleanup_verified"
+        and _runtime_requires_screenshot(runtime)
+        and not _console_screenshot_count(runtime)
+    ):
+        issues.append("missing_console_screenshot_metadata")
     run_id = str(scan.get("run_id") or "unknown-run")
     evaluated = list((evaluate or {}).get("evaluated_candidates") or [])
     selected = evaluated[0] if evaluated else _first_candidate(compare)
     validation = _matching_candidate(validate, selected.get("candidate_id") if selected else None)
+    status = _report_status(issues, runtime)
     report = {
         "schema_version": "s5.report.v1",
         "stage": "S5",
         "run_id": run_id,
         "reported_at": datetime.now(timezone.utc).isoformat(),
-        "status": _report_status(issues, runtime),
-        "report_type": "final" if (runtime or {}).get("status") == "cleanup_verified" else "interim",
+        "status": status,
+        "report_type": "final" if status == "final" else "interim",
         "input_contract": {
             "rule": "Only S1, S2, S3, and S4 artifacts may support report claims; missing evidence is unknown.",
             "stages_received": [name for name, artifact in inputs.items() if artifact],
@@ -179,6 +187,8 @@ def _report_status(issues: list[str], runtime: dict[str, Any] | None) -> str:
     if issues:
         return "incomplete_artifacts"
     if runtime and runtime.get("status") == "cleanup_verified":
+        if _runtime_requires_screenshot(runtime) and not _console_screenshot_count(runtime):
+            return "incomplete_artifacts"
         return "final"
     return "interim"
 
@@ -190,7 +200,10 @@ def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None
                 "status": "validated_and_cleaned",
                 "text": "實際 PoC 已通過自動化驗證與 Infrastructure Composer 截圖人工確認，cleanup 回查也已完成。",
             }
-        return {"status": "validated_and_cleaned", "text": "PoC 技術驗證通過，且 cleanup 已完成。"}
+        return {
+            "status": "cleanup_verified_missing_console_screenshot",
+            "text": "cleanup 已完成，但新版 runtime 缺少 Infrastructure Composer 截圖人工確認 metadata；不能當成完整 actual-PoC final 結論。",
+        }
     verification = (runtime or {}).get("verification") or {}
     if (runtime or {}).get("status") == "awaiting_console_review":
         if verification.get("cloudformation_reference_mode") == "verified" and verification.get("lambda_invoke") == "verified":
@@ -200,8 +213,8 @@ def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None
         return {"status": "poc_passed_ready_for_cleanup", "text": "PoC 技術驗證與 AWS Console review 均已確認成功；待執行受控 cleanup。"}
     if candidate and _recommend_poc(candidate):
         return {
-            "status": "poc_recommended",
-            "text": "Skill 3 已完成 PoC 預估報價，並建議進入 Skill 4 受控付費 PoC；尚無 runtime 證據。",
+            "status": "technically_eligible_for_poc",
+            "text": "Skill 3 已完成 PoC 預估報價，且依公開技術證據具備進入 Skill 4 受控付費 PoC 的資格；工作負載適配性仍需人類另行判斷，尚無 runtime 證據。",
         }
     return {"status": "unknown", "text": "尚無足夠的 Skill 3 或 Skill 4 證據形成 PoC 結論。"}
 
@@ -218,7 +231,7 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
             ("Skill 3 加權分", candidate.get("weighted_score", "unknown")),
             ("信心", candidate.get("confidence") or "unknown"),
             ("區域狀態", region.get("status") or "unknown"),
-            ("建議進行 Skill 4 PoC", _yes_no_unknown(_recommend_poc(candidate))),
+            ("技術上具備 Skill 4 PoC 資格", _yes_no_unknown(_recommend_poc(candidate))),
             ("成本", ((candidate.get("cost_estimate") or {}).get("status") or "unknown")),
         ],
     }
@@ -344,6 +357,7 @@ def _render_cost_quote(quote: dict[str, Any]) -> list[str]:
                 f"高 **${_format_money(price_range.get('high'))}**"
             ),
             f"- 建議核准上限：**${_format_money(quote.get('recommended_approval_ceiling_usd'))}**",
+            f"- 報價性質：{quote.get('quote_kind') or 'non_binding_public_price_estimate'}；即時 Pricing API：{_yes_no_unknown(quote.get('live_pricing_api_used'))}",
             "",
             "### 預期情境明細",
             "",
@@ -497,6 +511,8 @@ def _unknowns(
         items.append("AWS Console review 尚未完成或尚未記錄。")
     elif (runtime or {}).get("schema_version") == "s4.runtime-evidence.v3" and not _console_screenshot_count(runtime):
         items.append("此 PoC runtime 尚未記錄 Infrastructure Composer 截圖證據。")
+    if _recommend_poc(candidate or {}):
+        items.append("Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。")
     if (runtime or {}).get("cleanup", {}).get("status") != "verified":
         items.append("cleanup 尚未完成或尚未記錄。")
     return _dedupe(items)
@@ -590,6 +606,10 @@ def _console_screenshot_count(runtime: dict[str, Any] | None) -> int:
     evidence = ((runtime or {}).get("console_review") or {}).get("evidence") or {}
     screenshots = evidence.get("screenshots") if isinstance(evidence, dict) else None
     return len(screenshots) if isinstance(screenshots, list) else 0
+
+
+def _runtime_requires_screenshot(runtime: dict[str, Any] | None) -> bool:
+    return (runtime or {}).get("schema_version") == "s4.runtime-evidence.v3"
 
 
 def _console_screenshot_status(runtime: dict[str, Any] | None) -> str:

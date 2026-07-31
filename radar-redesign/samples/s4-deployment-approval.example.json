@@ -1,10 +1,20 @@
 {
+  "schema_version": "s4.deployment-approval.v1",
+  "run_id": "REPLACE_WITH_S3_RUN_ID",
   "approved_by": "Cleo",
   "selected_candidate_id": "REPLACE_WITH_S3_CANDIDATE_ID",
   "deployment_authorized": true,
+  "approval_basis": "Reviewed Skill 3 score, quote, Region status, recipe, success criteria, cleanup scope, and known limits.",
+  "approved_cost_ceiling_usd": 0.2,
+  "region_warning_acknowledged": false,
   "lineage": {
     "s1_artifact_path": "C:\\absolute\\path\\to\\s1.json",
     "s2_artifact_path": "C:\\absolute\\path\\to\\s2.json",
     "s3_artifact_path": "C:\\absolute\\path\\to\\s3.json"
+  },
+  "deployment": {
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "create_test_instance": true
   }
 }

@@ -23,7 +23,7 @@ import subprocess
 import time
 from typing import Any
 
-from .s4 import build_validate
+from .s4 import DEFAULT_MAX_SMALL_POC_USD, build_validate
 
 
 RADAR_ROOT = Path(__file__).resolve().parents[1]
@@ -40,6 +40,7 @@ DEFAULT_CLEANUP_SCOPE = (
     "Verify the stack and active test resources are gone.",
 )
 CONSOLE_REVIEW_EVIDENCE_SCHEMA = "s4.console-review-evidence.v1"
+DEPLOYMENT_APPROVAL_SCHEMA = "s4.deployment-approval.v1"
 REQUIRED_CONSOLE_VIEW = "infrastructure_composer"
 
 
@@ -81,6 +82,72 @@ LAMBDA_SELF_MANAGED_STORAGE_RECIPE = PocRecipe(
         "The function can be invoked from the sandbox test account.",
     ),
 )
+
+
+def build_approval_template(
+    evaluate: dict[str, Any],
+    selected_candidate_id: str | None = None,
+    approved_by: str | None = None,
+    authorize: bool = False,
+) -> dict[str, Any]:
+    """Create the human-editable S4 approval file from a Skill 3 artifact."""
+
+    if evaluate.get("stage") != "S3" or evaluate.get("status") != "evaluated":
+        raise DeploymentError("S4 approval template requires an evaluated Skill 3 artifact.")
+    candidates = evaluate.get("evaluated_candidates") or []
+    selected = _select_approval_candidate(candidates, selected_candidate_id)
+    candidate_id = str(selected.get("candidate_id") or "")
+    if not candidate_id:
+        raise DeploymentError("Selected Skill 3 candidate has no candidate_id.")
+    quote = ((selected.get("cost_estimate") or {}).get("quote") or {})
+    recipe = _recipe_for(selected)
+    recommended_ceiling = quote.get("recommended_approval_ceiling_usd")
+    policy_ceiling = float((evaluate.get("policy") or {}).get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
+    effective_ceiling = _minimum_numeric(
+        recommended_ceiling,
+        policy_ceiling,
+    )
+    return {
+        "schema_version": DEPLOYMENT_APPROVAL_SCHEMA,
+        "run_id": evaluate.get("run_id"),
+        "selected_candidate_id": candidate_id,
+        "approved_by": str(approved_by or "").strip() or None,
+        "deployment_authorized": bool(authorize),
+        "approval_basis": (
+            "Review the Skill 3 score, confidence, quote, Region status, recipe, success criteria, "
+            "cleanup scope, and known limits before setting deployment_authorized=true."
+        ),
+        "approved_cost_ceiling_usd": effective_ceiling,
+        "cost_ceiling_policy": {
+            "rule": "effective_ceiling_usd = min(Skill 3 recommended approval ceiling, human approved ceiling, built-in small-cost ceiling)",
+            "skill3_recommended_approval_ceiling_usd": recommended_ceiling,
+            "built_in_small_cost_ceiling_usd": policy_ceiling,
+            "human_may_lower_ceiling": True,
+            "human_may_raise_above_built_in_ceiling": False,
+        },
+        "region_warning_acknowledged": False,
+        "quote_snapshot": {
+            "quote_id": quote.get("quote_id"),
+            "status": quote.get("status") or (selected.get("cost_estimate") or {}).get("status"),
+            "expected_total_usd": quote.get("expected_total_usd"),
+            "recommended_approval_ceiling_usd": recommended_ceiling,
+            "valid_until": quote.get("valid_until"),
+            "live_pricing_api_used": quote.get("live_pricing_api_used") is True,
+            "formal_procurement_quote_ready": quote.get("formal_procurement_quote_ready") is True,
+        },
+        "deployment": {
+            "profile": DEFAULT_PROFILE,
+            "target_region": DEFAULT_REGION,
+            "create_test_instance": True,
+        },
+        "lineage": {
+            "s1_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S1_JSON",
+            "s2_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S2_JSON",
+            "s3_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S3_JSON",
+        },
+        "success_criteria": list(recipe.success_criteria if recipe else []),
+        "cleanup_scope": list(DEFAULT_CLEANUP_SCOPE),
+    }
 
 
 def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any]) -> dict[str, Any]:
@@ -216,7 +283,7 @@ def build_console_review_packet(runtime: dict[str, Any]) -> dict[str, Any]:
     region = str(deployment.get("target_region") or DEFAULT_REGION)
     stack_name = str(deployment.get("stack_name") or "")
     run_id = str(runtime.get("run_id") or "unknown-run")
-    screenshot_dir = f".\\out\\s4-console-review\\{_safe_path_segment(run_id)}"
+    screenshot_dir = f".\\out\\run\\s4-console-review\\{_safe_path_segment(run_id)}"
     evidence_path = f"{screenshot_dir}\\s4-console-review-evidence.json"
     return {
         "schema_version": "s4.console-review-packet.v1",
@@ -234,7 +301,7 @@ def build_console_review_packet(runtime: dict[str, Any]) -> dict[str, Any]:
             "mode": "playwright_headful_browser",
             "command": (
                 "node .\\scripts\\s4-capture-infrastructure-composer.mjs "
-                f"--runtime .\\out\\s4-runtime.json --packet .\\out\\s4-console-review-packet.json "
+                f"--runtime .\\out\\run\\s4-runtime.json --packet .\\out\\run\\s4-console-review-packet.json "
                 f"--output-dir {screenshot_dir} --evidence-output {evidence_path} --shared-via conversation"
             ),
             "outputs": {
@@ -267,18 +334,39 @@ def build_console_review_packet(runtime: dict[str, Any]) -> dict[str, Any]:
         },
         "evidence_contract": {
             "schema_version": CONSOLE_REVIEW_EVIDENCE_SCHEMA,
-            "required_fields_per_screenshot": ["view", "screenshot_ref", "sha256", "captured_at", "shared_via"],
+            "required_review_target_fields": ["stack_name", "target_region", "run_id"],
+            "required_fields_per_screenshot": [
+                "view",
+                "screenshot_ref",
+                "sha256",
+                "captured_at",
+                "shared_via",
+                "redacted",
+                "hash_scope",
+            ],
             "allowed_shared_via": ["gui", "conversation"],
+            "privacy_order": "capture visible canvas -> hide/redact Console chrome -> hash the redacted PNG -> show the redacted PNG to the human",
+            "automated_image_understanding": False,
+            "human_confirmation_record_only": True,
         },
         "privacy": [
             "Do not commit Console screenshots or unredacted Console URLs to Git.",
-            "Store only screenshot references and SHA-256 hashes in the review evidence JSON.",
+            "Store only redacted screenshot references, SHA-256 hashes, run-derived stack name, Region, and capture time in the review evidence JSON.",
+            "The metadata contract cannot prove the pixels show the correct stack; a named human must confirm the screenshot content before cleanup.",
         ],
+        "timeout_policy": {
+            "max_awaiting_console_review_hours": 4,
+            "on_timeout": "Use s4-abort --execute with a named cost-control approver and reason; record that Console screenshot review was skipped for cost control.",
+        },
     }
 
 
 def record_console_review(
-    runtime: dict[str, Any], confirmed_by: str, notes: str | None = None, review_evidence: dict[str, Any] | None = None
+    runtime: dict[str, Any],
+    confirmed_by: str,
+    notes: str | None = None,
+    review_evidence: dict[str, Any] | None = None,
+    review_packet: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Record screenshot-backed human Console confirmation before cleanup is permitted."""
 
@@ -287,7 +375,7 @@ def record_console_review(
         raise DeploymentError("Console review requires an S4 runtime artifact awaiting review.")
     if not reviewer:
         raise DeploymentError("Console review requires a named human reviewer.")
-    evidence = _validated_review_evidence(runtime, review_evidence)
+    evidence = _validated_review_evidence(runtime, review_evidence, review_packet)
     reviewed = dict(runtime)
     reviewed["status"] = "ready_for_cleanup"
     reviewed["console_review"] = {
@@ -312,6 +400,86 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
         (runtime.get("console_review") or {}).get("evidence_status") != "captured_and_confirmed"
     ):
         raise DeploymentError("Cleanup requires screenshot-backed Console confirmation for this runtime schema.")
+    try:
+        checks = _cleanup_stack_resources(runtime)
+    except DeploymentError as exc:
+        failed = dict(runtime)
+        failed["status"] = "cleanup_failed"
+        failed["cleanup"] = {
+            "status": "failed",
+            "failed_at": _now(),
+            "error": str(exc),
+            "orphan_resource_risk": True,
+            "next_action": "Inspect the run-derived stack and re-run scoped cleanup after the blocker is removed.",
+        }
+        raise DeploymentError(json.dumps(failed, ensure_ascii=False)) from exc
+
+    cleaned = dict(runtime)
+    cleaned["status"] = "cleanup_verified"
+    cleaned["cleanup"] = {
+        "status": "verified",
+        "verified_at": _now(),
+        "checks": checks,
+    }
+    return cleaned
+
+
+def execute_abort_cleanup(runtime: dict[str, Any], confirmed_by: str, reason: str) -> dict[str, Any]:
+    """Emergency cleanup for timed out or failed S4 runs without Console screenshots."""
+
+    reviewer = str(confirmed_by or "").strip()
+    abort_reason = str(reason or "").strip()
+    if runtime.get("stage") != "S4" or runtime.get("status") not in {
+        "awaiting_console_review",
+        "ready_for_cleanup",
+        "deployment_failed",
+        "cleanup_failed",
+    }:
+        raise DeploymentError("Abort cleanup requires an S4 runtime that is deployed, failed, or already partially closing.")
+    if not reviewer:
+        raise DeploymentError("Abort cleanup requires a named cost-control approver.")
+    if len(abort_reason) < 12:
+        raise DeploymentError("Abort cleanup requires a concrete reason.")
+    try:
+        checks = _cleanup_stack_resources(runtime)
+    except DeploymentError as exc:
+        failed = dict(runtime)
+        failed["status"] = "cleanup_failed"
+        failed["console_review"] = {
+            **dict(runtime.get("console_review") or {}),
+            "status": "skipped_for_cost_control",
+            "evidence_status": "not_captured_abort_cleanup_failed",
+            "confirmed_by": reviewer,
+            "reason": abort_reason,
+        }
+        failed["cleanup"] = {
+            "status": "failed",
+            "failed_at": _now(),
+            "error": str(exc),
+            "orphan_resource_risk": True,
+            "next_action": "Escalate the run-derived residual resources for manual remediation.",
+        }
+        raise DeploymentError(json.dumps(failed, ensure_ascii=False)) from exc
+    cleaned = dict(runtime)
+    cleaned["status"] = "cleanup_verified"
+    cleaned["console_review"] = {
+        **dict(runtime.get("console_review") or {}),
+        "status": "skipped_for_cost_control",
+        "evidence_status": "not_captured_emergency_cleanup",
+        "confirmed_by": reviewer,
+        "confirmed_at": _now(),
+        "reason": abort_reason,
+    }
+    cleaned["cleanup"] = {
+        "status": "verified",
+        "verified_at": _now(),
+        "cleanup_mode": "abort_without_console_review",
+        "checks": checks,
+    }
+    return cleaned
+
+
+def _cleanup_stack_resources(runtime: dict[str, Any]) -> dict[str, str]:
     deployment = runtime.get("deployment") or {}
     stack_name = str(deployment.get("stack_name") or "")
     resource_prefix = str(deployment.get("resource_prefix") or "")
@@ -325,23 +493,19 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
     _empty_versioned_bucket(bucket_name, profile, region)
     _aws(["cloudformation", "delete-stack", "--stack-name", stack_name], profile, region)
     _aws(["cloudformation", "wait", "stack-delete-complete", "--stack-name", stack_name], profile, region)
-
-    cleaned = dict(runtime)
-    cleaned["status"] = "cleanup_verified"
-    cleaned["cleanup"] = {
-        "status": "verified",
-        "verified_at": _now(),
-        "checks": {
-            "cloudformation_stack": "deleted",
-            "versioned_test_bucket": "emptied_before_stack_delete",
-            "run_derived_resource_prefix": "matched",
-        },
+    return {
+        "cloudformation_stack": "deleted",
+        "versioned_test_bucket": "emptied_before_stack_delete",
+        "run_derived_resource_prefix": "matched",
     }
-    return cleaned
 
 
-def _validated_review_evidence(runtime: dict[str, Any], evidence: dict[str, Any] | None) -> dict[str, Any]:
-    """Validate only metadata, never screenshots or Console account details."""
+def _validated_review_evidence(
+    runtime: dict[str, Any],
+    evidence: dict[str, Any] | None,
+    review_packet: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Validate review metadata and packet binding, not screenshot pixels."""
 
     if not isinstance(evidence, dict):
         raise DeploymentError("Console review requires screenshot evidence JSON from the review packet.")
@@ -349,10 +513,11 @@ def _validated_review_evidence(runtime: dict[str, Any], evidence: dict[str, Any]
         raise DeploymentError("Console review evidence has an unsupported schema version.")
     if str(evidence.get("run_id") or "") != str(runtime.get("run_id") or ""):
         raise DeploymentError("Console review evidence does not belong to this PoC run.")
+    _validate_review_packet_binding(runtime, evidence, review_packet)
     screenshots = evidence.get("screenshots")
     if not isinstance(screenshots, list):
         raise DeploymentError("Console review evidence must include a screenshot list.")
-    accepted: list[dict[str, str]] = []
+    accepted: list[dict[str, Any]] = []
     seen_views: set[str] = set()
     for item in screenshots:
         if not isinstance(item, dict):
@@ -362,8 +527,12 @@ def _validated_review_evidence(runtime: dict[str, Any], evidence: dict[str, Any]
         sha256 = str(item.get("sha256") or "").strip().lower()
         captured_at = str(item.get("captured_at") or "").strip()
         shared_via = str(item.get("shared_via") or "").strip()
+        redacted = item.get("redacted") is True
+        hash_scope = str(item.get("hash_scope") or "").strip()
         if not view or not screenshot_ref or not captured_at or shared_via not in {"gui", "conversation"}:
             raise DeploymentError("Each Console screenshot needs view, reference, capture time, and GUI or conversation sharing.")
+        if not redacted or hash_scope != "redacted_png":
+            raise DeploymentError("Each Console screenshot must be redacted before hashing and sharing.")
         if not re.fullmatch(r"[0-9a-f]{64}", sha256):
             raise DeploymentError("Each Console screenshot needs a SHA-256 hash.")
         accepted.append(
@@ -373,12 +542,71 @@ def _validated_review_evidence(runtime: dict[str, Any], evidence: dict[str, Any]
                 "sha256": sha256,
                 "captured_at": captured_at,
                 "shared_via": shared_via,
+                "redacted": True,
+                "hash_scope": "redacted_png",
             }
         )
         seen_views.add(view)
     if REQUIRED_CONSOLE_VIEW not in seen_views:
         raise DeploymentError("Console review evidence must include an Infrastructure Composer screenshot.")
-    return {"schema_version": CONSOLE_REVIEW_EVIDENCE_SCHEMA, "screenshots": accepted}
+    return {
+        "schema_version": CONSOLE_REVIEW_EVIDENCE_SCHEMA,
+        "review_target": evidence.get("review_target"),
+        "capture_contract": evidence.get("capture_contract"),
+        "screenshots": accepted,
+        "automated_image_understanding": False,
+        "human_confirmation_record_only": True,
+    }
+
+
+def _validate_review_packet_binding(
+    runtime: dict[str, Any],
+    evidence: dict[str, Any],
+    review_packet: dict[str, Any] | None,
+) -> None:
+    deployment = runtime.get("deployment") or {}
+    expected_target = {
+        "stack_name": str(deployment.get("stack_name") or ""),
+        "target_region": str(deployment.get("target_region") or ""),
+        "run_id": str(runtime.get("run_id") or ""),
+    }
+    evidence_target = evidence.get("review_target") or {}
+    for field, expected in expected_target.items():
+        if not expected:
+            continue
+        if str(evidence_target.get(field) or "") != expected:
+            raise DeploymentError(f"Console review evidence {field} does not match the runtime.")
+    contract = evidence.get("capture_contract") or {}
+    if contract.get("hash_scope") != "redacted_png" or contract.get("redacted_before_hash") is not True:
+        raise DeploymentError("Console review evidence must record the redact-before-hash capture contract.")
+    if contract.get("automated_image_understanding") is not False:
+        raise DeploymentError("Console review evidence must not claim automated screenshot-content verification.")
+    if not review_packet:
+        raise DeploymentError("Console review requires the packet that defined the screenshot checklist.")
+    if review_packet.get("schema_version") != "s4.console-review-packet.v1":
+        raise DeploymentError("Console review packet has an unsupported schema version.")
+    if str(review_packet.get("run_id") or "") != expected_target["run_id"]:
+        raise DeploymentError("Console review packet does not belong to this PoC run.")
+    packet_target = review_packet.get("review_target") or {}
+    for field in ("stack_name", "target_region"):
+        if str(packet_target.get(field) or "") != expected_target[field]:
+            raise DeploymentError(f"Console review packet {field} does not match the runtime.")
+    required_views = {
+        str(item.get("view") or "")
+        for item in review_packet.get("required_screenshots") or []
+        if isinstance(item, dict)
+    }
+    evidence_views = {
+        str(item.get("view") or "")
+        for item in evidence.get("screenshots") or []
+        if isinstance(item, dict)
+    }
+    missing_views = sorted(view for view in required_views if view and view not in evidence_views)
+    if missing_views:
+        detail = ", ".join(missing_views)
+        if REQUIRED_CONSOLE_VIEW in missing_views:
+            detail += " (Infrastructure Composer)"
+        raise DeploymentError(f"Console review evidence is missing required packet views: {detail}.")
 
 
 def _context_errors(
@@ -387,6 +615,10 @@ def _context_errors(
     errors: list[str] = []
     if evaluate.get("stage") != "S3" or evaluate.get("status") != "evaluated":
         errors.append("s3_not_usable")
+    if approval.get("schema_version") not in {None, "", DEPLOYMENT_APPROVAL_SCHEMA}:
+        errors.append("approval_schema_unsupported")
+    if approval.get("run_id") and str(approval.get("run_id")) != str(evaluate.get("run_id") or ""):
+        errors.append("approval_run_id_mismatch")
     if not selected:
         errors.append("selected_candidate_id_not_in_s3")
         return errors
@@ -398,6 +630,16 @@ def _context_errors(
     deployment = approval.get("deployment") or {}
     if deployment.get("target_region") not in {None, "", DEFAULT_REGION}:
         errors.append("deployment_target_region_invalid")
+    region = deployment.get("target_region") or DEFAULT_REGION
+    region_status = (selected.get("region_status") or {}).get("status")
+    if region_status != f"available_{str(region).replace('-', '_')}" and not (
+        region_status == "region_unknown" and approval.get("region_warning_acknowledged") is True
+    ):
+        errors.append("target_region_not_verified_or_acknowledged")
+    quote_recipe = (((selected.get("cost_estimate") or {}).get("quote") or {}).get("recipe"))
+    recipe = _recipe_for(selected)
+    if quote_recipe and recipe and quote_recipe != recipe.key:
+        errors.append("cost_model_and_deployment_recipe_mismatch")
     return errors
 
 
@@ -459,6 +701,40 @@ def _candidate_summary(candidate: dict[str, Any] | None) -> dict[str, Any] | Non
         "confidence": candidate.get("confidence"),
         "region_status": (candidate.get("region_status") or {}).get("status"),
     }
+
+
+def _select_approval_candidate(
+    candidates: list[dict[str, Any]], selected_candidate_id: str | None
+) -> dict[str, Any]:
+    if selected_candidate_id:
+        selected = next(
+            (item for item in candidates if str(item.get("candidate_id") or "") == str(selected_candidate_id)),
+            None,
+        )
+        if not selected:
+            raise DeploymentError("Selected candidate ID is not present in the Skill 3 artifact.")
+        return selected
+    recommended = [item for item in candidates if _candidate_recommends_poc(item)]
+    if len(recommended) == 1:
+        return recommended[0]
+    if len(candidates) == 1:
+        return candidates[0]
+    raise DeploymentError("Approval template needs exactly one selected candidate ID.")
+
+
+def _candidate_recommends_poc(candidate: dict[str, Any]) -> bool:
+    if "recommend_poc" in candidate:
+        return bool(candidate.get("recommend_poc"))
+    if "eligible_for_poc_review" in candidate:
+        return bool(candidate.get("eligible_for_poc_review"))
+    if "eligible_for_paid_poc_review" in candidate:
+        return bool(candidate.get("eligible_for_paid_poc_review"))
+    return bool(candidate.get("recommend_s4"))
+
+
+def _minimum_numeric(*values: Any) -> float | None:
+    numeric = [float(value) for value in values if isinstance(value, (int, float))]
+    return min(numeric) if numeric else None
 
 
 def _selected_validation(validation: dict[str, Any], selected_id: str) -> dict[str, Any]:

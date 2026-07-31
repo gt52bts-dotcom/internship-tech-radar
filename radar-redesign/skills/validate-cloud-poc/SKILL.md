@@ -13,8 +13,8 @@ From `radar-redesign/`:
 
 ```powershell
 python -m agentic_cloud_radar.cli s4 `
-  --input .\out\s3.json `
-  --output .\out\s4.json
+  --input .\out\run\s3.json `
+  --output .\out\run\s4.json
 ```
 
 This command creates the approval gate artifact only. With no approval it returns `awaiting_poc_approval`; it does not redefine Skill 4 as a no-cost validation.
@@ -28,7 +28,8 @@ Require all of the following:
 - Matching S1/S2/S3 lineage and artifact hashes.
 - Skill 3 `recommend_poc=true`.
 - A registered candidate-specific recipe and its complete S3 quotation.
-- The quote's high-use estimate must stay within the approved sandbox ceiling.
+- The effective ceiling is the minimum of Skill 3's recommended approval ceiling, the human-approved ceiling, and the built-in sandbox ceiling.
+- Target Region must be officially verified, or `region_unknown` must be explicitly acknowledged with `region_warning_acknowledged=true`.
 - Named human approval and `deployment_authorized=true`.
 - A second explicit CLI `--execute`.
 
@@ -38,36 +39,44 @@ Use the built-in small-cost ceiling, target Region, recipe success criteria, and
 
 After deployment verification, use [`templates/console-review-agent-template.md`](./templates/console-review-agent-template.md). The agent must open the logged-in AWS Console, inspect the deployed stack's **Infrastructure Composer**, capture a screenshot, and show that image in the authenticated GUI or the active conversation. Do not start cleanup until a named human explicitly confirms after seeing the screenshot.
 
-Screenshots are sensitive operational evidence: do not commit them or unredacted Console URLs. The review-evidence JSON stores only a reference, SHA-256, capture time, and whether it was shown through `gui` or `conversation`.
+Screenshots are sensitive operational evidence: do not commit them or unredacted Console URLs. The Playwright flow hides Console chrome before capture, hashes the redacted PNG, then shows only that redacted PNG through `gui` or `conversation`. The review-evidence JSON stores the redacted image reference, SHA-256, capture time, run-derived stack name, Region, and display channel. This is a human confirmation record; the code validates metadata and packet binding, not the image pixels.
 
 Commands:
 
 ```powershell
+python -m agentic_cloud_radar.cli s4-approval-template `
+  --input .\out\run\s3.json `
+  --selected-candidate-id "<candidate-id>" `
+  --approved-by "<named-human>" `
+  --authorize `
+  --output .\out\run\s4-approval.json
+
 python -m agentic_cloud_radar.cli s4-deploy `
-  --input .\out\s3.json `
-  --approval .\out\s4-approval.json `
-  --output .\out\s4-deployment-context.json `
-  --runtime-output .\out\s4-runtime.json `
+  --input .\out\run\s3.json `
+  --approval .\out\run\s4-approval.json `
+  --output .\out\run\s4-deployment-context.json `
+  --runtime-output .\out\run\s4-runtime.json `
   --execute
 
 python -m agentic_cloud_radar.cli s4-console-review-packet `
-  --input .\out\s4-runtime.json `
-  --output .\out\s4-console-review-packet.json
+  --input .\out\run\s4-runtime.json `
+  --output .\out\run\s4-console-review-packet.json
 
 node .\scripts\s4-capture-infrastructure-composer.mjs `
-  --runtime .\out\s4-runtime.json `
-  --packet .\out\s4-console-review-packet.json `
-  --output-dir .\out\s4-console-review\<run-id> `
-  --evidence-output .\out\s4-console-review\<run-id>\s4-console-review-evidence.json `
+  --runtime .\out\run\s4-runtime.json `
+  --packet .\out\run\s4-console-review-packet.json `
+  --output-dir .\out\run\s4-console-review\<run-id> `
+  --evidence-output .\out\run\s4-console-review\<run-id>\s4-console-review-evidence.json `
   --shared-via conversation
 
 # Show the generated PNG in the GUI or active conversation, obtain human confirmation, then:
 python -m agentic_cloud_radar.cli s4-close `
-  --input .\out\s4-runtime.json `
-  --review-evidence .\out\s4-console-review\<run-id>\s4-console-review-evidence.json `
+  --input .\out\run\s4-runtime.json `
+  --packet .\out\run\s4-console-review-packet.json `
+  --review-evidence .\out\run\s4-console-review\<run-id>\s4-console-review-evidence.json `
   --confirmed-by "<named-human>" `
   --notes "<concise-review-note>" `
-  --output .\out\s4-runtime-cleaned.json `
+  --output .\out\run\s4-runtime-cleaned.json `
   --execute
 ```
 
@@ -81,8 +90,10 @@ python -m agentic_cloud_radar.cli s4-close `
 6. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
 7. Run the Playwright capture command from the Console review packet. It opens a headful browser, uses an existing or newly authenticated AWS Console session, navigates to CloudFormation / Infrastructure Composer, captures the canvas PNG, and writes local evidence JSON.
 8. Pause for explicit named-human cleanup confirmation. Do not infer confirmation from a prior deployment approval.
-9. Run `s4-close --execute`; it records screenshot evidence, cleans only the reviewed run, and re-queries the scoped resources.
+9. Run `s4-close --execute`; it requires the packet and screenshot evidence, cleans only the reviewed run, and re-queries the scoped resources.
 10. Produce Skill 5's actual-PoC conclusion only from the resulting `cleanup_verified` runtime artifact.
+
+If the run stays in `awaiting_console_review` too long or deployment/cleanup fails, use `s4-abort --execute` only with a named cost-control approver and reason. It records `skipped_for_cost_control` / `abort_without_console_review`; Skill 5 must not treat that as normal screenshot-backed Console review.
 
 ## Registered recipes
 

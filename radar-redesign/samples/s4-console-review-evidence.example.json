@@ -1,20 +1,41 @@
 {
   "schema_version": "s4.console-review-evidence.v1",
   "run_id": "replace-with-runtime-run-id",
+  "review_target": {
+    "run_id": "replace-with-runtime-run-id",
+    "stack_name": "AgenticRadarS4REPLACE",
+    "target_region": "ap-southeast-1",
+    "recipe": "replace-with-runtime-recipe"
+  },
+  "capture_contract": {
+    "redaction_order": "hide_console_chrome_before_capture_then_hash_redacted_png",
+    "redacted_before_hash": true,
+    "hash_scope": "redacted_png",
+    "automated_image_understanding": false,
+    "human_confirmation_record_only": true
+  },
   "screenshots": [
     {
       "view": "infrastructure_composer",
       "screenshot_ref": "protected://s4-review/replace-with-run/infrastructure-composer.png",
       "sha256": "replace-with-the-64-character-lowercase-sha256-of-the-png",
       "captured_at": "2026-07-31T09:00:00+08:00",
-      "shared_via": "conversation"
+      "shared_via": "conversation",
+      "redacted": true,
+      "hash_scope": "redacted_png",
+      "stack_name": "AgenticRadarS4REPLACE",
+      "target_region": "ap-southeast-1"
     },
     {
       "view": "resource_inventory",
       "screenshot_ref": "protected://s4-review/replace-with-run/resources.png",
       "sha256": "replace-with-the-64-character-lowercase-sha256-of-the-png",
       "captured_at": "2026-07-31T09:01:00+08:00",
-      "shared_via": "conversation"
+      "shared_via": "conversation",
+      "redacted": true,
+      "hash_scope": "redacted_png",
+      "stack_name": "AgenticRadarS4REPLACE",
+      "target_region": "ap-southeast-1"
     }
   ]
 }

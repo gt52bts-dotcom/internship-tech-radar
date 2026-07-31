@@ -43,6 +43,17 @@
 - 人類明確確認後使用 `s4-close --execute` 自動執行 run-scoped AWS API / CloudFormation cleanup 與回查；不得用廣泛 Console 刪除動作，也不得跨 run 清除資源。
 - Skill 5 只有讀到 `cleanup_verified` 的 runtime 才可輸出 actual-PoC final；新版 runtime 的 final 結論需呈現 Infrastructure Composer 截圖人工確認與 cleanup 回查。此規則不追溯阻擋已存在的 v2 runtime。
 
+## 2026-07-31 Claude Review Flow Hardening Decision
+
+- `s4-approval.json` 必須由正式 `s4-approval-template` 指令產生或符合其 schema，不再只靠人工手刻範例；approval 可明確帶 `run_id`、候選 ID、具名核准人、成本上限、Region acknowledgment、lineage 與 deployment 預設。
+- Skill 4 的 Console review close 必須同時讀 runtime、review packet 與 review evidence；packet 不再只是死路清單。程式只驗 metadata、run ID、stack name、Region、必要 view、redact-before-hash 契約與分享管道，不自動判讀圖片內容；圖片內容由具名人類眼睛確認。
+- Console 截圖流程固定為「隱藏／遮蔽 Console chrome → 截取中間 canvas → 對遮蔽後 PNG 算 SHA-256 → 顯示遮蔽後 PNG 給人類確認」。截圖檔、未遮蔽 Console URL、帳號資訊不可提交 Git。
+- S4 付費部署的 Region gate 恢復為硬檢查：`available_ap_southeast_1` 可直接通過；`region_unknown` 只有在 approval 明確寫入 `region_warning_acknowledged=true` 才能部署。這不影響 S2/S3 的探索評估。
+- 成本上限規則固定為取最小值：Skill 3 建議核准上限、人類核准上限、內建 sandbox ceiling。Skill 3 報價是靜態公開牌價 rate card 估算，不是即時 AWS Pricing API 或正式採購報價。
+- 若 Console review 逾時、deployment 失敗或 cleanup 失敗，優先避免付費資源失控，可使用 `s4-abort --execute` 在具名成本控制確認與原因記錄下進行 run-scoped cleanup；此路徑不可被 Skill 5 寫成正常截圖確認 final。
+- 新版 `s4.runtime-evidence.v3` 若缺 Infrastructure Composer 截圖 metadata，即使 cleanup 顯示 verified，Skill 5 也不得標成 final。報告文字需把 `recommend_poc` 解釋為「技術上具備受控 PoC 資格」，不是工作負載適配性或採用建議。
+- 目前五個 Skill 是可重做的雷達流程包與 PoC 證據鏈，不是完整 production AWS 系統；Cognito/API Gateway/EventBridge/Step Functions/CloudWatch alarms/正式 CI/CD 等屬下一階段產品化範圍。
+
 ## 2026-07-30 Default Context-Free Usage
 
 - 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。

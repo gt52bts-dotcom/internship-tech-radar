@@ -1,5 +1,17 @@
 # AI PM 當日進度暫存
 
+## 2026-07-31 Claude Review Flow Hardening
+
+- 時間判定：2026-07-31 11:40 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。
+- 依 Cleo 提供的 Claude 漏洞清單，修補 S4/S5 會讓流程卡住或誤判 final 的問題：新增 `s4-approval-template`，讓 approval JSON 有正式產生器；`s4-close` 現在必須同時讀 `s4-console-review-packet.json` 與 review evidence，避免 packet 成為死路清單。
+- Console 截圖流程改成 metadata-bound human review：Playwright 先隱藏 Console chrome，再截 Infrastructure Composer canvas，對遮蔽後 PNG 算 SHA-256，evidence JSON 綁定 run ID、stack name、Region、recipe、redact-before-hash contract 與分享管道。程式不自動判讀圖片內容，這點已明確寫入文件與 report 規則。
+- S4 付費部署補回 Region gate：`available_ap_southeast_1` 可通過；`region_unknown` 必須在 approval 寫入 `region_warning_acknowledged=true` 才可部署。成本上限規則改成 Skill 3 建議、人類核准、內建 sandbox ceiling 三者取最小值。
+- 新增 `s4-abort --execute` 作為逾時、deployment failure 或 cleanup failure 的緊急 cleanup 路徑，需具名成本控制確認與原因；cleanup 失敗時會輸出 `cleanup_failed` runtime，保留殘留資源風險。
+- Skill 5 新版 final 更嚴：`s4.runtime-evidence.v3` 即使是 `cleanup_verified`，缺 Infrastructure Composer 截圖 metadata 也會被標成 `incomplete_artifacts`；報告也把 `recommend_poc` 呈現為「技術上具備受控 PoC 資格」，並揭露工作負載適配性未評估。
+- Skill 3 報價已明確標示為靜態 public rate card 估算，不是即時 AWS Pricing API 或正式採購報價；README 與 Skill 文件也補上五個 Skill 不是完整 production AWS 系統的範圍界線。
+- 另同步修正本機安裝的 `C:\Users\youhs\.codex\skills\aws-architecture-scout\SKILL.md`，移除舊 top 3 / 全候選跑五步規則，改為目前的單項評估政策；此檔不屬於 Git repository。
+- 驗證：`python -m unittest discover -s tests -p 'test_*.py' -v` 共 37 項通過；`python -m compileall agentic_cloud_radar tests` 通過；`node --check scripts\s4-capture-infrastructure-composer.mjs` 通過；`git diff --check -- radar-redesign` 只有 Windows LF/CRLF 提醒，無 whitespace error。
+
 ## 2026-07-31 Skill 5 成本對帳補強
 
 - 時間判定：2026-07-31 08:18 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。

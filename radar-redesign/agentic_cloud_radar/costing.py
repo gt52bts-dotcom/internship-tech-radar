@@ -196,9 +196,13 @@ def build_cost_quote(
         "currency": "USD",
         "target_region": target_region or "ap-southeast-1",
         "quote_kind": "non_binding_public_price_estimate",
+        "rate_card_source": "static_public_rate_card",
+        "live_pricing_api_used": False,
+        "formal_procurement_quote_ready": False,
         "disclaimer": (
             "這是依 AWS 公開牌價與明列用量假設產生的非約束性 PoC 成本估算，"
-            "不是 AWS 帳單、發票或正式銷售報價。實際費用以部署後的 AWS 帳務資料為準。"
+            "不是 AWS 帳單、發票、即時 AWS Pricing API 查詢或正式銷售報價。"
+            "實際費用以部署後的 AWS 帳務資料為準；正式採購前需重新查價。"
         ),
     }
     if _is_s3_files(candidate):

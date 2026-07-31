@@ -13,6 +13,7 @@ from agentic_cloud_radar.s4_deployer import (
     _get_s3_object_with_retry,
     _matches_run_identity,
     _stack_status_or_none,
+    build_approval_template,
     build_console_review_packet,
     build_deployment_context,
     record_console_review,
@@ -101,6 +102,40 @@ def _shortlist():
     return {
         "selected_candidate_ids": ["CAND-1"],
         "selected_by": "Cleo",
+    }
+
+
+def _console_evidence_for(runtime):
+    deployment = runtime.get("deployment") or {}
+    return {
+        "schema_version": "s4.console-review-evidence.v1",
+        "run_id": runtime["run_id"],
+        "review_target": {
+            "run_id": runtime["run_id"],
+            "stack_name": deployment.get("stack_name"),
+            "target_region": deployment.get("target_region"),
+            "recipe": deployment.get("recipe"),
+        },
+        "capture_contract": {
+            "redaction_order": "hide_console_chrome_before_capture_then_hash_redacted_png",
+            "redacted_before_hash": True,
+            "hash_scope": "redacted_png",
+            "automated_image_understanding": False,
+            "human_confirmation_record_only": True,
+        },
+        "screenshots": [
+            {
+                "view": "infrastructure_composer",
+                "screenshot_ref": "protected://review/infrastructure-composer.png",
+                "sha256": "a" * 64,
+                "captured_at": "2026-07-31T09:00:00+08:00",
+                "shared_via": "conversation",
+                "redacted": True,
+                "hash_scope": "redacted_png",
+                "stack_name": deployment.get("stack_name"),
+                "target_region": deployment.get("target_region"),
+            }
+        ],
     }
 
 
@@ -228,6 +263,17 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(len(context["lineage"]["source_artifacts"]), 3)
         self.assertEqual(context["s4_validation"]["cost_estimate"]["status"], "estimated")
 
+    def test_s4_approval_template_is_generated_from_skill3(self):
+        evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
+
+        approval = build_approval_template(evaluate, selected_candidate_id="CAND-1", approved_by="Cleo", authorize=True)
+
+        self.assertEqual(approval["schema_version"], "s4.deployment-approval.v1")
+        self.assertEqual(approval["run_id"], evaluate["run_id"])
+        self.assertTrue(approval["deployment_authorized"])
+        self.assertEqual(approval["approved_cost_ceiling_usd"], 0.2)
+        self.assertFalse(approval["quote_snapshot"]["live_pricing_api_used"])
+
     def test_console_review_requires_infrastructure_composer_screenshot(self):
         runtime = {
             "schema_version": "s4.runtime-evidence.v3",
@@ -239,42 +285,76 @@ class S3S4Tests(unittest.TestCase):
             "cleanup": {},
         }
         packet = build_console_review_packet(runtime)
-        evidence = {
-            "schema_version": "s4.console-review-evidence.v1",
-            "run_id": "unit-test-run",
-            "screenshots": [
-                {
-                    "view": "infrastructure_composer",
-                    "screenshot_ref": "protected://review/infrastructure-composer.png",
-                    "sha256": "a" * 64,
-                    "captured_at": "2026-07-31T09:00:00+08:00",
-                    "shared_via": "conversation",
-                }
-            ],
-        }
+        evidence = _console_evidence_for(runtime)
 
-        reviewed = record_console_review(runtime, "Cleo", review_evidence=evidence)
+        reviewed = record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet)
 
         self.assertEqual(packet["required_screenshots"][0]["view"], "infrastructure_composer")
         self.assertIn("composer/home?region=ap-southeast-1", packet["review_target"]["composer_url"])
         self.assertIn("s4-capture-infrastructure-composer.mjs", packet["automation"]["command"])
         self.assertTrue(packet["automation"]["human_display_required"])
+        self.assertFalse(packet["evidence_contract"]["automated_image_understanding"])
         self.assertEqual(reviewed["status"], "ready_for_cleanup")
         self.assertEqual(reviewed["console_review"]["status"], "confirmed")
         self.assertEqual(reviewed["console_review"]["evidence_status"], "captured_and_confirmed")
+        self.assertTrue(reviewed["console_review"]["evidence"]["screenshots"][0]["redacted"])
 
     def test_console_review_rejects_missing_infrastructure_composer_screenshot(self):
-        runtime = {"stage": "S4", "run_id": "unit-test-run", "status": "awaiting_console_review", "console_review": {}, "cleanup": {}}
-        evidence = {
-            "schema_version": "s4.console-review-evidence.v1",
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
             "run_id": "unit-test-run",
-            "screenshots": [{"view": "resource_inventory", "screenshot_ref": "protected://review/resources.png", "sha256": "b" * 64, "captured_at": "2026-07-31T09:00:00+08:00", "shared_via": "gui"}],
+            "status": "awaiting_console_review",
+            "deployment": {"stack_name": "AgenticRadarS4ABC12345", "target_region": "ap-southeast-1", "recipe": "s3_files_cdk"},
+            "console_review": {},
+            "cleanup": {},
         }
+        packet = build_console_review_packet(runtime)
+        evidence = _console_evidence_for(runtime)
+        evidence["screenshots"][0]["view"] = "resource_inventory"
 
         with self.assertRaisesRegex(DeploymentError, "Infrastructure Composer"):
+            record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet)
+
+    def test_console_review_requires_packet_binding(self):
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "unit-test-run",
+            "status": "awaiting_console_review",
+            "deployment": {"stack_name": "AgenticRadarS4ABC12345", "target_region": "ap-southeast-1", "recipe": "s3_files_cdk"},
+            "console_review": {},
+            "cleanup": {},
+        }
+        evidence = _console_evidence_for(runtime)
+
+        with self.assertRaisesRegex(DeploymentError, "packet"):
             record_console_review(runtime, "Cleo", review_evidence=evidence)
 
     def test_s4_deployment_context_uses_defaults_without_environment_configuration(self):
+        s2 = _sample_s2()
+        s2["candidates"][0]["title"] = "Launching S3 Files, making S3 buckets accessible as file systems"
+        evaluate = build_evaluate(s2, _shortlist()).to_dict()
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            paths = {"s1": root / "s1.json", "s2": root / "s2.json", "s3": root / "s3.json"}
+            s1 = {"stage": "S1", "run_id": "unit-test-run", "candidates": [{"candidate_id": "CAND-1"}]}
+            for key, payload in (("s1", s1), ("s2", s2), ("s3", evaluate)):
+                paths[key].write_text(json.dumps(payload), encoding="utf-8")
+            approval = {
+                "approved_by": "Cleo", "selected_candidate_id": "CAND-1",
+                "deployment_authorized": True,
+                "region_warning_acknowledged": True,
+                "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
+            }
+            context = build_deployment_context(evaluate, approval)
+
+        self.assertEqual(context["status"], "ready_for_manual_deployment")
+        self.assertEqual(context["deployment"]["target_region"], "ap-southeast-1")
+        self.assertTrue(context["success_criteria"])
+        self.assertTrue(context["cleanup_scope"])
+
+    def test_s4_deployment_context_blocks_unknown_region_without_acknowledgement(self):
         s2 = _sample_s2()
         s2["candidates"][0]["title"] = "Launching S3 Files, making S3 buckets accessible as file systems"
         evaluate = build_evaluate(s2, _shortlist()).to_dict()
@@ -291,10 +371,8 @@ class S3S4Tests(unittest.TestCase):
             }
             context = build_deployment_context(evaluate, approval)
 
-        self.assertEqual(context["status"], "ready_for_manual_deployment")
-        self.assertEqual(context["deployment"]["target_region"], "ap-southeast-1")
-        self.assertTrue(context["success_criteria"])
-        self.assertTrue(context["cleanup_scope"])
+        self.assertEqual(context["status"], "not_deployable")
+        self.assertIn("target_region_not_verified_or_acknowledged", context["errors"])
 
     def test_cleanup_identity_must_be_derived_from_the_run(self):
         context = {"run_id": "unit-test-run"}

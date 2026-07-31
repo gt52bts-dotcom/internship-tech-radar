@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
@@ -13,8 +14,10 @@ from .s3 import build_evaluate
 from .s4 import build_validate
 from .s4_deployer import (
     DeploymentError,
+    build_approval_template,
     build_console_review_packet,
     build_deployment_context,
+    execute_abort_cleanup,
     execute_cleanup,
     execute_deployment,
     record_console_review,
@@ -51,6 +54,16 @@ def main(argv: list[str] | None = None) -> int:
     s4_parser.add_argument("--approval", help="Optional path to an S4 approval request JSON file.")
     s4_parser.add_argument("--output", help="Optional path for the S4 validation artifact.")
 
+    approval_parser = subparsers.add_parser(
+        "s4-approval-template",
+        help="Create a human-editable S4 deployment approval JSON file from one Skill 3 candidate.",
+    )
+    approval_parser.add_argument("--input", required=True, help="Path to an S3 evaluation artifact JSON file.")
+    approval_parser.add_argument("--selected-candidate-id", help="Candidate ID to approve; optional when Skill 3 has exactly one PoC candidate.")
+    approval_parser.add_argument("--approved-by", help="Named human approver to prefill.")
+    approval_parser.add_argument("--authorize", action="store_true", help="Write deployment_authorized=true after the named human has approved.")
+    approval_parser.add_argument("--output", required=True, help="Path for the S4 approval JSON file.")
+
     deploy_parser = subparsers.add_parser("s4-deploy", help="Build or explicitly execute a human-approved, candidate-specific S4 PoC.")
     deploy_parser.add_argument("--input", required=True, help="Path to an S3 evaluation artifact JSON file.")
     deploy_parser.add_argument("--approval", required=True, help="Path to a human S4 deployment approval JSON file.")
@@ -67,6 +80,7 @@ def main(argv: list[str] | None = None) -> int:
 
     console_parser = subparsers.add_parser("s4-console-review", help="Record screenshot-backed human AWS Console verification before cleanup.")
     console_parser.add_argument("--input", required=True, help="Path to an S4 runtime evidence JSON file.")
+    console_parser.add_argument("--packet", required=True, help="Path to the Console review packet that defined required screenshots.")
     console_parser.add_argument("--review-evidence", required=True, help="Path to Console screenshot evidence JSON from the review packet.")
     console_parser.add_argument("--confirmed-by", required=True, help="Named human who completed the Console review.")
     console_parser.add_argument("--notes", help="Optional concise Console review note.")
@@ -82,11 +96,22 @@ def main(argv: list[str] | None = None) -> int:
         help="After screenshot-backed human confirmation, automatically clean only this PoC run and record verification.",
     )
     close_parser.add_argument("--input", required=True, help="Path to an S4 runtime evidence JSON awaiting Console review.")
+    close_parser.add_argument("--packet", required=True, help="Path to the Console review packet that defined required screenshots.")
     close_parser.add_argument("--review-evidence", required=True, help="Path to Console screenshot evidence JSON from the review packet.")
     close_parser.add_argument("--confirmed-by", required=True, help="Named human who approved cleanup after seeing the screenshots.")
     close_parser.add_argument("--notes", help="Optional concise Console review note.")
     close_parser.add_argument("--execute", action="store_true", help="Actually clean the reviewed run after the explicit human confirmation.")
     close_parser.add_argument("--output", required=True, help="Path for the cleanup-verified S4 runtime JSON file.")
+
+    abort_parser = subparsers.add_parser(
+        "s4-abort",
+        help="Emergency cleanup for a timed-out or failed S4 PoC without treating it as a normal Console-reviewed close.",
+    )
+    abort_parser.add_argument("--input", required=True, help="Path to an S4 runtime JSON file.")
+    abort_parser.add_argument("--confirmed-by", required=True, help="Named human approving emergency cost-control cleanup.")
+    abort_parser.add_argument("--reason", required=True, help="Why the normal Console review path is being skipped.")
+    abort_parser.add_argument("--execute", action="store_true", help="Actually delete only the run-derived PoC stack and test data.")
+    abort_parser.add_argument("--output", required=True, help="Path for the abort-cleanup S4 runtime JSON file.")
 
     s5_parser = subparsers.add_parser("s5", help="Render a source-bound JSON and Markdown report from S1-S4 artifacts.")
     s5_parser.add_argument("--s1", required=True, help="Path to an S1 scan artifact JSON file.")
@@ -120,6 +145,14 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.approval) if args.approval else None,
             Path(args.output) if args.output else None,
         )
+    if args.command == "s4-approval-template":
+        return _run_s4_approval_template(
+            Path(args.input),
+            args.selected_candidate_id,
+            args.approved_by,
+            args.authorize,
+            Path(args.output),
+        )
     if args.command == "s4-deploy":
         return _run_s4_deploy(
             Path(args.input), Path(args.approval), Path(args.output), args.execute,
@@ -129,14 +162,16 @@ def main(argv: list[str] | None = None) -> int:
         return _run_s4_console_review_packet(Path(args.input), Path(args.output))
     if args.command == "s4-console-review":
         return _run_s4_console_review(
-            Path(args.input), Path(args.review_evidence), args.confirmed_by, args.notes, Path(args.output)
+            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.notes, Path(args.output)
         )
     if args.command == "s4-cleanup":
         return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output))
     if args.command == "s4-close":
         return _run_s4_close(
-            Path(args.input), Path(args.review_evidence), args.confirmed_by, args.notes, args.execute, Path(args.output)
+            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.notes, args.execute, Path(args.output)
         )
+    if args.command == "s4-abort":
+        return _run_s4_abort(Path(args.input), args.confirmed_by, args.reason, args.execute, Path(args.output))
     if args.command == "s5":
         return _run_s5(
             Path(args.s1),
@@ -250,11 +285,28 @@ def _run_s4(input_path: Path, approval_path: Path | None, output_path: Path | No
     return 0
 
 
+def _run_s4_approval_template(
+    input_path: Path,
+    selected_candidate_id: str | None,
+    approved_by: str | None,
+    authorize: bool,
+    output_path: Path,
+) -> int:
+    try:
+        approval = build_approval_template(_read_json(input_path), selected_candidate_id, approved_by, authorize)
+        _write_json(output_path, approval)
+        return 0
+    except DeploymentError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+
+
 def _run_s4_deploy(
     input_path: Path, approval_path: Path, output_path: Path, execute: bool, runtime_output: Path | None
 ) -> int:
     if execute and runtime_output is None:
         raise SystemExit("s4-deploy --execute requires --runtime-output.")
+    context = None
     evaluate = _read_json(input_path)
     approval = _read_json(approval_path)
     try:
@@ -266,6 +318,8 @@ def _run_s4_deploy(
         _write_json(runtime_output, runtime)
         return 0
     except DeploymentError as exc:
+        if execute and runtime_output is not None and context is not None:
+            _write_json(runtime_output, _deployment_failed_runtime(context, exc))
         print(str(exc), file=sys.stderr)
         return 1
 
@@ -280,10 +334,24 @@ def _run_s4_console_review_packet(input_path: Path, output_path: Path) -> int:
 
 
 def _run_s4_console_review(
-    input_path: Path, evidence_path: Path, confirmed_by: str, notes: str | None, output_path: Path
+    input_path: Path,
+    packet_path: Path,
+    evidence_path: Path,
+    confirmed_by: str,
+    notes: str | None,
+    output_path: Path,
 ) -> int:
     try:
-        _write_json(output_path, record_console_review(_read_json(input_path), confirmed_by, notes, _read_json(evidence_path)))
+        _write_json(
+            output_path,
+            record_console_review(
+                _read_json(input_path),
+                confirmed_by,
+                notes,
+                _read_json(evidence_path),
+                _read_json(packet_path),
+            ),
+        )
         return 0
     except DeploymentError as exc:
         print(str(exc), file=sys.stderr)
@@ -298,12 +366,13 @@ def _run_s4_cleanup(input_path: Path, execute: bool, output_path: Path) -> int:
         _write_json(output_path, execute_cleanup(_read_json(input_path)))
         return 0
     except DeploymentError as exc:
-        print(str(exc), file=sys.stderr)
+        _write_runtime_failure_if_present(output_path, exc)
         return 1
 
 
 def _run_s4_close(
     input_path: Path,
+    packet_path: Path,
     evidence_path: Path,
     confirmed_by: str,
     notes: str | None,
@@ -314,11 +383,25 @@ def _run_s4_close(
         print("s4-close only deletes resources when --execute is explicitly supplied after human screenshot confirmation.", file=sys.stderr)
         return 1
     try:
-        reviewed = record_console_review(_read_json(input_path), confirmed_by, notes, _read_json(evidence_path))
+        reviewed = record_console_review(
+            _read_json(input_path), confirmed_by, notes, _read_json(evidence_path), _read_json(packet_path)
+        )
         _write_json(output_path, execute_cleanup(reviewed))
         return 0
     except DeploymentError as exc:
-        print(str(exc), file=sys.stderr)
+        _write_runtime_failure_if_present(output_path, exc)
+        return 1
+
+
+def _run_s4_abort(input_path: Path, confirmed_by: str, reason: str, execute: bool, output_path: Path) -> int:
+    if not execute:
+        print("s4-abort only deletes resources when --execute is explicitly supplied by a named approver.", file=sys.stderr)
+        return 1
+    try:
+        _write_json(output_path, execute_abort_cleanup(_read_json(input_path), confirmed_by, reason))
+        return 0
+    except DeploymentError as exc:
+        _write_runtime_failure_if_present(output_path, exc)
         return 1
 
 
@@ -345,6 +428,44 @@ def _run_s5(
         markdown_path.parent.mkdir(parents=True, exist_ok=True)
         markdown_path.write_text(report["markdown"], encoding="utf-8")
     return 0 if report["status"] != "incomplete_artifacts" else 1
+
+
+def _write_runtime_failure_if_present(output_path: Path, exc: DeploymentError) -> None:
+    message = str(exc)
+    try:
+        payload = json.loads(message)
+    except json.JSONDecodeError:
+        print(message, file=sys.stderr)
+        return
+    if isinstance(payload, dict) and payload.get("stage") == "S4":
+        _write_json(output_path, payload)
+    print(message, file=sys.stderr)
+
+
+def _deployment_failed_runtime(context: dict, exc: DeploymentError) -> dict:
+    return {
+        "schema_version": "s4.runtime-evidence.v3",
+        "stage": "S4",
+        "run_id": context.get("run_id"),
+        "status": "deployment_failed",
+        "failed_at": datetime.now(timezone.utc).isoformat(),
+        "lineage": context.get("lineage"),
+        "deployment": {
+            **dict(context.get("deployment") or {}),
+            "deployment_method": "CDK synth followed by CloudFormation create-stack",
+            "stack_status": "failed_or_unknown",
+        },
+        "verification": {"status": "not_verified_due_to_deployment_failure"},
+        "console_review": {
+            "status": "not_available",
+            "evidence_status": "not_captured_deployment_failed",
+        },
+        "cleanup": {
+            "status": "pending_abort_cleanup",
+            "reason": "Deployment failed before normal Console review could be completed.",
+        },
+        "error": str(exc),
+    }
 
 
 def _read_json(path: Path) -> dict:

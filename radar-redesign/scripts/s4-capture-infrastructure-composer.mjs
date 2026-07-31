@@ -40,10 +40,10 @@ function usage(error) {
   console.error(`
 Usage:
   node scripts/s4-capture-infrastructure-composer.mjs \\
-    --runtime .\\out\\s4-runtime.json \\
-    --packet .\\out\\s4-console-review-packet.json \\
-    --output-dir .\\out\\s4-console-review\\<run-id> \\
-    --evidence-output .\\out\\s4-console-review\\<run-id>\\s4-console-review-evidence.json \\
+    --runtime .\\out\\run\\s4-runtime.json \\
+    --packet .\\out\\run\\s4-console-review-packet.json \\
+    --output-dir .\\out\\run\\s4-console-review\\<run-id> \\
+    --evidence-output .\\out\\run\\s4-console-review\\<run-id>\\s4-console-review-evidence.json \\
     --shared-via conversation
 
 Install Playwright first when needed:
@@ -129,6 +129,24 @@ async function canvasClip(page) {
   };
 }
 
+async function hideConsoleChrome(page) {
+  await page.addStyleTag({
+    content: `
+      header,
+      nav,
+      [role="banner"],
+      [data-testid*="awsc-nav" i],
+      [data-testid*="account" i],
+      [aria-label*="Account" i],
+      [aria-label*="Support" i],
+      [class*="awsc-header" i],
+      [class*="nav" i] {
+        visibility: hidden !important;
+      }
+    `,
+  }).catch(() => {});
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const runtime = readJson(args.runtime);
@@ -166,6 +184,7 @@ async function main() {
   await page.waitForTimeout(5000);
 
   const outputPng = resolve(args.outputDir, "infrastructure-composer.png");
+  await hideConsoleChrome(page);
   await page.screenshot({ path: outputPng, clip: await canvasClip(page) });
   await browser.close();
 
@@ -174,6 +193,19 @@ async function main() {
     schema_version: "s4.console-review-evidence.v1",
     run_id: runtime.run_id,
     generated_by: "scripts/s4-capture-infrastructure-composer.mjs",
+    review_target: {
+      run_id: runtime.run_id,
+      stack_name: target.stack_name || runtime.deployment?.stack_name,
+      target_region: target.target_region || runtime.deployment?.target_region,
+      recipe: target.recipe || runtime.deployment?.recipe,
+    },
+    capture_contract: {
+      redaction_order: "hide_console_chrome_before_capture_then_hash_redacted_png",
+      redacted_before_hash: true,
+      hash_scope: "redacted_png",
+      automated_image_understanding: false,
+      human_confirmation_record_only: true,
+    },
     screenshots: [
       {
         view: REQUIRED_VIEW,
@@ -181,6 +213,10 @@ async function main() {
         sha256: sha256(outputPng),
         captured_at: capturedAt,
         shared_via: args.sharedVia,
+        redacted: true,
+        hash_scope: "redacted_png",
+        stack_name: target.stack_name || runtime.deployment?.stack_name,
+        target_region: target.target_region || runtime.deployment?.target_region,
       },
     ],
   };
@@ -194,6 +230,7 @@ async function main() {
     screenshot: outputPng,
     evidence: resolve(args.evidenceOutput),
     show_to_human_markdown: `![Infrastructure Composer canvas](${imageUrl})`,
+    privacy_note: "The image was captured after hiding Console chrome and the SHA-256 is for the redacted PNG. The script does not understand screenshot pixels; a named human must confirm the visible stack canvas.",
     next_question: "是否確認依此 Console 截圖清除這次 PoC？",
   }, null, 2));
 }

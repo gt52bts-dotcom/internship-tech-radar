@@ -126,6 +126,7 @@ def _approval_gate(evaluate: dict[str, Any], approval_request: dict[str, Any] | 
     estimated_usd = approval_request.get("estimated_usd", quote.get("expected_total_usd"))
     max_cost = float((evaluate.get("policy") or {}).get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
     quote_ceiling = quote.get("recommended_approval_ceiling_usd")
+    human_ceiling = approval_request.get("approved_cost_ceiling_usd")
     approved_cost_ceiling_usd = approval_request.get(
         "approved_cost_ceiling_usd",
         quote_ceiling if isinstance(quote_ceiling, (int, float)) else max_cost,
@@ -139,15 +140,26 @@ def _approval_gate(evaluate: dict[str, Any], approval_request: dict[str, Any] | 
         missing.append("approved_by")
     if approved_cost is None:
         missing.append("approved_cost_ceiling_usd_or_estimated_usd")
-    elif approved_cost > max_cost:
+    effective_ceiling = _effective_cost_ceiling(quote_ceiling, approved_cost, max_cost)
+    if effective_ceiling is None:
+        missing.append("effective_cost_ceiling")
+    elif approved_cost is not None and approved_cost > effective_ceiling:
         missing.append("approved_cost_within_limit")
     return {
         "status": "poc_requested" if not missing else "poc_request_incomplete",
         "validation_type": "poc",
         "approved_by": approved_by or None,
         "deployment_authorized": approval_request.get("deployment_authorized") is True,
+        "region_warning_acknowledged": approval_request.get("region_warning_acknowledged") is True,
         "estimated_usd": float(estimated_usd) if isinstance(estimated_usd, (int, float)) else None,
         "approved_cost_ceiling_usd": approved_cost,
+        "effective_cost_ceiling_usd": effective_ceiling,
+        "cost_ceiling_policy": {
+            "rule": "effective ceiling is the minimum of Skill 3 recommended ceiling, human approved ceiling, and built-in small-cost ceiling.",
+            "skill3_recommended_approval_ceiling_usd": quote_ceiling,
+            "human_approved_ceiling_usd": human_ceiling,
+            "built_in_small_cost_ceiling_usd": max_cost,
+        },
         "cost_quote_id": quote.get("quote_id"),
         "cost_quote_status": quote.get("status") or "not_available",
         "cost_basis": (
@@ -203,6 +215,12 @@ def _poc_checks(
     if approved_cost is None:
         approved_cost = approval.get("estimated_usd")
     max_cost = float(policy.get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD))
+    region_status = (candidate.get("region_status") or {}).get("status")
+    target_region = (candidate.get("region_status") or {}).get("target_region") or "ap-southeast-1"
+    region_acknowledged = approval.get("region_warning_acknowledged") is True
+    region_passed = region_status == f"available_{str(target_region).replace('-', '_')}" or (
+        region_status == "region_unknown" and region_acknowledged
+    )
     return [
         {
             "name": "s3_recommends_poc",
@@ -216,8 +234,19 @@ def _poc_checks(
         },
         {
             "name": "approved_cost_within_limit",
-            "passed": isinstance(approved_cost, (int, float)) and float(approved_cost) <= max_cost,
-            "detail": "PoC uses the fixed small-cost ceiling unless a lower ceiling is supplied.",
+            "passed": isinstance(approved_cost, (int, float))
+            and isinstance(approval.get("effective_cost_ceiling_usd"), (int, float))
+            and float(approved_cost) <= float(approval["effective_cost_ceiling_usd"])
+            and float(approved_cost) <= max_cost,
+            "detail": "Effective ceiling is min(Skill 3 recommended, human approved, built-in sandbox ceiling).",
+        },
+        {
+            "name": "target_region_confirmed_or_acknowledged",
+            "passed": region_passed,
+            "detail": (
+                f"Region status is {region_status or 'unknown'} for {target_region}; "
+                "region_unknown requires region_warning_acknowledged=true before a paid PoC."
+            ),
         },
         {
             "name": "approved_by_present",
@@ -294,8 +323,18 @@ def _limitations(candidate: dict[str, Any], status: str) -> list[str]:
     if status != "poc_ready_for_manual_start":
         limits.append("This is not a completed PoC; deployment remains blocked until the pending checks pass.")
     if (candidate.get("region_status") or {}).get("status") == "region_unknown":
-        limits.append("Target Region support remains a deployment-time review note.")
+        limits.append("Target Region support is not verified; paid deployment requires explicit region_warning_acknowledged=true.")
     return limits
+
+
+def _effective_cost_ceiling(*values: Any) -> float | None:
+    numeric = []
+    for value in values:
+        if isinstance(value, (int, float)):
+            numeric.append(float(value))
+    if not numeric:
+        return None
+    return min(numeric)
 
 
 def _summary(validated: list[dict[str, Any]]) -> dict[str, Any]:
