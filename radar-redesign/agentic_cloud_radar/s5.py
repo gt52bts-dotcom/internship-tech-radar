@@ -66,6 +66,7 @@ def build_report(
         "evaluation": _evaluation_summary(selected),
         "cost_quote": _cost_quote(selected),
         "cost_reconciliation": _cost_reconciliation(selected, billing),
+        "pre_cleanup_usage_snapshot": _pre_cleanup_usage_snapshot(runtime),
         "validation": _validation_summary(validation, runtime),
         "verified_facts": _verified_facts(scan, compare, selected, runtime, billing),
         "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime, billing),
@@ -102,6 +103,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(f"| {label} | {value} |")
     lines.extend(_render_cost_quote(report["cost_quote"]))
     lines.extend(_render_cost_reconciliation(report["cost_reconciliation"]))
+    lines.extend(_render_pre_cleanup_usage_snapshot(report["pre_cleanup_usage_snapshot"]))
     lines.extend(["", "## 技術驗證", "", "| 檢查 | 狀態 |", "| --- | --- |"])
     for label, value in report["validation"]["rows"]:
         lines.append(f"| {label} | {value} |")
@@ -139,6 +141,10 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
         "cost_reconciliation": {
             **report["cost_reconciliation"],
             "status_label": _display_status(report["cost_reconciliation"].get("status")),
+        },
+        "pre_cleanup_usage_snapshot": {
+            **report["pre_cleanup_usage_snapshot"],
+            "status_label": _usage_snapshot_status_label(report["pre_cleanup_usage_snapshot"].get("status")),
         },
         "console_review": _gui_console_review(report),
         "validation_checks": checks,
@@ -455,6 +461,105 @@ def _render_cost_reconciliation(reconciliation: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _pre_cleanup_usage_snapshot(runtime: dict[str, Any] | None) -> dict[str, Any]:
+    snapshot = (runtime or {}).get("pre_cleanup_usage_snapshot")
+    if isinstance(snapshot, dict):
+        return snapshot
+    return {
+        "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+        "status": "not_recorded",
+        "billing_evidence": False,
+        "actual_cost_status": "not_billing_evidence",
+        "sections": {},
+        "rule": "cleanup 前未提供即時用量快照；實際成本仍只能由 Billing、Cost Explorer 或 CUR artifact 證明。",
+    }
+
+
+def _usage_snapshot_status_label(value: Any) -> str:
+    labels = {
+        "captured": "已擷取",
+        "partial": "部分擷取",
+        "unavailable": "無法擷取",
+        "not_recorded": "未記錄",
+        "not_billing_evidence": "非帳務證據",
+        "unknown": "未知",
+    }
+    return labels.get(str(value or "unknown"), str(value or "未知"))
+
+
+def _render_pre_cleanup_usage_snapshot(snapshot: dict[str, Any]) -> list[str]:
+    lines = ["", "## cleanup 前即時用量快照", ""]
+    if snapshot.get("status") == "not_recorded":
+        lines.extend(
+            [
+                "- 狀態：未記錄。",
+                "- 說明：這不影響 cleanup 結論，但 Skill 5 無法列出刪除前的即時用量證據。",
+            ]
+        )
+        return lines
+
+    sections = snapshot.get("sections") or {}
+    timeline = snapshot.get("timeline") or {}
+    elapsed = timeline.get("elapsed_seconds")
+    elapsed_text = f"{round(float(elapsed) / 60, 2)} 分鐘" if isinstance(elapsed, (int, float)) else "未記錄"
+    lines.extend(
+        [
+            f"- 快照狀態：{_usage_snapshot_status_label(snapshot.get('status') or 'unknown')}",
+            f"- 擷取時間：{snapshot.get('captured_at') or 'unknown'}",
+            f"- 建立到 cleanup 前經過：約 {elapsed_text}",
+            "- 性質：這是 runtime facts，不是 AWS 帳單；實際成本仍需 Billing、Cost Explorer 或 CUR artifact。",
+            "",
+            "| 類別 | cleanup 前看到的證據 |",
+            "| --- | --- |",
+        ]
+    )
+    cloudformation = sections.get("cloudformation") or {}
+    if cloudformation:
+        tags = cloudformation.get("tags") or {}
+        lines.append(
+            f"| CloudFormation | 狀態 {cloudformation.get('stack_status') or 'unknown'}；"
+            f"資源數 {cloudformation.get('resource_count') if cloudformation.get('resource_count') is not None else 'unknown'}；"
+            f"tags {len(tags) if isinstance(tags, dict) else 'unknown'} |"
+        )
+    s3 = sections.get("s3") or {}
+    if s3:
+        s3_tags = (s3.get("tags") or {}).get("values") if isinstance(s3.get("tags"), dict) else {}
+        lines.append(
+            f"| S3 | current objects {s3.get('object_count_current', 'unknown')}；"
+            f"versions {s3.get('object_version_count', 'unknown')}；"
+            f"delete markers {s3.get('delete_marker_count', 'unknown')}；"
+            f"size bytes {s3.get('total_size_bytes', 'unknown')}；"
+            f"tags {len(s3_tags) if isinstance(s3_tags, dict) else 'unknown'} |"
+        )
+    lambda_section = sections.get("lambda") or {}
+    if lambda_section:
+        metrics = lambda_section.get("cloudwatch_metrics") or {}
+        invocations = (metrics.get("Invocations") or {}).get("sum")
+        errors = (metrics.get("Errors") or {}).get("sum")
+        lambda_tags = (lambda_section.get("tags") or {}).get("values") if isinstance(lambda_section.get("tags"), dict) else {}
+        lines.append(
+            f"| Lambda | runtime {lambda_section.get('runtime') or 'unknown'}；"
+            f"code size {lambda_section.get('code_size_bytes', 'unknown')} bytes；"
+            f"invocations {invocations if invocations is not None else 'no datapoints'}；"
+            f"errors {errors if errors is not None else 'no datapoints'}；"
+            f"tags {len(lambda_tags) if isinstance(lambda_tags, dict) else 'unknown'} |"
+        )
+    ec2 = sections.get("ec2") or {}
+    if ec2:
+        ec2_tags = ec2.get("tags") or {}
+        lines.append(
+            f"| EC2 | instance {ec2.get('instance_id') or 'unknown'}；"
+            f"state {ec2.get('state') or ec2.get('status') or 'unknown'}；"
+            f"type {ec2.get('instance_type') or 'unknown'}；"
+            f"tags {len(ec2_tags) if isinstance(ec2_tags, dict) else 'unknown'} |"
+        )
+    for error in snapshot.get("collection_errors") or []:
+        lines.append(f"| 蒐集限制 | {error} |")
+    if len(lines) == 10:
+        lines.append("| 無可列資料 | snapshot 存在，但沒有可呈現的 resource section。 |")
+    return lines
+
+
 def _validation_summary(validation: dict[str, Any] | None, runtime: dict[str, Any] | None) -> dict[str, Any]:
     runtime = runtime or {}
     verification = runtime.get("verification") or {}
@@ -511,6 +616,12 @@ def _verified_facts(
     screenshot_count = _console_screenshot_count(runtime)
     if screenshot_count:
         facts.append(f"AWS Console review 已以 {screenshot_count} 張截圖透過 GUI 或對話交由具名人員確認。")
+    usage_snapshot = _pre_cleanup_usage_snapshot(runtime)
+    if usage_snapshot.get("status") in {"captured", "partial"}:
+        facts.append(
+            f"cleanup 前即時用量快照已記錄：{_usage_snapshot_status_label(usage_snapshot.get('status'))}；"
+            "這是 runtime facts，不是 AWS 帳單。"
+        )
     for key, value in ((runtime or {}).get("verification") or {}).items():
         if key != "success_criteria" and value == "verified":
             facts.append(f"Skill 4 自動化驗證已通過：{key}。")

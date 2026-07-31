@@ -1,5 +1,11 @@
 # AI PM 當日進度暫存
 
+## 2026-07-31 17:00 正式統整狀態
+
+- 已將今日 inbox 證據統整至正式日誌、Skill 積分、Git dashboard 與 AI 執行軌跡；當日積分為 Scan +1、Compare +1、Evaluate +2、Validate +4、Report +2，總分 10，累積 117。
+- 正式紀錄採計單一候選 artifact 流程、規則硬化、兩次受控 live PoC、人工 Console 確認、cleanup 回查、測試／編譯與交接成果；公開牌價估算不寫成實際帳單。
+- Notion 日誌頁、五筆 Skill 每日積分明細與內嵌 dashboard 已同步；Git 正式日誌、積分與軌跡已通過敏感資訊掃描並以 commit `84304b2` 推送，HEAD 與 `origin/main` 一致。
+
 ## 2026-07-31 Claude Review Flow Hardening
 
 - 時間判定：2026-07-31 11:40 Asia/Taipei，尚未到平日 17:00，因此本次只記入 inbox，不建立或定稿正式日誌。
@@ -832,3 +838,58 @@
 - 重跑 Amazon Connect Customer Data Lake run `direct-url-20260731-766826d4`：Skill 3 quote 從缺模型改為 `estimated`，pricing level 為 `Level B generic usage model`，detected services 包含 CloudFormation、IAM、Lake Formation、Lambda、RAM、S3，expected total USD 0.003246，recommended approval ceiling USD 0.05；Skill 4 狀態仍是 awaiting PoC approval，沒有建立 AWS 資源。
 - 同步更新 `skills/evaluate-cloud-candidate/SKILL.md` 與 `radar-redesign/claude-gui-handoff/`，讓 GUI handoff package 使用同一套估價邏輯。
 - 驗證：主 repo `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 41 tests；`claude-gui-handoff` 同套測試通過 41 tests；額外跑過 S5 單元測試 8 tests。
+
+## 2026-07-31 14:58 - Lambda self-managed code storage Skill 1-Skill 3 quote checkpoint
+
+- Cleo 指定 AWS What's New 文章 `AWS Lambda 宣布自主管理程式碼儲存空間` 進行單項 Skill 1-Skill 5 流程，但要求先停在 Skill 3 報價單，待人工同意後才進 Skill 4 PoC 與 Skill 5 實際成本比較報告。
+- 已完成 Skill 1 URL 匯入與 Skill 2 比較 artifact：run=`direct-url-20260731-ae6e8775`，candidate=`S1-C7ED2885BADB`，來源為 AWS 官方 What's New URL。
+- 已完成 Skill 3 Evaluate：score=`4.15/5`，confidence=`medium`，`recommend_poc=true`，Quote ID=`POC-QUOTE-D3255FE85969`。
+- Skill 3 報價單已輸出到 `radar-redesign/out/lambda-self-managed-code-storage-20260731-quote-review/s3-lambda-self-managed-quote.md`；預估區間為 low USD 0.000072、expected USD 0.000249、high USD 0.000886，建議核准上限 USD 0.05，有效期限 2026-08-07。
+- 本 checkpoint 未執行 Skill 4、未建立 AWS 資源、未產生 Skill 5 final report；下一步需等 Cleo 明確同意後再做 S4 PoC、Console 截圖確認、自動 cleanup，最後在 Skill 5 報告中加入預估成本與實際 PoC 後成本比較表。
+
+## 2026-07-31 15:27 - Lambda self-managed code storage Skill 4/Skill 5 completion
+
+- Cleo 回覆同意進入 Skill 4 PoC；使用 Skill 3 Quote ID `POC-QUOTE-D3255FE85969`，核准人 `Cleo`，核准上限 USD 0.05，target Region `ap-southeast-1`。
+- Skill 4 approval 與 deployment context 通過：recipe=`lambda_self_managed_s3_code_storage_cdk`，stack=`AgenticRadarS4D73F45C0`，resource prefix=`agentic-radar-s4-d73f45c0`，status=`ready_for_manual_deployment`。
+- 已執行 `s4-deploy --execute`：CloudFormation stack 達 `CREATE_COMPLETE`，runtime status=`awaiting_console_review`；驗證項目包含 `cloudformation_reference_mode=verified` 與 `lambda_invoke=verified`。
+- Console review 使用人工確認：Codex 先前自動截到的 Composer canvas 不足以自動判讀圖片內容；Cleo 表示已有人工截圖與人工確認，因此用 `confirmed_by=Cleo`、`shared_via=conversation` 記錄 Console review，並明確標示 automated image-content interpretation 未使用。
+- 已執行 `s4-close --execute` 完成 cleanup：runtime status=`cleanup_verified`，CloudFormation stack 已刪除，versioned test bucket 已先清空，run-derived resource prefix 已匹配。AWS CLI `describe-stacks` 回查該 stack 不存在，符合 cleanup 成功預期。
+- 已產生 Skill 5 final report：`radar-redesign/out/lambda-self-managed-code-storage-20260731-quote-review/s5-lambda-self-managed.md` 與 JSON；報告狀態 `final`，結論為實際 PoC 已通過自動化驗證、人工 Console 確認與 cleanup 回查。
+- 成本比較表已納入 Skill 5：Skill 3 預估 expected USD 0.000249、low/high USD 0.000072/0.000886；實際 AWS 帳務成本目前沒有可歸因 Cost Explorer/Billing/CUR artifact，因此依規則標示為待帳務資料確認，不用 runtime 推估成正式帳單。
+- 驗證：`python -m json.tool` 通過 S4 cleaned runtime 與 Skill 5 JSON；`python -m unittest tests.test_s5 -v` 通過 8 tests；Skill 5 Markdown 以 UTF-8 檢查為正常繁中內容。
+
+## 2026-07-31 - Skill 4 cleanup 前即時用量快照
+
+- Cleo 決定採用「cleanup 前先看即時用量證據」而不是等待 AWS 帳單。此證據記錄 runtime facts，例如建立時間、刪除前時間、CloudFormation resources、S3 object count/size、Lambda invoke/CloudWatch metrics 可取得部分、tags 與 recipe-specific resource state；它不是 Cost Explorer/Billing/CUR 帳務資料。
+- 已更新 `radar-redesign/agentic_cloud_radar/s4_deployer.py`：`execute_cleanup` 與 `execute_abort_cleanup` 都會在刪除 stack 前建立 `pre_cleanup_usage_snapshot`，局部 AWS metrics 讀取失敗不會阻止 cleanup。
+- 已更新 `radar-redesign/agentic_cloud_radar/cli.py`：`s4-cleanup`、`s4-close`、`s4-abort` 新增 `--usage-snapshot-output`，可輸出獨立 `pre_cleanup_usage_snapshot.json`。
+- 已更新 `radar-redesign/agentic_cloud_radar/s5.py`：Skill 5 會新增「cleanup 前即時用量快照」區塊與 GUI model 欄位，並明確說明 snapshot 不是 AWS 帳單；實際成本仍需 Billing、Cost Explorer 或 CUR artifact 才能從 pending 變成 attributed/compared。
+- 已同步 `skills/validate-cloud-poc/SKILL.md`、`skills/validate-cloud-poc/templates/console-review-agent-template.md`、`skills/report-cloud-evidence/SKILL.md`，讓五個 Skill 的流程文件和 CLI 契約一致。
+- 驗證：`python -m unittest tests.test_s3_s4 tests.test_s5 -v` 通過 32 tests；`python -m unittest discover -s tests -p 'test_*.py' -v` 通過 43 tests。
+
+## 2026-07-31 - S3 Files article Skill 1-Skill 3 quote checkpoint
+
+- Cleo 指定 AWS News Blog `Launching S3 Files, making S3 buckets accessible as file systems` 重新跑單項 Skill 1-Skill 5 流程，但要求在 Skill 3 報價單產出後先停住，待人類同意後才進 Skill 4 PoC。
+- 已完成 Skill 1 direct URL import 與 Skill 2 comparison，run ID=`direct-url-20260731-f1baf62f`，candidate ID=`S1-65801FA11243`。
+- 已建立單項 shortlist 並完成 Skill 3 Evaluate；score=`4.4/5`，confidence=`medium`，`recommend_poc=true`。
+- Skill 3 quote ID=`POC-QUOTE-C4ECB392A212`，低/預期/高估算分別為 USD `0.018037` / `0.047190` / `0.150962`，建議 approval ceiling=`USD 0.20`，pricing level=`Level A registered recipe`，recipe=`s3_files_cdk`。
+- 報價單已輸出到 `radar-redesign/out/s3-files-20260731-manual-console/s3-s3-files-quote.md`；目前尚未進入 Skill 4，也尚未建立 AWS 資源。
+
+## 2026-07-31 - S3 Files article Skill 4 PoC live deployment
+
+- Cleo 確認 Skill 3 報價後同意進入 Skill 4 PoC，並要求這次不使用 Playwright 自動截圖，由 Cleo 自行在 AWS Console 檢查 Infrastructure Composer 後再通知 cleanup。
+- 已補齊 `s4-approval.json` 的 S1/S2/S3 lineage absolute paths，通過 S4 deployment gate；approved_by=`Cleo`，approved ceiling=`USD 0.20`，target Region=`ap-southeast-1`。
+- 已執行 `s4-deploy --execute` 建立 live PoC。Runtime=`radar-redesign/out/s3-files-20260731-manual-console/s4-runtime.json`，status=`awaiting_console_review`。
+- Deployed stack=`AgenticRadarS4AD2B348F`，resource prefix=`agentic-radar-s4-ad2b348f`，recipe=`s3_files_cdk`，CloudFormation status=`CREATE_COMPLETE`。
+- 自動驗證完成：`source_to_mount=verified`、`mount_to_s3=verified`、SSM status=`Success`。
+- 已產出 Console review packet：`radar-redesign/out/s3-files-20260731-manual-console/s4-console-review-packet.json`。目前尚未 cleanup，也尚未產出 Skill 5 final。
+
+## 2026-07-31 - S3 Files article cleanup and Skill 5 final
+
+- Cleo 在 AWS Console 人工確認 S3 Files PoC 成功後，要求先看刪除前用量再 cleanup，並繼續產生 Skill 5 報告。
+- 已先產出 preview usage snapshot：`radar-redesign/out/s3-files-20260731-manual-console/pre_cleanup_usage_snapshot-preview.json`，顯示 CloudFormation resources=`19`、S3 current objects=`3`、object versions=`3`、total size=`188 bytes`、EC2=`t3.micro running`。
+- 已以 Cleo 的 conversation confirmation 建立 manual Console review evidence：`radar-redesign/out/s3-files-20260731-manual-console/s4-console-review-evidence-manual.json`；本次未使用 Playwright 截圖，也未把圖片上傳到 Codex。
+- 已執行 `s4-close --execute`，正式 pre-cleanup snapshot=`radar-redesign/out/s3-files-20260731-manual-console/pre_cleanup_usage_snapshot.json`，cleaned runtime=`radar-redesign/out/s3-files-20260731-manual-console/s4-runtime-cleaned.json`。
+- Cleanup checks 通過：CloudFormation stack deleted、versioned test bucket emptied、run-derived prefix matched。AWS CLI `describe-stacks` 回傳 stack 不存在，符合 cleanup 後狀態。
+- 已產出 Skill 5 final：`radar-redesign/out/s3-files-20260731-manual-console/s5-report.json` 與 `s5-report.md`。Report status=`final`，conclusion=`validated_and_cleaned`。
+- 實際帳務成本仍為 pending，原因是尚未提供可歸因的 Billing、Cost Explorer 或 CUR artifact；Skill 5 已包含 Skill 3 預估與 cleanup 前 runtime usage snapshot 供後續比較。

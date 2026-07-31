@@ -16,6 +16,7 @@ from agentic_cloud_radar.s4_deployer import (
     build_approval_template,
     build_console_review_packet,
     build_deployment_context,
+    execute_cleanup,
     record_console_review,
 )
 
@@ -382,6 +383,43 @@ class S3S4Tests(unittest.TestCase):
 
         with self.assertRaisesRegex(DeploymentError, "packet"):
             record_console_review(runtime, "Cleo", review_evidence=evidence, shared_via="conversation")
+
+    def test_cleanup_records_pre_cleanup_usage_snapshot(self):
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "unit-test-run",
+            "status": "ready_for_cleanup",
+            "deployment": {
+                "stack_name": "AgenticRadarS4ABC12345",
+                "resource_prefix": "agentic-radar-s4-abc12345",
+                "target_region": "ap-southeast-1",
+                "recipe": "lambda_self_managed_s3_code_storage_cdk",
+            },
+            "console_review": {
+                "status": "confirmed",
+                "evidence_status": "captured_and_confirmed",
+                "display_channel_confirmed": "conversation",
+                "evidence": {"screenshots": [{"view": "infrastructure_composer"}]},
+            },
+            "cleanup": {"status": "ready_for_manual_cleanup"},
+        }
+        snapshot = {
+            "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+            "status": "captured",
+            "billing_evidence": False,
+            "sections": {"cloudformation": {"resource_count": 3}},
+        }
+
+        with patch("agentic_cloud_radar.s4_deployer._pre_cleanup_usage_snapshot", return_value=snapshot), patch(
+            "agentic_cloud_radar.s4_deployer._cleanup_stack_resources",
+            return_value={"cloudformation_stack": "deleted"},
+        ):
+            cleaned = execute_cleanup(runtime)
+
+        self.assertEqual(cleaned["status"], "cleanup_verified")
+        self.assertEqual(cleaned["pre_cleanup_usage_snapshot"], snapshot)
+        self.assertEqual(cleaned["cleanup"]["pre_cleanup_usage_snapshot_status"], "captured")
 
     def test_s4_deployment_context_uses_defaults_without_environment_configuration(self):
         s2 = _sample_s2()

@@ -34,10 +34,11 @@ Reuse `agentic_cloud_radar/s5.py`.
 3. Summarize the Skill 3 score and confidence without recalculation.
 4. Render the Skill 3 quote without recalculation: ID, validity, low/expected/high totals, expected line items, assumptions, exclusions and official sources.
 5. Compare the public-price estimate with actual AWS cost only if an attributable Billing, Cost Explorer, or CUR artifact is provided.
-6. Separate verified facts from unknown or unverified statements.
-7. Build an evidence ledger linking claims to source, runtime, or billing artifacts.
-8. Produce one JSON report, embedded Markdown, and a stable GUI model.
-9. Mark the report `final` only when runtime status is `cleanup_verified`; for new `s4.runtime-evidence.v3`, Infrastructure Composer screenshot metadata and `display_channel_confirmed` must both be present. A cost-control abort is `final_without_console_review` with report type `closed_without_console_review`, never a normal actual-PoC final.
+6. If the S4 runtime includes `pre_cleanup_usage_snapshot`, render it as cleanup-before runtime usage evidence: elapsed time, CloudFormation resources, S3 object count/size, Lambda invokes/metrics when available, tags, and recipe-specific resource facts. Keep it separate from actual AWS cost.
+7. Separate verified facts from unknown or unverified statements.
+8. Build an evidence ledger linking claims to source, runtime, or billing artifacts.
+9. Produce one JSON report, embedded Markdown, and a stable GUI model.
+10. Mark the report `final` only when runtime status is `cleanup_verified`; for new `s4.runtime-evidence.v3`, Infrastructure Composer screenshot metadata and `display_channel_confirmed` must both be present. A cost-control abort is `final_without_console_review` with report type `closed_without_console_review`, never a normal actual-PoC final.
 
 ## Required report sections
 
@@ -46,6 +47,7 @@ Reuse `agentic_cloud_radar/s5.py`.
 - Skill 3 evaluation.
 - PoC 成本估算報價單.
 - 預估成本 vs 可歸因實際帳務成本.
+- cleanup 前即時用量快照.
 - Skill 4 validation and runtime checks.
 - Console review outcome, including forced-cleanup reason and approver when applicable.
 - Verified facts.
@@ -60,6 +62,7 @@ Reuse `agentic_cloud_radar/s5.py`.
 - The Skill 3 quote is a static public-rate-card estimate unless `live_pricing_api_used=true`; it is not a real-time AWS Pricing API quotation.
 - `recommend_poc` in artifacts means technically eligible for a controlled PoC, not proof that the candidate fits the company's workload.
 - Runtime duration, CloudFormation status, and cleanup status are not actual billing evidence.
+- `pre_cleanup_usage_snapshot` is immediate runtime evidence only; it may support the cost explanation but must never be converted into actual AWS billing cost.
 - If no attributable Cost Explorer, Billing, or CUR artifact is present, actual cost must remain `pending`.
 - Do not omit zero-charge recipe resources, usage assumptions, exclusions or source URLs.
 - `CREATE_COMPLETE` is deployment evidence, not cleanup evidence.

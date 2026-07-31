@@ -79,6 +79,45 @@ class Skill5Tests(unittest.TestCase):
         self.assertIn("Infrastructure Composer 截圖人工確認", report["conclusion"]["text"])
         self.assertEqual(report["gui_model"]["console_review"]["screenshot_status"], "已截圖並經人類確認（1 張）")
 
+    def test_final_report_renders_pre_cleanup_usage_snapshot_without_actual_cost(self):
+        s1 = {"stage": "S1", "run_id": "run-usage", "candidates": [{"candidate_id": "C8"}]}
+        s2 = {"stage": "S2", "run_id": "run-usage", "candidates": [{"candidate_id": "C8", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
+        s3 = {"stage": "S3", "run_id": "run-usage", "evaluated_candidates": [{"candidate_id": "C8", "title": "Feature", "source_url": "https://aws.amazon.com/example", "recommend_poc": True}]}
+        s4 = {"stage": "S4", "run_id": "run-usage", "validated_candidates": [{"candidate_id": "C8", "validation_status": "poc_ready_for_manual_start"}]}
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "run-usage",
+            "status": "cleanup_verified",
+            "console_review": {"status": "confirmed", "display_channel_confirmed": "conversation", "evidence": {"screenshots": [{"view": "infrastructure_composer"}]}},
+            "cleanup": {"status": "verified", "pre_cleanup_usage_snapshot_status": "captured"},
+            "pre_cleanup_usage_snapshot": {
+                "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+                "status": "captured",
+                "captured_at": "2026-07-31T10:20:00+00:00",
+                "billing_evidence": False,
+                "actual_cost_status": "not_billing_evidence",
+                "timeline": {"deployed_at": "2026-07-31T10:00:00+00:00", "elapsed_seconds": 1200},
+                "sections": {
+                    "cloudformation": {"stack_status": "CREATE_COMPLETE", "resource_count": 4},
+                    "s3": {"object_count_current": 1, "object_version_count": 2, "delete_marker_count": 0, "total_size_bytes": 4096},
+                    "lambda": {
+                        "runtime": "python3.12",
+                        "code_size_bytes": 2048,
+                        "cloudwatch_metrics": {"Invocations": {"sum": 1}, "Errors": {"sum": 0}},
+                    },
+                },
+            },
+        }
+
+        report = build_report(s1, s2, s3, s4, runtime)
+
+        self.assertEqual(report["pre_cleanup_usage_snapshot"]["status"], "captured")
+        self.assertEqual(report["gui_model"]["pre_cleanup_usage_snapshot"]["status_label"], "已擷取")
+        self.assertIn("cleanup 前即時用量快照", report["markdown"])
+        self.assertIn("不是 AWS 帳單", report["markdown"])
+        self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
+
     def test_v3_cleanup_verified_without_screenshot_is_not_final(self):
         s1 = {"stage": "S1", "run_id": "run-cleaned", "candidates": [{"candidate_id": "C6"}]}
         s2 = {"stage": "S2", "run_id": "run-cleaned", "candidates": [{"candidate_id": "C6", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}

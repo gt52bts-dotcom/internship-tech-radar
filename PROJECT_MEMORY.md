@@ -340,3 +340,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Level B may produce an estimated quote, recommended approval ceiling, formulas, assumptions, and official pricing sources even when no candidate-specific cost recipe exists. This resolves the old `needs_registered_cost_model` blocker for candidates that have enough billable service evidence.
 - Cost estimation and deployable Skill 4 recipe registration are separate gates. A Level B quote can support review, but real AWS resource creation still requires a matching Skill 4 deployable recipe; otherwise the deployment context must stop with `needs_poc_recipe`.
 - The Amazon Connect Customer Data Lake run `direct-url-20260731-766826d4` now uses the generic estimator instead of a hand-written special case: detected services include CloudFormation, IAM, Lake Formation, Lambda, RAM, and S3; expected estimate is USD 0.003246 with a USD 0.05 approval ceiling. Skill 4 remains approval-gated and creates no resources automatically.
+
+## 2026-07-31 Skill 4 Pre-Cleanup Usage Snapshot Decision
+
+- Skill 4 cleanup must record `pre_cleanup_usage_snapshot` before deleting AWS resources. The CLI can also write the same artifact as `pre_cleanup_usage_snapshot.json` through `--usage-snapshot-output`.
+- The snapshot is immediate runtime evidence only: deployment/capture timestamps, elapsed seconds, CloudFormation resource inventory, S3 object/version counts and bytes, Lambda configuration and CloudWatch metrics when available, and recipe-specific facts such as EC2 state.
+- The snapshot is not an AWS bill. Skill 5 may use it to explain what ran before cleanup, but actual cost remains pending unless an attributable Billing, Cost Explorer, or CUR artifact is provided.
+- Cleanup should not be delayed while waiting for billing data; Cost Explorer/Billing reconciliation is a later evidence step.

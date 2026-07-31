@@ -412,14 +412,17 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
         or (runtime.get("console_review") or {}).get("display_channel_confirmed") not in {"gui", "conversation"}
     ):
         raise DeploymentError("Cleanup requires screenshot-backed Console confirmation for this runtime schema.")
+    usage_snapshot = _pre_cleanup_usage_snapshot(runtime)
     try:
         checks = _cleanup_stack_resources(runtime)
     except DeploymentError as exc:
         failed = dict(runtime)
         failed["status"] = "cleanup_failed"
+        failed["pre_cleanup_usage_snapshot"] = usage_snapshot
         failed["cleanup"] = {
             "status": "failed",
             "failed_at": _now(),
+            "pre_cleanup_usage_snapshot_status": usage_snapshot.get("status"),
             "error": str(exc),
             "orphan_resource_risk": True,
             "next_action": "Inspect the run-derived stack and re-run scoped cleanup after the blocker is removed.",
@@ -428,9 +431,11 @@ def execute_cleanup(runtime: dict[str, Any]) -> dict[str, Any]:
 
     cleaned = dict(runtime)
     cleaned["status"] = "cleanup_verified"
+    cleaned["pre_cleanup_usage_snapshot"] = usage_snapshot
     cleaned["cleanup"] = {
         "status": "verified",
         "verified_at": _now(),
+        "pre_cleanup_usage_snapshot_status": usage_snapshot.get("status"),
         "checks": checks,
     }
     return cleaned
@@ -456,11 +461,13 @@ def execute_abort_cleanup(
         raise DeploymentError("Abort cleanup requires a concrete reason.")
     if runtime.get("status") in {"awaiting_console_review", "ready_for_cleanup"}:
         _validate_abort_review_deadline(runtime, review_packet)
+    usage_snapshot = _pre_cleanup_usage_snapshot(runtime)
     try:
         checks = _cleanup_stack_resources(runtime)
     except DeploymentError as exc:
         failed = dict(runtime)
         failed["status"] = "cleanup_failed"
+        failed["pre_cleanup_usage_snapshot"] = usage_snapshot
         failed["console_review"] = {
             **dict(runtime.get("console_review") or {}),
             "status": "skipped_for_cost_control",
@@ -471,6 +478,7 @@ def execute_abort_cleanup(
         failed["cleanup"] = {
             "status": "failed",
             "failed_at": _now(),
+            "pre_cleanup_usage_snapshot_status": usage_snapshot.get("status"),
             "error": str(exc),
             "orphan_resource_risk": True,
             "next_action": "Escalate the run-derived residual resources for manual remediation.",
@@ -490,8 +498,10 @@ def execute_abort_cleanup(
         "status": "verified",
         "verified_at": _now(),
         "cleanup_mode": "abort_without_console_review",
+        "pre_cleanup_usage_snapshot_status": usage_snapshot.get("status"),
         "checks": checks,
     }
+    cleaned["pre_cleanup_usage_snapshot"] = usage_snapshot
     return cleaned
 
 
@@ -509,6 +519,321 @@ def _validate_abort_review_deadline(runtime: dict[str, Any], review_packet: dict
         raise DeploymentError("Abort cleanup packet review_deadline must include a timezone.")
     if datetime.now(timezone.utc) < deadline_at.astimezone(timezone.utc):
         raise DeploymentError("The Console review deadline has not passed; use the normal close path.")
+
+
+def _pre_cleanup_usage_snapshot(runtime: dict[str, Any]) -> dict[str, Any]:
+    """Collect immediate runtime facts before deletion; this is not billing evidence."""
+
+    deployment = runtime.get("deployment") or {}
+    stack_name = str(deployment.get("stack_name") or "")
+    resource_prefix = str(deployment.get("resource_prefix") or "")
+    region = str(deployment.get("target_region") or "")
+    profile = str(deployment.get("profile") or DEFAULT_PROFILE)
+    captured_at = _now()
+    snapshot: dict[str, Any] = {
+        "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+        "status": "captured",
+        "run_id": runtime.get("run_id"),
+        "captured_at": captured_at,
+        "source_type": "aws_runtime_facts",
+        "billing_evidence": False,
+        "actual_cost_status": "not_billing_evidence",
+        "rule": (
+            "This snapshot records immediately available runtime facts before cleanup. "
+            "Actual AWS cost still requires attributable Billing, Cost Explorer, or CUR evidence."
+        ),
+        "deployment": {
+            "recipe": deployment.get("recipe"),
+            "stack_name": stack_name,
+            "resource_prefix": resource_prefix,
+            "target_region": region,
+        },
+        "timeline": {
+            "deployed_at": runtime.get("deployed_at"),
+            "captured_at": captured_at,
+            "elapsed_seconds": _elapsed_seconds(runtime.get("deployed_at"), captured_at),
+        },
+        "sections": {},
+        "collection_errors": [],
+    }
+    if not _matches_run_identity(str(runtime.get("run_id") or ""), stack_name, resource_prefix) or not region:
+        snapshot["status"] = "unavailable"
+        snapshot["collection_errors"].append("runtime_identity_or_region_missing")
+        return snapshot
+
+    _add_snapshot_section(snapshot, "cloudformation", lambda: _cloudformation_usage_snapshot(stack_name, profile, region))
+    _add_snapshot_section(snapshot, "s3", lambda: _s3_usage_snapshot(stack_name, profile, region))
+    _add_snapshot_section(snapshot, "lambda", lambda: _lambda_usage_snapshot(stack_name, runtime, captured_at, profile, region))
+    _add_snapshot_section(snapshot, "ec2", lambda: _ec2_usage_snapshot(stack_name, profile, region))
+    if snapshot["collection_errors"]:
+        snapshot["status"] = "partial" if snapshot["sections"] else "unavailable"
+    return snapshot
+
+
+def _add_snapshot_section(snapshot: dict[str, Any], name: str, collect: Any) -> None:
+    try:
+        section = collect()
+    except DeploymentError as exc:
+        snapshot["collection_errors"].append(f"{name}: {str(exc)[:240]}")
+        return
+    if section is not None:
+        snapshot["sections"][name] = section
+
+
+def _cloudformation_usage_snapshot(stack_name: str, profile: str, region: str) -> dict[str, Any]:
+    stacks_payload = _aws_json(["cloudformation", "describe-stacks", "--stack-name", stack_name], profile, region)
+    resources_payload = _aws_json(["cloudformation", "describe-stack-resources", "--stack-name", stack_name], profile, region)
+    stack = (stacks_payload.get("Stacks") or [{}])[0]
+    resources = []
+    for item in resources_payload.get("StackResources") or []:
+        resources.append(
+            {
+                "logical_resource_id": item.get("LogicalResourceId"),
+                "resource_type": item.get("ResourceType"),
+                "resource_status": item.get("ResourceStatus"),
+            }
+        )
+    return {
+        "stack_status": stack.get("StackStatus"),
+        "creation_time": _json_time(stack.get("CreationTime")),
+        "last_updated_time": _json_time(stack.get("LastUpdatedTime")),
+        "tags": _tag_list_to_dict(stack.get("Tags") or []),
+        "resource_count": len(resources),
+        "resources": resources,
+    }
+
+
+def _s3_usage_snapshot(stack_name: str, profile: str, region: str) -> dict[str, Any] | None:
+    try:
+        bucket_name = _stack_resource_physical_id(stack_name, "DataBucket", profile, region)
+    except DeploymentError:
+        return None
+    usage = _s3_bucket_usage(bucket_name, profile, region)
+    return {"bucket_name": bucket_name, "tags": _s3_bucket_tags(bucket_name, profile, region), **usage}
+
+
+def _s3_bucket_usage(bucket_name: str, profile: str, region: str) -> dict[str, Any]:
+    key_marker: str | None = None
+    version_marker: str | None = None
+    versions = 0
+    latest_versions = 0
+    delete_markers = 0
+    total_size_bytes = 0
+    page_count = 0
+    while True:
+        command = ["s3api", "list-object-versions", "--bucket", bucket_name]
+        if key_marker:
+            command.extend(["--key-marker", key_marker])
+        if version_marker:
+            command.extend(["--version-id-marker", version_marker])
+        payload = _aws_json(command, profile, region)
+        page_count += 1
+        for item in payload.get("Versions") or []:
+            versions += 1
+            total_size_bytes += int(item.get("Size") or 0)
+            if item.get("IsLatest") is True:
+                latest_versions += 1
+        delete_markers += len(payload.get("DeleteMarkers") or [])
+        if not payload.get("IsTruncated"):
+            break
+        key_marker = str(payload.get("NextKeyMarker") or "")
+        version_marker = str(payload.get("NextVersionIdMarker") or "")
+        if not key_marker:
+            raise DeploymentError("S3 version listing was truncated without a continuation marker.")
+    return {
+        "object_count_current": latest_versions,
+        "object_version_count": versions,
+        "delete_marker_count": delete_markers,
+        "total_size_bytes": total_size_bytes,
+        "list_pages": page_count,
+    }
+
+
+def _lambda_usage_snapshot(
+    stack_name: str,
+    runtime: dict[str, Any],
+    captured_at: str,
+    profile: str,
+    region: str,
+) -> dict[str, Any] | None:
+    outputs = _stack_outputs(stack_name, profile, region)
+    function_name = outputs.get("FunctionName")
+    if not function_name:
+        return None
+    config = _aws_json(["lambda", "get-function-configuration", "--function-name", function_name], profile, region)
+    tags = _lambda_tags(config.get("FunctionArn"), profile, region)
+    start_time = _metric_start(runtime.get("deployed_at"), captured_at)
+    end_time = _parse_time(captured_at) or datetime.now(timezone.utc)
+    dimensions = f"Name=FunctionName,Value={function_name}"
+    metrics = {
+        "Invocations": _metric_sum("AWS/Lambda", "Invocations", dimensions, start_time, end_time, profile, region),
+        "Errors": _metric_sum("AWS/Lambda", "Errors", dimensions, start_time, end_time, profile, region),
+        "Duration": _metric_average("AWS/Lambda", "Duration", dimensions, start_time, end_time, profile, region),
+    }
+    return {
+        "function_name": function_name,
+        "runtime": config.get("Runtime"),
+        "code_size_bytes": config.get("CodeSize"),
+        "memory_mb": config.get("MemorySize"),
+        "timeout_seconds": config.get("Timeout"),
+        "last_modified": config.get("LastModified"),
+        "tags": tags,
+        "cloudwatch_metrics": metrics,
+    }
+
+
+def _ec2_usage_snapshot(stack_name: str, profile: str, region: str) -> dict[str, Any] | None:
+    outputs = _stack_outputs(stack_name, profile, region)
+    instance_id = outputs.get("TestInstanceId")
+    if not instance_id:
+        return None
+    payload = _aws_json(["ec2", "describe-instances", "--instance-ids", instance_id], profile, region)
+    instances = [
+        instance
+        for reservation in payload.get("Reservations") or []
+        for instance in reservation.get("Instances") or []
+    ]
+    if not instances:
+        return {"instance_id": instance_id, "status": "not_found"}
+    instance = instances[0]
+    return {
+        "instance_id": instance_id,
+        "state": (instance.get("State") or {}).get("Name"),
+        "instance_type": instance.get("InstanceType"),
+        "launch_time": _json_time(instance.get("LaunchTime")),
+        "tags": _tag_list_to_dict(instance.get("Tags") or []),
+    }
+
+
+def _s3_bucket_tags(bucket_name: str, profile: str, region: str) -> dict[str, Any]:
+    try:
+        payload = _aws_json(["s3api", "get-bucket-tagging", "--bucket", bucket_name], profile, region)
+    except DeploymentError as exc:
+        reason = "empty_or_unavailable"
+        if "NoSuchTagSet" not in str(exc):
+            reason = str(exc)[:160]
+        return {"status": "unavailable", "reason": reason, "values": {}}
+    return {"status": "captured", "values": _tag_list_to_dict(payload.get("TagSet") or [])}
+
+
+def _lambda_tags(function_arn: Any, profile: str, region: str) -> dict[str, Any]:
+    if not function_arn:
+        return {"status": "unavailable", "reason": "function_arn_not_returned", "values": {}}
+    try:
+        payload = _aws_json(["lambda", "list-tags", "--resource", str(function_arn)], profile, region)
+    except DeploymentError as exc:
+        return {"status": "unavailable", "reason": str(exc)[:160], "values": {}}
+    tags = payload.get("Tags")
+    return {"status": "captured", "values": tags if isinstance(tags, dict) else {}}
+
+
+def _tag_list_to_dict(tags: list[dict[str, Any]]) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for item in tags:
+        key = item.get("Key")
+        value = item.get("Value")
+        if key is not None and value is not None:
+            values[str(key)] = str(value)
+    return values
+
+
+def _metric_sum(
+    namespace: str,
+    metric_name: str,
+    dimensions: str,
+    start_time: datetime,
+    end_time: datetime,
+    profile: str,
+    region: str,
+) -> dict[str, Any]:
+    payload = _metric_statistics(namespace, metric_name, dimensions, start_time, end_time, "Sum", profile, region)
+    values = [float(point.get("Sum") or 0) for point in payload.get("Datapoints") or []]
+    return {"status": "captured" if values else "no_datapoints_yet", "sum": round(sum(values), 6), "datapoints": len(values)}
+
+
+def _metric_average(
+    namespace: str,
+    metric_name: str,
+    dimensions: str,
+    start_time: datetime,
+    end_time: datetime,
+    profile: str,
+    region: str,
+) -> dict[str, Any]:
+    payload = _metric_statistics(namespace, metric_name, dimensions, start_time, end_time, "Average", profile, region)
+    values = [float(point.get("Average") or 0) for point in payload.get("Datapoints") or []]
+    average = round(sum(values) / len(values), 6) if values else None
+    return {"status": "captured" if values else "no_datapoints_yet", "average": average, "datapoints": len(values)}
+
+
+def _metric_statistics(
+    namespace: str,
+    metric_name: str,
+    dimensions: str,
+    start_time: datetime,
+    end_time: datetime,
+    statistic: str,
+    profile: str,
+    region: str,
+) -> dict[str, Any]:
+    return _aws_json(
+        [
+            "cloudwatch",
+            "get-metric-statistics",
+            "--namespace",
+            namespace,
+            "--metric-name",
+            metric_name,
+            "--start-time",
+            start_time.isoformat(),
+            "--end-time",
+            end_time.isoformat(),
+            "--period",
+            "60",
+            "--statistics",
+            statistic,
+            "--dimensions",
+            dimensions,
+        ],
+        profile,
+        region,
+    )
+
+
+def _metric_start(deployed_at: Any, captured_at: str) -> datetime:
+    captured = _parse_time(captured_at) or datetime.now(timezone.utc)
+    deployed = _parse_time(deployed_at)
+    if not deployed:
+        return captured - timedelta(hours=1)
+    return min(deployed.astimezone(timezone.utc), captured - timedelta(minutes=1))
+
+
+def _elapsed_seconds(start: Any, end: Any) -> int | None:
+    started = _parse_time(start)
+    ended = _parse_time(end)
+    if not started or not ended:
+        return None
+    return max(0, int((ended.astimezone(timezone.utc) - started.astimezone(timezone.utc)).total_seconds()))
+
+
+def _parse_time(value: Any) -> datetime | None:
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        parsed = value
+    else:
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed
+
+
+def _json_time(value: Any) -> str | None:
+    parsed = _parse_time(value)
+    return parsed.isoformat() if parsed else str(value) if value else None
 
 
 def _cleanup_stack_resources(runtime: dict[str, Any]) -> dict[str, str]:
