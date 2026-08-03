@@ -353,6 +353,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - New Skill 5 behavior supersedes the 2026-07-30 estimated-vs-actual-cost plan: S5 no longer accepts a `--billing` artifact and does not reconcile pre-deployment estimates against AWS Billing / Cost Explorer / CUR. Reports must state that the quote is a public-rate-card pre-deployment estimate and is not verified against AWS billing.
 - Skill 4 still records `pre_cleanup_usage_snapshot` before cleanup, but this is runtime evidence only and must not be converted into actual cost.
 - Skill 1 now includes a deterministic explanation layer with `key_points`, `significance`, `implementation_architecture`, and `possible_application_contexts`. Only `source_verbatim` and `derived_summary` support verified facts; `inferred_architecture` and `hypothesis` stay in derived sections.
+- Skill 3 PoC decision reports must begin by explaining what the article is about in human-readable Chinese: before/after/difference, source-backed key points, and inferred minimal architecture. Only after that should they show PoC threshold, score, cost quote, deployable recipe, blockers, review notes, and Cleo's approval choices.
 
 ## 2026-08-03 Mentor S5 Report Presentation Rule
 

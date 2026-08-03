@@ -253,6 +253,9 @@ def _compare_candidate(
         "candidate_id": candidate.get("candidate_id"),
         "title": candidate.get("title"),
         "source_url": candidate.get("source_url"),
+        "initial_claims": candidate.get("initial_claims") or [],
+        "explanation": candidate.get("explanation") or {},
+        "possible_application_contexts": candidate.get("possible_application_contexts") or [],
         "source_category": (candidate.get("rss_source") or {}).get("feed_name"),
         "published_at": (candidate.get("rss_source") or {}).get("feed_item_published_at"),
         "source_provenance": {

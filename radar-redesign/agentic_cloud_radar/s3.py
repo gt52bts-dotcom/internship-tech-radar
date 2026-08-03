@@ -233,6 +233,9 @@ def _evaluate_candidate(
         "candidate_id": candidate.get("candidate_id"),
         "title": candidate.get("title"),
         "source_url": candidate.get("source_url"),
+        "source_explanation": candidate.get("explanation") or {},
+        "initial_claims": candidate.get("initial_claims") or [],
+        "possible_application_contexts": candidate.get("possible_application_contexts") or [],
         "dimension_scores": dimension_scores,
         "weighted_score": weighted_score,
         "recommend_poc": recommend_poc,
@@ -462,9 +465,17 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
         "- 人工關卡：即使達標，也必須由 Cleo 明確同意候選、成本上限、成功條件與 cleanup 範圍，Skill 4 才能開始。",
         "- 本報告不會建立 AWS 資源，也不是部署核准。",
         "",
-        "## 候選判斷",
+        "## 這篇文章在講什麼",
         "",
     ]
+    _append_article_explanation(lines, artifact)
+    lines.extend(
+        [
+            "",
+            "## PoC 判斷",
+            "",
+        ]
+    )
     if not options:
         lines.append("- 尚無可判斷候選。")
     for index, option in enumerate(options, start=1):
@@ -503,6 +514,50 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
         ]
     )
     return "\n".join(lines) + "\n"
+
+
+def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> None:
+    candidates = artifact.get("evaluated_candidates") or []
+    if not candidates:
+        lines.append("- 尚無候選文章可摘要。")
+        return
+    for index, candidate in enumerate(candidates, start=1):
+        explanation = candidate.get("source_explanation") or {}
+        significance = explanation.get("significance") or {}
+        architecture = explanation.get("implementation_architecture") or {}
+        key_points = list(explanation.get("key_points") or [])
+        lines.extend(
+            [
+                f"### {index}. {candidate.get('title') or '未命名候選'}",
+                "",
+            ]
+        )
+        if significance:
+            lines.extend(
+                [
+                    f"- 以前：{significance.get('before') or '原文未整理出明確以前狀態。'}",
+                    f"- 現在：{significance.get('after') or '原文未整理出明確現在狀態。'}",
+                    f"- 差別：{significance.get('difference') or '原文未整理出明確差異。'}",
+                ]
+            )
+        else:
+            claims = [str(item).strip() for item in candidate.get("initial_claims") or [] if str(item).strip()]
+            if claims:
+                lines.append(f"- 摘要：{claims[0]}")
+            else:
+                lines.append("- 摘要：S1/S2 尚未保留可用的文章解釋，需回查來源。")
+        if key_points:
+            lines.append("- 原文重點：")
+            for point in key_points[:3]:
+                lines.append(f"  - {point.get('point')}")
+        flow = architecture.get("data_flow")
+        if flow:
+            lines.append(f"- 推導的最小架構：{flow}")
+        unstated = architecture.get("unstated_but_required_components") or []
+        if unstated:
+            names = [str(item.get("name") or "").strip() for item in unstated if str(item.get("name") or "").strip()]
+            if names:
+                lines.append(f"- 原文未明講但 PoC 需要確認：{', '.join(names)}")
 
 
 def _candidate_by_id(artifact: dict[str, Any], candidate_id: Any) -> dict[str, Any] | None:

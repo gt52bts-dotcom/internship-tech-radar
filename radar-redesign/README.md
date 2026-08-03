@@ -85,13 +85,14 @@ python -m agentic_cloud_radar.cli s2 `
 
 S3 只接受 S2 artifact 和單項 human selection request；沒有人工選定候選，或一次選超過一項，就會停在 `needs_human_shortlist`。S4 的 gate artifact 不會建立 AWS 資源，也不會自動啟動 PoC；Skill 4 本身只有一種含資源、可能產生成本的受控 PoC。
 
-S3 v4 採公開證據模式：候選必須先產出完整 PoC 預估報價單。唯一決策欄位 `recommend_poc` 要求 5 分制加權分 `>= 3.75`、沒有 PoC blocker，且報價狀態為 `estimated`。這個欄位代表「技術上具備受控 PoC 資格」，不是公司工作負載適配性已驗證，也不是業務採用建議。Skill 4 只代表受控、會建立 AWS 資源的付費 PoC；正式付費部署還必須有可部署 recipe、具名核准、成本上限、成功條件與 cleanup 範圍。Region 與定價不確定性會列在 `poc_review_notes`，正式付費部署時 Region 必須可用，或由具名核准人在 approval 明確標示 `region_warning_acknowledged=true`。舊決策欄位只作讀取舊 artifact 的相容 fallback。
+S3 v4 採公開證據模式：候選必須先產出完整 PoC 預估報價單與中文 PoC 決策報告。決策報告必須先說明這篇文章在做什麼（以前/現在/差別、原文重點、推導的最小架構），再列出分數、成本、recipe、blocker 與 Cleo 需要回覆的核准項目。唯一決策欄位 `recommend_poc` 要求 5 分制加權分 `>= 3.75`、沒有 PoC blocker，且報價狀態為 `estimated`。這個欄位代表「技術上具備受控 PoC 資格」，不是公司工作負載適配性已驗證，也不是業務採用建議。Skill 4 只代表受控、會建立 AWS 資源的付費 PoC；正式付費部署還必須有可部署 recipe、具名核准、成本上限、成功條件與 cleanup 範圍。Region 與定價不確定性會列在 `poc_review_notes`，正式付費部署時 Region 必須可用，或由具名核准人在 approval 明確標示 `region_warning_acknowledged=true`。舊決策欄位只作讀取舊 artifact 的相容 fallback。
 
 ```powershell
 python -m agentic_cloud_radar.cli s3 `
   --input .\out\s2-landscape-proposals.json `
   --shortlist .\out\s3-local-shortlist-request.json `
-  --output .\out\s3-local-evaluate.json
+  --output .\out\s3-local-evaluate.json `
+  --decision-report-output .\out\skill3-poc-decision-report.md
 
 python -m agentic_cloud_radar.cli s4 `
   --input .\out\s3-local-evaluate.json `

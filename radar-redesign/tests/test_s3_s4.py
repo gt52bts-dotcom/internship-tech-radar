@@ -33,6 +33,20 @@ def _sample_s2():
                 "candidate_id": "CAND-1",
                 "title": "Example GA AWS Feature",
                 "source_url": "https://aws.amazon.com/blogs/example/example-ga-feature/",
+                "initial_claims": ["以前要人工處理，現在可以用 AWS feature 自動完成。"],
+                "explanation": {
+                    "key_points": [{"point": "現在可以用 AWS feature 自動完成原本的人工流程。"}],
+                    "significance": {
+                        "before": "以前要人工處理。",
+                        "after": "現在可以用 AWS feature 自動完成。",
+                        "difference": "差別是減少人工步驟並讓 PoC 可以用最小流程驗證。",
+                    },
+                    "implementation_architecture": {
+                        "data_flow": "S3（物件儲存） → CloudFormation（基礎設施即程式碼部署）",
+                        "unstated_but_required_components": [{"name": "IAM"}, {"name": "CloudWatch"}],
+                    },
+                },
+                "possible_application_contexts": [{"context": "自動化驗證流程"}],
                 "source_provenance": {
                     "official_aws_source": True,
                     "public_open_source": False,
@@ -204,6 +218,10 @@ class S3S4Tests(unittest.TestCase):
         report = render_poc_decision_report(result)
 
         self.assertIn("Skill 3 PoC 決策報告", report)
+        self.assertIn("## 這篇文章在講什麼", report)
+        self.assertIn("以前：以前要人工處理。", report)
+        self.assertIn("現在：現在可以用 AWS feature 自動完成。", report)
+        self.assertIn("推導的最小架構", report)
         self.assertIn("Skill 3 加權分 >= 3.75 / 5", report)
         self.assertIn("等待 Cleo 決定是否進入 PoC", report)
         self.assertIn("是否值得交給 Cleo 決定進入 Skill 4：是", report)

@@ -29,21 +29,23 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 
 ## Workflow
 
-1. Verify S2 lineage and shortlist candidate IDs.
-2. Stop with `needs_human_shortlist` when no human selection exists or more than one candidate is selected.
+1. Verify S2 lineage and candidate IDs.
+2. Evaluate every S2 candidate by default. Treat `--shortlist` only as an optional filter, not as approval.
 3. Score only evidence-supported dimensions with the fixed rubric.
 4. Record weighted score, Region state, governance flags, stop conditions, and evidence limits.
-5. For the selected candidate, create the entire PoC quote before Skill 4: low/expected/high usage, itemized rates, formulas, official sources, validity, exclusions, quoted Region, `live_pricing_api_used`, and a recommended approval ceiling.
+5. For every evaluated candidate, create the entire PoC quote before Skill 4: low/expected/high usage, itemized rates, formulas, official sources, validity, exclusions, quoted Region, `live_pricing_api_used`, and a recommended approval ceiling.
    - Level A: use a registered candidate-specific PoC recipe and rate card.
    - Level B: when no registered cost recipe exists but S2/IaC/service evidence identifies billable AWS services, use the reusable generic usage model and mark `pricing_level=Level B generic usage model`.
    - Level C: when the service/resource scope is still too vague, return `status=incomplete` with missing inputs instead of inventing a number.
 6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit or permission to deploy.
-7. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
-8. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
+7. Populate `poc_decision_gate` with every evaluated option, including score, quote status, low/expected/high estimate, recommended approval ceiling, blocker list, and the required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`.
+8. When writing the optional Skill 3 PoC decision report, explain the article before the approval decision: what changed, why it matters, key source-backed points, and the inferred minimal implementation architecture. Then show PoC threshold, score, quote, recipe, blockers, and what Cleo must approve before Skill 4.
+9. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
+10. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
 
 ## Guardrails
 
-- Confidence enum is ordered `low < medium < high`; only `medium` and `high` can pass the PoC eligibility gate.
+- Do not use a separate certainty score as a PoC eligibility gate. Use score threshold, blockers, quote readiness, deployable recipe, and named human approval.
 - PoC blocker codes are concrete stop conditions such as `not_ga`, `no_public_source`, `forbidden_service`, `incomplete_cost_quote`, `no_registered_poc_recipe`, `target_region_unavailable`, `unsafe_permissions`, or `production_data_required`.
 - Cost estimation and deployment recipe registration are separate gates. Skill 3 may produce a Level B generic estimate for review; Skill 4 deployment context must still block real AWS resource creation with `needs_poc_recipe` until a deployable recipe exists.
 - Do not award points from an unverified static case study.

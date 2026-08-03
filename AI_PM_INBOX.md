@@ -928,3 +928,11 @@
 - CLI `s3` 新增 `--decision-report-output`，可在 Skill 3 結束時產出中文 PoC 決策報告，列出門檻、分數、報價、低/預期/高成本、recipe、blocker、review notes，最後停下來等 Cleo 決定是否進入 Skill 4。
 - 已照新規則跑一次完整 smoke test 到 Skill 3：URL 匯入 Lambda self-managed S3 code storage，產出 `out/smoke-20260803-lambda-s3-decision-report/skill3-poc-decision-report.md`。結果：Skill 3 分數 `4.15 / 5`，預期成本 USD `0.000749`，高用量 USD `0.003387`，建議核准上限 USD `0.05`，有 deployable recipe，等待 Cleo 是否同意進入 Skill 4。
 - 驗證：`python -m unittest tests.test_costing tests.test_s3_s4 tests.test_s5 -v` 通過 35 tests；`python -m compileall agentic_cloud_radar tests` 通過；完整 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 49 tests。Smoke test artifacts 搜尋不到 `confidence`、`pricing_confidence`、`evidence_confidence` 或「信心」。
+
+## 2026-08-03 12:20 - Skill 3 PoC 決策報告補上文章解釋
+
+- Cleo 指出 Skill 3 PoC 決策報告只列分數與成本，沒有解釋這篇文章在做什麼，導致人類很難判斷是否值得 PoC。
+- 已修正資料傳遞：Skill 2 會保留 Skill 1 的 `explanation`、`initial_claims`、`possible_application_contexts`；Skill 3 evaluation artifact 會保留 `source_explanation`，供決策報告與後續 GUI/報告使用。
+- `render_poc_decision_report()` 現在先輸出「這篇文章在講什麼」：以前、現在、差別、原文重點、推導的最小架構與原文未明講但 PoC 需確認的元件；之後才列 PoC 分數、成本、recipe、blocker 與 Cleo 是否同意進入 Skill 4。
+- 已重跑 Lambda self-managed S3 code storage 的完整流程到 Skill 3，更新 `radar-redesign/out/smoke-20260803-lambda-s3-decision-report/skill3-poc-decision-report.md`。新版報告已包含文章說明，例如 Lambda 從複製部署套件到 Lambda 管理儲存空間，改成可直接參照自主管理 Amazon S3 bucket 中的程式碼。
+- 驗證：`python -m unittest tests.test_s2 tests.test_s3_s4 -v` 通過 28 tests；完整 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 49 tests；`python -m compileall agentic_cloud_radar tests` 通過。

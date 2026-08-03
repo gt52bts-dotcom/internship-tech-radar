@@ -52,6 +52,9 @@ class S2CompareTests(unittest.TestCase):
             result["candidates"][0]["comparison_dimensions"]["target_region_eligibility"]["blocks_s3"]
         )
         card = result["candidates"][0]["proposal_card"]
+        self.assertIn("explanation", result["candidates"][0])
+        self.assertTrue(result["candidates"][0]["explanation"]["key_points"])
+        self.assertIn("initial_claims", result["candidates"][0])
         self.assertEqual(card["proposal_status"], "public_evidence_candidate")
         self.assertIn("improvement_hypothesis", card)
         self.assertIn("tradeoffs_and_risks", card)
