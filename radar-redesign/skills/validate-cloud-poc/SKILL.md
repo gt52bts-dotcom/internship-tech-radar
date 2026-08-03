@@ -35,7 +35,7 @@ Require all of the following:
 
 Use the built-in small-cost ceiling, target Region, recipe success criteria, and cleanup scope unless the reviewer supplies a stricter override.
 
-## Console Screenshot Gate
+## Resource Inventory Gate
 
 After deployment verification, use [`templates/console-review-agent-template.md`](./templates/console-review-agent-template.md). The agent must open the logged-in AWS Console, inspect the deployed stack's **Infrastructure Composer**, capture a screenshot, and show that image in the authenticated GUI or the active conversation. Do not start cleanup until a named human explicitly confirms after seeing the screenshot.
 
@@ -127,3 +127,36 @@ python -m unittest tests.test_s3_s4 -v
 ```
 
 Pass S4 validation and optional runtime evidence to `$report-cloud-evidence`.
+
+
+## Resource inventory replaces the screenshot
+
+The earlier gate captured an Infrastructure Composer PNG. The program could not read
+the image, so it only verified that a file existed with matching metadata; the whole
+judgement rested on a person looking at a picture the code could not check. The
+inventory gate records `describe-stack-resources` instead:
+
+```powershell
+aws cloudformation describe-stack-resources --stack-name <run-derived-stack>
+```
+
+`agentic_cloud_radar/s4_inventory.py` turns that response into the review packet:
+
+- every resource with logical id, type, status, and a redacted physical id;
+- a reconciliation of deployed resources against the resource types the Skill 3
+  quote priced — a `deployed_not_quoted` row means the quote is wrong and must be
+  corrected in its resource list, not just its amount;
+- the IAM actions the run actually needed, which public documentation never states;
+- `inventory_sha256` over exactly the JSON the reviewer confirms, so the bytes a
+  human approved and the bytes the program hashed are the same document.
+
+A named human still confirms before cleanup. Playwright, headful browsers, and
+screenshot storage are no longer required.
+
+## Stage timing
+
+Each stage records `started_at`, `ended_at`, and, at a human gate, `human_wait_seconds`.
+`agentic_cloud_radar/pipeline_timing.py` reports machine time and human wait separately:
+a single elapsed figure would say the pipeline is slow when the code ran in seconds.
+When human wait dominates, the finding is that the bottleneck is the approval path.
+`time_to_first_success_seconds` gives one comparable figure for adoption friction.

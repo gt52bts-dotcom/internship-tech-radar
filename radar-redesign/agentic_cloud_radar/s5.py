@@ -11,6 +11,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+from .pipeline_timing import build_stage_timings
+from .s4_inventory import reconcile_quote_against_resources
+
 
 def build_report(
     scan: dict[str, Any],
@@ -67,6 +70,9 @@ def build_report(
         "cost_quote": _cost_quote(selected),
         "pre_cleanup_usage_snapshot": _pre_cleanup_usage_snapshot(runtime),
         "validation": _validation_summary(validation, runtime),
+        "resource_inventory": _resource_inventory_section(runtime, _cost_quote(selected)),
+        "permission_surface": _permission_surface_section(runtime),
+        "stage_timings": build_stage_timings((runtime or {}).get("stage_timings"), (runtime or {}).get("first_success_at")),
         "verified_facts": _verified_facts(scan, compare, selected, runtime),
         "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime),
         "future_work": _future_work(selected, runtime),
@@ -113,6 +119,9 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(f"- {item}" for item in report["verified_facts"] or ["unknown"])
     lines.extend(["", "## 尚未驗證或證據不足", ""])
     lines.extend(f"- {item}" for item in report["unknown_or_not_verified"] or ["unknown"])
+    lines.extend(_render_resource_inventory(report["resource_inventory"]))
+    lines.extend(_render_permission_surface(report["permission_surface"]))
+    lines.extend(_render_stage_timings(report["stage_timings"]))
     lines.extend(["", "## Future work", ""])
     lines.extend(f"- {item}" for item in report["future_work"] or ["尚無額外 Future work。"])
     lines.extend(["", "## Reviewer questions", ""])
@@ -152,6 +161,9 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
             **report["pre_cleanup_usage_snapshot"],
             "status_label": _usage_snapshot_status_label(report["pre_cleanup_usage_snapshot"].get("status")),
         },
+        "resource_inventory": report["resource_inventory"],
+        "permission_surface": report["permission_surface"],
+        "stage_timings": report["stage_timings"],
         "console_review": _gui_console_review(report),
         "validation_checks": checks,
         "verified_facts": report["verified_facts"],
@@ -383,6 +395,108 @@ def _render_architecture_and_significance(section: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _resource_inventory_section(runtime: dict[str, Any] | None, quote: dict[str, Any]) -> dict[str, Any]:
+    """Render the Skill 4 inventory and its reconciliation against the quote."""
+
+    inventory = (runtime or {}).get("resource_inventory") or {}
+    if not inventory:
+        return {"status": "not_recorded", "note": "此 run 沒有記錄 CloudFormation 資源盤點。"}
+    recorded = inventory.get("quote_reconciliation") or reconcile_quote_against_resources(
+        quote, inventory.get("resources") or []
+    )
+    return {
+        "status": "recorded",
+        "stack_name": inventory.get("stack_name"),
+        "region": inventory.get("region"),
+        "captured_at": inventory.get("captured_at"),
+        "resource_count": inventory.get("resource_count"),
+        "inventory_sha256": inventory.get("inventory_sha256"),
+        "resources": inventory.get("resources") or [],
+        "reconciliation": recorded,
+        "rule": "盤點為 CloudFormation API 回報的結構化資料，可由程式驗證；人工確認的是同一份 JSON。",
+    }
+
+
+def _permission_surface_section(runtime: dict[str, Any] | None) -> dict[str, Any]:
+    inventory = (runtime or {}).get("resource_inventory") or {}
+    surface = inventory.get("permission_surface") or {}
+    if not surface:
+        return {"status": "not_recorded", "note": "此 run 未記錄實際使用的 IAM action。"}
+    return surface
+
+
+def _render_resource_inventory(section: dict[str, Any]) -> list[str]:
+    if section.get("status") != "recorded":
+        return []
+    reconciliation = section.get("reconciliation") or {}
+    labels = {
+        "matched": "相符",
+        "deployed_not_quoted": "報價未涵蓋",
+        "quoted_not_deployed": "報價列了但未部署",
+        "quoted_implicit_resource": "報價已列，屬隱含資源",
+    }
+    lines = ["", "## 報價 vs 實際部署資源", "", f"- 對照結果：{_display_status(reconciliation.get('status'))}", ""]
+    lines.append("| 資源類型 | 報價單有計價 | 實際部署 | 判定 |")
+    lines.append("| --- | :---: | :---: | --- |")
+    for row in reconciliation.get("rows") or []:
+        lines.append(
+            f"| {row['resource_type']} | {'✓' if row['quoted'] else '✗'} | "
+            f"{'✓' if row['deployed'] else '✗'} | {labels.get(row['verdict'], row['verdict'])} |"
+        )
+    if reconciliation.get("deployed_not_quoted"):
+        lines.append("")
+        lines.append(
+            "> 報價單漏列了實際會建立的資源："
+            + "、".join(reconciliation["deployed_not_quoted"])
+            + "。必須修正報價單的資源清單，不能只調整金額。"
+        )
+    lines.extend(["", "## Skill 4 資源盤點", ""])
+    lines.append(f"- Stack：{section.get('stack_name') or '未記錄'}（{section.get('region') or '未記錄'}）")
+    lines.append(f"- 盤點時間：{section.get('captured_at') or '未記錄'}；資源數：{section.get('resource_count')}")
+    lines.append(f"- 盤點雜湊：{section.get('inventory_sha256') or '未記錄'}")
+    lines.extend(["", "| Logical ID | 資源類型 | 狀態 | 實體識別（已遮蔽） |", "| --- | --- | --- | --- |"])
+    for item in section.get("resources") or []:
+        lines.append(
+            f"| {item['logical_id']} | {item['resource_type']} | "
+            f"{item['status']} | {item['physical_id_redacted']} |"
+        )
+    return lines
+
+
+def _render_permission_surface(surface: dict[str, Any]) -> list[str]:
+    if surface.get("status") != "recorded":
+        return []
+    lines = ["", "## 實際權限面", "", f"- 實際觸發 {surface.get('action_count')} 個 IAM action，涵蓋服務："
+             + "、".join(surface.get("services") or []), ""]
+    lines.extend(f"- `{action}`" for action in surface.get("actions") or [])
+    lines.extend(["", f"> {surface.get('note')}"])
+    return lines
+
+
+def _render_stage_timings(timings: dict[str, Any]) -> list[str]:
+    rows = [row for row in timings.get("rows") or [] if row.get("status") == "recorded"]
+    if not rows:
+        return []
+    lines = ["", "## 各階段耗時", "", "| 階段 | 程式耗時（秒） | 人工等待（秒） | 人工關卡 |", "| --- | ---: | ---: | --- |"]
+    for row in rows:
+        lines.append(
+            f"| {row['stage']} | {row.get('machine_seconds') if row.get('machine_seconds') is not None else '未記錄'} "
+            f"| {row.get('human_wait_seconds') if row.get('human_wait_seconds') is not None else '未記錄'} "
+            f"| {row.get('human_gate') or '—'} |"
+        )
+    lines.append("")
+    lines.append(
+        f"- 程式總耗時 {timings.get('machine_seconds_total')} 秒；人工等待總計 "
+        f"{timings.get('human_wait_seconds_total')} 秒。"
+    )
+    if timings.get("human_share") is not None:
+        lines.append(f"- 人工等待佔總時間 {round(timings['human_share'] * 100, 1)}%。")
+    if timings.get("time_to_first_success_seconds") is not None:
+        lines.append(f"- 從 S1 開始到首次驗證通過：{timings['time_to_first_success_seconds']} 秒。")
+    lines.append(f"- {timings.get('reading_note')}")
+    return lines
+
+
 def _source_summary_candidates(candidate: dict[str, Any]) -> list[str]:
     fetched = candidate.get("fetched_source") or {}
     dimensions = candidate.get("comparison_dimensions") or {}
@@ -602,6 +716,10 @@ def _usage_snapshot_status_label(value: Any) -> str:
         "unavailable": "無法擷取",
         "not_recorded": "未記錄",
         "not_billing_evidence": "非帳務證據",
+        "consistent": "報價與實際部署一致",
+        "quote_incomplete": "報價漏列實際資源",
+        "quote_lists_undeployed_resources": "報價列了未部署的資源",
+        "no_quote_resource_list": "報價未宣告資源清單",
         "unknown": "未知",
     }
     return labels.get(str(value or "unknown"), str(value or "未知"))

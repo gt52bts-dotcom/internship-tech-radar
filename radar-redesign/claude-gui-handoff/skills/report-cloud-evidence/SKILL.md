@@ -48,6 +48,10 @@ Reuse `agentic_cloud_radar/s5.py`.
 - PoC 成本估算報價單.
 - cleanup 前即時用量快照.
 - Skill 4 validation and runtime checks.
+- 報價 vs 實際部署資源.
+- Skill 4 資源盤點.
+- 實際權限面.
+- 各階段耗時.
 - Console review outcome, including forced-cleanup reason and approver when applicable.
 - Verified facts under 技術驗證狀態.
 - Unknown or insufficiently supported claims.
@@ -70,7 +74,9 @@ Reuse `agentic_cloud_radar/s5.py`.
 - The billing method and formula of each line item must be shown, so a reviewer can check the calculation itself.
 - Do not omit zero-charge recipe resources, usage assumptions, exclusions or source URLs.
 - `CREATE_COMPLETE` is deployment evidence, not cleanup evidence.
-- Automated checks do not replace Console review.
+- A `deployed_not_quoted` row means the quote omitted a resource the run really creates. Report it as a quote defect, not a rounding difference.
+- The permission surface covers only the tested recipe; it is not the full production permission set.
+- Report machine time and human wait separately. Never combine them into one elapsed figure.
 - Console screenshot metadata proves only that a redacted PNG was captured and hashed. `display_channel_confirmed` records where the named human actually saw it; the program does not inspect image content, so the named human confirmation carries that judgment.
 - A forced cleanup is cost control, not proof that the deployed stack received Console review.
 - Sandbox evidence proves only the tested recipe and workload; do not generalize it to every environment.
