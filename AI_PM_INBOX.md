@@ -987,3 +987,8 @@
 - Cleanup checks 通過：CloudFormation stack deleted、versioned test bucket emptied、run-derived resource prefix matched。AWS CLI `describe-stacks` 回查 `AgenticRadarS4BD3AD967` 回傳 stack 不存在，符合 cleanup 成功。
 - 已產出 S5 final：`s5-report-final.json` 與 `s5-report-final.md`，status=`final`，conclusion=`validated_and_cleaned`。報告包含 cleanup 前 runtime usage snapshot，但仍不把公開牌價預估轉成 AWS 帳務成本。
 - Cleo 提出核心反思：若 S3 的報價單與架構圖已足以判斷新聞價值，而實際帳務成本又要等完整帳期才有意義，S4 PoC 的價值應轉向「功能/權限/部署/cleanup 可行性證據」，而不是拿來做短期實際成本比較。
+
+## 2026-08-03 15:24 - Cross-computer handoff rule update
+
+- Cleo 確認希望另一台電腦只看 GitHub 就能接上目前進度；已更新 `MIGRATION_STATUS.md`，補上最新 pushed checkpoint、Skill 3 評估報告需產生 GPT-style PNG/HTML 圖卡的規則、S4 PoC 的價值定位，以及哪些 local runtime/zip artifacts 不會進 GitHub。
+- GitHub 是可接續的 source of truth；但 raw `radar-redesign/out/`、本機 stage package zip、Console/runtime 原始 artifact 不會推上去。另一台電腦需依 GitHub 的程式、記憶與 migration 文件重新產生或向本機取得 zip。

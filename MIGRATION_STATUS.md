@@ -2,6 +2,8 @@
 
 Last updated: 2026-08-03 Asia/Taipei.
 
+Latest pushed checkpoint: `45141e6 Record Lambda cleanup and S5 final`.
+
 ## What Is In GitHub
 
 The repository is the source of truth for continuing work on another computer.
@@ -22,11 +24,29 @@ The current GitHub version includes:
   evidence under `poc/`.
 - The current AI PM meeting deck under `outputs/`.
 
+## Current Workflow Decisions To Preserve
+
+- Skill 3 is the main human decision point: by the end of S3 the report should
+  already explain the news, show its value, provide a public-rate-card PoC quote,
+  and include a human-readable architecture image.
+- Human-facing Skill 3 decision reports should include a GPT-style raster PNG
+  architecture infographic, not only a Mermaid/text flowchart. When the Markdown
+  preview does not render local images, produce a self-contained HTML report or
+  data-URI image embed so the image is visible directly.
+- Skill 4 PoC is not mainly for proving business value or one-month actual cost.
+  Its value is proving deployment feasibility, Region/account compatibility,
+  IAM/resource wiring, runtime verification, Console review, pre-cleanup usage
+  snapshot capture, and safe cleanup.
+- Skill 5 should report the evidence chain and limits. It should not turn short
+  runtime usage facts into AWS Billing/Cost Explorer/CUR actual cost.
+
 ## What Is Intentionally Not In GitHub
 
 The following local-only categories should not be required on a new computer:
 
 - Raw `radar-redesign/out/` runtime dumps.
+- Generated local stage packages such as
+  `lambda-stage-artifacts-20260803-150444.zip`.
 - Console screenshots and unredacted Console URLs.
 - CDK generated output such as `cdk.out/`, generated zips, local build caches,
   dependency folders, and `.local/` runtime folders.
@@ -43,3 +63,5 @@ The following local-only categories should not be required on a new computer:
 4. Use `radar-redesign/reference-runs/` for evidence examples, not raw local
    runtime output.
 5. Regenerate local artifacts through the CLI when needed.
+6. For a new Skill 3 decision report, generate the PNG/HTML review artifact
+   locally before asking for human PoC approval.
