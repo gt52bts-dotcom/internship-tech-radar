@@ -30,8 +30,7 @@ class Skill5Tests(unittest.TestCase):
         self.assertEqual(report["status"], "interim")
         self.assertIn("REFERENCE 設定", report["conclusion"]["text"])
         self.assertIn("官方定價或實際成本", " ".join(report["unknown_or_not_verified"]))
-        self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
-        self.assertIn("不得以 runtime 估算代替", " ".join(report["unknown_or_not_verified"]))
+        self.assertIn("本流程不進行預估與實際帳務成本比對", " ".join(report["unknown_or_not_verified"]))
         self.assertIn("CloudFormation", report["markdown"])
         self.assertEqual(report["gui_model"]["score"]["weighted_score"], 4.0)
 
@@ -79,7 +78,7 @@ class Skill5Tests(unittest.TestCase):
         self.assertIn("Infrastructure Composer 截圖人工確認", report["conclusion"]["text"])
         self.assertEqual(report["gui_model"]["console_review"]["screenshot_status"], "已截圖並經人類確認（1 張）")
 
-    def test_final_report_renders_pre_cleanup_usage_snapshot_without_actual_cost(self):
+    def test_final_report_renders_pre_cleanup_usage_snapshot(self):
         s1 = {"stage": "S1", "run_id": "run-usage", "candidates": [{"candidate_id": "C8"}]}
         s2 = {"stage": "S2", "run_id": "run-usage", "candidates": [{"candidate_id": "C8", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
         s3 = {"stage": "S3", "run_id": "run-usage", "evaluated_candidates": [{"candidate_id": "C8", "title": "Feature", "source_url": "https://aws.amazon.com/example", "recommend_poc": True}]}
@@ -116,7 +115,6 @@ class Skill5Tests(unittest.TestCase):
         self.assertEqual(report["gui_model"]["pre_cleanup_usage_snapshot"]["status_label"], "已擷取")
         self.assertIn("cleanup 前即時用量快照", report["markdown"])
         self.assertIn("不是 AWS 帳單", report["markdown"])
-        self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
 
     def test_v3_cleanup_verified_without_screenshot_is_not_final(self):
         s1 = {"stage": "S1", "run_id": "run-cleaned", "candidates": [{"candidate_id": "C6"}]}
@@ -190,7 +188,7 @@ class Skill5Tests(unittest.TestCase):
         report = build_report(s1, s2, s3)
 
         self.assertIn("## PoC 成本估算報價單", report["markdown"])
-        self.assertIn("## 預估成本 vs 可歸因實際帳務成本", report["markdown"])
+        self.assertIn("本流程不進行預估與實際帳務成本比對", report["markdown"])
         self.assertIn("## 新聞摘要：應用面優勢", report["markdown"])
         self.assertIn("## Future work", report["markdown"])
         self.assertIn("## Reviewer questions", report["markdown"])
@@ -199,63 +197,13 @@ class Skill5Tests(unittest.TestCase):
         self.assertIn("4.4 / 5", report["markdown"])
         self.assertIn("主要成本驅動", report["markdown"])
         self.assertIn("人工需確認的 PoC 資源", report["markdown"])
-        self.assertIn("實際成本狀態：待補實際帳務證據", report["markdown"])
         self.assertNotIn("| pending |", report["markdown"])
-        self.assertNotIn("| pending_actual_cost |", report["markdown"])
         self.assertNotIn("## 一句結論", report["markdown"])
         self.assertNotIn("| 信心 |", report["markdown"])
         self.assertNotIn("### 報價假設與限制", report["markdown"])
         self.assertNotIn("## 後續提醒", report["markdown"])
-        self.assertNotIn("| PoC 可歸因實際帳務成本 | AWS billing evidence | 待補實際帳務證據 |", report["markdown"])
         self.assertIn("預期總額", report["markdown"])
         self.assertEqual(report["cost_quote"]["expected_total_usd"], 0.04719)
-        self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
         self.assertEqual(report["gui_model"]["cost_quote"]["recommended_approval_ceiling_usd"], 0.2)
         self.assertEqual(report["gui_model"]["cost_quote"]["status_label"], "已完成估算")
-        self.assertEqual(report["gui_model"]["cost_reconciliation"]["status"], "pending_actual_cost")
-        self.assertEqual(report["gui_model"]["cost_reconciliation"]["status_label"], "待補實際成本")
         self.assertGreaterEqual(len(report["gui_model"]["stage_evidence"]), 6)
-
-    def test_attributable_billing_artifact_is_compared_to_estimate(self):
-        from agentic_cloud_radar.costing import build_cost_quote
-
-        candidate = {
-            "candidate_id": "C4",
-            "title": "Launching S3 Files, making S3 buckets accessible as file systems",
-            "source_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
-            "weighted_score": 4.4,
-            "confidence": "medium",
-            "recommend_poc": True,
-        }
-        quote = build_cost_quote(candidate, "run-4", "ap-southeast-1")
-        candidate["cost_estimate"] = {
-            "status": quote["status"],
-            "estimated_usd": quote["expected_total_usd"],
-            "quote_id": quote["quote_id"],
-            "quote": quote,
-        }
-        billing = {
-            "run_id": "run-4",
-            "source_type": "cost_explorer",
-            "attributable": True,
-            "amount_usd": 0.031,
-            "currency": "USD",
-            "source_artifact": "cost-explorer-run-4.json",
-            "period_start": "2026-07-30",
-            "period_end": "2026-07-31",
-            "attribution_key": "agentic-radar-s4",
-        }
-        s1 = {"stage": "S1", "run_id": "run-4", "candidates": [{"candidate_id": "C4"}]}
-        s2 = {"stage": "S2", "run_id": "run-4", "candidates": [candidate]}
-        s3 = {"stage": "S3", "run_id": "run-4", "evaluated_candidates": [candidate]}
-
-        report = build_report(s1, s2, s3, billing=billing)
-
-        self.assertEqual(report["cost_reconciliation"]["status"], "compared")
-        self.assertEqual(report["cost_reconciliation"]["actual"]["amount_usd"], 0.031)
-        self.assertEqual(report["cost_reconciliation"]["delta_usd"], -0.01619)
-        self.assertIn("可歸因實際帳務成本已由 cost_explorer 記錄", " ".join(report["verified_facts"]))
-
-
-if __name__ == "__main__":
-    unittest.main()

@@ -78,4 +78,4 @@ Do not call this a successful Console-reviewed PoC. Skill 5 should show that cle
 - Exception: use `s4-abort --execute` only after the packet deadline, a failed deployment, or a failed normal close; record the named approver and reason.
 - Do not click broad Console deletion actions or delete resources outside the runtime-derived stack. `s4-close` uses the scoped AWS API / CloudFormation cleanup and verifies the outcome.
 - Never commit screenshots, Console session data, account IDs, unredacted URLs, credentials, or private network details.
-- A screenshot is visual evidence of this PoC run only. It is not billing evidence and does not replace the Cost Explorer, Billing, or CUR artifact required for actual cost.
+- A screenshot is visual evidence of this PoC run only. It is not billing evidence. Current Skill 5 does not collect Billing, Cost Explorer, or CUR artifacts and does not report actual AWS cost.

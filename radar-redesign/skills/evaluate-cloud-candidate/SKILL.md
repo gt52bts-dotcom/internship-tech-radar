@@ -61,4 +61,14 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 python -m unittest tests.test_s3_s4 -v
 ```
 
+## Merged decision gate
+
+S3 ends with `poc_decision_gate`, the only human gate before Skill 4. It lists every candidate with weighted score out of 5, Region state, quote status, expected total, recommended ceiling, technical eligibility, and blockers, so one person decides both questions at once: which candidate, and whether the estimated cost is worth spending.
+
+Required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`. Technical eligibility is never approval.
+
+## Cost scope
+
+The quote is a pre-deployment public-rate-card estimate. This pipeline does not collect actual AWS billing and never reconciles estimate against invoice, so the billing method and formula for every line item must be correct on their own: monthly-rate resources prorated by PoC hours, request-priced resources by request count, Lambda charged only per invocation plus GB-seconds. Do not omit any resource the recipe creates, including default CloudWatch log groups.
+
 Pass the S3 artifact to `$validate-cloud-poc`.

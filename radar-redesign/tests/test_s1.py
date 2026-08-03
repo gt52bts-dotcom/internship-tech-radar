@@ -71,3 +71,86 @@ class S1ScanTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class S1ExplanationTests(unittest.TestCase):
+    """The explanation layer must stay auditable and never invent a fact."""
+
+    TITLE = "AWS Lambda announces self-managed code storage - AWS"
+    TEXT = (
+        "AWS Lambda announces self-managed code storage. "
+        "Lambda now supports self-managed Amazon S3 buckets for code storage, "
+        "so you can reference source code directly without an intermediate copy. "
+        "Previously, Lambda always copied your deployment package into "
+        "Lambda-managed storage, which counted against this quota. "
+        "This eliminates the code storage limit and shortens start time."
+    )
+
+    def _build(self, **kwargs):
+        from agentic_cloud_radar.s1_explanation import build_explanation
+
+        params = {
+            "title": self.TITLE,
+            "description": "",
+            "article_text": self.TEXT,
+            "related_services": ["Lambda", "S3"],
+            "demand_card": {},
+        }
+        params.update(kwargs)
+        return build_explanation(**params)
+
+    def test_every_key_point_span_resolves_to_its_own_text(self):
+        explanation = self._build()
+        evidence = explanation["evidence_text"]
+
+        self.assertTrue(explanation["key_points"])
+        for point in explanation["key_points"]:
+            start, end = point["evidence_span"]
+            self.assertEqual(evidence[start:end].strip(), point["point"].strip())
+            self.assertEqual(point["derivation"], "source_verbatim")
+
+    def test_significance_is_a_before_after_contrast_backed_by_key_points(self):
+        explanation = self._build()
+        significance = explanation["significance"]
+
+        self.assertEqual(significance["status"], "derived")
+        self.assertEqual(significance["derivation"], "derived_summary")
+        self.assertIn("Previously", significance["before"])
+        self.assertNotEqual(significance["before"], significance["after"])
+        self.assertEqual(
+            significance["supported_by"],
+            [point["id"] for point in explanation["key_points"]],
+        )
+
+    def test_architecture_marks_components_the_source_never_stated(self):
+        explanation = self._build()
+        architecture = explanation["implementation_architecture"]
+
+        self.assertEqual(architecture["status"], "drafted")
+        self.assertEqual(architecture["derivation"], "inferred_architecture")
+        stated = {item["service"] for item in architecture["core_components"] if item["stated_in_source"]}
+        unstated = {item["service"] for item in architecture["core_components"] if not item["stated_in_source"]}
+        self.assertEqual(stated, {"Lambda", "S3"})
+        self.assertIn("IAM", unstated)
+        self.assertIn("CloudWatch", unstated)
+        self.assertEqual(sorted(architecture["unstated_prerequisites"]), ["CloudWatch", "IAM"])
+
+    def test_source_derived_application_contexts_stay_hypotheses(self):
+        explanation = self._build(demand_card={"business_domain": "保單批次處理"})
+        contexts = explanation["possible_application_contexts"]
+
+        stated = [item for item in contexts if item["derivation"] == "source_verbatim"]
+        derived = [item for item in contexts if item["derivation"] == "hypothesis"]
+        self.assertEqual(stated[0]["context"], "保單批次處理")
+        self.assertTrue(derived)
+        for item in derived:
+            self.assertIn("assumption", item)
+
+    def test_missing_service_evidence_blocks_the_architecture_draft(self):
+        explanation = self._build(related_services=[])
+
+        self.assertEqual(explanation["implementation_architecture"]["status"], "needs_service_evidence")
+        self.assertTrue(explanation["explanation_gaps"])
+
+    def test_explanation_is_deterministic(self):
+        self.assertEqual(self._build(), self._build())

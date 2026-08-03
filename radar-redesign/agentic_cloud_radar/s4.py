@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
-ALLOWED_S3_STATUSES = {"evaluated"}
+ALLOWED_S3_STATUSES = {"awaiting_poc_decision", "evaluated"}
 DEFAULT_MAX_SMALL_POC_USD = 3.0
 
 
@@ -69,7 +69,7 @@ def _validate_s3(evaluate: dict[str, Any]) -> list[ValidateIssue]:
         return [
             ValidateIssue(
                 "s3_not_usable",
-                "S4 requires an S3 artifact with status evaluated.",
+                "S4 requires an S3 artifact with status awaiting_poc_decision.",
                 "blocker",
             )
         ]

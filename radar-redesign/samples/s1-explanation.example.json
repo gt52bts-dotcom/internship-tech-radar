@@ -1,0 +1,188 @@
+{
+  "derivation_legend": {
+    "source_verbatim": "頁面原文即有此陳述",
+    "derived_summary": "由原文壓縮，未加入新事實",
+    "inferred_architecture": "實作所需，原文未必提及",
+    "hypothesis": "可能的應用，尚未證實"
+  },
+  "evidence_text": "AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。 AWS Lambda 是一項無伺服器運算服務，可執行您的程式碼，無需您管理伺服器。部署許多函數及作為 Lambda 層的額外程式碼的客戶，每個區域通常需要超過 75GB 的程式碼儲存空間，因此必須提交支援工單以提高此配額。先前，Lambda 在建立函數和層時，一律會將您的部署套件複製到由 Lambda 管理的儲存空間，並計入此限制。現在，透過自主管理程式碼儲存空間，Lambda 可直接在您的 Amazon S3 儲存貯體中參照程式碼而不建立副本，因此您可儲存儲存貯體所允許數量的函數和層程式碼。您可在自己的帳戶中，為部署套件維護單一真實來源。自主管理儲存空間不會產生額外的 Lambda 費用；您只需支付標準 Amazon S3 儲存空間費用，以及適用時的跨區域資料傳輸費率。此外，Lambda 已將每個帳戶每個區域的 Lambda 管理程式碼儲存空間預設限制從 75GB 提高至 300GB。 所有商業 AWS 區域皆提供自主管理的 Amazon S3 程式碼儲存功能。 若要開始使用，請在透過 AWS CLI、AWS CloudFormation、AWS SAM 或 AWS SDK 建立或更新函數和層時，將 `S3ObjectStorageMode` 參數設定為 `REFERENCE`。您必須在您的 S3 儲存貯體上，授予 Lambda 服務主體 `s3:GetObject` 和 `s3:GetObjectVersion` 權限。您也可以透過 Lambda 主控台更新函數，以使用自主管理程式碼儲存空間。若要進一步了解，請瀏覽",
+  "evidence_text_note": "所有 evidence_span 都是這段 evidence_text 的字元區間；重播時請以此欄位為準，勿用 fetched_source.text_excerpt。",
+  "key_points": [
+    {
+      "id": "KP-1",
+      "point": "AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。",
+      "evidence_span": [
+        0,
+        100
+      ],
+      "derivation": "source_verbatim",
+      "signal_score": 12
+    },
+    {
+      "id": "KP-2",
+      "point": "這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。",
+      "evidence_span": [
+        100,
+        143
+      ],
+      "derivation": "source_verbatim",
+      "signal_score": 6
+    },
+    {
+      "id": "KP-3",
+      "point": "AWS Lambda 是一項無伺服器運算服務，可執行您的程式碼，無需您管理伺服器。",
+      "evidence_span": [
+        144,
+        185
+      ],
+      "derivation": "source_verbatim",
+      "signal_score": 3
+    },
+    {
+      "id": "KP-4",
+      "point": "部署許多函數及作為 Lambda 層的額外程式碼的客戶，每個區域通常需要超過 75GB 的程式碼儲存空間，因此必須提交支援工單以提高此配額。",
+      "evidence_span": [
+        185,
+        255
+      ],
+      "derivation": "source_verbatim",
+      "signal_score": 9
+    },
+    {
+      "id": "KP-5",
+      "point": "現在，透過自主管理程式碼儲存空間，Lambda 可直接在您的 Amazon S3 儲存貯體中參照程式碼而不建立副本，因此您可儲存儲存貯體所允許數量的函數和層程式碼。",
+      "evidence_span": [
+        311,
+        393
+      ],
+      "derivation": "source_verbatim",
+      "signal_score": 6
+    }
+  ],
+  "significance": {
+    "status": "derived",
+    "derivation": "derived_summary",
+    "supported_by": [
+      "KP-1",
+      "KP-2",
+      "KP-3",
+      "KP-4",
+      "KP-5"
+    ],
+    "subject": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
+    "before": "先前，Lambda 在建立函數和層時，一律會將您的部署套件複製到由 Lambda 管理的儲存空間，並計入此限制。",
+    "before_span": [
+      255,
+      311
+    ],
+    "after": "AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。",
+    "after_span": [
+      0,
+      100
+    ],
+    "difference": "這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。",
+    "difference_span": [
+      100,
+      143
+    ],
+    "limits": [
+      "這是原文陳述的壓縮，不是實測結果。",
+      "任何量化改善若原文未給數據，仍屬未驗證。"
+    ]
+  },
+  "implementation_architecture": {
+    "status": "drafted",
+    "derivation": "inferred_architecture",
+    "core_components": [
+      {
+        "service": "Lambda",
+        "role": "無伺服器函數執行",
+        "stated_in_source": true,
+        "derivation": "source_verbatim"
+      },
+      {
+        "service": "S3",
+        "role": "物件儲存",
+        "stated_in_source": true,
+        "derivation": "source_verbatim"
+      },
+      {
+        "service": "CloudFormation",
+        "role": "基礎設施即程式碼部署",
+        "stated_in_source": true,
+        "derivation": "source_verbatim"
+      },
+      {
+        "service": "IAM",
+        "role": "授予各資源之間所需的最小權限",
+        "stated_in_source": false,
+        "derivation": "inferred_architecture"
+      },
+      {
+        "service": "CloudWatch",
+        "role": "接收執行日誌，預設 log group 會產生費用",
+        "stated_in_source": false,
+        "derivation": "inferred_architecture"
+      }
+    ],
+    "data_flow": "Lambda（無伺服器函數執行） → S3（物件儲存） → CloudFormation（基礎設施即程式碼部署）",
+    "minimal_poc_shape": [
+      "建立 Lambda（無伺服器函數執行）",
+      "建立 S3（物件儲存）",
+      "建立 CloudFormation（基礎設施即程式碼部署）",
+      "以最小輸入執行一次，確認回讀結果符合預期"
+    ],
+    "unstated_prerequisites": [
+      "IAM",
+      "CloudWatch"
+    ],
+    "recipe_draft_hint": "此草案供 Skill 4 在候選未登錄 recipe 時交由人工審閱，不得直接部署。",
+    "limits": [
+      "元件由偵測到的服務名稱推導，不是官方參考架構。",
+      "標記 stated_in_source=false 的元件原文未提及，需人工確認。"
+    ]
+  },
+  "possible_application_contexts": [
+    {
+      "context": "這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。",
+      "derivation": "hypothesis",
+      "origin": "fetched_source",
+      "evidence_span": [
+        100,
+        143
+      ],
+      "assumption": "原文描述了這個情境，但未證實此功能能解決你的工作負載。"
+    },
+    {
+      "context": "部署許多函數及作為 Lambda 層的額外程式碼的客戶，每個區域通常需要超過 75GB 的程式碼儲存空間，因此必須提交支援工單以提高此配額。",
+      "derivation": "hypothesis",
+      "origin": "fetched_source",
+      "evidence_span": [
+        185,
+        255
+      ],
+      "assumption": "原文描述了這個情境，但未證實此功能能解決你的工作負載。"
+    },
+    {
+      "context": "先前，Lambda 在建立函數和層時，一律會將您的部署套件複製到由 Lambda 管理的儲存空間，並計入此限制。",
+      "derivation": "hypothesis",
+      "origin": "fetched_source",
+      "evidence_span": [
+        255,
+        311
+      ],
+      "assumption": "原文描述了這個情境，但未證實此功能能解決你的工作負載。"
+    },
+    {
+      "context": "此外，Lambda 已將每個帳戶每個區域的 Lambda 管理程式碼儲存空間預設限制從 75GB 提高至 300GB。",
+      "derivation": "hypothesis",
+      "origin": "fetched_source",
+      "evidence_span": [
+        484,
+        543
+      ],
+      "assumption": "原文描述了這個情境，但未證實此功能能解決你的工作負載。"
+    }
+  ],
+  "explanation_gaps": []
+}

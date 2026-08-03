@@ -911,3 +911,11 @@
 - Cleanup checks 通過：CloudFormation stack deleted、versioned test bucket emptied、run-derived prefix matched。AWS CLI `describe-stacks` 回傳 stack 不存在，符合 cleanup 後狀態。
 - 已產出 Skill 5 final：`radar-redesign/out/s3-files-20260731-manual-console/s5-report.json` 與 `s5-report.md`。Report status=`final`，conclusion=`validated_and_cleaned`。
 - 實際帳務成本仍為 pending，原因是尚未提供可歸因的 Billing、Cost Explorer 或 CUR artifact；Skill 5 已包含 Skill 3 預估與 cleanup 前 runtime usage snapshot 供後續比較。
+
+## 2026-08-03 11:27 - Skill 3 合併 PoC 決策關卡與 Skill 1 解釋層 patch 套用
+
+- 依 Cleo 提供的兩個 patch 套用新流程：Skill 3 不再要求事先 shortlist，而是評估與報價每個 S2 候選，最後輸出 `poc_decision_gate`，由同一個人工關卡決定候選與成本是否核准。
+- Skill 5 已移除 `--billing` 輸入與預估/實際帳務成本比對；新版報告只呈現部署前公開牌價估算、runtime evidence 與限制聲明，並明確說明金額未經 AWS 帳務資料驗證。
+- Skill 1 新增 deterministic explanation layer：`key_points`、`significance`、`implementation_architecture`、`possible_application_contexts`；原文明述與推導內容以 `derivation` 區分。
+- 同步更新主 repo 與 `claude-gui-handoff` 的 Skill 文件，並加入三個 samples：`s1-explanation.example.json`、`s3-merged-poc-gate.example.json`、`s5-report-with-explanation.example.md`。
+- 驗證：`python -m unittest tests.test_costing tests.test_s3_s4 tests.test_s5 -v` 通過 34 tests；`python -m unittest tests.test_s1.S1ExplanationTests -v` 通過 6 tests；`python -m compileall agentic_cloud_radar tests` 通過；全測試 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 48 tests。

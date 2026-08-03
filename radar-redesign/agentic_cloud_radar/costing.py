@@ -227,6 +227,7 @@ S3_FILES_SCENARIOS = {
         "import_write_gb": Decimal("0.02"),
         "tier1_requests": Decimal("30"),
         "tier2_requests": Decimal("60"),
+        "ebs_gb": Decimal("8"),
     },
     "expected": {
         "label": "預期用量",
@@ -238,6 +239,7 @@ S3_FILES_SCENARIOS = {
         "import_write_gb": Decimal("0.10"),
         "tier1_requests": Decimal("100"),
         "tier2_requests": Decimal("200"),
+        "ebs_gb": Decimal("8"),
     },
     "high": {
         "label": "高用量",
@@ -249,14 +251,15 @@ S3_FILES_SCENARIOS = {
         "import_write_gb": Decimal("0.50"),
         "tier1_requests": Decimal("500"),
         "tier2_requests": Decimal("1000"),
+        "ebs_gb": Decimal("8"),
     },
 }
 
 
 LAMBDA_SELF_MANAGED_SCENARIOS = {
-    "low": {"label": "低用量", "hours": Decimal("0.5"), "artifact_gb": Decimal("0.01"), "lambda_requests": Decimal("5"), "lambda_gb_seconds": Decimal("1"), "s3_put_requests": Decimal("10"), "s3_get_requests": Decimal("10")},
-    "expected": {"label": "預期用量", "hours": Decimal("1"), "artifact_gb": Decimal("0.02"), "lambda_requests": Decimal("15"), "lambda_gb_seconds": Decimal("5"), "s3_put_requests": Decimal("30"), "s3_get_requests": Decimal("30")},
-    "high": {"label": "高用量", "hours": Decimal("2"), "artifact_gb": Decimal("0.05"), "lambda_requests": Decimal("50"), "lambda_gb_seconds": Decimal("20"), "s3_put_requests": Decimal("100"), "s3_get_requests": Decimal("100")},
+    "low": {"label": "低用量", "hours": Decimal("0.5"), "artifact_gb": Decimal("0.01"), "lambda_requests": Decimal("5"), "lambda_gb_seconds": Decimal("1"), "s3_put_requests": Decimal("10"), "s3_get_requests": Decimal("10"), "log_gb": Decimal("0.0005")},
+    "expected": {"label": "預期用量", "hours": Decimal("1"), "artifact_gb": Decimal("0.02"), "lambda_requests": Decimal("15"), "lambda_gb_seconds": Decimal("5"), "s3_put_requests": Decimal("30"), "s3_get_requests": Decimal("30"), "log_gb": Decimal("0.001")},
+    "high": {"label": "高用量", "hours": Decimal("2"), "artifact_gb": Decimal("0.05"), "lambda_requests": Decimal("50"), "lambda_gb_seconds": Decimal("20"), "s3_put_requests": Decimal("100"), "s3_get_requests": Decimal("100"), "log_gb": Decimal("0.005")},
 }
 
 
@@ -526,7 +529,7 @@ def _price_s3_files_scenario(name: str, assumptions: dict[str, Decimal]) -> dict
     active_gb = assumptions["active_gb"]
     items = [
         _line("ec2_t3_micro", hours, "hours", "hours x USD/instance-hour"),
-        _line("ebs_gp3", Decimal("8") * hours / HOURS_PER_MONTH, "GB-month", "8 GiB x hours / 730 x USD/GB-month"),
+        _line("ebs_gp3", assumptions["ebs_gb"] * hours / HOURS_PER_MONTH, "GB-month", "EBS GiB x hours / 730 x USD/GB-month"),
         _line("s3_files_storage", active_gb * hours / HOURS_PER_MONTH, "GB-month", "active GB x hours / 730 x USD/GB-month"),
         _line("s3_files_write", assumptions["write_gb"], "GB", "write GB x USD/GB"),
         _line("s3_files_export_read", assumptions["export_read_gb"], "GB", "export/read GB x USD/GB"),
@@ -546,6 +549,7 @@ def _price_lambda_self_managed_scenario(name: str, assumptions: dict[str, Decima
         _line("s3_standard_storage", assumptions["artifact_gb"] * assumptions["hours"] / HOURS_PER_MONTH, "GB-month", "artifact GB x hours / 730 x USD/GB-month"),
         _line("s3_tier1_request", assumptions["s3_put_requests"], "requests", "PUT/COPY/POST/LIST count x USD/request"),
         _line("s3_tier2_request", assumptions["s3_get_requests"], "requests", "GET count x USD/request"),
+        _line("cloudwatch_logs_ingestion", assumptions["log_gb"], "GB ingested", "Lambda 預設 log group 寫入 GB x USD/GB"),
     ]
     return _scenario(name, assumptions, items)
 
@@ -592,7 +596,8 @@ def _price_generic_scenario(name: str, assumptions: dict[str, Decimal], services
 
 
 def _scenario(name: str, assumptions: dict[str, Decimal], items: list[dict[str, Any]]) -> dict[str, Any]:
-    total = sum((Decimal(str(item["subtotal_usd"])) for item in items), Decimal("0"))
+    total = sum((item["_raw_subtotal"] for item in items), Decimal("0"))
+    items = [{key: value for key, value in item.items() if key != "_raw_subtotal"} for item in items]
     return {
         "scenario": name,
         "label": str(assumptions["label"]),
@@ -615,6 +620,7 @@ def _line(rate_key: str, quantity: Decimal, quantity_unit: str, formula: str) ->
         "quantity_unit": quantity_unit,
         "formula": formula,
         "subtotal_usd": _money(subtotal),
+        "_raw_subtotal": subtotal,
         "source_url": rate["source_url"],
         "source_basis": rate["source_basis"],
         "effective_date": rate["effective_date"],

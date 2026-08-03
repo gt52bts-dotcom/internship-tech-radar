@@ -71,7 +71,7 @@ flowchart LR
 
 ## 最終發表驗證衝刺
 
-2026-07-31（五）第一版完整交付已完成主要證據收斂：五個 Skills、可重用 Skill 3 估價系統、Lambda 與 S3 Files 兩條真實 PoC、cleanup 前即時用量快照、cleanup 回查與 Skill 5 報告都已落地。這些只代表隔離測試結果，不延伸為未測環境或公司 production 結論。下一階段重點是 final proposal 素材、帳務成本歸因與 Console 截圖流程自動化。
+2026-07-31（五）第一版完整交付已完成主要證據收斂：五個 Skills、可重用 Skill 3 估價系統、Lambda 與 S3 Files 兩條真實 PoC、cleanup 前即時用量快照、cleanup 回查與 Skill 5 報告都已落地。2026-08-03 起流程改為 Skill 3 直接評估所有 S2 候選並輸出單一 PoC 決策關卡，同時新版 Skill 5 不再做預估成本與實際帳務成本比對。這些只代表隔離測試結果，不延伸為未測環境或公司 production 結論。下一階段重點是 final proposal 素材、Console 截圖流程自動化與 GUI 同步。
 
 | 日期 | 主軸 | 當日完成條件 |
 |---|---|---|
@@ -86,7 +86,7 @@ flowchart LR
 | 交付物 | 日期 / 時點 | 目前狀態 | 完成條件 |
 |---|---|---|---|
 | AI PM 科會 10 分鐘報告 | 2026-08-11（二）15:30 | 簡報與講稿已完成；直接沿用原訂 2026-07-28 報告版本。 | 準時完成 10 分鐘報告；依既有版本呈現 2-3 組去識別化 input/output 前後差異、限制與下一步。 |
-| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 已完成。五個正式 Skill packages 已建立；全測試 43 項通過。S3 Files 與 Lambda self-managed S3 code storage 都已完整走過 Scan→Report、live PoC、人工 Console review、cleanup 前用量快照、cleanup、final report 與成本對帳 pending 標示；Mentor review package 已建立。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor review package。 |
+| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 已完成。五個正式 Skill packages 已建立；全測試 43 項通過。S3 Files 與 Lambda self-managed S3 code storage 都已完整走過 Scan→Report、live PoC、人工 Console review、cleanup 前用量快照、cleanup 與 final report；Mentor review package 已建立。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor review package。 |
 | CIP 雙週工作進度（7/20-7/31） | 2026-07-31（五） | 已匯出 `2026CIP_WangGuanting_biweekly_worklog2_20260720-20260731.docx`，內容按成果與影響整理。 | 匯出正式檔案，內容按成果與影響整理，不寫成逐日流水帳。 |
 | CIP 雙週工作進度（8/3-8/14） | 2026-08-14（五） | 未開始。 | 匯出正式檔案，補齊該期間成果、問題、學習與下期重點。 |
 | 最終部會實習成果簡報 / 展示 | 2026-08-17（一） | 素材累積中。 | 完成最終簡報、展示路線、時間控制與可驗證成果標註。 |

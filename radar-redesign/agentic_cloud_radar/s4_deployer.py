@@ -92,7 +92,7 @@ def build_approval_template(
 ) -> dict[str, Any]:
     """Create the human-editable S4 approval file from a Skill 3 artifact."""
 
-    if evaluate.get("stage") != "S3" or evaluate.get("status") != "evaluated":
+    if evaluate.get("stage") != "S3" or evaluate.get("status") not in {"awaiting_poc_decision", "evaluated"}:
         raise DeploymentError("S4 approval template requires an evaluated Skill 3 artifact.")
     candidates = evaluate.get("evaluated_candidates") or []
     selected = _select_approval_candidate(candidates, selected_candidate_id)
@@ -970,7 +970,7 @@ def _context_errors(
     evaluate: dict[str, Any], approval: dict[str, Any], validation: dict[str, Any], selected: dict[str, Any] | None
 ) -> list[str]:
     errors: list[str] = []
-    if evaluate.get("stage") != "S3" or evaluate.get("status") != "evaluated":
+    if evaluate.get("stage") != "S3" or evaluate.get("status") not in {"awaiting_poc_decision", "evaluated"}:
         errors.append("s3_not_usable")
     if approval.get("schema_version") not in {None, "", DEPLOYMENT_APPROVAL_SCHEMA}:
         errors.append("approval_schema_unsupported")

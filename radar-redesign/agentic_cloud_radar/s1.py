@@ -22,6 +22,7 @@ from xml.etree import ElementTree
 from urllib.parse import urlencode, urljoin, urlparse
 from urllib.request import Request, urlopen
 
+from .s1_explanation import build_explanation
 from .service_detection import detect_service_signals, service_names, tags_from_text
 
 
@@ -882,6 +883,14 @@ def _candidate_from_fetched_source(
         data_gaps.append("No supported AWS service name was detected in the fetched official page text.")
 
     run_id = str(demand_card.get("run_id") or "unknown-run")
+    explanation = build_explanation(
+        title=title,
+        description=fetched.description,
+        article_text=article_text,
+        related_services=related_services,
+        demand_card=demand_card,
+    )
+    data_gaps.extend(explanation["explanation_gaps"])
     return {
         "candidate_id": _make_candidate_id(run_id, title, fetched.final_url),
         "title": title,
@@ -900,7 +909,8 @@ def _candidate_from_fetched_source(
         "related_aws_services": related_services,
         "service_detection": service_detection,
         "initial_claims": _claims_from_source(fetched.description, article_text),
-        "possible_application_contexts": _application_contexts(demand_card),
+        "explanation": explanation,
+        "possible_application_contexts": explanation["possible_application_contexts"],
         "tags": tags_from_text(detection_text),
         "maturity_evidence": maturity_evidence,
         "data_gaps": data_gaps,

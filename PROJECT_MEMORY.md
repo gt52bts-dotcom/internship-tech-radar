@@ -91,11 +91,10 @@
 - 報價一律標示為依 AWS 公開牌價與明列用量假設產生的非約束性估算，不是 AWS 帳單、發票或正式 AWS 銷售報價；實際費用須在部署後以 AWS 帳務資料核對。
 - S3 Files 第一版費率模型使用 `ap-southeast-1` 公開牌價，預期情境為 2 小時／0.10 GB，高情境為 4 小時／0.50 GB；建議核准上限取高情境向上進位，不以 USD 3 固定 ceiling 冒充估價。
 
-## 2026-07-30 Estimated vs Actual Cost Decision
+## 2026-07-30 Estimated vs Actual Cost Decision（Superseded 2026-08-03）
 
-- Cleo 要求新版 Skill 5 在 PoC 後比較「部署前預估成本」與「AWS 可歸因的實際帳務成本」，並顯示金額差異、百分比差異、資料期間、歸因方法與帳務證據狀態。
-- 實際成本只能來自 AWS Billing、Cost Explorer、CUR 或其他可回查帳務資料；不得用執行時間乘公開牌價冒充實際費用。若帳務資料尚未入帳或無法歸因到該 run，Skill 5 必須標示 `pending`／`not attributable`。
-- 這項工作預定 2026-07-31 08:00 開始；先補 schema、renderer 與測試，再以可取得的帳務證據回填。
+- Historical plan: Skill 5 originally planned to compare pre-deployment estimates with attributable AWS Billing / Cost Explorer / CUR evidence.
+- Superseded by the 2026-08-03 merged PoC decision update: current Skill 5 no longer accepts billing artifacts and no longer performs estimated-vs-actual billing reconciliation. It only renders the pre-deployment public-rate-card estimate, runtime evidence, and limitations.
 
 ## 2026-07-30 Active S3 Files S4 PoC
 
@@ -331,7 +330,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 ## 2026-07-31 Human-Facing Report Language Rule
 
-- Human-facing Skill reports, quote reports, Markdown output, and GUI display labels must show statuses in Traditional Chinese instead of raw machine codes such as `interim`, `needs_registered_cost_model`, `pending_actual_cost`, `region_unknown`, `unknown`, or `not_available`.
+- Human-facing Skill reports, quote reports, Markdown output, and GUI display labels must show statuses in Traditional Chinese instead of raw machine codes such as `interim`, `needs_registered_cost_model`, `region_unknown`, `unknown`, or `not_available`.
 - Machine-readable JSON status fields may remain stable English codes for tests and workflow logic, but every user-visible report layer should include or render a Chinese label.
 
 ## 2026-07-31 Reusable Skill 3 Cost Estimation Decision
@@ -345,8 +344,15 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - Skill 4 cleanup must record `pre_cleanup_usage_snapshot` before deleting AWS resources. The CLI can also write the same artifact as `pre_cleanup_usage_snapshot.json` through `--usage-snapshot-output`.
 - The snapshot is immediate runtime evidence only: deployment/capture timestamps, elapsed seconds, CloudFormation resource inventory, S3 object/version counts and bytes, Lambda configuration and CloudWatch metrics when available, and recipe-specific facts such as EC2 state.
-- The snapshot is not an AWS bill. Skill 5 may use it to explain what ran before cleanup, but actual cost remains pending unless an attributable Billing, Cost Explorer, or CUR artifact is provided.
-- Cleanup should not be delayed while waiting for billing data; Cost Explorer/Billing reconciliation is a later evidence step.
+- The snapshot is not an AWS bill. Skill 5 may use it to explain what ran before cleanup, but it must not convert runtime facts into actual cost.
+- Cleanup should not be delayed while waiting for billing data; current Skill 5 does not perform Billing / Cost Explorer / CUR reconciliation.
+
+## 2026-08-03 Merged PoC Decision Gate and S1 Explanation Layer
+
+- New Skill 3 behavior supersedes the older mandatory shortlist gate: Skill 3 evaluates and quotes every S2 candidate, then emits one `poc_decision_gate` where the human chooses `selected_candidate_id`, `approved_by`, and `approved_ceiling_usd`. `--shortlist` remains only as an optional candidate filter, not as the approval gate.
+- New Skill 5 behavior supersedes the 2026-07-30 estimated-vs-actual-cost plan: S5 no longer accepts a `--billing` artifact and does not reconcile pre-deployment estimates against AWS Billing / Cost Explorer / CUR. Reports must state that the quote is a public-rate-card pre-deployment estimate and is not verified against AWS billing.
+- Skill 4 still records `pre_cleanup_usage_snapshot` before cleanup, but this is runtime evidence only and must not be converted into actual cost.
+- Skill 1 now includes a deterministic explanation layer with `key_points`, `significance`, `implementation_architecture`, and `possible_application_contexts`. Only `source_verbatim` and `derived_summary` support verified facts; `inferred_architecture` and `hypothesis` stay in derived sections.
 
 ## 2026-08-03 Mentor S5 Report Presentation Rule
 
@@ -356,7 +362,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Verified facts belong under the technical validation status, not as a vague standalone `已證實事實` section.
 - The old human-facing `後續提醒` section is removed. S5 reports must include `Future work`, reviewer-style questions, and human-useful related reading keywords.
 - The report should ask what else is worth doing for this news item in the PoC, and what a reviewer would challenge or ask Cleo to explain further.
-- The evidence source table must not include a pending PoC billing row as if it were evidence. Actual cost remains in the cost reconciliation table and only becomes evidence when Cost Explorer, Billing, or CUR attribution exists.
+- The evidence source table must not include a pending PoC billing row as if it were evidence. Current Skill 5 does not render an actual-cost reconciliation table; it only states that pre-deployment estimates are not verified against AWS billing.
 - PoC quotation presentation must put expected scenario assumptions before line-item details, identify the resources a human must confirm, and call out the most expensive expected line item plus the usage condition that would increase it.
 - PoC quotes usually rely on monthly or usage-based public price units; reports must state the conversion basis. Lambda must be described as charged only when invoked, based on request count and duration/GB-second, not as an always-on resource.
 - Remove the human-facing `報價假設與限制` heading. Keep necessary cost nature and evidence boundaries in clearer quote/cost status language.

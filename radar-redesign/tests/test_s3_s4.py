@@ -141,18 +141,22 @@ def _console_evidence_for(runtime):
 
 
 class S3S4Tests(unittest.TestCase):
-    def test_s3_stops_without_human_shortlist(self):
+    def test_s3_evaluates_every_candidate_without_a_prior_selection_step(self):
         result = build_evaluate(_sample_s2()).to_dict()
 
-        self.assertEqual(result["status"], "needs_human_shortlist")
-        self.assertEqual(result["evaluated_candidates"], [])
+        self.assertEqual(result["status"], "awaiting_poc_decision")
+        self.assertTrue(result["evaluated_candidates"])
+        gate = result["poc_decision_gate"]
+        self.assertEqual(gate["status"], "awaiting_human_decision")
+        self.assertEqual(gate["gate_type"], "single_merged_value_and_cost_gate")
+        self.assertEqual(len(gate["options"]), len(result["evaluated_candidates"]))
 
     def test_s3_uses_generic_quote_when_services_are_detected(self):
         request = _shortlist()
 
         result = build_evaluate(_sample_s2(), request).to_dict()
 
-        self.assertEqual(result["status"], "evaluated")
+        self.assertEqual(result["status"], "awaiting_poc_decision")
         evaluated = result["evaluated_candidates"][0]
         self.assertTrue(evaluated["recommend_poc"])
         self.assertEqual(evaluated["region_status"]["status"], "region_unknown")
@@ -169,27 +173,28 @@ class S3S4Tests(unittest.TestCase):
         self.assertIn("已完成估算", quote_report["markdown"])
         self.assertIn("generic_usage_model", quote_report["markdown"])
 
-    def test_s3_public_evidence_mode_requires_only_a_candidate_selection(self):
+    def test_s3_public_evidence_mode_needs_no_environment_form(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}
 
         result = build_evaluate(_sample_s2(), request).to_dict()
 
-        self.assertEqual(result["status"], "evaluated")
-        gate = result["human_shortlist_gate"]
-        self.assertEqual(gate["evaluation_mode"], "public_evidence")
+        self.assertEqual(result["status"], "awaiting_poc_decision")
+        self.assertEqual(result["evaluation_mode"], "public_evidence")
         evaluated = result["evaluated_candidates"][0]
         self.assertTrue(evaluated["recommend_poc"])
         self.assertEqual(evaluated["assessment_scope"]["company_fit"], "not_assessed")
         self.assertNotIn("paid_poc_context_gaps", evaluated)
 
-    def test_s3_rejects_multiple_selected_candidates(self):
-        request = {"selected_candidate_ids": ["CAND-1", "CAND-2"], "selected_by": "Cleo"}
+    def test_s3_decision_gate_exposes_value_and_cost_for_each_option(self):
+        result = build_evaluate(_sample_s2()).to_dict()
 
-        result = build_evaluate(_sample_s2(), request).to_dict()
-
-        self.assertEqual(result["status"], "needs_human_shortlist")
-        self.assertEqual(result["human_shortlist_gate"]["status"], "invalid")
-        self.assertIn("exactly one candidate", result["human_shortlist_gate"]["message"])
+        option = result["poc_decision_gate"]["options"][0]
+        self.assertIn("weighted_score", option)
+        self.assertEqual(option["max_score"], 5)
+        self.assertIn("expected_total_usd", option)
+        self.assertIn("recommended_approval_ceiling_usd", option)
+        self.assertIn("technically_eligible", option)
+        self.assertIn("selected_candidate_id", result["poc_decision_gate"]["required_outputs"])
 
     def test_s4_does_not_create_a_second_low_risk_track(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}

@@ -20,7 +20,7 @@ class CostQuoteTests(unittest.TestCase):
         self.assertEqual(quote["expected_total_usd"], 0.04719)
         self.assertEqual(
             quote["estimated_range_usd"],
-            {"low": 0.018037, "expected": 0.04719, "high": 0.150962},
+            {"low": 0.018037, "expected": 0.04719, "high": 0.150963},
         )
         self.assertEqual(quote["recommended_approval_ceiling_usd"], 0.2)
         self.assertEqual(quote["valid_until"], "2026-08-06")

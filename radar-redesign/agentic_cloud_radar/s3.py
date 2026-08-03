@@ -17,7 +17,6 @@ from .costing import build_cost_quote
 
 
 ALLOWED_S2_STATUSES = {"ready_for_human_shortlist"}
-MAX_SHORTLIST_SIZE = 1
 DEFAULT_MAX_SMALL_POC_USD = 3.0
 RUBRIC_WEIGHTS = {
     "technical_value": 0.35,
@@ -48,11 +47,9 @@ class EvaluateResult:
             return "blocked_s2_not_usable"
         if any(issue.severity == "error" for issue in self.issues):
             return "needs_revision"
-        if self.artifact["human_shortlist_gate"]["status"] != "provided":
-            return "needs_human_shortlist"
         if not self.artifact["evaluated_candidates"]:
-            return "no_selected_candidates_evaluated"
-        return "evaluated"
+            return "no_candidates_evaluated"
+        return "awaiting_poc_decision"
 
     def to_dict(self) -> dict[str, Any]:
         payload = dict(self.artifact)
@@ -61,34 +58,87 @@ class EvaluateResult:
         return payload
 
 
-def build_evaluate(compare: dict[str, Any], shortlist_request: dict[str, Any] | None = None) -> EvaluateResult:
-    """Build an S3 artifact from S2 and a single human selection request."""
+def build_evaluate(compare: dict[str, Any], candidate_filter: dict[str, Any] | None = None) -> EvaluateResult:
+    """Score and quote every S2 candidate so one merged human gate can decide.
+
+    S3 no longer requires a prior selection step.  It evaluates each candidate
+    recorded by S2 and produces a complete PoC quote for each, so the single
+    downstream gate can weigh value and estimated cost at the same time.
+    ``candidate_filter`` stays available for old callers that want to restrict
+    the evaluation to specific candidate ids; it is not a human approval.
+    """
 
     issues = _validate_s2(compare)
-    artifact = _base_artifact(compare, shortlist_request)
+    artifact = _base_artifact(compare, candidate_filter)
     if issues:
         return EvaluateResult(artifact, issues)
 
-    gate = _human_shortlist_gate(shortlist_request)
-    artifact["human_shortlist_gate"] = gate
-    if gate["status"] != "provided":
-        return EvaluateResult(artifact, issues)
+    candidates = list(compare.get("candidates") or [])
+    requested_ids = [
+        str(item).strip()
+        for item in (candidate_filter or {}).get("selected_candidate_ids") or []
+        if str(item).strip()
+    ]
+    if requested_ids:
+        by_id = {str(item.get("candidate_id")): item for item in candidates}
+        candidates = []
+        for requested in requested_ids:
+            match = by_id.get(requested)
+            if match is None:
+                issues.append(
+                    EvaluateIssue("selected_candidate_not_found", f"{requested} is not present in S2.", "error")
+                )
+                continue
+            candidates.append(match)
 
-    candidates_by_id = {str(candidate.get("candidate_id")): candidate for candidate in compare.get("candidates") or []}
-    selected_ids = gate["selected_candidate_ids"]
-    for selected_id in selected_ids:
-        candidate = candidates_by_id.get(selected_id)
-        if candidate is None:
-            issues.append(EvaluateIssue("selected_candidate_not_found", f"{selected_id} is not present in S2.", "error"))
-            continue
+    for candidate in candidates:
         artifact["evaluated_candidates"].append(
-            _evaluate_candidate(candidate, gate, compare, artifact["evaluated_at"])
+            _evaluate_candidate(candidate, {}, compare, artifact["evaluated_at"])
         )
 
     artifact["evaluated_candidates"].sort(key=lambda item: (-item["weighted_score"], item["candidate_id"]))
     artifact["cost_quote_reports"] = [_cost_quote_report(item) for item in artifact["evaluated_candidates"]]
     artifact["summary"] = _summary(artifact["evaluated_candidates"])
+    artifact["poc_decision_gate"] = _poc_decision_gate(artifact["evaluated_candidates"])
     return EvaluateResult(artifact, issues)
+
+
+def _poc_decision_gate(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
+    """Build the single merged gate: pick one candidate AND authorize the PoC."""
+
+    options = []
+    for item in evaluated:
+        quote = (item.get("cost_estimate") or {}).get("quote") or {}
+        options.append(
+            {
+                "candidate_id": item.get("candidate_id"),
+                "title": item.get("title"),
+                "weighted_score": item.get("weighted_score"),
+                "max_score": 5,
+                "region_status": item.get("region_status"),
+                "quote_status": (item.get("cost_estimate") or {}).get("status"),
+                "expected_total_usd": quote.get("expected_total_usd"),
+                "estimated_range_usd": quote.get("estimated_range_usd") or {},
+                "recommended_approval_ceiling_usd": quote.get("recommended_approval_ceiling_usd"),
+                "technically_eligible": bool(item.get("recommend_poc")),
+                "blockers": list(item.get("governance_flags") or []),
+            }
+        )
+    return {
+        "status": "awaiting_human_decision",
+        "gate_type": "single_merged_value_and_cost_gate",
+        "decides": [
+            "which single candidate proceeds to Skill 4, if any",
+            "whether the estimated PoC cost is worth spending",
+        ],
+        "required_outputs": [
+            "selected_candidate_id",
+            "approved_by",
+            "approved_ceiling_usd",
+        ],
+        "rule": "Skill 4 never starts without this gate. Technical eligibility is not approval.",
+        "options": options,
+    }
 
 
 def _validate_s2(compare: dict[str, Any]) -> list[EvaluateIssue]:
@@ -103,8 +153,8 @@ def _validate_s2(compare: dict[str, Any]) -> list[EvaluateIssue]:
     return []
 
 
-def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | None) -> dict[str, Any]:
-    policy = (shortlist_request or {}).get("policy") or {}
+def _base_artifact(compare: dict[str, Any], candidate_filter: dict[str, Any] | None) -> dict[str, Any]:
+    policy = (candidate_filter or {}).get("policy") or {}
     return {
         "schema_version": "s3.evaluation.v4",
         "run_id": compare.get("run_id", "unknown-run"),
@@ -127,58 +177,17 @@ def _base_artifact(compare: dict[str, Any], shortlist_request: dict[str, Any] | 
                 "verifiability",
                 "risk_and_stop_conditions",
             ],
-            "cost_policy": "The single human-selected candidate receives a complete PoC quote before it can be recommended for Skill 4. Level A uses a registered recipe; Level B uses a reusable generic usage model; Level C incomplete quotes block PoC recommendation. Cost is not part of the technical score.",
+            "cost_policy": "Every evaluated candidate receives a complete PoC quote so the merged gate can compare value against estimated cost. Level A uses a registered recipe; Level B uses a reusable generic usage model; Level C incomplete quotes block PoC recommendation. Cost is not part of the technical score.",
         },
         "policy": {
             "max_small_poc_usd": float(policy.get("max_small_poc_usd", DEFAULT_MAX_SMALL_POC_USD)),
             "automatic_poc_start": False,
         },
-        "human_shortlist_gate": {
-            "status": "missing",
-            "required_inputs": [
-                "selected_candidate_ids, exactly one",
-            ],
-            "evaluation_mode": "public_evidence",
-        },
+        "evaluation_mode": "public_evidence",
+        "poc_decision_gate": {"status": "not_built", "options": []},
         "evaluated_candidates": [],
         "cost_quote_reports": [],
         "summary": {},
-    }
-
-
-def _human_shortlist_gate(shortlist_request: dict[str, Any] | None) -> dict[str, Any]:
-    if not shortlist_request:
-        return {
-            "status": "missing",
-            "selected_candidate_ids": [],
-            "required_inputs": [
-                "selected_candidate_ids, exactly one",
-            ],
-            "evaluation_mode": "public_evidence",
-            "message": "S3 stops until a human shortlist request is provided.",
-        }
-
-    selected_ids = [str(item).strip() for item in shortlist_request.get("selected_candidate_ids") or [] if str(item).strip()]
-    if not selected_ids:
-        return {
-            "status": "invalid",
-            "selected_candidate_ids": selected_ids,
-            "missing_inputs": ["selected_candidate_ids"],
-            "message": "Human shortlist must include at least one candidate.",
-        }
-    if len(selected_ids) > MAX_SHORTLIST_SIZE:
-        return {
-            "status": "invalid",
-            "selected_candidate_ids": selected_ids,
-            "message": "Human selection must contain exactly one candidate.",
-            "missing_inputs": [],
-        }
-    return {
-        "status": "provided",
-        "selected_candidate_ids": selected_ids,
-        "evaluation_mode": "public_evidence",
-        "selected_by": str(shortlist_request.get("selected_by") or "human_unspecified"),
-        "selection_reason": str(shortlist_request.get("selection_reason") or "Human selected this candidate for S3 evaluation."),
     }
 
 
@@ -188,6 +197,7 @@ def _evaluate_candidate(
     compare: dict[str, Any],
     evaluated_at: str,
 ) -> dict[str, Any]:
+    del gate
     dimensions = candidate.get("comparison_dimensions") or {}
     proposal = candidate.get("proposal_card") or {}
     coverage = candidate.get("evidence_coverage") or {}
@@ -205,7 +215,7 @@ def _evaluate_candidate(
         sum(dimension_scores[name] * weight for name, weight in RUBRIC_WEIGHTS.items()),
         2,
     )
-    confidence = _confidence(coverage, unknowns, gate)
+    confidence = _confidence(coverage, unknowns)
     governance_flags = _governance_flags(candidate, region)
     quote = build_cost_quote(
         candidate,
@@ -324,11 +334,11 @@ def _risk_score(stop_conditions: list[str], unknowns: list[str]) -> int:
     return max(score, 0)
 
 
-def _confidence(coverage: dict[str, Any], unknowns: list[str], gate: dict[str, Any]) -> str:
+def _confidence(coverage: dict[str, Any], unknowns: list[str]) -> str:
     verified = int(coverage.get("verified_dimension_count") or 0)
-    if verified >= 5 and len(unknowns) <= 3 and gate.get("status") == "provided":
+    if verified >= 5 and len(unknowns) <= 3:
         return "high"
-    if verified >= 3 and gate.get("status") == "provided":
+    if verified >= 3:
         return "medium"
     return "low"
 

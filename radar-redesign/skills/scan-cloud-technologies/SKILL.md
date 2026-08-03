@@ -56,4 +56,26 @@ Run:
 python -m unittest tests.test_s1 -v
 ```
 
+## Explanation layer
+
+Beside the evidence layer, each candidate carries an `explanation` block built by
+`agentic_cloud_radar/s1_explanation.py`. It is deterministic and rule-based, so the
+same page always yields the same structure and a reviewer can replay every line.
+
+- `key_points` — sentences the page actually contains, each with an `evidence_span`.
+- `significance` — a before / after / difference contrast compressed from those sentences.
+- `implementation_architecture` — components, data flow, and a minimal PoC shape.
+- `possible_application_contexts` — the operator's demand card plus contexts the page describes.
+
+Every entry carries a `derivation` tag: `source_verbatim`, `derived_summary`,
+`inferred_architecture`, or `hypothesis`. Spans index `explanation.evidence_text`,
+not `fetched_source.text_excerpt`.
+
+Rules:
+
+- Only `source_verbatim` and `derived_summary` entries may support a verified fact downstream.
+- `inferred_architecture` and `hypothesis` entries stay in the derived section of the Skill 5 report.
+- Components the page never mentions must keep `stated_in_source: false`. IAM and CloudWatch are recorded this way on purpose: they are what a reviewer asks about and what a Skill 4 recipe draft has to supply.
+- The architecture sketch is a draft for human review when a candidate has no registered recipe. It is never deployed directly.
+
 Pass the resulting S1 artifact to `$compare-cloud-candidates`.

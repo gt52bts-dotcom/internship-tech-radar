@@ -131,7 +131,6 @@ def main(argv: list[str] | None = None) -> int:
     s5_parser.add_argument("--s3", help="Path to a Skill 3 evaluation artifact JSON file.")
     s5_parser.add_argument("--s4", help="Path to an S4 validation artifact JSON file.")
     s5_parser.add_argument("--runtime", help="Optional path to S4 runtime evidence JSON file.")
-    s5_parser.add_argument("--billing", help="Optional AWS Billing, Cost Explorer, or CUR attribution artifact JSON file.")
     s5_parser.add_argument("--output", required=True, help="Path for the Skill 5 JSON report artifact.")
     s5_parser.add_argument("--markdown-output", help="Optional path for the rendered Markdown report.")
 
@@ -195,7 +194,6 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.s3) if args.s3 else None,
             Path(args.s4) if args.s4 else None,
             Path(args.runtime) if args.runtime else None,
-            Path(args.billing) if args.billing else None,
             Path(args.output),
             Path(args.markdown_output) if args.markdown_output else None,
         )
@@ -445,7 +443,6 @@ def _run_s5(
     s3_path: Path | None,
     s4_path: Path | None,
     runtime_path: Path | None,
-    billing_path: Path | None,
     output_path: Path,
     markdown_path: Path | None,
 ) -> int:
@@ -455,7 +452,6 @@ def _run_s5(
         _read_json(s3_path) if s3_path else None,
         _read_json(s4_path) if s4_path else None,
         _read_json(runtime_path) if runtime_path else None,
-        _read_json(billing_path) if billing_path else None,
     )
     _write_json(output_path, report)
     if markdown_path:
