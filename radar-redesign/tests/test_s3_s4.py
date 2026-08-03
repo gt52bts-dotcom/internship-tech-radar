@@ -435,6 +435,36 @@ class S3S4Tests(unittest.TestCase):
         with self.assertRaisesRegex(DeploymentError, "Infrastructure Composer"):
             record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet, shared_via="conversation")
 
+    def test_console_review_accepts_resource_inventory_evidence(self):
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "unit-test-run",
+            "status": "awaiting_console_review",
+            "deployment": {"stack_name": "AgenticRadarS4ABC12345", "target_region": "ap-southeast-1", "recipe": "s3_files_cdk"},
+            "console_review": {},
+            "cleanup": {},
+        }
+        packet = build_console_review_packet(runtime)
+        evidence = {
+            "schema_version": "s4.resource-inventory.v1",
+            "run_id": "unit-test-run",
+            "stack_name": "AgenticRadarS4ABC12345",
+            "region": "ap-southeast-1",
+            "captured_at": "2026-08-03T00:00:00+00:00",
+            "resource_count": 1,
+            "resources": [{"logical_id": "Bucket", "resource_type": "AWS::S3::Bucket"}],
+            "inventory_sha256": "a" * 64,
+            "quote_reconciliation": {"status": "consistent", "deployed_not_quoted": []},
+            "permission_surface": {"status": "recorded", "actions": ["s3:CreateBucket"]},
+        }
+
+        reviewed = record_console_review(runtime, "Cleo", review_evidence=evidence, review_packet=packet, shared_via="conversation")
+
+        self.assertEqual(reviewed["status"], "ready_for_cleanup")
+        self.assertEqual(reviewed["console_review"]["evidence"]["schema_version"], "s4.resource-inventory-review.v1")
+        self.assertEqual(reviewed["console_review"]["evidence"]["screenshots"][0]["view"], "resource_inventory")
+
     def test_console_review_requires_packet_binding(self):
         runtime = {
             "schema_version": "s4.runtime-evidence.v3",

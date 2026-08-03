@@ -383,5 +383,6 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - Skill 4 的主要 close gate 從「Console 截圖 metadata」改為「可驗證資源盤點」。Console / Infrastructure Composer 截圖仍可用來讓 Cleo 人工確認畫面，但程式只驗證截圖的保存與分享 metadata，不宣稱自己已自動判讀圖片內容。
 - `s4_inventory` 應以 CloudFormation stack resources、resource identifiers、tags、quote expected resources、permission surface 與 stage timing 產出 structured inventory，讓 Skill 5 能說明實際建立了什麼、哪些資源符合報價預期、哪些權限面需要 reviewer 注意。
+- `s4-close` 可接受 `s4.resource-inventory.v1` 作為人工確認 evidence；Skill 5 final 應稱為「資源盤點人工確認」，不得在沒有截圖時寫成 Infrastructure Composer 截圖確認。
 - S4 PoC 的價值定位是部署可行性、帳號/Region 相容性、IAM/resource wiring、runtime verification、pre-cleanup usage snapshot 與 cleanup 可重現性；不是用短期 runtime facts 偽裝成 AWS 帳單或正式採購報價。
 - Skill 5 final 可以接受具 `cleanup_verified` 與 structured resource inventory 的新版 runtime；若處理舊 runtime 沒有 inventory，必須在限制中說明證據較舊、圖片內容仍是人工確認，不應混成新版完整證據鏈。

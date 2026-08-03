@@ -33,9 +33,9 @@ def build_report(
         and runtime.get("status") == "cleanup_verified"
         and not _is_abort_cleanup(runtime)
         and _runtime_requires_screenshot(runtime)
-        and not _console_screenshot_count(runtime)
+        and not _review_evidence_count(runtime)
     ):
-        issues.append("missing_console_screenshot_metadata")
+        issues.append("missing_console_or_inventory_review_metadata")
     if (
         runtime
         and runtime.get("status") == "cleanup_verified"
@@ -182,14 +182,20 @@ def _gui_console_review(report: dict[str, Any]) -> dict[str, Any]:
 
     ledger = report.get("evidence_ledger") or []
     evidence_entry = next(
-        (entry for entry in ledger if entry.get("claim") == "Infrastructure Composer Console review"),
+        (
+            entry
+            for entry in ledger
+            if entry.get("claim") in {"Infrastructure Composer Console review", "CloudFormation resource inventory review"}
+        ),
         None,
     )
+    evidence_status = next((item[1] for item in report["validation"]["rows"] if item[0] == "Console / 資源盤點證據"), "not_recorded")
     return {
         "status": next((item[1] for item in report["validation"]["rows"] if item[0] == "AWS Console review"), "unknown"),
-        "screenshot_status": next((item[1] for item in report["validation"]["rows"] if item[0] == "Console 截圖證據"), "not_recorded"),
+        "screenshot_status": evidence_status,
+        "review_evidence_status": evidence_status,
         "evidence_recorded": evidence_entry is not None,
-        "privacy": "Render screenshot files only through an authenticated GUI or the active conversation; Git artifacts retain metadata only.",
+        "privacy": "Render review evidence only through an authenticated GUI or the active conversation; Git artifacts retain metadata only.",
     }
 
 
@@ -254,7 +260,7 @@ def _report_status(issues: list[str], runtime: dict[str, Any] | None) -> str:
     if runtime and runtime.get("status") == "cleanup_verified":
         if _is_abort_cleanup(runtime):
             return "final_without_console_review"
-        if _runtime_requires_screenshot(runtime) and not _console_screenshot_count(runtime):
+        if _runtime_requires_screenshot(runtime) and not _review_evidence_count(runtime):
             return "incomplete_artifacts"
         if _runtime_requires_screenshot(runtime) and not _console_display_channel_confirmed(runtime):
             return "incomplete_artifacts"
@@ -268,6 +274,11 @@ def _conclusion(candidate: dict[str, Any] | None, runtime: dict[str, Any] | None
             return {
                 "status": "cleaned_without_console_review",
                 "text": "PoC 已因成本控制完成受控 cleanup，但未完成 Infrastructure Composer 截圖人工確認；不能作為 actual-PoC final 結論。",
+            }
+        if _resource_inventory_review_confirmed(runtime):
+            return {
+                "status": "validated_and_cleaned",
+                "text": "實際 PoC 已通過自動化驗證與資源盤點人工確認，cleanup 回查也已完成。",
             }
         if _console_screenshot_count(runtime):
             return {
@@ -808,7 +819,7 @@ def _validation_summary(validation: dict[str, Any] | None, runtime: dict[str, An
             ("CloudFormation", _display_status((runtime.get("deployment") or {}).get("stack_status") or "unknown")),
             ("自動化驗證", _verification_status(verification)),
             ("AWS Console review", _display_status((runtime.get("console_review") or {}).get("status") or "unknown")),
-            ("Console 截圖證據", _console_screenshot_status(runtime)),
+            ("Console / 資源盤點證據", _review_evidence_status(runtime)),
             ("cleanup", _display_status(cleanup.get("status") or (validation or {}).get("cleanup_status") or "unknown")),
         ]
     }
@@ -844,8 +855,10 @@ def _verified_facts(
         )
     if (runtime or {}).get("deployment", {}).get("stack_status") == "CREATE_COMPLETE":
         facts.append("CloudFormation stack 已達 CREATE_COMPLETE。")
-    screenshot_count = _console_screenshot_count(runtime)
-    if screenshot_count:
+    if _resource_inventory_review_confirmed(runtime):
+        facts.append("AWS review 已以結構化資源盤點透過 GUI 或對話交由具名人員確認。")
+    elif _console_screenshot_count(runtime):
+        screenshot_count = _console_screenshot_count(runtime)
         facts.append(f"AWS Console review 已以 {screenshot_count} 張截圖透過 GUI 或對話交由具名人員確認。")
     usage_snapshot = _pre_cleanup_usage_snapshot(runtime)
     if usage_snapshot.get("status") in {"captured", "partial"}:
@@ -871,8 +884,8 @@ def _unknowns(
     items.append("報價單是依公開牌價與明列用量假設產生的預估；本流程不進行預估與實際帳務成本比對，金額未經任何 AWS 帳務資料驗證。")
     if (runtime or {}).get("console_review", {}).get("status") != "confirmed":
         items.append("AWS Console review 尚未完成或尚未記錄。")
-    elif (runtime or {}).get("schema_version") == "s4.runtime-evidence.v3" and not _console_screenshot_count(runtime):
-        items.append("此 PoC runtime 尚未記錄 Infrastructure Composer 截圖證據。")
+    elif (runtime or {}).get("schema_version") == "s4.runtime-evidence.v3" and not _review_evidence_count(runtime):
+        items.append("此 PoC runtime 尚未記錄 Console 截圖或結構化資源盤點證據。")
     if _recommend_poc(candidate or {}):
         items.append("Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。")
     if (runtime or {}).get("cleanup", {}).get("status") != "verified":
@@ -1037,16 +1050,27 @@ def _evidence_ledger(
     for key, value in ((runtime or {}).get("verification") or {}).items():
         if key != "success_criteria":
             entries.append({"claim": key, "type": "runtime evidence", "status": str(value), "source": "S4 runtime artifact"})
-    screenshot_count = _console_screenshot_count(runtime)
-    if screenshot_count:
+    if _resource_inventory_review_confirmed(runtime):
+        evidence = ((runtime or {}).get("console_review") or {}).get("evidence") or {}
         entries.append(
             {
-                "claim": "Infrastructure Composer Console review",
-                "type": "human-reviewed screenshot evidence",
+                "claim": "CloudFormation resource inventory review",
+                "type": "human-reviewed structured inventory evidence",
                 "status": "confirmed",
-                "source": f"S4 Console review evidence ({screenshot_count} screenshot metadata records)",
+                "source": f"S4 resource inventory evidence ({evidence.get('inventory_sha256') or 'hash recorded'})",
             }
         )
+    else:
+        screenshot_count = _console_screenshot_count(runtime)
+        if screenshot_count:
+            entries.append(
+                {
+                    "claim": "Infrastructure Composer Console review",
+                    "type": "human-reviewed screenshot evidence",
+                    "status": "confirmed",
+                    "source": f"S4 Console review evidence ({screenshot_count} screenshot metadata records)",
+                }
+            )
     quote = ((candidate or {}).get("cost_estimate") or {}).get("quote") or {}
     if quote.get("status") == "estimated":
         entries.append(
@@ -1110,8 +1134,21 @@ def _display_status(value: Any) -> str:
 
 def _console_screenshot_count(runtime: dict[str, Any] | None) -> int:
     evidence = ((runtime or {}).get("console_review") or {}).get("evidence") or {}
+    if isinstance(evidence, dict) and evidence.get("schema_version") == "s4.resource-inventory-review.v1":
+        return 0
     screenshots = evidence.get("screenshots") if isinstance(evidence, dict) else None
     return len(screenshots) if isinstance(screenshots, list) else 0
+
+
+def _resource_inventory_review_confirmed(runtime: dict[str, Any] | None) -> bool:
+    evidence = ((runtime or {}).get("console_review") or {}).get("evidence") or {}
+    return isinstance(evidence, dict) and evidence.get("schema_version") == "s4.resource-inventory-review.v1"
+
+
+def _review_evidence_count(runtime: dict[str, Any] | None) -> int:
+    if _resource_inventory_review_confirmed(runtime):
+        return 1
+    return _console_screenshot_count(runtime)
 
 
 def _console_display_channel_confirmed(runtime: dict[str, Any] | None) -> bool:
@@ -1129,12 +1166,18 @@ def _runtime_requires_screenshot(runtime: dict[str, Any] | None) -> bool:
 
 
 def _console_screenshot_status(runtime: dict[str, Any] | None) -> str:
+    if _resource_inventory_review_confirmed(runtime):
+        return "已用資源盤點經人類確認（1 份）"
     count = _console_screenshot_count(runtime)
     if count:
         if _console_display_channel_confirmed(runtime):
             return f"已截圖並經人類確認（{count} 張）"
         return f"已截圖但尚未確認顯示管道（{count} 張）"
     return _display_status(((runtime or {}).get("console_review") or {}).get("evidence_status") or "not_recorded")
+
+
+def _review_evidence_status(runtime: dict[str, Any] | None) -> str:
+    return _console_screenshot_status(runtime)
 
 
 def _recommend_poc(candidate: dict[str, Any]) -> bool:

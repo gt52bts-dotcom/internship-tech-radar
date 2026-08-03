@@ -1029,3 +1029,12 @@
 - 新版 resource inventory gate 發現 CLI packet 尚未自動附上 `s4_inventory`；已用 `describe-stack-resources` 與 `build_resource_inventory()` 產出 `s4-resource-inventory.json` 作為本次人工確認依據。盤點 19 個 CloudFormation resources，quote reconciliation=`consistent`，deployed-not-quoted 為空，permission surface 記錄 29 個 action，服務包含 CloudFormation、EC2、IAM、S3、S3Files、SSM。
 - 為避免未來再出現 `no_quote_resource_list`，已修正 `costing.py`：S3 Files 與 Lambda Level A quote 會列出 `priced_resource_types`，並修正 `s4_inventory.py` 從 `deployment.target_region` 讀取 Region。驗證：`python -m unittest tests.test_costing tests.test_s4_inventory tests.test_s5 tests.test_s3_s4` 通過 48 tests。
 - 目前下一步：請 Cleo 檢視 `s4-resource-inventory.json` 摘要後，明確確認 cleanup；確認後才能執行 `s4-close --execute`、產 `pre_cleanup_usage_snapshot.json` 與 Skill 5 final。
+
+## 2026-08-03 17:15 - S3 Files cleanup and Skill 5 final with inventory gate
+
+- Cleo 回覆「確認」後，視為已確認本次 S4 structured resource inventory，可進行 cleanup。已修正 `s4-close` 的 review evidence 驗證：新版 `s4.resource-inventory.v1` 可作為人工確認依據，不再要求把資源盤點偽裝成 Infrastructure Composer 截圖。
+- 已執行 `s4-close --execute`，先產 `pre_cleanup_usage_snapshot.json`，再清空 run-derived versioned test bucket 並刪除 CloudFormation stack `AgenticRadarS40B5DA545`。AWS CLI 回查 `describe-stacks` 顯示 stack 不存在，符合 cleanup 成功。
+- Cleaned runtime：`radar-redesign/out/s3-files-20260803-s1-s5/s4-runtime-cleaned.json`，status=`cleanup_verified`；cleanup checks：CloudFormation stack deleted、versioned test bucket emptied、resource prefix matched。
+- 已產 Skill 5 final：`s5-report-final.json` 與 `s5-report-final.md`。結論為 `validated_and_cleaned`，文字已改成「自動化驗證與資源盤點人工確認」，不再錯寫 Infrastructure Composer 截圖。
+- Skill 5 final 仍明確保留成本邊界：Skill 3 報價是公開牌價估算，cleanup 前快照是 runtime facts，不是 AWS Billing / Cost Explorer / CUR 帳務證據。
+- 驗證：`python -m unittest tests.test_s5 tests.test_s3_s4 tests.test_s4_inventory tests.test_costing` 通過 50 tests；`s5.py`、`s4_deployer.py`、`test_s5.py`、`test_s3_s4.py` syntax check 通過。

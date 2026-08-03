@@ -866,6 +866,8 @@ def _validated_review_evidence(
 
     if not isinstance(evidence, dict):
         raise DeploymentError("Console review requires screenshot evidence JSON from the review packet.")
+    if evidence.get("schema_version") == "s4.resource-inventory.v1":
+        return _validated_resource_inventory_evidence(runtime, evidence, review_packet)
     if evidence.get("schema_version") != CONSOLE_REVIEW_EVIDENCE_SCHEMA:
         raise DeploymentError("Console review evidence has an unsupported schema version.")
     if str(evidence.get("run_id") or "") != str(runtime.get("run_id") or ""):
@@ -964,6 +966,59 @@ def _validate_review_packet_binding(
         if REQUIRED_CONSOLE_VIEW in missing_views:
             detail += " (Infrastructure Composer)"
         raise DeploymentError(f"Console review evidence is missing required packet views: {detail}.")
+
+
+def _validated_resource_inventory_evidence(
+    runtime: dict[str, Any],
+    inventory: dict[str, Any],
+    review_packet: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Validate the structured inventory that replaced image-only review."""
+
+    deployment = runtime.get("deployment") or {}
+    expected = {
+        "run_id": str(runtime.get("run_id") or ""),
+        "stack_name": str(deployment.get("stack_name") or ""),
+        "region": str(deployment.get("target_region") or deployment.get("region") or ""),
+    }
+    for field, expected_value in expected.items():
+        if expected_value and str(inventory.get(field) or "") != expected_value:
+            raise DeploymentError(f"Resource inventory {field} does not match the runtime.")
+    sha256 = str(inventory.get("inventory_sha256") or "").strip().lower()
+    if not re.fullmatch(r"[0-9a-f]{64}", sha256):
+        raise DeploymentError("Resource inventory needs a SHA-256 hash.")
+    if not isinstance(inventory.get("resources"), list) or not inventory["resources"]:
+        raise DeploymentError("Resource inventory must include deployed resources.")
+    reconciliation = inventory.get("quote_reconciliation") or {}
+    if reconciliation.get("status") == "quote_incomplete" or reconciliation.get("deployed_not_quoted"):
+        raise DeploymentError("Resource inventory shows deployed resources missing from the Skill 3 quote.")
+    if review_packet and str(review_packet.get("run_id") or "") != expected["run_id"]:
+        raise DeploymentError("Review packet does not belong to this PoC run.")
+    return {
+        "schema_version": "s4.resource-inventory-review.v1",
+        "review_target": {
+            "run_id": expected["run_id"],
+            "stack_name": expected["stack_name"],
+            "target_region": expected["region"],
+        },
+        "inventory_sha256": sha256,
+        "resource_count": inventory.get("resource_count"),
+        "quote_reconciliation": reconciliation,
+        "permission_surface": inventory.get("permission_surface"),
+        "screenshots": [
+            {
+                "view": "resource_inventory",
+                "screenshot_ref": "structured_inventory_json",
+                "sha256": sha256,
+                "captured_at": inventory.get("captured_at"),
+                "shared_via": "conversation",
+                "redacted": True,
+                "hash_scope": "inventory_json",
+            }
+        ],
+        "automated_image_understanding": False,
+        "human_confirmation_record_only": True,
+    }
 
 
 def _context_errors(

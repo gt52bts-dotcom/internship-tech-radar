@@ -77,6 +77,35 @@ class Skill5Tests(unittest.TestCase):
         self.assertIn("Infrastructure Composer 截圖人工確認", report["conclusion"]["text"])
         self.assertEqual(report["gui_model"]["console_review"]["screenshot_status"], "已截圖並經人類確認（1 張）")
 
+    def test_final_report_accepts_resource_inventory_review(self):
+        s1 = {"stage": "S1", "run_id": "run-inventory", "candidates": [{"candidate_id": "C5"}]}
+        s2 = {"stage": "S2", "run_id": "run-inventory", "candidates": [{"candidate_id": "C5", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
+        s3 = {"stage": "S3", "run_id": "run-inventory", "evaluated_candidates": [{"candidate_id": "C5", "title": "Feature", "source_url": "https://aws.amazon.com/example", "recommend_poc": True}]}
+        s4 = {"stage": "S4", "run_id": "run-inventory", "validated_candidates": [{"candidate_id": "C5", "validation_status": "poc_ready_for_manual_start"}]}
+        runtime = {
+            "schema_version": "s4.runtime-evidence.v3",
+            "stage": "S4",
+            "run_id": "run-inventory",
+            "status": "cleanup_verified",
+            "console_review": {
+                "status": "confirmed",
+                "display_channel_confirmed": "conversation",
+                "evidence": {
+                    "schema_version": "s4.resource-inventory-review.v1",
+                    "inventory_sha256": "a" * 64,
+                    "screenshots": [{"view": "resource_inventory"}],
+                },
+            },
+            "cleanup": {"status": "verified"},
+        }
+
+        report = build_report(s1, s2, s3, s4, runtime)
+
+        self.assertEqual(report["status"], "final")
+        self.assertIn("資源盤點人工確認", report["conclusion"]["text"])
+        self.assertNotIn("Infrastructure Composer 截圖人工確認", report["conclusion"]["text"])
+        self.assertEqual(report["gui_model"]["console_review"]["review_evidence_status"], "已用資源盤點經人類確認（1 份）")
+
     def test_final_report_renders_pre_cleanup_usage_snapshot(self):
         s1 = {"stage": "S1", "run_id": "run-usage", "candidates": [{"candidate_id": "C8"}]}
         s2 = {"stage": "S2", "run_id": "run-usage", "candidates": [{"candidate_id": "C8", "title": "Feature", "source_url": "https://aws.amazon.com/example"}]}
