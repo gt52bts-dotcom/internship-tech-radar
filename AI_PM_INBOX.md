@@ -1005,3 +1005,12 @@
 - Skill 4 文件已同步說明：Console / Infrastructure Composer 截圖仍是人眼輔助確認；程式會記錄檔案 metadata、hash、分享方式，但不自動判讀圖片內容，也不把圖片當成唯一證據。
 - Skill 5 已更新為可呈現 structured inventory、timing、permission/resource review notes，並對舊 runtime 證據較寬的情況保留限制說明。
 - 驗證：`python -m unittest tests.test_s4_inventory tests.test_s5 tests.test_s3_s4 tests.test_costing` 通過 47 tests；Python syntax check 通過 19 files；`git diff --check HEAD~1..HEAD` 無 whitespace 問題。
+
+## 2026-08-03 16:20 - S3 Files S1-S3 decision run with embedded architecture image
+
+- Cleo 指定 AWS News Blog `Launching S3 Files, making S3 buckets accessible as file systems` 重新用 S1-S5 實作。依現行安全規則，已先跑 S1→S2→Skill 3，停在人工是否進入 Skill 4 的決策點，尚未建立 AWS 資源。
+- 本次 run ID：`direct-url-20260803-7860c7a6`，本機產物在 `radar-redesign/out/s3-files-20260803-s1-s5/`，包含 `s1.json`、`s2.json`、`s3.json`、`skill3-poc-decision-report.html`、`skill3-poc-decision-report.md`、`skill3-poc-architecture-s3-files.png`。
+- Skill 3 結果：candidate `S1-903A892142CB`，分數 `4.4 / 5`，`recommend_poc=true`，Region 證據為 `available_ap_southeast_1`，報價已完成，recipe=`s3_files_cdk`，PoC blocker 無。
+- 報價：低用量 USD `0.018037`、預期用量 USD `0.047190`、高用量 USD `0.150963`，建議核准上限 USD `0.20`。
+- 已用 image generation 產出 S3 Files PoC 架構圖，並用 CLI 重新輸出 self-contained HTML。HTML 檢查通過：含 `<img>` 與 `data:image/png;base64`，不含舊版 Mermaid 或「請貼上圖片」提示。
+- 順手修正 `render_poc_decision_report()` 的固定文案，避免已內嵌圖的報告仍顯示「請貼上 GPT-style PNG 架構圖」。驗證：`python -m unittest tests.test_s3_s4 tests.test_costing` 通過 29 tests；`s3.py` 與 `test_s3_s4.py` syntax check 通過。

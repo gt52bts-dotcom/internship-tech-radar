@@ -477,8 +477,8 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
             "",
             "## PoC 最小系統架構圖",
             "",
-            "- 請在送出給人類決策前，貼上 GPT-style PNG 架構圖。這裡不再輸出舊版 Mermaid 流程圖，以免讓決策者同時看到兩套圖而混淆。",
-            "- 生成圖片仍需人工 QA：檢查小字、服務名稱、箭頭方向與資源範圍；圖片本身不是部署證據。",
+            "- HTML 版報告會直接內嵌 GPT-style PNG 架構圖，協助決策者理解 Skill 4 會建立與驗證的最小 PoC 資源。",
+            "- 生成圖片仍需人工 QA：檢查小字、服務名稱、箭頭方向與資源範圍；圖片本身不是部署證據或 Console review 證據。",
             "",
         ]
     )
