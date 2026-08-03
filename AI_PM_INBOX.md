@@ -936,3 +936,22 @@
 - `render_poc_decision_report()` 現在先輸出「這篇文章在講什麼」：以前、現在、差別、原文重點、推導的最小架構與原文未明講但 PoC 需確認的元件；之後才列 PoC 分數、成本、recipe、blocker 與 Cleo 是否同意進入 Skill 4。
 - 已重跑 Lambda self-managed S3 code storage 的完整流程到 Skill 3，更新 `radar-redesign/out/smoke-20260803-lambda-s3-decision-report/skill3-poc-decision-report.md`。新版報告已包含文章說明，例如 Lambda 從複製部署套件到 Lambda 管理儲存空間，改成可直接參照自主管理 Amazon S3 bucket 中的程式碼。
 - 驗證：`python -m unittest tests.test_s2 tests.test_s3_s4 -v` 通過 28 tests；完整 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 49 tests；`python -m compileall agentic_cloud_radar tests` 通過。
+
+## 2026-08-03 13:34 - Lambda self-managed code storage 進入 Skill 4 live PoC
+
+- Cleo 看完新版 Skill 3 PoC 決策報告後，同意進入 Skill 4；本次 approval 記錄 `approved_by=Cleo`，核准上限 USD `0.05`，target Region=`ap-southeast-1`。
+- 已建立 `s4-approval.json` 並補齊 S1/S2/S3 lineage absolute paths，讓 Skill 4 runtime evidence 保存三份來源 artifact 的 SHA-256。
+- 已執行 `s4-deploy --execute` 建立 live PoC。Runtime artifact：`radar-redesign/out/smoke-20260803-lambda-s3-decision-report/s4-runtime.json`。
+- Deployed stack=`AgenticRadarS4BD3AD967`，recipe=`lambda_self_managed_s3_code_storage_cdk`，resource prefix=`agentic-radar-s4-bd3ad967`，CloudFormation status=`CREATE_COMPLETE`。
+- 自動驗證完成：`cloudformation_reference_mode=verified`、`lambda_invoke=verified`，runtime status=`awaiting_console_review`。
+- 已產生 Console review packet：`radar-redesign/out/smoke-20260803-lambda-s3-decision-report/s4-console-review-packet.json`。目前尚未 cleanup，也尚未產生 Skill 5 final；下一步需等 Cleo 在 AWS Console / Infrastructure Composer 人工確認後，才可進入 cleanup 與 S5。
+
+## 2026-08-03 13:50 - Skill 3 PoC 決策報告新增架構圖
+
+- Cleo 提出在送出 Skill 3 報告、讓人決定是否 PoC 之前，應先生成類似 AWS 架構圖的「本次新聞最小系統架構圖」，讓決策者更具體理解 Skill 4 會做什麼。
+- 已更新 `agentic_cloud_radar/s3.py`：`render_poc_decision_report()` 現在會在 PoC 分數與報價之前插入 `PoC 最小系統架構圖` Mermaid 區段。
+- 有已登錄 Skill 4 recipe 時會使用 recipe-specific 圖：S3 Files 會畫 VPC、Security group、EC2、S3 Files mount target、S3 Files filesystem、S3 bucket 與雙向驗證；Lambda self-managed S3 code storage 會畫 S3 code bucket、bucket policy、Lambda function `S3ObjectStorageMode=REFERENCE`、IAM role、CloudWatch Logs 與 invoke 驗證。
+- 沒有 recipe 的候選會退回 S1 inferred architecture 草圖，並標明只是決策草圖，不是 production 架構或可直接部署 recipe。
+- 已更新 `skills/evaluate-cloud-candidate/SKILL.md` 和 `PROJECT_MEMORY.md`，把架構圖列為 Skill 3 決策報告固定規則。
+- 已重產目前 Lambda 這篇的 `skill3-poc-decision-report.md`，但沒有改 `s3.json`，避免破壞已部署 S4 runtime 的 lineage SHA-256。
+- 驗證：`python -m unittest tests.test_s3_s4 -v` 通過 25 tests；完整 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 50 tests；`python -m compileall agentic_cloud_radar tests` 通過。

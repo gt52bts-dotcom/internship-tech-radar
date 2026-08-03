@@ -354,6 +354,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Skill 4 still records `pre_cleanup_usage_snapshot` before cleanup, but this is runtime evidence only and must not be converted into actual cost.
 - Skill 1 now includes a deterministic explanation layer with `key_points`, `significance`, `implementation_architecture`, and `possible_application_contexts`. Only `source_verbatim` and `derived_summary` support verified facts; `inferred_architecture` and `hypothesis` stay in derived sections.
 - Skill 3 PoC decision reports must begin by explaining what the article is about in human-readable Chinese: before/after/difference, source-backed key points, and inferred minimal architecture. Only after that should they show PoC threshold, score, cost quote, deployable recipe, blockers, review notes, and Cleo's approval choices.
+- Skill 3 PoC decision reports must also render a human-facing PoC minimum architecture diagram before the score/cost decision. When a registered Skill 4 recipe exists, use a recipe-specific diagram that shows the resources Skill 4 will actually create or validate, such as S3 Files VPC/EC2/mount target/filesystem/S3 bucket or Lambda self-managed S3 code bucket/Lambda/IAM/CloudWatch. If no recipe exists, fall back to the S1 inferred architecture and clearly label it as a draft, not a production architecture.
 
 ## 2026-08-03 Mentor S5 Report Presentation Rule
 

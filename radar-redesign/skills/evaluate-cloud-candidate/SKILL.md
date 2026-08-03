@@ -39,9 +39,11 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
    - Level C: when the service/resource scope is still too vague, return `status=incomplete` with missing inputs instead of inventing a number.
 6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit or permission to deploy.
 7. Populate `poc_decision_gate` with every evaluated option, including score, quote status, low/expected/high estimate, recommended approval ceiling, blocker list, and the required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`.
-8. When writing the optional Skill 3 PoC decision report, explain the article before the approval decision: what changed, why it matters, key source-backed points, and the inferred minimal implementation architecture. Then show PoC threshold, score, quote, recipe, blockers, and what Cleo must approve before Skill 4.
-9. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
-10. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
+8. When writing the optional Skill 3 PoC decision report, explain the article before the approval decision: what changed, why it matters, key source-backed points, and the inferred minimal implementation architecture.
+9. Before showing the PoC score and quote, render a human-facing PoC minimum architecture diagram. If the candidate has a registered Skill 4 recipe, use the recipe-specific diagram that shows the resources Skill 4 will actually create or validate; otherwise fall back to the S1 inferred architecture and clearly label it as a draft, not a deployable production architecture.
+10. After the explanation and diagram, show PoC threshold, score, quote, recipe, blockers, and what Cleo must approve before Skill 4.
+11. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
+12. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
 
 ## Guardrails
 

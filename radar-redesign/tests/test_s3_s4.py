@@ -222,6 +222,11 @@ class S3S4Tests(unittest.TestCase):
         self.assertIn("以前：以前要人工處理。", report)
         self.assertIn("現在：現在可以用 AWS feature 自動完成。", report)
         self.assertIn("推導的最小架構", report)
+        self.assertIn("## PoC 最小系統架構圖", report)
+        self.assertIn("```mermaid", report)
+        self.assertIn("Virtual private cloud (VPC)", report)
+        self.assertIn("S3 Files mount target", report)
+        self.assertIn("S3 bucket", report)
         self.assertIn("Skill 3 加權分 >= 3.75 / 5", report)
         self.assertIn("等待 Cleo 決定是否進入 PoC", report)
         self.assertIn("是否值得交給 Cleo 決定進入 Skill 4：是", report)
@@ -310,6 +315,19 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(evaluated["cost_estimate"]["status"], "estimated")
         self.assertEqual(evaluated["cost_estimate"]["quote"]["recipe"], "lambda_self_managed_s3_code_storage_cdk")
         self.assertTrue(evaluated["recommend_poc"])
+
+    def test_skill3_decision_report_renders_lambda_recipe_architecture(self):
+        s2 = _deployable_s2()
+        s2["candidates"][0]["title"] = "AWS Lambda self-managed S3 code storage"
+        s2["candidates"][0]["source_url"] = "https://aws.amazon.com/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/"
+
+        report = render_poc_decision_report(build_evaluate(s2, _shortlist()).to_dict())
+
+        self.assertIn("## PoC 最小系統架構圖", report)
+        self.assertIn("S3 code bucket", report)
+        self.assertIn("S3ObjectStorageMode=REFERENCE", report)
+        self.assertIn("Lambda function", report)
+        self.assertIn("CloudWatch Logs", report)
 
     def test_s4_deployment_context_requires_matching_lineage_and_registered_recipe(self):
         evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
