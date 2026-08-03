@@ -1,0 +1,164 @@
+{
+  "schema_version": "s1.scan.v2",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "stage": "S1",
+  "status": "scanned_with_gaps",
+  "scanned_at": "2026-07-31T07:46:57.557298+00:00",
+  "entry_point": {
+    "type": "direct_url_import",
+    "requested_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+    "s0_required": false,
+    "human_action": "user_supplied_url"
+  },
+  "target_region": "ap-southeast-1",
+  "demand_card_ref": null,
+  "source_mode": "direct_url_import",
+  "scan_mode": "direct_user_url_import",
+  "external_fetch_performed": true,
+  "candidates": [
+    {
+      "candidate_id": "S1-65801FA11243",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+      "source_type": "direct_trusted_public_url",
+      "requested_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "source_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "official_source": true,
+      "open_source": false,
+      "external_fetch_performed": true,
+      "source_selection": "direct_user_url_import",
+      "rss_discovered": false,
+      "seed_article": false,
+      "evidence_confidence": "medium",
+      "evidence_basis": "single_fetched_public_html_page",
+      "retrieved_content_type": "text/html;charset=UTF-8",
+      "related_aws_services": [
+        "S3 Files",
+        "S3",
+        "EC2",
+        "EFS",
+        "VPC",
+        "Lambda"
+      ],
+      "service_detection": {
+        "strategy": "deterministic_rules_on_fetched_public_source_text",
+        "detected_services": [
+          {
+            "name": "S3 Files",
+            "matched_terms": [
+              "s3 files"
+            ],
+            "first_mention_position": 10,
+            "evidence_basis": "fetched_source_text_rule_match"
+          },
+          {
+            "name": "S3",
+            "matched_terms": [
+              "amazon s3",
+              "s3"
+            ],
+            "first_mention_position": 10,
+            "evidence_basis": "fetched_source_text_rule_match"
+          },
+          {
+            "name": "EC2",
+            "matched_terms": [
+              "ec2"
+            ],
+            "first_mention_position": 2076,
+            "evidence_basis": "fetched_source_text_rule_match"
+          },
+          {
+            "name": "EFS",
+            "matched_terms": [
+              "efs"
+            ],
+            "first_mention_position": 3320,
+            "evidence_basis": "fetched_source_text_rule_match"
+          },
+          {
+            "name": "VPC",
+            "matched_terms": [
+              "vpc"
+            ],
+            "first_mention_position": 4414,
+            "evidence_basis": "fetched_source_text_rule_match"
+          },
+          {
+            "name": "Lambda",
+            "matched_terms": [
+              "lambda"
+            ],
+            "first_mention_position": 6945,
+            "evidence_basis": "fetched_source_text_rule_match"
+          }
+        ],
+        "limits": [
+          "A detected name is a text mention, not a validated dependency graph.",
+          "S1 does not use LLM hints, manually supplied metadata, or static case-study data."
+        ]
+      },
+      "initial_claims": [
+        "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies.",
+        "Launching S3 Files, making S3 buckets accessible as file systems I’m excited to announce , a new file system that seamlessly connects any AWS compute resource with Amazon Simple Storage Service (Amazon S3) More than a decade ago, as an AWS trainer, I spent countless hours explaining the fundamental differences between object storage and file systems.",
+        "My favorite analogy was comparing S3 objects to books in a library (you can’t edit a page, you need to replace the whole book) versus files on your computer that you can modify page by page."
+      ],
+      "possible_application_contexts": [],
+      "tags": [
+        "storage",
+        "serverless",
+        "networking",
+        "ci_cd",
+        "infrastructure"
+      ],
+      "maturity_evidence": {
+        "status": "not_verified_by_this_source",
+        "evidence_basis": "explicit_general_availability_wording_in_fetched_official_source",
+        "evidence_excerpts": [],
+        "rejected_evidence_excerpts": [],
+        "limits": [
+          "A source without explicit GA wording is not treated as proof that the technology is preview-only.",
+          "S1 does not search the complete AWS release archive in this version."
+        ]
+      },
+      "data_gaps": [],
+      "fetched_source": {
+        "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+        "description": "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies.",
+        "text_excerpt": "Launching S3 Files, making S3 buckets accessible as file systems I’m excited to announce , a new file system that seamlessly connects any AWS compute resource with Amazon Simple Storage Service (Amazon S3) More than a decade ago, as an AWS trainer, I spent countless hours explaining the fundamental differences between object storage and file systems. My favorite analogy was comparing S3 objects to books in a library (you can’t edit a page, you need to replace the whole book) versus files on your computer that you can modify page by page. I drew diagrams, created metaphors, and helped customers understand why they needed different storage types for different workloads. Well, today that distinction becomes a bit more flexible. With S3 Files, Amazon S3 is the first and only cloud object store that offers fully-featured, high-performance file system access to your data. It makes your buckets accessible as file systems. This means changes to data on the file system are automatically reflected in the S3 bucket and you have fine-grained control over synchronization. S3 Files can be attached to multiple compute resources enabling data sharing across clusters without duplication. Until now,"
+      },
+      "rss_source": null
+    }
+  ],
+  "evidence_summary": {
+    "official_source_count": 1,
+    "open_source_repository_count": 0,
+    "external_fetch_performed": true,
+    "rss_discovered_count": 0,
+    "evidence_level": "mixed_public_sources"
+  },
+  "data_gaps": [
+    "Direct URL import has no business-problem context; S2 can compare source evidence but cannot judge business fit until a human adds context."
+  ],
+  "maturity_filter": {
+    "requirement": "not_requested_for_direct_import",
+    "included_with_official_ga_evidence": 0,
+    "excluded_without_official_ga_evidence": 0
+  },
+  "notes": [
+    "The user intentionally selected this URL, so this entry begins directly at S1.",
+    "HTTPS, trusted-host, redirect, and HTML content-type validation still apply before any content is recorded.",
+    "No problem statement is fabricated; business fit remains explicitly unknown until a human provides context."
+  ],
+  "source_catalog": {
+    "direct_url_import": {
+      "requested_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "status": "fetched",
+      "final_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "content_type": "text/html;charset=UTF-8"
+    },
+    "aws_blog_directory": null,
+    "aws_rss_feeds": [],
+    "github_repository_queries": []
+  },
+  "scan_issues": []
+}

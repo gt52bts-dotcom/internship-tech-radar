@@ -1,0 +1,1210 @@
+{
+  "schema_version": "s5.report.v1",
+  "stage": "S5",
+  "run_id": "direct-url-20260731-766826d4",
+  "reported_at": "2026-07-31T06:37:16.541983+00:00",
+  "status": "interim",
+  "report_type": "interim",
+  "input_contract": {
+    "rule": "Only S1, S2, S3, and S4 artifacts may support report claims; missing evidence is unknown.",
+    "stages_received": [
+      "S1",
+      "S2",
+      "S3",
+      "S4"
+    ]
+  },
+  "input_issues": [],
+  "candidate": {
+    "candidate_id": "S1-F7F663D036CF",
+    "title": "Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct | AWS Contact Center",
+    "source_url": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/"
+  },
+  "conclusion": {
+    "status": "poc_recommended_awaiting_approval",
+    "text": "Skill 3 已完成 PoC 預估報價，建議進入實際 Skill 4 受控付費 PoC；仍須具名人員完成部署授權，且尚無 runtime 證據。"
+  },
+  "evaluation": {
+    "weighted_score": 3.75,
+    "confidence": "medium",
+    "dimensions": {
+      "technical_value": 4,
+      "adoption_prerequisites": 2,
+      "verifiability": 5,
+      "risk_and_stop_conditions": 4
+    },
+    "rows": [
+      [
+        "Skill 3 加權分",
+        3.75
+      ],
+      [
+        "信心",
+        "中等"
+      ],
+      [
+        "區域狀態",
+        "區域支援尚未確認"
+      ],
+      [
+        "建議進入實際 Skill 4 PoC",
+        "是"
+      ],
+      [
+        "成本",
+        "已完成估算"
+      ]
+    ]
+  },
+  "cost_quote": {
+    "schema_version": "poc.cost-quote.v2",
+    "quote_id": "POC-QUOTE-D457A8453933",
+    "run_id": "direct-url-20260731-766826d4",
+    "candidate_id": "S1-F7F663D036CF",
+    "candidate_title": "Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct | AWS Contact Center",
+    "generated_at": "2026-07-31T06:37:16.533222+00:00",
+    "valid_until": "2026-08-07",
+    "currency": "USD",
+    "target_region": "ap-southeast-1",
+    "quote_kind": "non_binding_public_price_estimate",
+    "estimation_method": "pre_deployment_cost_estimation",
+    "rate_card_source": "static_public_rate_card",
+    "live_pricing_api_used": false,
+    "formal_procurement_quote_ready": false,
+    "disclaimer": "這是 PoC 前的非正式公開牌價估算，用於 Skill 3 審查與 Skill 4 小額上限控管。它不是 AWS 帳單、正式採購報價，也未套用稅務、折扣、credits、Free Tier 或公司私有價格。",
+    "status": "estimated",
+    "confidence": "medium",
+    "pricing_confidence": "medium",
+    "pricing_level": "Level B generic usage model",
+    "recipe": "generic_usage_model",
+    "deployable_recipe_registered": false,
+    "pricing_basis": "未找到 candidate-specific 成本 recipe，但已從 S2/IaC/文字線索抓到可計價 AWS 服務，因此用通用低/中/高 PoC 用量模型先產出可審核估價。",
+    "price_snapshot_date": "2026-07-31",
+    "detected_services": [
+      "cloudformation",
+      "iam",
+      "lakeformation",
+      "lambda",
+      "ram",
+      "s3"
+    ],
+    "service_detection_basis": "S2 technology_scope.services_detected plus candidate text/IaC hints.",
+    "scenarios": {
+      "low": {
+        "scenario": "low",
+        "label": "低用量",
+        "assumptions": {
+          "hours": 0.5,
+          "storage_gb": 0.01,
+          "requests": 10,
+          "lambda_gb_seconds": 1,
+          "log_gb": 0.001,
+          "athena_tb_scanned": 1e-05,
+          "catalog_objects": 5,
+          "catalog_requests": 20
+        },
+        "line_items": [
+          {
+            "rate_key": "lambda_request",
+            "item": "Lambda requests",
+            "rate_usd": 2e-07,
+            "rate_unit": "USD/request",
+            "quantity": 10,
+            "quantity_unit": "requests",
+            "formula": "generic PoC Lambda requests x USD/request",
+            "subtotal_usd": 2e-06,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public request price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "lambda_x86_duration",
+            "item": "Lambda x86 duration",
+            "rate_usd": 1.66667e-05,
+            "rate_unit": "USD/GB-second",
+            "quantity": 1,
+            "quantity_unit": "GB-seconds",
+            "formula": "generic PoC Lambda GB-seconds x USD/GB-second",
+            "subtotal_usd": 1.7e-05,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public on-demand duration price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "cloudwatch_logs_ingestion",
+            "item": "CloudWatch Logs ingestion",
+            "rate_usd": 0.5,
+            "rate_unit": "USD/GB ingested",
+            "quantity": 0.001,
+            "quantity_unit": "GB ingested",
+            "formula": "generic PoC log GB x USD/GB",
+            "subtotal_usd": 0.0005,
+            "source_url": "https://aws.amazon.com/cloudwatch/pricing/",
+            "source_basis": "Amazon CloudWatch Logs public ingestion price example",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "s3_standard_storage",
+            "item": "S3 Standard storage",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 6.849315068493151e-06,
+            "quantity_unit": "GB-month",
+            "formula": "generic PoC S3 GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 0.0,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier1_request",
+            "item": "S3 PUT/COPY/POST/LIST requests",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 10,
+            "quantity_unit": "requests",
+            "formula": "generic PoC S3 write/list requests x USD/request",
+            "subtotal_usd": 5e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier2_request",
+            "item": "S3 GET requests",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 10,
+            "quantity_unit": "requests",
+            "formula": "generic PoC S3 read requests x USD/request",
+            "subtotal_usd": 4e-06,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "glue_data_catalog_object_month",
+            "item": "Glue Data Catalog metadata objects",
+            "rate_usd": 1e-05,
+            "rate_unit": "USD/object-month",
+            "quantity": 0.003424657534246575,
+            "quantity_unit": "object-month",
+            "formula": "metadata objects x PoC hours / 730 x USD/object-month",
+            "subtotal_usd": 0.0,
+            "source_url": "https://aws.amazon.com/glue/pricing/",
+            "source_basis": "AWS Glue Data Catalog marginal storage price after free tier",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "glue_data_catalog_request",
+            "item": "Glue Data Catalog API requests",
+            "rate_usd": 1e-06,
+            "rate_unit": "USD/request",
+            "quantity": 20,
+            "quantity_unit": "requests",
+            "formula": "Data Catalog API requests x USD/request",
+            "subtotal_usd": 2e-05,
+            "source_url": "https://aws.amazon.com/glue/pricing/",
+            "source_basis": "AWS Glue Data Catalog marginal request price after free tier",
+            "effective_date": "2026-07-31"
+          }
+        ],
+        "total_usd": 0.000593,
+        "display_total_usd": "0.01"
+      },
+      "expected": {
+        "scenario": "expected",
+        "label": "預期用量",
+        "assumptions": {
+          "hours": 1,
+          "storage_gb": 0.1,
+          "requests": 100,
+          "lambda_gb_seconds": 5,
+          "log_gb": 0.005,
+          "athena_tb_scanned": 0.0001,
+          "catalog_objects": 20,
+          "catalog_requests": 100
+        },
+        "line_items": [
+          {
+            "rate_key": "lambda_request",
+            "item": "Lambda requests",
+            "rate_usd": 2e-07,
+            "rate_unit": "USD/request",
+            "quantity": 100,
+            "quantity_unit": "requests",
+            "formula": "generic PoC Lambda requests x USD/request",
+            "subtotal_usd": 2e-05,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public request price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "lambda_x86_duration",
+            "item": "Lambda x86 duration",
+            "rate_usd": 1.66667e-05,
+            "rate_unit": "USD/GB-second",
+            "quantity": 5,
+            "quantity_unit": "GB-seconds",
+            "formula": "generic PoC Lambda GB-seconds x USD/GB-second",
+            "subtotal_usd": 8.3e-05,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public on-demand duration price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "cloudwatch_logs_ingestion",
+            "item": "CloudWatch Logs ingestion",
+            "rate_usd": 0.5,
+            "rate_unit": "USD/GB ingested",
+            "quantity": 0.005,
+            "quantity_unit": "GB ingested",
+            "formula": "generic PoC log GB x USD/GB",
+            "subtotal_usd": 0.0025,
+            "source_url": "https://aws.amazon.com/cloudwatch/pricing/",
+            "source_basis": "Amazon CloudWatch Logs public ingestion price example",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "s3_standard_storage",
+            "item": "S3 Standard storage",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.000136986301369863,
+            "quantity_unit": "GB-month",
+            "formula": "generic PoC S3 GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 3e-06,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier1_request",
+            "item": "S3 PUT/COPY/POST/LIST requests",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 100,
+            "quantity_unit": "requests",
+            "formula": "generic PoC S3 write/list requests x USD/request",
+            "subtotal_usd": 0.0005,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier2_request",
+            "item": "S3 GET requests",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 100,
+            "quantity_unit": "requests",
+            "formula": "generic PoC S3 read requests x USD/request",
+            "subtotal_usd": 4e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "glue_data_catalog_object_month",
+            "item": "Glue Data Catalog metadata objects",
+            "rate_usd": 1e-05,
+            "rate_unit": "USD/object-month",
+            "quantity": 0.0273972602739726,
+            "quantity_unit": "object-month",
+            "formula": "metadata objects x PoC hours / 730 x USD/object-month",
+            "subtotal_usd": 0.0,
+            "source_url": "https://aws.amazon.com/glue/pricing/",
+            "source_basis": "AWS Glue Data Catalog marginal storage price after free tier",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "glue_data_catalog_request",
+            "item": "Glue Data Catalog API requests",
+            "rate_usd": 1e-06,
+            "rate_unit": "USD/request",
+            "quantity": 100,
+            "quantity_unit": "requests",
+            "formula": "Data Catalog API requests x USD/request",
+            "subtotal_usd": 0.0001,
+            "source_url": "https://aws.amazon.com/glue/pricing/",
+            "source_basis": "AWS Glue Data Catalog marginal request price after free tier",
+            "effective_date": "2026-07-31"
+          }
+        ],
+        "total_usd": 0.003246,
+        "display_total_usd": "0.01"
+      },
+      "high": {
+        "scenario": "high",
+        "label": "高用量",
+        "assumptions": {
+          "hours": 4,
+          "storage_gb": 1,
+          "requests": 1000,
+          "lambda_gb_seconds": 20,
+          "log_gb": 0.05,
+          "athena_tb_scanned": 0.001,
+          "catalog_objects": 100,
+          "catalog_requests": 1000
+        },
+        "line_items": [
+          {
+            "rate_key": "lambda_request",
+            "item": "Lambda requests",
+            "rate_usd": 2e-07,
+            "rate_unit": "USD/request",
+            "quantity": 1000,
+            "quantity_unit": "requests",
+            "formula": "generic PoC Lambda requests x USD/request",
+            "subtotal_usd": 0.0002,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public request price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "lambda_x86_duration",
+            "item": "Lambda x86 duration",
+            "rate_usd": 1.66667e-05,
+            "rate_unit": "USD/GB-second",
+            "quantity": 20,
+            "quantity_unit": "GB-seconds",
+            "formula": "generic PoC Lambda GB-seconds x USD/GB-second",
+            "subtotal_usd": 0.000333,
+            "source_url": "https://aws.amazon.com/lambda/pricing/",
+            "source_basis": "AWS Lambda public on-demand duration price",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "cloudwatch_logs_ingestion",
+            "item": "CloudWatch Logs ingestion",
+            "rate_usd": 0.5,
+            "rate_unit": "USD/GB ingested",
+            "quantity": 0.05,
+            "quantity_unit": "GB ingested",
+            "formula": "generic PoC log GB x USD/GB",
+            "subtotal_usd": 0.025,
+            "source_url": "https://aws.amazon.com/cloudwatch/pricing/",
+            "source_basis": "Amazon CloudWatch Logs public ingestion price example",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "s3_standard_storage",
+            "item": "S3 Standard storage",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.005479452054794521,
+            "quantity_unit": "GB-month",
+            "formula": "generic PoC S3 GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 0.000137,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier1_request",
+            "item": "S3 PUT/COPY/POST/LIST requests",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 1000,
+            "quantity_unit": "requests",
+            "formula": "generic PoC S3 write/list requests x USD/request",
+            "subtotal_usd": 0.005,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier2_request",
+            "item": "S3 GET requests",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 1000,
+            "quantity_unit": "requests",
+            "formula": "generic PoC S3 read requests x USD/request",
+            "subtotal_usd": 0.0004,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "glue_data_catalog_object_month",
+            "item": "Glue Data Catalog metadata objects",
+            "rate_usd": 1e-05,
+            "rate_unit": "USD/object-month",
+            "quantity": 0.547945205479452,
+            "quantity_unit": "object-month",
+            "formula": "metadata objects x PoC hours / 730 x USD/object-month",
+            "subtotal_usd": 5e-06,
+            "source_url": "https://aws.amazon.com/glue/pricing/",
+            "source_basis": "AWS Glue Data Catalog marginal storage price after free tier",
+            "effective_date": "2026-07-31"
+          },
+          {
+            "rate_key": "glue_data_catalog_request",
+            "item": "Glue Data Catalog API requests",
+            "rate_usd": 1e-06,
+            "rate_unit": "USD/request",
+            "quantity": 1000,
+            "quantity_unit": "requests",
+            "formula": "Data Catalog API requests x USD/request",
+            "subtotal_usd": 0.001,
+            "source_url": "https://aws.amazon.com/glue/pricing/",
+            "source_basis": "AWS Glue Data Catalog marginal request price after free tier",
+            "effective_date": "2026-07-31"
+          }
+        ],
+        "total_usd": 0.032075,
+        "display_total_usd": "0.04"
+      }
+    },
+    "expected_total_usd": 0.003246,
+    "estimated_range_usd": {
+      "low": 0.000593,
+      "expected": 0.003246,
+      "high": 0.032075
+    },
+    "recommended_approval_ceiling_usd": 0.05,
+    "approval_ceiling_basis": "高用量情境往上取到下一個 USD 0.05；極小估價至少保留 USD 0.05 審查上限。",
+    "verified_recipe_facts": [
+      "This is an IaC/service-derived estimate, not a deployable Skill 4 recipe.",
+      "A separate S4 deployment recipe is still required before any AWS resources can be created."
+    ],
+    "zero_direct_charge_resources": [
+      "CloudFormation stack orchestration itself has no separate direct charge.",
+      "IAM roles and policies have no separate direct charge.",
+      "Lake Formation permissions have no direct charge; underlying services still apply.",
+      "AWS RAM resource sharing has no direct charge; shared resource usage can still incur charges."
+    ],
+    "exclusions": [
+      "Tax, private pricing, Savings Plans, credits, enterprise discounts, and Free Tier are excluded.",
+      "This quote must be regenerated if the public pricing page changes or the quote expires.",
+      "Actual billing must be checked separately after Skill 4, using Billing/Cost Explorer/CUR evidence when attributable.",
+      "Service dimensions not detected by S2/IaC are excluded.",
+      "Provisioned capacity, NAT/data transfer, long-running compute, managed ingestion pipelines, and downstream analytics are excluded unless detected and modeled.",
+      "Use AWS Pricing Calculator, CloudFormation estimate-template-cost, Infracost, or AWS Price List API for a stronger quote before a larger PoC."
+    ],
+    "sources": [
+      {
+        "url": "https://aws.amazon.com/cloudwatch/pricing/",
+        "purpose": "Amazon CloudWatch Logs public ingestion price example"
+      },
+      {
+        "url": "https://aws.amazon.com/glue/pricing/",
+        "purpose": "AWS Glue Data Catalog marginal storage price after free tier"
+      },
+      {
+        "url": "https://aws.amazon.com/lambda/pricing/",
+        "purpose": "AWS Lambda public request price"
+      },
+      {
+        "url": "https://aws.amazon.com/s3/pricing/",
+        "purpose": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)"
+      },
+      {
+        "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html",
+        "purpose": "AWS Price List files/rate card interpretation"
+      },
+      {
+        "url": "https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_pricing_GetProducts.html",
+        "purpose": "Future Level B enhancement: query current SKU prices programmatically"
+      },
+      {
+        "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_EstimateTemplateCost.html",
+        "purpose": "Future Level B enhancement: estimate monthly cost from CloudFormation templates"
+      },
+      {
+        "url": "https://docs.aws.amazon.com/pricing-calculator/",
+        "purpose": "Manual cross-check and formal estimate workflow"
+      }
+    ]
+  },
+  "cost_reconciliation": {
+    "schema_version": "poc.cost-reconciliation.v1",
+    "status": "pending_actual_cost",
+    "estimated": {
+      "status": "estimated",
+      "quote_id": "POC-QUOTE-D457A8453933",
+      "expected_total_usd": 0.003246,
+      "range_usd": {
+        "low": 0.000593,
+        "expected": 0.003246,
+        "high": 0.032075
+      },
+      "currency": "USD",
+      "source": "Skill 3 public list-price quote"
+    },
+    "actual": {
+      "status": "pending",
+      "amount_usd": null,
+      "currency": "USD",
+      "source_type": "not_available",
+      "source_artifact": null,
+      "reason": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+    },
+    "delta_usd": null,
+    "rule": "Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost."
+  },
+  "validation": {
+    "rows": [
+      [
+        "Skill 4 validation",
+        "等待 PoC 授權"
+      ],
+      [
+        "CloudFormation",
+        "未記錄"
+      ],
+      [
+        "自動化驗證",
+        "未記錄"
+      ],
+      [
+        "AWS Console review",
+        "未記錄"
+      ],
+      [
+        "Console 截圖證據",
+        "未記錄"
+      ],
+      [
+        "cleanup",
+        "不適用，未建立雲端資源"
+      ]
+    ]
+  },
+  "verified_facts": [
+    "官方來源已記錄：https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+    "Skill 3 加權分已依固定 rubric 計算：3.75",
+    "PoC 成本估算報價單已建立：POC-QUOTE-D457A8453933，預期 USD 0.003246。"
+  ],
+  "unknown_or_not_verified": [
+    "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
+    "No candidate-relevant official AWS Region or availability page was fetched in this S2 run.",
+    "報價單是公開牌價估算；實際 AWS 費用需在部署後以帳務資料核對。",
+    "可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。",
+    "AWS Console review 尚未完成或尚未記錄。",
+    "Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。",
+    "cleanup 尚未完成或尚未記錄。"
+  ],
+  "next_reminders": [
+    "Skill 4 must resolve a candidate-specific registered PoC recipe before deployment.",
+    "The standard small-cost ceiling and cleanup guarantee must pass before deployment."
+  ],
+  "funnel": {
+    "s1_candidates": 1,
+    "s2_candidates": 1,
+    "s2_region_verified": 0,
+    "s3_evaluated": 1,
+    "s4_validated": 1
+  },
+  "evidence_ledger": [
+    {
+      "claim": "候選技術的公開來源",
+      "type": "source-backed fact",
+      "status": "recorded",
+      "source": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/"
+    },
+    {
+      "claim": "PoC 成本估算",
+      "type": "public list-price estimate",
+      "status": "estimated",
+      "source": "POC-QUOTE-D457A8453933"
+    },
+    {
+      "claim": "PoC 可歸因實際帳務成本",
+      "type": "AWS billing evidence",
+      "status": "pending",
+      "source": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+    }
+  ],
+  "markdown": "# 技術驗證報告｜Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct | AWS Contact Center\n\n- 報告狀態：階段性報告\n- Run ID：direct-url-20260731-766826d4\n- 來源：https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/\n\n## 一句結論\n\n> Skill 3 已完成 PoC 預估報價，建議進入實際 Skill 4 受控付費 PoC；仍須具名人員完成部署授權，且尚無 runtime 證據。\n\n## 評估摘要\n\n| 指標 | 結果 |\n| --- | --- |\n| Skill 3 加權分 | 3.75 |\n| 信心 | 中等 |\n| 區域狀態 | 區域支援尚未確認 |\n| 建議進入實際 Skill 4 PoC | 是 |\n| 成本 | 已完成估算 |\n\n## PoC 成本估算報價單\n\n- Quote ID：POC-QUOTE-D457A8453933\n- 區域：ap-southeast-1\n- 幣別：USD\n- 價格快照：2026-07-31\n- 有效期限：2026-08-07\n- 情境總額：低 **$0.000593**／預期 **$0.003246**／高 **$0.032075**\n- 建議核准上限：**$0.05**\n- 報價性質：非正式公開牌價估算；即時 Pricing API：否\n\n### 預期情境明細\n\n| 項目 | 費率 | 用量 | 小計 USD |\n| --- | ---: | ---: | ---: |\n| Lambda requests | 0.0000002 USD/request | 100 requests | 0.00002 |\n| Lambda x86 duration | 0.000016667 USD/GB-second | 5 GB-seconds | 0.000083 |\n| CloudWatch Logs ingestion | 0.5 USD/GB ingested | 0.005 GB ingested | 0.0025 |\n| S3 Standard storage | 0.025 USD/GB-month | 0.000136986 GB-month | 0.000003 |\n| S3 PUT/COPY/POST/LIST requests | 0.000005 USD/request | 100 requests | 0.0005 |\n| S3 GET requests | 0.0000004 USD/request | 100 requests | 0.00004 |\n| Glue Data Catalog metadata objects | 0.00001 USD/object-month | 0.02739726 object-month | 0.00 |\n| Glue Data Catalog API requests | 0.000001 USD/request | 100 requests | 0.0001 |\n| **預期總額** |  |  | **0.003246** |\n\n### 報價假設與限制\n\n- 預期情境假設：詳見情境明細。\n- Tax, private pricing, Savings Plans, credits, enterprise discounts, and Free Tier are excluded.\n- This quote must be regenerated if the public pricing page changes or the quote expires.\n- Actual billing must be checked separately after Skill 4, using Billing/Cost Explorer/CUR evidence when attributable.\n- Service dimensions not detected by S2/IaC are excluded.\n- Provisioned capacity, NAT/data transfer, long-running compute, managed ingestion pipelines, and downstream analytics are excluded unless detected and modeled.\n- Use AWS Pricing Calculator, CloudFormation estimate-template-cost, Infracost, or AWS Price List API for a stronger quote before a larger PoC.\n- 這是 PoC 前的非正式公開牌價估算，用於 Skill 3 審查與 Skill 4 小額上限控管。它不是 AWS 帳單、正式採購報價，也未套用稅務、折扣、credits、Free Tier 或公司私有價格。\n\n### 官方價格來源\n\n- [Amazon CloudWatch Logs public ingestion price example](https://aws.amazon.com/cloudwatch/pricing/)\n- [AWS Glue Data Catalog marginal storage price after free tier](https://aws.amazon.com/glue/pricing/)\n- [AWS Lambda public request price](https://aws.amazon.com/lambda/pricing/)\n- [AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)](https://aws.amazon.com/s3/pricing/)\n- [AWS Price List files/rate card interpretation](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html)\n- [Future Level B enhancement: query current SKU prices programmatically](https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_pricing_GetProducts.html)\n- [Future Level B enhancement: estimate monthly cost from CloudFormation templates](https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_EstimateTemplateCost.html)\n- [Manual cross-check and formal estimate workflow](https://docs.aws.amazon.com/pricing-calculator/)\n\n## 預估成本 vs 可歸因實際帳務成本\n\n| 項目 | 狀態 | 金額 USD | 證據 |\n| --- | --- | ---: | --- |\n| Skill 3 公開牌價估算 | 已完成估算 | 0.003246 | POC-QUOTE-D457A8453933 |\n| 可歸因實際帳務成本 | 待補實際帳務證據 | 未記錄 | 無可用資料 |\n| 差異（實際 - 預估） | 待補實際成本 | 未記錄 | Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost. |\n\n- 實際成本狀態：待補實際帳務證據。No attributable AWS Billing, Cost Explorer, or CUR artifact was provided.\n- 不以 EC2 執行時間、CloudFormation 狀態或 runtime artifact 推算實際 AWS 帳務成本。\n\n## 技術驗證\n\n| 檢查 | 狀態 |\n| --- | --- |\n| Skill 4 validation | 等待 PoC 授權 |\n| CloudFormation | 未記錄 |\n| 自動化驗證 | 未記錄 |\n| AWS Console review | 未記錄 |\n| Console 截圖證據 | 未記錄 |\n| cleanup | 不適用，未建立雲端資源 |\n\n## 已證實的事實\n\n- 官方來源已記錄：https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/\n- Skill 3 加權分已依固定 rubric 計算：3.75\n- PoC 成本估算報價單已建立：POC-QUOTE-D457A8453933，預期 USD 0.003246。\n\n## 尚未驗證或證據不足\n\n- No candidate-relevant official AWS pricing page was fetched in this S2 run.\n- No candidate-relevant official AWS Region or availability page was fetched in this S2 run.\n- 報價單是公開牌價估算；實際 AWS 費用需在部署後以帳務資料核對。\n- 可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。\n- AWS Console review 尚未完成或尚未記錄。\n- Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。\n- cleanup 尚未完成或尚未記錄。\n\n## 後續提醒\n\n- Skill 4 must resolve a candidate-specific registered PoC recipe before deployment.\n- The standard small-cost ceiling and cleanup guarantee must pass before deployment.\n\n## 證據帳本\n\n| 敘述 | 類型 | 狀態 | 證據 |\n| --- | --- | --- | --- |\n| 候選技術的公開來源 | source-backed fact | recorded | https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/ |\n| PoC 成本估算 | public list-price estimate | 已完成估算 | POC-QUOTE-D457A8453933 |\n| PoC 可歸因實際帳務成本 | AWS billing evidence | 待補實際帳務證據 | No attributable AWS Billing, Cost Explorer, or CUR artifact was provided. |\n",
+  "gui_model": {
+    "header": {
+      "title": "Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct | AWS Contact Center",
+      "source_url": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+      "report_type": "interim",
+      "report_type_label": "階段性報告",
+      "conclusion": {
+        "status": "poc_recommended_awaiting_approval",
+        "text": "Skill 3 已完成 PoC 預估報價，建議進入實際 Skill 4 受控付費 PoC；仍須具名人員完成部署授權，且尚無 runtime 證據。"
+      }
+    },
+    "score": {
+      "weighted_score": 3.75,
+      "confidence": "medium",
+      "dimensions": {
+        "technical_value": 4,
+        "adoption_prerequisites": 2,
+        "verifiability": 5,
+        "risk_and_stop_conditions": 4
+      }
+    },
+    "cost_quote": {
+      "schema_version": "poc.cost-quote.v2",
+      "quote_id": "POC-QUOTE-D457A8453933",
+      "run_id": "direct-url-20260731-766826d4",
+      "candidate_id": "S1-F7F663D036CF",
+      "candidate_title": "Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct | AWS Contact Center",
+      "generated_at": "2026-07-31T06:37:16.533222+00:00",
+      "valid_until": "2026-08-07",
+      "currency": "USD",
+      "target_region": "ap-southeast-1",
+      "quote_kind": "non_binding_public_price_estimate",
+      "estimation_method": "pre_deployment_cost_estimation",
+      "rate_card_source": "static_public_rate_card",
+      "live_pricing_api_used": false,
+      "formal_procurement_quote_ready": false,
+      "disclaimer": "這是 PoC 前的非正式公開牌價估算，用於 Skill 3 審查與 Skill 4 小額上限控管。它不是 AWS 帳單、正式採購報價，也未套用稅務、折扣、credits、Free Tier 或公司私有價格。",
+      "status": "estimated",
+      "confidence": "medium",
+      "pricing_confidence": "medium",
+      "pricing_level": "Level B generic usage model",
+      "recipe": "generic_usage_model",
+      "deployable_recipe_registered": false,
+      "pricing_basis": "未找到 candidate-specific 成本 recipe，但已從 S2/IaC/文字線索抓到可計價 AWS 服務，因此用通用低/中/高 PoC 用量模型先產出可審核估價。",
+      "price_snapshot_date": "2026-07-31",
+      "detected_services": [
+        "cloudformation",
+        "iam",
+        "lakeformation",
+        "lambda",
+        "ram",
+        "s3"
+      ],
+      "service_detection_basis": "S2 technology_scope.services_detected plus candidate text/IaC hints.",
+      "scenarios": {
+        "low": {
+          "scenario": "low",
+          "label": "低用量",
+          "assumptions": {
+            "hours": 0.5,
+            "storage_gb": 0.01,
+            "requests": 10,
+            "lambda_gb_seconds": 1,
+            "log_gb": 0.001,
+            "athena_tb_scanned": 1e-05,
+            "catalog_objects": 5,
+            "catalog_requests": 20
+          },
+          "line_items": [
+            {
+              "rate_key": "lambda_request",
+              "item": "Lambda requests",
+              "rate_usd": 2e-07,
+              "rate_unit": "USD/request",
+              "quantity": 10,
+              "quantity_unit": "requests",
+              "formula": "generic PoC Lambda requests x USD/request",
+              "subtotal_usd": 2e-06,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public request price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "lambda_x86_duration",
+              "item": "Lambda x86 duration",
+              "rate_usd": 1.66667e-05,
+              "rate_unit": "USD/GB-second",
+              "quantity": 1,
+              "quantity_unit": "GB-seconds",
+              "formula": "generic PoC Lambda GB-seconds x USD/GB-second",
+              "subtotal_usd": 1.7e-05,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public on-demand duration price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "cloudwatch_logs_ingestion",
+              "item": "CloudWatch Logs ingestion",
+              "rate_usd": 0.5,
+              "rate_unit": "USD/GB ingested",
+              "quantity": 0.001,
+              "quantity_unit": "GB ingested",
+              "formula": "generic PoC log GB x USD/GB",
+              "subtotal_usd": 0.0005,
+              "source_url": "https://aws.amazon.com/cloudwatch/pricing/",
+              "source_basis": "Amazon CloudWatch Logs public ingestion price example",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "s3_standard_storage",
+              "item": "S3 Standard storage",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 6.849315068493151e-06,
+              "quantity_unit": "GB-month",
+              "formula": "generic PoC S3 GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 0.0,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier1_request",
+              "item": "S3 PUT/COPY/POST/LIST requests",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 10,
+              "quantity_unit": "requests",
+              "formula": "generic PoC S3 write/list requests x USD/request",
+              "subtotal_usd": 5e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier2_request",
+              "item": "S3 GET requests",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 10,
+              "quantity_unit": "requests",
+              "formula": "generic PoC S3 read requests x USD/request",
+              "subtotal_usd": 4e-06,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "glue_data_catalog_object_month",
+              "item": "Glue Data Catalog metadata objects",
+              "rate_usd": 1e-05,
+              "rate_unit": "USD/object-month",
+              "quantity": 0.003424657534246575,
+              "quantity_unit": "object-month",
+              "formula": "metadata objects x PoC hours / 730 x USD/object-month",
+              "subtotal_usd": 0.0,
+              "source_url": "https://aws.amazon.com/glue/pricing/",
+              "source_basis": "AWS Glue Data Catalog marginal storage price after free tier",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "glue_data_catalog_request",
+              "item": "Glue Data Catalog API requests",
+              "rate_usd": 1e-06,
+              "rate_unit": "USD/request",
+              "quantity": 20,
+              "quantity_unit": "requests",
+              "formula": "Data Catalog API requests x USD/request",
+              "subtotal_usd": 2e-05,
+              "source_url": "https://aws.amazon.com/glue/pricing/",
+              "source_basis": "AWS Glue Data Catalog marginal request price after free tier",
+              "effective_date": "2026-07-31"
+            }
+          ],
+          "total_usd": 0.000593,
+          "display_total_usd": "0.01"
+        },
+        "expected": {
+          "scenario": "expected",
+          "label": "預期用量",
+          "assumptions": {
+            "hours": 1,
+            "storage_gb": 0.1,
+            "requests": 100,
+            "lambda_gb_seconds": 5,
+            "log_gb": 0.005,
+            "athena_tb_scanned": 0.0001,
+            "catalog_objects": 20,
+            "catalog_requests": 100
+          },
+          "line_items": [
+            {
+              "rate_key": "lambda_request",
+              "item": "Lambda requests",
+              "rate_usd": 2e-07,
+              "rate_unit": "USD/request",
+              "quantity": 100,
+              "quantity_unit": "requests",
+              "formula": "generic PoC Lambda requests x USD/request",
+              "subtotal_usd": 2e-05,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public request price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "lambda_x86_duration",
+              "item": "Lambda x86 duration",
+              "rate_usd": 1.66667e-05,
+              "rate_unit": "USD/GB-second",
+              "quantity": 5,
+              "quantity_unit": "GB-seconds",
+              "formula": "generic PoC Lambda GB-seconds x USD/GB-second",
+              "subtotal_usd": 8.3e-05,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public on-demand duration price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "cloudwatch_logs_ingestion",
+              "item": "CloudWatch Logs ingestion",
+              "rate_usd": 0.5,
+              "rate_unit": "USD/GB ingested",
+              "quantity": 0.005,
+              "quantity_unit": "GB ingested",
+              "formula": "generic PoC log GB x USD/GB",
+              "subtotal_usd": 0.0025,
+              "source_url": "https://aws.amazon.com/cloudwatch/pricing/",
+              "source_basis": "Amazon CloudWatch Logs public ingestion price example",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "s3_standard_storage",
+              "item": "S3 Standard storage",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.000136986301369863,
+              "quantity_unit": "GB-month",
+              "formula": "generic PoC S3 GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 3e-06,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier1_request",
+              "item": "S3 PUT/COPY/POST/LIST requests",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 100,
+              "quantity_unit": "requests",
+              "formula": "generic PoC S3 write/list requests x USD/request",
+              "subtotal_usd": 0.0005,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier2_request",
+              "item": "S3 GET requests",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 100,
+              "quantity_unit": "requests",
+              "formula": "generic PoC S3 read requests x USD/request",
+              "subtotal_usd": 4e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "glue_data_catalog_object_month",
+              "item": "Glue Data Catalog metadata objects",
+              "rate_usd": 1e-05,
+              "rate_unit": "USD/object-month",
+              "quantity": 0.0273972602739726,
+              "quantity_unit": "object-month",
+              "formula": "metadata objects x PoC hours / 730 x USD/object-month",
+              "subtotal_usd": 0.0,
+              "source_url": "https://aws.amazon.com/glue/pricing/",
+              "source_basis": "AWS Glue Data Catalog marginal storage price after free tier",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "glue_data_catalog_request",
+              "item": "Glue Data Catalog API requests",
+              "rate_usd": 1e-06,
+              "rate_unit": "USD/request",
+              "quantity": 100,
+              "quantity_unit": "requests",
+              "formula": "Data Catalog API requests x USD/request",
+              "subtotal_usd": 0.0001,
+              "source_url": "https://aws.amazon.com/glue/pricing/",
+              "source_basis": "AWS Glue Data Catalog marginal request price after free tier",
+              "effective_date": "2026-07-31"
+            }
+          ],
+          "total_usd": 0.003246,
+          "display_total_usd": "0.01"
+        },
+        "high": {
+          "scenario": "high",
+          "label": "高用量",
+          "assumptions": {
+            "hours": 4,
+            "storage_gb": 1,
+            "requests": 1000,
+            "lambda_gb_seconds": 20,
+            "log_gb": 0.05,
+            "athena_tb_scanned": 0.001,
+            "catalog_objects": 100,
+            "catalog_requests": 1000
+          },
+          "line_items": [
+            {
+              "rate_key": "lambda_request",
+              "item": "Lambda requests",
+              "rate_usd": 2e-07,
+              "rate_unit": "USD/request",
+              "quantity": 1000,
+              "quantity_unit": "requests",
+              "formula": "generic PoC Lambda requests x USD/request",
+              "subtotal_usd": 0.0002,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public request price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "lambda_x86_duration",
+              "item": "Lambda x86 duration",
+              "rate_usd": 1.66667e-05,
+              "rate_unit": "USD/GB-second",
+              "quantity": 20,
+              "quantity_unit": "GB-seconds",
+              "formula": "generic PoC Lambda GB-seconds x USD/GB-second",
+              "subtotal_usd": 0.000333,
+              "source_url": "https://aws.amazon.com/lambda/pricing/",
+              "source_basis": "AWS Lambda public on-demand duration price",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "cloudwatch_logs_ingestion",
+              "item": "CloudWatch Logs ingestion",
+              "rate_usd": 0.5,
+              "rate_unit": "USD/GB ingested",
+              "quantity": 0.05,
+              "quantity_unit": "GB ingested",
+              "formula": "generic PoC log GB x USD/GB",
+              "subtotal_usd": 0.025,
+              "source_url": "https://aws.amazon.com/cloudwatch/pricing/",
+              "source_basis": "Amazon CloudWatch Logs public ingestion price example",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "s3_standard_storage",
+              "item": "S3 Standard storage",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.005479452054794521,
+              "quantity_unit": "GB-month",
+              "formula": "generic PoC S3 GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 0.000137,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier1_request",
+              "item": "S3 PUT/COPY/POST/LIST requests",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 1000,
+              "quantity_unit": "requests",
+              "formula": "generic PoC S3 write/list requests x USD/request",
+              "subtotal_usd": 0.005,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier2_request",
+              "item": "S3 GET requests",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 1000,
+              "quantity_unit": "requests",
+              "formula": "generic PoC S3 read requests x USD/request",
+              "subtotal_usd": 0.0004,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "glue_data_catalog_object_month",
+              "item": "Glue Data Catalog metadata objects",
+              "rate_usd": 1e-05,
+              "rate_unit": "USD/object-month",
+              "quantity": 0.547945205479452,
+              "quantity_unit": "object-month",
+              "formula": "metadata objects x PoC hours / 730 x USD/object-month",
+              "subtotal_usd": 5e-06,
+              "source_url": "https://aws.amazon.com/glue/pricing/",
+              "source_basis": "AWS Glue Data Catalog marginal storage price after free tier",
+              "effective_date": "2026-07-31"
+            },
+            {
+              "rate_key": "glue_data_catalog_request",
+              "item": "Glue Data Catalog API requests",
+              "rate_usd": 1e-06,
+              "rate_unit": "USD/request",
+              "quantity": 1000,
+              "quantity_unit": "requests",
+              "formula": "Data Catalog API requests x USD/request",
+              "subtotal_usd": 0.001,
+              "source_url": "https://aws.amazon.com/glue/pricing/",
+              "source_basis": "AWS Glue Data Catalog marginal request price after free tier",
+              "effective_date": "2026-07-31"
+            }
+          ],
+          "total_usd": 0.032075,
+          "display_total_usd": "0.04"
+        }
+      },
+      "expected_total_usd": 0.003246,
+      "estimated_range_usd": {
+        "low": 0.000593,
+        "expected": 0.003246,
+        "high": 0.032075
+      },
+      "recommended_approval_ceiling_usd": 0.05,
+      "approval_ceiling_basis": "高用量情境往上取到下一個 USD 0.05；極小估價至少保留 USD 0.05 審查上限。",
+      "verified_recipe_facts": [
+        "This is an IaC/service-derived estimate, not a deployable Skill 4 recipe.",
+        "A separate S4 deployment recipe is still required before any AWS resources can be created."
+      ],
+      "zero_direct_charge_resources": [
+        "CloudFormation stack orchestration itself has no separate direct charge.",
+        "IAM roles and policies have no separate direct charge.",
+        "Lake Formation permissions have no direct charge; underlying services still apply.",
+        "AWS RAM resource sharing has no direct charge; shared resource usage can still incur charges."
+      ],
+      "exclusions": [
+        "Tax, private pricing, Savings Plans, credits, enterprise discounts, and Free Tier are excluded.",
+        "This quote must be regenerated if the public pricing page changes or the quote expires.",
+        "Actual billing must be checked separately after Skill 4, using Billing/Cost Explorer/CUR evidence when attributable.",
+        "Service dimensions not detected by S2/IaC are excluded.",
+        "Provisioned capacity, NAT/data transfer, long-running compute, managed ingestion pipelines, and downstream analytics are excluded unless detected and modeled.",
+        "Use AWS Pricing Calculator, CloudFormation estimate-template-cost, Infracost, or AWS Price List API for a stronger quote before a larger PoC."
+      ],
+      "sources": [
+        {
+          "url": "https://aws.amazon.com/cloudwatch/pricing/",
+          "purpose": "Amazon CloudWatch Logs public ingestion price example"
+        },
+        {
+          "url": "https://aws.amazon.com/glue/pricing/",
+          "purpose": "AWS Glue Data Catalog marginal storage price after free tier"
+        },
+        {
+          "url": "https://aws.amazon.com/lambda/pricing/",
+          "purpose": "AWS Lambda public request price"
+        },
+        {
+          "url": "https://aws.amazon.com/s3/pricing/",
+          "purpose": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)"
+        },
+        {
+          "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html",
+          "purpose": "AWS Price List files/rate card interpretation"
+        },
+        {
+          "url": "https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_pricing_GetProducts.html",
+          "purpose": "Future Level B enhancement: query current SKU prices programmatically"
+        },
+        {
+          "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_EstimateTemplateCost.html",
+          "purpose": "Future Level B enhancement: estimate monthly cost from CloudFormation templates"
+        },
+        {
+          "url": "https://docs.aws.amazon.com/pricing-calculator/",
+          "purpose": "Manual cross-check and formal estimate workflow"
+        }
+      ],
+      "status_label": "已完成估算"
+    },
+    "cost_reconciliation": {
+      "schema_version": "poc.cost-reconciliation.v1",
+      "status": "pending_actual_cost",
+      "estimated": {
+        "status": "estimated",
+        "quote_id": "POC-QUOTE-D457A8453933",
+        "expected_total_usd": 0.003246,
+        "range_usd": {
+          "low": 0.000593,
+          "expected": 0.003246,
+          "high": 0.032075
+        },
+        "currency": "USD",
+        "source": "Skill 3 public list-price quote"
+      },
+      "actual": {
+        "status": "pending",
+        "amount_usd": null,
+        "currency": "USD",
+        "source_type": "not_available",
+        "source_artifact": null,
+        "reason": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+      },
+      "delta_usd": null,
+      "rule": "Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost.",
+      "status_label": "待補實際成本"
+    },
+    "console_review": {
+      "status": "未記錄",
+      "screenshot_status": "未記錄",
+      "evidence_recorded": false,
+      "privacy": "Render screenshot files only through an authenticated GUI or the active conversation; Git artifacts retain metadata only."
+    },
+    "validation_checks": [
+      {
+        "label": "Skill 4 validation",
+        "status": "等待 PoC 授權"
+      },
+      {
+        "label": "CloudFormation",
+        "status": "未記錄"
+      },
+      {
+        "label": "自動化驗證",
+        "status": "未記錄"
+      },
+      {
+        "label": "AWS Console review",
+        "status": "未記錄"
+      },
+      {
+        "label": "Console 截圖證據",
+        "status": "未記錄"
+      },
+      {
+        "label": "cleanup",
+        "status": "不適用，未建立雲端資源"
+      }
+    ],
+    "verified_facts": [
+      "官方來源已記錄：https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+      "Skill 3 加權分已依固定 rubric 計算：3.75",
+      "PoC 成本估算報價單已建立：POC-QUOTE-D457A8453933，預期 USD 0.003246。"
+    ],
+    "unknown_or_not_verified": [
+      "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
+      "No candidate-relevant official AWS Region or availability page was fetched in this S2 run.",
+      "報價單是公開牌價估算；實際 AWS 費用需在部署後以帳務資料核對。",
+      "可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。",
+      "AWS Console review 尚未完成或尚未記錄。",
+      "Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。",
+      "cleanup 尚未完成或尚未記錄。"
+    ],
+    "next_reminders": [
+      "Skill 4 must resolve a candidate-specific registered PoC recipe before deployment.",
+      "The standard small-cost ceiling and cleanup guarantee must pass before deployment."
+    ],
+    "evidence_ledger": [
+      {
+        "claim": "候選技術的公開來源",
+        "type": "source-backed fact",
+        "status": "recorded",
+        "source": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/"
+      },
+      {
+        "claim": "PoC 成本估算",
+        "type": "public list-price estimate",
+        "status": "estimated",
+        "source": "POC-QUOTE-D457A8453933"
+      },
+      {
+        "claim": "PoC 可歸因實際帳務成本",
+        "type": "AWS billing evidence",
+        "status": "pending",
+        "source": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
+      }
+    ],
+    "funnel": {
+      "s1_candidates": 1,
+      "s2_candidates": 1,
+      "s2_region_verified": 0,
+      "s3_evaluated": 1,
+      "s4_validated": 1
+    }
+  }
+}

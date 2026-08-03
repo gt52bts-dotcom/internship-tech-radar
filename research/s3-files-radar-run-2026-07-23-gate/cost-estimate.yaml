@@ -1,0 +1,48 @@
+project: cathay-techintel-v3
+region: ap-southeast-1
+budget:
+  currency: USD
+  max_total: 100
+  status: within_budget
+cost_policy:
+  use_bedrock: false
+  use_anthropic_api: optional
+  default_ai_mode: rubric_fallback
+  avoid_high_fixed_cost_services:
+    - Amazon Bedrock (blocked by SCP)
+    - CloudFront (global service; region-restricted account)
+    - Customer-managed KMS (replaced by SSE-S3 / AWS-managed)
+    - OpenSearch
+    - RDS
+    - EC2
+estimated_monthly_cost:
+  s3:
+    purpose: pipeline JSON + HTML reports; lifecycle expires runs/ after 90 days
+    estimate_usd: 1
+  lambda:
+    purpose: run S1-S5
+    estimate_usd: 1
+  step_functions:
+    purpose: orchestrate five-step workflow
+    estimate_usd: 1
+  dynamodb:
+    purpose: AI/human pick log with TTL (RQ1 blind-test data)
+    estimate_usd: 1
+  secrets_manager:
+    purpose: store Anthropic API key
+    estimate_usd: 0.4
+  eventbridge_scheduler:
+    purpose: daily 08:00 Taipei trigger (default disabled)
+    estimate_usd: 0
+  cloudwatch_logs:
+    purpose: execution logs, 14-day retention
+    estimate_usd_range: [1, 3]
+  anthropic_api:
+    purpose: evaluator (Sonnet 4.5) + validator (Haiku 4.5) calls
+    estimate_usd: usage-based; ~USD 0.09 per approved run
+estimated_total_monthly_usd_range: [5, 15]
+implementation_decision: proceed
+notes:
+  - "Bedrock is intentionally excluded for this phase."
+  - "Anthropic API is controlled by the quote gate; over-budget runs fall back to zero-token rubric mode."
+  - "Run cdk destroy --all after landing validation if the environment is no longer needed."

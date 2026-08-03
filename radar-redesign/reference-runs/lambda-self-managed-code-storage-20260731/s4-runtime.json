@@ -1,0 +1,63 @@
+{
+  "schema_version": "s4.runtime-evidence.v3",
+  "stage": "S4",
+  "run_id": "direct-url-20260731-ae6e8775",
+  "status": "awaiting_console_review",
+  "deployed_at": "2026-07-31T07:09:54.894283+00:00",
+  "lineage": {
+    "source_artifacts": [
+      {
+        "stage": "S1",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-20260731-quote-review\\s1-lambda-self-managed.json",
+        "sha256": "5a6ce33f5159954e802b791e93a2eb7588644d689b3a3f3c4d0cd6a0ded27ec3"
+      },
+      {
+        "stage": "S2",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-20260731-quote-review\\s2-lambda-self-managed.json",
+        "sha256": "80d1c0f00b8fa836c2e79ab8518d54c1d448a300c60097ddc6bfd02c5b6bafc4"
+      },
+      {
+        "stage": "S3",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-20260731-quote-review\\s3-lambda-self-managed.json",
+        "sha256": "33ab2165a904cd8d249a5c7787c1f644a7a0808c46c764e7bceb950caf8315dc"
+      }
+    ]
+  },
+  "deployment": {
+    "recipe": "lambda_self_managed_s3_code_storage_cdk",
+    "stack_name": "AgenticRadarS4D73F45C0",
+    "resource_prefix": "agentic-radar-s4-d73f45c0",
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "deployment_method": "CDK synth followed by CloudFormation create-stack",
+    "stack_status": "CREATE_COMPLETE"
+  },
+  "verification": {
+    "recipe": "lambda_self_managed_s3_code_storage_cdk",
+    "cloudformation_reference_mode": "verified",
+    "lambda_invoke": "verified",
+    "success_criteria": [
+      "CloudFormation stack reaches CREATE_COMPLETE.",
+      "The Lambda function is created with S3ObjectStorageMode=REFERENCE.",
+      "The function can be invoked from the sandbox test account."
+    ]
+  },
+  "console_review": {
+    "status": "required",
+    "evidence_status": "awaiting_capture",
+    "required_checks": [
+      "CloudFormation stack Resources and Template",
+      "Recipe resources and their expected relationships",
+      "Test workload result"
+    ],
+    "required_screenshot_views": [
+      "infrastructure_composer"
+    ],
+    "recommended_screenshot_views": [
+      "resource_inventory"
+    ]
+  },
+  "cleanup": {
+    "status": "pending_console_review"
+  }
+}

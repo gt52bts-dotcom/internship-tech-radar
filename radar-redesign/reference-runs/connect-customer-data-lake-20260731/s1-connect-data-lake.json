@@ -1,0 +1,124 @@
+{
+  "schema_version": "s1.scan.v2",
+  "run_id": "direct-url-20260731-766826d4",
+  "stage": "S1",
+  "status": "scanned_with_gaps",
+  "scanned_at": "2026-07-31T05:44:01.768728+00:00",
+  "entry_point": {
+    "type": "direct_url_import",
+    "requested_url": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+    "s0_required": false,
+    "human_action": "user_supplied_url"
+  },
+  "target_region": "ap-southeast-1",
+  "demand_card_ref": null,
+  "source_mode": "direct_url_import",
+  "scan_mode": "direct_user_url_import",
+  "external_fetch_performed": true,
+  "candidates": [
+    {
+      "candidate_id": "S1-F7F663D036CF",
+      "title": "Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct | AWS Contact Center",
+      "source_type": "direct_trusted_public_url",
+      "requested_url": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+      "source_url": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+      "official_source": true,
+      "open_source": false,
+      "external_fetch_performed": true,
+      "source_selection": "direct_user_url_import",
+      "rss_discovered": false,
+      "seed_article": false,
+      "evidence_confidence": "medium",
+      "evidence_basis": "single_fetched_public_html_page",
+      "retrieved_content_type": "text/html;charset=UTF-8",
+      "related_aws_services": [
+        "CloudFormation",
+        "Lambda"
+      ],
+      "service_detection": {
+        "strategy": "deterministic_rules_on_fetched_public_source_text",
+        "detected_services": [
+          {
+            "name": "CloudFormation",
+            "matched_terms": [
+              "cloudformation"
+            ],
+            "first_mention_position": 2384,
+            "evidence_basis": "fetched_source_text_rule_match"
+          },
+          {
+            "name": "Lambda",
+            "matched_terms": [
+              "lambda"
+            ],
+            "first_mention_position": 4432,
+            "evidence_basis": "fetched_source_text_rule_match"
+          }
+        ],
+        "limits": [
+          "A detected name is a text mention, not a validated dependency graph.",
+          "S1 does not use LLM hints, manually supplied metadata, or static case-study data."
+        ]
+      },
+      "initial_claims": [
+        "Introduction The Amazon Connect Customer data lake gives contact centers a central, zero-extract, transform, and load (zero-ETL) location to query contact records, agent performance, conversational analytics, and other data types.",
+        "However, enabling access requires navigating multiple AWS consoles to associate datasets, accept AWS Resource Access Manager resource shares, configure Lake Formation permissions, and create resource link tables using AWS […] Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct Amazon Connect Customer data lake gives contact centers a central, zero-extract, transform, and load (zero-ETL) location to query contact records, agent performance, conversational analytics, and other data types.",
+        "However, enabling access requires navigating multiple AWS consoles to associate datasets, accept AWS Resource Access Manager resource shares, configure permissions, and create resource link tables using —a process that becomes repetitive and inefficient when scaled across 30+ datasets."
+      ],
+      "possible_application_contexts": [],
+      "tags": [
+        "serverless",
+        "infrastructure"
+      ],
+      "maturity_evidence": {
+        "status": "not_verified_by_this_source",
+        "evidence_basis": "explicit_general_availability_wording_in_fetched_official_source",
+        "evidence_excerpts": [],
+        "rejected_evidence_excerpts": [],
+        "limits": [
+          "A source without explicit GA wording is not treated as proof that the technology is preview-only.",
+          "S1 does not search the complete AWS release archive in this version."
+        ]
+      },
+      "data_gaps": [],
+      "fetched_source": {
+        "title": "Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct | AWS Contact Center",
+        "description": "Introduction The Amazon Connect Customer data lake gives contact centers a central, zero-extract, transform, and load (zero-ETL) location to query contact records, agent performance, conversational analytics, and other data types. However, enabling access requires navigating multiple AWS consoles to associate datasets, accept AWS Resource Access Manager resource shares, configure Lake Formation permissions, and create resource link tables using AWS […]",
+        "text_excerpt": "Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct Amazon Connect Customer data lake gives contact centers a central, zero-extract, transform, and load (zero-ETL) location to query contact records, agent performance, conversational analytics, and other data types. However, enabling access requires navigating multiple AWS consoles to associate datasets, accept AWS Resource Access Manager resource shares, configure permissions, and create resource link tables using —a process that becomes repetitive and inefficient when scaled across 30+ datasets. This post introduces cdk-construct-connect-datalake construct that automates the entire Amazon Connect Customer data lake access setup. This post walks through deploying the construct, verifying the configuration, and querying the data through Amazon Athena. Overview of solution construct automates the complete data lake access setup. When you deploy it, the construct: Associates the specified datasets for an Amazon Connect Customer instance with the target account. Accepts the resource share invitation(s). Configures the execution role as a data lake administrator. connect_datalake_database , then creates resource lin"
+      },
+      "rss_source": null
+    }
+  ],
+  "evidence_summary": {
+    "official_source_count": 1,
+    "open_source_repository_count": 0,
+    "external_fetch_performed": true,
+    "rss_discovered_count": 0,
+    "evidence_level": "mixed_public_sources"
+  },
+  "data_gaps": [
+    "Direct URL import has no business-problem context; S2 can compare source evidence but cannot judge business fit until a human adds context."
+  ],
+  "maturity_filter": {
+    "requirement": "not_requested_for_direct_import",
+    "included_with_official_ga_evidence": 0,
+    "excluded_without_official_ga_evidence": 0
+  },
+  "notes": [
+    "The user intentionally selected this URL, so this entry begins directly at S1.",
+    "HTTPS, trusted-host, redirect, and HTML content-type validation still apply before any content is recorded.",
+    "No problem statement is fabricated; business fit remains explicitly unknown until a human provides context."
+  ],
+  "source_catalog": {
+    "direct_url_import": {
+      "requested_url": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+      "status": "fetched",
+      "final_url": "https://aws.amazon.com/blogs/contact-center/build-an-amazon-connect-customer-data-lake-with-a-reusable-cdk-construct/",
+      "content_type": "text/html;charset=UTF-8"
+    },
+    "aws_blog_directory": null,
+    "aws_rss_feeds": [],
+    "github_repository_queries": []
+  },
+  "scan_issues": []
+}

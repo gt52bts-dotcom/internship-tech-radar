@@ -1,0 +1,47 @@
+{
+  "schema_version": "s4.deployment-approval.v1",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "selected_candidate_id": "S1-65801FA11243",
+  "approved_by": "Cleo",
+  "deployment_authorized": true,
+  "approval_basis": "Review the Skill 3 score, confidence, quote, Region status, recipe, success criteria, cleanup scope, and known limits before setting deployment_authorized=true.",
+  "approved_cost_ceiling_usd": 0.2,
+  "cost_ceiling_policy": {
+    "rule": "effective_ceiling_usd = min(Skill 3 recommended approval ceiling, human approved ceiling, built-in small-cost ceiling)",
+    "skill3_recommended_approval_ceiling_usd": 0.2,
+    "built_in_small_cost_ceiling_usd": 3.0,
+    "human_may_lower_ceiling": true,
+    "human_may_raise_above_built_in_ceiling": false
+  },
+  "region_warning_acknowledged": false,
+  "quote_snapshot": {
+    "quote_id": "POC-QUOTE-C4ECB392A212",
+    "status": "estimated",
+    "expected_total_usd": 0.04719,
+    "recommended_approval_ceiling_usd": 0.2,
+    "valid_until": "2026-08-07",
+    "live_pricing_api_used": false,
+    "formal_procurement_quote_ready": false
+  },
+  "deployment": {
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "create_test_instance": true
+  },
+  "lineage": {
+    "s1_artifact_path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s1.json",
+    "s2_artifact_path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s2.json",
+    "s3_artifact_path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s3.json"
+  },
+  "success_criteria": [
+    "CloudFormation stack reaches CREATE_COMPLETE.",
+    "EC2 test client mounts S3 Files.",
+    "An object placed in S3 is readable from the mount.",
+    "A file written through the mount is readable from S3."
+  ],
+  "cleanup_scope": [
+    "Delete the run-derived CloudFormation stack.",
+    "Remove only test data owned by that stack.",
+    "Verify the stack and active test resources are gone."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "audit_packet_version": "1.0",
+  "run_id": "s3files-news-20260723-0800",
+  "status": "awaiting_human_review",
+  "trust_summary": {
+    "quote_decision": "approve",
+    "quoted_usd": 0.0232,
+    "actual_llm_usd": 0.0,
+    "llm_tokens": {
+      "input": 0,
+      "output": 0
+    },
+    "top3_overlap": 1,
+    "feedback_sample_status": "insufficient_for_ml_training",
+    "recommended_actions": [
+      "adopt_candidate_after_review"
+    ]
+  },
+  "artifact_keys": {
+    "summary_key": "runs/s3files-news-20260723-0800/s5_report.json",
+    "report_key": "runs/s3files-news-20260723-0800/report.html",
+    "evidence_ledger_key": "runs/s3files-news-20260723-0800/evidence-ledger.json",
+    "review_packet_key": "runs/s3files-news-20260723-0800/review-packet.json",
+    "decision_layer_key": "runs/s3files-news-20260723-0800/decision-layer.json",
+    "feedback_stats_key": "runs/s3files-news-20260723-0800/feedback-stats.json",
+    "audit_packet_key": "runs/s3files-news-20260723-0800/audit-packet.json",
+    "cost_key": "runs/s3files-news-20260723-0800/cost-estimate.yaml"
+  },
+  "checks": [
+    {
+      "name": "evidence_ledger_created",
+      "passed": true
+    },
+    {
+      "name": "review_packet_created",
+      "passed": true
+    },
+    {
+      "name": "decision_layer_created",
+      "passed": true
+    },
+    {
+      "name": "feedback_stats_created",
+      "passed": true
+    },
+    {
+      "name": "quote_gate_allows_run",
+      "passed": true
+    },
+    {
+      "name": "human_review_pending",
+      "passed": true
+    }
+  ],
+  "blocking_flags": [],
+  "next_actions": [
+    "Record approve/reject/override/comment through recordhumanpick Lambda.",
+    "Use feedback-stats.json after multiple days to quantify agreement and override trends.",
+    "Treat decision-layer recommendations as explainable guidance until human review is complete."
+  ]
+}

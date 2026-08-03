@@ -362,3 +362,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Remove the human-facing `報價假設與限制` heading. Keep necessary cost nature and evidence boundaries in clearer quote/cost status language.
 - Lifecycle language must make timing clear: S1-S3 are the human decision zone; S4 validates the selected PoC; S5 reports the evidence and should preserve cleanup evidence. Resource cleanup or completion marking must not erase evidence needed for S5 review.
 - The remaining two weeks should prioritize convergence: polish final proposal/paper material, keep Future work explicit, and avoid expanding into new large features unless they directly support the final report story.
+
+## 2026-08-03 Cross-Computer Migration Decision
+
+- GitHub `main` is the source of truth for continuing work on another computer; read `MIGRATION_STATUS.md`, `PROJECT_MEMORY.md`, and the latest daily log after cloning.
+- The active implementation is `radar-redesign/`; old company-account / `cathay-techintel-v3` local implementation copies are not part of the deployable current version and may be deleted after curated evidence is committed.
+- Raw `radar-redesign/out/`, Console screenshots, unredacted Console URLs, CDK `cdk.out/`, zips, dependency folders, local browser/session data, `.env`, AWS profiles, and `.local/` runtime folders must not be required for migration and should not be pushed.
+- For cross-computer evidence continuity, use redacted curated artifacts under `radar-redesign/reference-runs/` instead of raw runtime dumps.

@@ -1,0 +1,48 @@
+{
+  "quotation_version": "1.0",
+  "pricing_source": "Anthropic official pricing, verified 2026-07",
+  "line_items": [
+    {
+      "model": "claude-sonnet-4-5",
+      "role": "evaluator",
+      "candidates": 1,
+      "est_input_tokens": 1500,
+      "est_output_tokens": 400,
+      "unit_price_usd_per_mtok": {
+        "input": 3.0,
+        "output": 15.0
+      },
+      "est_cost_usd": 0.0105
+    },
+    {
+      "model": "claude-haiku-4-5",
+      "role": "validator",
+      "candidates": 1,
+      "est_input_tokens": 1200,
+      "est_output_tokens": 300,
+      "unit_price_usd_per_mtok": {
+        "input": 1.0,
+        "output": 5.0
+      },
+      "est_cost_usd": 0.0027
+    }
+  ],
+  "aws_fixed_usd": 0.01,
+  "llm_total_usd": 0.0132,
+  "total_usd": 0.0232,
+  "max_run_usd": 0.5,
+  "decision": "approve",
+  "decision_rule": "total_usd <= max_run_usd (0.5) → approve; otherwise fallback to zero-token rubric mode",
+  "step": "s2b_quote",
+  "timing": {
+    "step_wall_seconds": 0.23,
+    "llm_usage": {
+      "calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "inference_seconds": 0.0,
+      "fallback_count": 0,
+      "fallback_errors": []
+    }
+  }
+}

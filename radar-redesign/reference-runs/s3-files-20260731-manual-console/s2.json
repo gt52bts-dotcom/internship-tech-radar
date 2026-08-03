@@ -1,0 +1,519 @@
+{
+  "schema_version": "s2.comparison.v2",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "stage": "S2",
+  "status": "ready_for_human_shortlist",
+  "compared_at": "2026-07-31T07:46:59.051117+00:00",
+  "s1_artifact_ref": {
+    "schema_version": "s1.scan.v2",
+    "stage": "S1",
+    "status": "scanned_with_gaps",
+    "scanned_at": "2026-07-31T07:46:57.557298+00:00",
+    "entry_point": "direct_url_import",
+    "problem_statement_hint": "",
+    "desired_outcome_hint": "",
+    "maturity_requirement": "not_requested_for_direct_import",
+    "target_region": "ap-southeast-1"
+  },
+  "comparison_contract": {
+    "method": "normalized_source_backed_comparison_without_automatic_ranking",
+    "automatic_shortlist": false,
+    "maximum_human_shortlist_size": 1,
+    "required_dimensions": [
+      "technology_scope",
+      "delivery_model",
+      "source_backed_capabilities",
+      "environment_signals",
+      "maturity",
+      "official_docs_pricing_region_evidence",
+      "business_context",
+      "unknowns_and_next_validation_question"
+    ],
+    "direct_import_limit": "No S0 context exists for this artifact; S2 can compare technical evidence only."
+  },
+  "candidates": [
+    {
+      "candidate_id": "S1-65801FA11243",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+      "source_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "source_category": null,
+      "published_at": null,
+      "source_provenance": {
+        "official_aws_source": true,
+        "public_open_source": false,
+        "external_fetch_performed": true,
+        "source_selection": "direct_user_url_import"
+      },
+      "comparison_dimensions": {
+        "technology_scope": {
+          "services_detected": [
+            "S3 Files",
+            "S3",
+            "EC2",
+            "EFS",
+            "VPC",
+            "Lambda"
+          ],
+          "basis": "S1 service detector applied to the fetched page text.",
+          "status": "source_detected"
+        },
+        "delivery_model": {
+          "classification": "managed_cloud_service_or_feature",
+          "basis": "Rule-based classification from source terms: aws.",
+          "source_excerpts": [
+            "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies.",
+            "Launching S3 Files, making S3 buckets accessible as file systems I’m excited to announce , a new file system that seamlessly connects any AWS compute resource with Amazon Simple Storage Service (Amazon S3) More than a decade ago, as an AWS trainer, I spent countless hours explaining the fundamental differences between object storage and file systems."
+          ]
+        },
+        "source_backed_capabilities": {
+          "excerpts": [
+            "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies.",
+            "Launching S3 Files, making S3 buckets accessible as file systems I’m excited to announce , a new file system that seamlessly connects any AWS compute resource with Amazon Simple Storage Service (Amazon S3) More than a decade ago, as an AWS trainer, I spent countless hours explaining the fundamental differences between object storage and file systems."
+          ],
+          "basis": "Sentences retained from the S1-fetched source; no capability was invented by S2.",
+          "status": "source_excerpt_available"
+        },
+        "environment_signals": {
+          "source_indicated_contexts": [],
+          "source_excerpts": [],
+          "interpretation_limit": "These are source signals, not proof that every workload has the same requirements."
+        },
+        "maturity": {
+          "status": "not_verified_by_this_source",
+          "evidence_excerpts": [],
+          "basis": "explicit_general_availability_wording_in_fetched_official_source"
+        },
+        "official_docs_pricing_region_evidence": {
+          "primary_source_status": "refetched",
+          "linked_docs": [
+            {
+              "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-getting-started.html",
+              "link_text": "CLI",
+              "evidence_type": "aws_docs",
+              "matched_candidate_terms": [
+                "files",
+                "file"
+              ],
+              "discovery_method": "source_link",
+              "status": "fetched",
+              "final_url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-getting-started.html",
+              "title": "Tutorial: Getting started with S3 Files - Amazon Simple Storage ServiceTutorial: Getting started with S3 Files - Amazon Simple Storage Service",
+              "description": "Learn how to get started with S3 Files.",
+              "text_excerpt": "Tutorial: Getting started with S3 Files\nIn this tutorial, you create an S3 file system and mount it on an EC2 instance. You then test basic file operations. You can use either the S3 console or the AWS CLI to get started with S3 Files.\nGetting started with S3 Files using the AWS Console\nThe S3 Files workflow on S3 Console consists of the following steps:\nCreate your S3 file system.\nMount the file system on your EC2 instance and run file system operations.\nBefore getting started, make sure you have the following:\nYou have completed the\nYou are set up with Amazon EC2 and are familiar with launching EC2 instances. For more information, see\nAmazon EC2 User Guide\n. For this tutorial, use the default VPC for your EC2 instance.\nattached to your EC2 instance so that it can interact with your S3 file system and your S3 bucket.\nStep 1: Create your S3 file system\nOpen the Amazon S3 console at\nIn the navigation bar, verify you are in the AWS Region where your EC2 instance and S3 bucket is.\nIn the left navigation pane, choose\nGeneral purpose buckets\nSelect the bucket for which you want to create a file system.\nReview and confirm your VPC. For this tutorial, use your default VPC.\nWhen you create",
+              "target_region_matches": []
+            },
+            {
+              "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files.html",
+              "link_text": "S3 Files documentation",
+              "evidence_type": "aws_docs",
+              "matched_candidate_terms": [
+                "files",
+                "file"
+              ],
+              "discovery_method": "source_link",
+              "status": "fetched",
+              "final_url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files.html",
+              "title": "Working with Amazon S3 Files - Amazon Simple Storage ServiceWorking with Amazon S3 Files - Amazon Simple Storage Service",
+              "description": "Learn how to use Amazon S3 Files to access your S3 data as a shared file system with low-latency performance.",
+              "text_excerpt": "Working with Amazon S3 Files\nS3 Files is a shared file system that connects any AWS compute resource directly with your data in Amazon S3. It provides fast, direct access to all of your S3 data as files with full file system semantics and low-latency performance, without your data ever leaving S3. Every file-based application, agent, and team can access and work with your S3 data as a file system using the tools they already depend on. Built using Amazon EFS, S3 Files gives you the performance and simplicity of a file system with the scalability, durability, and cost-effectiveness of S3. You can read, write, and organize data using file and directory operations, while S3 Files manages the synchronization of changes between your bucket and file system.\nHow does S3 Files work?\nWhen you create an S3 file system linked to your S3 bucket or to a prefix within it and mount it on a compute resource such as an EC2 instance or a Lambda function, S3 Files first presents a traversable view of your bucket's objects as files. As you navigate through directories and open files, associated metadata and contents are placed onto the file system's high-performance storage. When you read files, S3 Fi",
+              "target_region_matches": []
+            },
+            {
+              "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-mounting.html",
+              "link_text": "Mounting S3 file systems on Amazon EC2 - Amazon Simple Storage Service",
+              "search_rank": 4,
+              "search_provider": "docs",
+              "discovery_method": "official_aws_search",
+              "evidence_type": "aws_docs",
+              "status": "fetched",
+              "final_url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-mounting.html",
+              "title": "Mounting S3 file systems on Amazon EC2 - Amazon Simple Storage ServiceMounting S3 file systems on Amazon EC2 - Amazon Simple Storage Service",
+              "description": "Learn how to mount S3 Files file systems on Amazon EC2 instances using the mount helper.",
+              "text_excerpt": "Mounting S3 file systems on Amazon EC2\nTo mount S3 file systems on an EC2 instance, you must use the S3 Files mount helper. The mount helper helps you mount your S3 file systems on EC2 instances running the supported distributions. When mounting a file system, the mount helper defines a new network file system type, called\n, which is fully compatible with the standard\ncommand in Linux. The mount helper also supports mounting an S3 file system at instance boot time automatically by using entries in the\nconfiguration file on EC2 Linux instances. The mount helper is part of the open-source collection of tools that is installed when you install the S3 Files client (amazon-efs-utils).\nPrerequisites to mount on EC2 instances\nYou have an S3 file system with at least one mount target available.\nYour EC2 instance is in the same Availability Zone as the mount target that you will use to mount your file system.\nAn IAM instance profile is attached to the EC2 instance with the required permissions for S3 Files. For details, see\nYou have configured the required\nYou have installed the amazon-efs-utils package on the EC2 instance. For more information, see\nHow does the mount helper work?\nWhen you ",
+              "target_region_matches": []
+            }
+          ],
+          "linked_pricing": [
+            {
+              "url": "https://aws.amazon.com/s3/pricing/",
+              "link_text": "The Amazon S3 pricing page has all the details",
+              "evidence_type": "aws_pricing",
+              "matched_candidate_terms": [
+                "page"
+              ],
+              "discovery_method": "source_link",
+              "status": "fetched",
+              "final_url": "https://aws.amazon.com/s3/pricing/",
+              "title": "S3 Pricing",
+              "description": "",
+              "text_excerpt": "Object storage built to retrieve any amount of data from anywhere\nPay only for what you use. There is no minimum charge. Amazon S3 cost components are storage pricing, request and data retrieval pricing, data transfer and transfer acceleration pricing, data management and insights feature pricing, replication pricing, and transform and query feature pricing.\nManagement & insights\nYou pay for storing objects in your S3 buckets. The rate you’re charged depends on your objects' size, how long you stored the objects during the month, and the storage class—S3 Standard, S3 Intelligent-Tiering, S3 Standard-Infrequent Access, S3 One Zone-Infrequent Access, S3 Express One Zone, S3 Glacier Instant Retrieval, S3 Glacier Flexible Retrieval (Formerly S3 Glacier), and S3 Glacier Deep Archive. You pay a monthly monitoring and automation charge per object stored in the S3 Intelligent-Tiering storage class to monitor access patterns and move objects between access tiers. In S3 Intelligent-Tiering there are no retrieval charges, and no additional tiering charges apply when objects are moved between access tiers.\nThere are per-request ingest charges when using PUT, COPY, or lifecycle rules to move da",
+              "target_region_matches": [
+                "S3 general purpose buckets are available in all AWS Regions",
+                "Amazon S3 Replication Time Control Data Transfer pricing is the same in all AWS Regions"
+              ]
+            }
+          ],
+          "linked_region_or_availability": [],
+          "interpretation_limit": "A fetched page records evidence availability only; it does not calculate a workload-specific cost."
+        },
+        "target_region_eligibility": {
+          "target_region": "ap-southeast-1",
+          "target_region_label": "Asia Pacific (Singapore)",
+          "status": "available_ap_southeast_1",
+          "evidence_excerpts": [
+            "S3 general purpose buckets are available in all AWS Regions",
+            "Amazon S3 Replication Time Control Data Transfer pricing is the same in all AWS Regions"
+          ],
+          "severity": "info",
+          "blocks_s3": false,
+          "blocks_paid_poc": false,
+          "shortlist_reason": "Official candidate-specific source evidence covers the target Region directly or through an all-commercial-Regions statement.",
+          "poc_review_note": "The primary or linked official source covers the target Region."
+        },
+        "business_context": {
+          "status": "unknown_no_problem_context",
+          "contexts": [],
+          "optional_context": "No use case was supplied; technical evidence can still be evaluated."
+        },
+        "unknowns_and_next_validation_question": {
+          "unknowns": [
+            "Workload fit was not assessed because this run uses public technical evidence only.",
+            "PoC cost and cleanup remain subject to the standard small-sandbox policy and S4 validation."
+          ],
+          "next_question": "Which public evidence or small reproducible check would best validate S3 Files, S3, EC2, EFS, VPC, Lambda as managed_cloud_service_or_feature?"
+        }
+      },
+      "shortlist_eligibility": {
+        "eligible": true,
+        "reason": "Official candidate-specific source evidence covers the target Region directly or through an all-commercial-Regions statement."
+      },
+      "proposal_card": {
+        "proposal_status": "public_evidence_candidate",
+        "candidate_opportunity": {
+          "technology": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+          "technology_scope": [
+            "S3 Files",
+            "S3",
+            "EC2",
+            "EFS",
+            "VPC",
+            "Lambda"
+          ],
+          "source_backed_mechanism": [
+            "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies.",
+            "Launching S3 Files, making S3 buckets accessible as file systems I’m excited to announce , a new file system that seamlessly connects any AWS compute resource with Amazon Simple Storage Service (Amazon S3) More than a decade ago, as an AWS trainer, I spent countless hours explaining the fundamental differences between object storage and file systems."
+          ],
+          "plain_language": "Evaluate the public technical evidence for S3 Files, S3, EC2, EFS, VPC, Lambda delivered as managed_cloud_service_or_feature."
+        },
+        "problem_definition_to_confirm": {
+          "current_state": "Not assessed in public-evidence mode.",
+          "target_user": "Not required for technical evaluation.",
+          "optional_question": "Which workload could later benefit from Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog?"
+        },
+        "improvement_hypothesis": {
+          "baseline_to_change": "A before/after claim cannot be made until a current workflow baseline is measured.",
+          "potential_vectors": [
+            {
+              "type": "performance_or_latency",
+              "reason": "The source contains performance, latency, locality, or compute-efficiency terms.",
+              "source_support": [
+                "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies."
+              ]
+            }
+          ],
+          "improvement_degree": {
+            "status": "source_contains_quantified_claim",
+            "source_numbers": [
+              "1ms"
+            ],
+            "limit": "A source number is not a company result; S3/S4 must measure the same metric against a local baseline."
+          },
+          "interpretation_limit": "Potential improvement is a proposal hypothesis. Only source quotes or a later measured baseline can support a stronger claim."
+        },
+        "benefits": [
+          {
+            "benefit_type": "performance_or_latency",
+            "why_it_is_considered": "The source contains performance, latency, locality, or compute-efficiency terms.",
+            "source_support": [
+              "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies."
+            ]
+          }
+        ],
+        "tradeoffs_and_risks": [
+          {
+            "type": "evidence_and_cost_gap",
+            "status": "requires_verification",
+            "detail": "Pricing, Region availability, permissions, and cleanup have not yet been proven by the comparison card."
+          },
+          {
+            "type": "environment_unknown",
+            "status": "requires_human_context",
+            "detail": "The source did not expose a clear environment signal; identify the actual validation setting before S3."
+          }
+        ],
+        "proposal_indicators": {
+          "improvement_hypothesis_visibility": "source_terms_present",
+          "maturity_evidence": "not_verified_by_this_source",
+          "evidence_completeness": "4/8 dimensions source-verified",
+          "financial_certainty": "official_pricing_linked",
+          "environment_dependency": "unknown",
+          "target_region_eligibility": "available_ap_southeast_1",
+          "validation_risk_count": 2,
+          "automatic_rank": "intentionally_not_calculated"
+        },
+        "validation_design": {
+          "before_measurements": [
+            "Current workflow steps, elapsed time, and manual handoffs.",
+            "Baseline latency, throughput, or workload completion time."
+          ],
+          "after_measurements": [
+            "Same workflow steps, elapsed time, and observed failure or rollback behaviour.",
+            "Latency, throughput, or completion time under the same workload."
+          ],
+          "minimum_success_evidence": [
+            "A pre-agreed before/after comparison using the same sandbox workload."
+          ],
+          "stop_conditions": [
+            "Skill 4 must resolve a candidate-specific registered PoC recipe before deployment.",
+            "The standard small-cost ceiling and cleanup guarantee must pass before deployment."
+          ],
+          "next_stage_question": "Which public evidence or small reproducible check would best validate S3 Files, S3, EC2, EFS, VPC, Lambda as managed_cloud_service_or_feature?"
+        },
+        "source_and_evidence_boundary": {
+          "primary_source": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+          "linked_evidence_count": 7,
+          "verified_dimension_count": 4,
+          "verified_dimension_total": 8
+        },
+        "target_region_gate": {
+          "target_region": "ap-southeast-1",
+          "target_region_label": "Asia Pacific (Singapore)",
+          "status": "available_ap_southeast_1",
+          "evidence_excerpts": [
+            "S3 general purpose buckets are available in all AWS Regions",
+            "Amazon S3 Replication Time Control Data Transfer pricing is the same in all AWS Regions"
+          ],
+          "severity": "info",
+          "blocks_s3": false,
+          "blocks_paid_poc": false,
+          "shortlist_reason": "Official candidate-specific source evidence covers the target Region directly or through an all-commercial-Regions statement.",
+          "poc_review_note": "The primary or linked official source covers the target Region."
+        }
+      },
+      "evidence_coverage": {
+        "primary_source_fetched": true,
+        "official_aws_primary_source": true,
+        "public_open_source_primary_source": false,
+        "official_ga_evidence": false,
+        "official_docs_linked": true,
+        "official_pricing_linked": true,
+        "official_region_or_availability_linked": false,
+        "business_context_available": false,
+        "verified_dimension_count": 4,
+        "verified_dimension_total": 8
+      },
+      "linked_evidence": {
+        "primary_source": {
+          "url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+          "final_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+          "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+          "status": "refetched"
+        },
+        "linked_sources": [
+          {
+            "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-getting-started.html",
+            "link_text": "CLI",
+            "evidence_type": "aws_docs",
+            "matched_candidate_terms": [
+              "files",
+              "file"
+            ],
+            "discovery_method": "source_link",
+            "status": "fetched",
+            "final_url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-getting-started.html",
+            "title": "Tutorial: Getting started with S3 Files - Amazon Simple Storage ServiceTutorial: Getting started with S3 Files - Amazon Simple Storage Service",
+            "description": "Learn how to get started with S3 Files.",
+            "text_excerpt": "Tutorial: Getting started with S3 Files\nIn this tutorial, you create an S3 file system and mount it on an EC2 instance. You then test basic file operations. You can use either the S3 console or the AWS CLI to get started with S3 Files.\nGetting started with S3 Files using the AWS Console\nThe S3 Files workflow on S3 Console consists of the following steps:\nCreate your S3 file system.\nMount the file system on your EC2 instance and run file system operations.\nBefore getting started, make sure you have the following:\nYou have completed the\nYou are set up with Amazon EC2 and are familiar with launching EC2 instances. For more information, see\nAmazon EC2 User Guide\n. For this tutorial, use the default VPC for your EC2 instance.\nattached to your EC2 instance so that it can interact with your S3 file system and your S3 bucket.\nStep 1: Create your S3 file system\nOpen the Amazon S3 console at\nIn the navigation bar, verify you are in the AWS Region where your EC2 instance and S3 bucket is.\nIn the left navigation pane, choose\nGeneral purpose buckets\nSelect the bucket for which you want to create a file system.\nReview and confirm your VPC. For this tutorial, use your default VPC.\nWhen you create",
+            "target_region_matches": []
+          },
+          {
+            "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files.html",
+            "link_text": "S3 Files documentation",
+            "evidence_type": "aws_docs",
+            "matched_candidate_terms": [
+              "files",
+              "file"
+            ],
+            "discovery_method": "source_link",
+            "status": "fetched",
+            "final_url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files.html",
+            "title": "Working with Amazon S3 Files - Amazon Simple Storage ServiceWorking with Amazon S3 Files - Amazon Simple Storage Service",
+            "description": "Learn how to use Amazon S3 Files to access your S3 data as a shared file system with low-latency performance.",
+            "text_excerpt": "Working with Amazon S3 Files\nS3 Files is a shared file system that connects any AWS compute resource directly with your data in Amazon S3. It provides fast, direct access to all of your S3 data as files with full file system semantics and low-latency performance, without your data ever leaving S3. Every file-based application, agent, and team can access and work with your S3 data as a file system using the tools they already depend on. Built using Amazon EFS, S3 Files gives you the performance and simplicity of a file system with the scalability, durability, and cost-effectiveness of S3. You can read, write, and organize data using file and directory operations, while S3 Files manages the synchronization of changes between your bucket and file system.\nHow does S3 Files work?\nWhen you create an S3 file system linked to your S3 bucket or to a prefix within it and mount it on a compute resource such as an EC2 instance or a Lambda function, S3 Files first presents a traversable view of your bucket's objects as files. As you navigate through directories and open files, associated metadata and contents are placed onto the file system's high-performance storage. When you read files, S3 Fi",
+            "target_region_matches": []
+          },
+          {
+            "url": "https://aws.amazon.com/s3/pricing/",
+            "link_text": "The Amazon S3 pricing page has all the details",
+            "evidence_type": "aws_pricing",
+            "matched_candidate_terms": [
+              "page"
+            ],
+            "discovery_method": "source_link",
+            "status": "fetched",
+            "final_url": "https://aws.amazon.com/s3/pricing/",
+            "title": "S3 Pricing",
+            "description": "",
+            "text_excerpt": "Object storage built to retrieve any amount of data from anywhere\nPay only for what you use. There is no minimum charge. Amazon S3 cost components are storage pricing, request and data retrieval pricing, data transfer and transfer acceleration pricing, data management and insights feature pricing, replication pricing, and transform and query feature pricing.\nManagement & insights\nYou pay for storing objects in your S3 buckets. The rate you’re charged depends on your objects' size, how long you stored the objects during the month, and the storage class—S3 Standard, S3 Intelligent-Tiering, S3 Standard-Infrequent Access, S3 One Zone-Infrequent Access, S3 Express One Zone, S3 Glacier Instant Retrieval, S3 Glacier Flexible Retrieval (Formerly S3 Glacier), and S3 Glacier Deep Archive. You pay a monthly monitoring and automation charge per object stored in the S3 Intelligent-Tiering storage class to monitor access patterns and move objects between access tiers. In S3 Intelligent-Tiering there are no retrieval charges, and no additional tiering charges apply when objects are moved between access tiers.\nThere are per-request ingest charges when using PUT, COPY, or lifecycle rules to move da",
+            "target_region_matches": [
+              "S3 general purpose buckets are available in all AWS Regions",
+              "Amazon S3 Replication Time Control Data Transfer pricing is the same in all AWS Regions"
+            ]
+          },
+          {
+            "url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+            "link_text": "Launching S3 Files, making S3 buckets accessible as file systems",
+            "search_rank": 1,
+            "search_provider": "blogs",
+            "discovery_method": "official_aws_search",
+            "evidence_type": "candidate_feature_page",
+            "status": "fetched",
+            "final_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+            "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+            "description": "Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies.",
+            "text_excerpt": "Launching S3 Files, making S3 buckets accessible as file systems\nI’m excited to announce\n, a new file system that seamlessly connects any AWS compute resource with\nMore than a decade ago, as an AWS trainer, I spent countless hours explaining the fundamental differences between object storage and file systems. My favorite analogy was comparing S3 objects to books in a library (you can’t edit a page, you need to replace the whole book) versus files on your computer that you can modify page by page. I drew diagrams, created metaphors, and helped customers understand why they needed different storage types for different workloads. Well, today that distinction becomes a bit more flexible.\nWith S3 Files, Amazon S3 is the first and only cloud object store that offers fully-featured, high-performance file system access to your data. It makes your buckets accessible as file systems. This means changes to data on the file system are automatically reflected in the S3 bucket and you have fine-grained control over synchronization. S3 Files can be attached to multiple compute resources enabling data sharing across clusters without duplication.\nUntil now, you had to choose between Amazon S3 cost,",
+            "target_region_matches": []
+          },
+          {
+            "url": "https://aws.amazon.com/compare/the-difference-between-nfs-and-cifs/",
+            "link_text": "NFS vs CIFS - Differences Between File Systems - AWS",
+            "search_rank": 2,
+            "search_provider": "pages",
+            "discovery_method": "official_aws_search",
+            "evidence_type": "candidate_feature_page",
+            "status": "fetched",
+            "final_url": "https://aws.amazon.com/compare/the-difference-between-nfs-and-cifs/",
+            "title": "NFS vs CIFS - Differences Between File Systems - AWS",
+            "description": "What's the Difference Between NFS and CIFS? How to Use NFS and CIFS  with AWS.",
+            "text_excerpt": "What’s the Difference Between NFS and CIFS?\nWhat’s the Difference Between NFS and CIFS?\nNetwork File System (NFS) and Common Internet File System (CIFS) are file access storage protocols, or rules for efficient file sharing over a network. For any organization’s day-to-day operations, it’s essential to communicate, collaborate, and share files effectively. With NFS, a user (or client device) can connect to a network server and access files on the server. It has rules that allow multiple users to share the same file without data conflicts. CIFS is based on the Server Message Block (SMB) protocol. CIFS allows devices to share files with the server and with other peripheral devices like printers.\nHow they work: NFS vs. CIFS\nYou can deploy file access storage protocols like Network File System (NFS) and Common Internet File System (CIFS) across various networks:\nphysical networks, like local area networks (LANs) and wide area networks (WANs)\ncloud storage networks\nNFS and CIFS use IP and TCP protocols for file sharing between a server and clients in networked environments. Multiple client machines can access files on a server. And they can create, read, edit, and delete (CRUD) files as",
+            "target_region_matches": []
+          },
+          {
+            "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-mounting.html",
+            "link_text": "Mounting S3 file systems on Amazon EC2 - Amazon Simple Storage Service",
+            "search_rank": 4,
+            "search_provider": "docs",
+            "discovery_method": "official_aws_search",
+            "evidence_type": "aws_docs",
+            "status": "fetched",
+            "final_url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files-mounting.html",
+            "title": "Mounting S3 file systems on Amazon EC2 - Amazon Simple Storage ServiceMounting S3 file systems on Amazon EC2 - Amazon Simple Storage Service",
+            "description": "Learn how to mount S3 Files file systems on Amazon EC2 instances using the mount helper.",
+            "text_excerpt": "Mounting S3 file systems on Amazon EC2\nTo mount S3 file systems on an EC2 instance, you must use the S3 Files mount helper. The mount helper helps you mount your S3 file systems on EC2 instances running the supported distributions. When mounting a file system, the mount helper defines a new network file system type, called\n, which is fully compatible with the standard\ncommand in Linux. The mount helper also supports mounting an S3 file system at instance boot time automatically by using entries in the\nconfiguration file on EC2 Linux instances. The mount helper is part of the open-source collection of tools that is installed when you install the S3 Files client (amazon-efs-utils).\nPrerequisites to mount on EC2 instances\nYou have an S3 file system with at least one mount target available.\nYour EC2 instance is in the same Availability Zone as the mount target that you will use to mount your file system.\nAn IAM instance profile is attached to the EC2 instance with the required permissions for S3 Files. For details, see\nYou have configured the required\nYou have installed the amazon-efs-utils package on the EC2 instance. For more information, see\nHow does the mount helper work?\nWhen you ",
+            "target_region_matches": []
+          },
+          {
+            "url": "https://aws.amazon.com/blogs/publicsector/what-if-swapping-your-weather-model-was-boring-how-dynamical-org-is-making-ai-weather-forecasting-accessible-on-aws/",
+            "link_text": "What if swapping your weather model was boring? How dynamical.org is making AI weather forecasting accessible on AWS",
+            "search_rank": 5,
+            "search_provider": "blogs",
+            "discovery_method": "official_aws_search",
+            "evidence_type": "candidate_feature_page",
+            "status": "fetched",
+            "final_url": "https://aws.amazon.com/blogs/publicsector/what-if-swapping-your-weather-model-was-boring-how-dynamical-org-is-making-ai-weather-forecasting-accessible-on-aws/",
+            "title": "What if swapping your weather model was boring? How dynamical.org is making AI weather forecasting accessible on AWS | AWS Public Sector Blog",
+            "description": "In this post, Marshall Moutenot shares how dynamical.org is making weather data products, including AI weather forecasts, accessible on AWS.",
+            "text_excerpt": "What if swapping your weather model was boring? How dynamical.org is making AI weather forecasting accessible on AWS\nAs part of the Registry of Open Data on AWS, AWS invited Marshall Moutenot of\nto share how their team is making operational weather forecasts easier to use for researchers, developers, and downstream applications.\nWeather data can be hard to use\nI’ve spent the last 10 years forecasting rivers. As you can imagine, weather (past, present, and future) played an outsized role in how much water is going to flow through a river tomorrow. It also represented an outsized portion of the infrastructure our engineering team had to build.\nTo train our deep learning foundational hydrology models, we needed to process and store not just the latest forecast, but a vast historical archive in our own cloud. Integrating a new weather model required a big processing effort, which in some cases would take months of arduous backfill (tape data access is slow!).\nIntegrating new weather models was a primary driver of performance improvements, especially as we expanded globally—but the ingestion effort for each new model was painful enough that it was sometimes hard to justify before we kne",
+            "target_region_matches": []
+          }
+        ],
+        "official_region_lookup": {
+          "method": "aws_official_search_then_fetch",
+          "search_endpoint": "https://prod.search.marketing.aws.dev/api/v1/search",
+          "query": "launching files making buckets accessible file systems news",
+          "target_region": "ap-southeast-1",
+          "query_purpose": "Find candidate-specific official pages before checking the target Region in fetched text.",
+          "search_result_count": 5,
+          "selected_result_count": 4,
+          "status": "search_completed",
+          "evidence_rule": "Search snippets are discovery metadata only. Only a separately fetched AWS official page with a candidate-specific Region passage can upgrade Region status."
+        },
+        "target_region_evidence": {
+          "target_region": "ap-southeast-1",
+          "target_region_label": "Asia Pacific (Singapore)",
+          "official_source_matches": [
+            "S3 general purpose buckets are available in all AWS Regions",
+            "Amazon S3 Replication Time Control Data Transfer pricing is the same in all AWS Regions"
+          ],
+          "status": "official_region_text_found"
+        },
+        "data_gaps": []
+      },
+      "evidence_limits": []
+    }
+  ],
+  "excluded_candidates": [],
+  "comparison_matrix": [
+    {
+      "candidate_id": "S1-65801FA11243",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+      "technology_scope": [
+        "S3 Files",
+        "S3",
+        "EC2",
+        "EFS",
+        "VPC",
+        "Lambda"
+      ],
+      "delivery_model": "managed_cloud_service_or_feature",
+      "maturity": "not_verified_by_this_source",
+      "environment_signals": [],
+      "business_context": "unknown_no_problem_context",
+      "docs_evidence": true,
+      "pricing_evidence": true,
+      "region_evidence": false,
+      "target_region": "ap-southeast-1",
+      "target_region_status": "available_ap_southeast_1",
+      "shortlist_eligible": true,
+      "verified_dimension_count": 4,
+      "decisive_unknowns": [
+        "Workload fit was not assessed because this run uses public technical evidence only.",
+        "PoC cost and cleanup remain subject to the standard small-sandbox policy and S4 validation."
+      ]
+    }
+  ],
+  "cross_candidate_findings": {
+    "candidate_count": 1,
+    "shared_technology_scope": [],
+    "distinct_delivery_models": [
+      {
+        "delivery_model": "managed_cloud_service_or_feature",
+        "candidate_count": 1
+      }
+    ],
+    "comparison_reading_guide": "Compare the matrix by delivery model and source evidence coverage first; do not mistake missing pricing or Region evidence for a negative result."
+  },
+  "data_gaps": [
+    "Direct URL import has no business-problem context; S2 can compare source evidence but cannot judge business fit until a human adds context."
+  ],
+  "human_review_required": {
+    "decision": "Choose exactly one evidence-backed candidate for S3.",
+    "required_inputs": [
+      "Which single candidate should continue to Skill 3?"
+    ]
+  },
+  "shortlist_policy": {
+    "target_region": "ap-southeast-1",
+    "target_region_label": "Asia Pacific (Singapore)",
+    "rule": "Target Region evidence is recorded as a warning/status and does not require extra user configuration.",
+    "eligible_candidate_count": 1,
+    "region_verified_candidate_count": 1,
+    "region_warning_candidate_count": 0
+  },
+  "notes": [
+    "A populated field is source-backed or a transparent rule-based classification; it is not an LLM-generated product claim.",
+    "Unknown means the fetched sources did not establish the fact. It is a required follow-up, not a negative conclusion.",
+    "S2 creates decision material. It does not recommend a winner, create cloud resources, or authorize a PoC."
+  ],
+  "comparison_issues": []
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <title>Cathay Tech Intel Report s3files-news-20260723-gate</title>
+  <style>
+    body { font-family: "Microsoft JhengHei", Arial, sans-serif; margin: 0; background: #f5f7f8; color: #152328; line-height: 1.65; }
+    header { background: #0b3f4a; color: white; padding: 28px 36px; }
+    main { max-width: 980px; margin: 0 auto; padding: 28px 20px 56px; }
+    .pick { display: grid; grid-template-columns: 42px 1fr; gap: 16px; background: white; border: 1px solid #d9e2e4; border-radius: 6px; padding: 18px; margin-bottom: 18px; }
+    .rank { color: #0b6477; font-size: 28px; font-weight: 700; }
+    .meta { color: #60747b; font-size: 13px; }
+    .reason { background: #edf5f6; padding: 8px 10px; border-radius: 4px; }
+    h2 { color: #0b6477; margin-top: 30px; }
+    h3 { margin: 0; }
+    h4 { margin: 14px 0 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 13px; }
+    th, td { border: 1px solid #d9e2e4; padding: 6px 8px; text-align: left; }
+    th { background: #edf5f6; }
+  </style>
+</head>
+<body>
+<header>
+  <div>Daily AWS Technical Radar</div>
+  <h1>Cathay Tech Intel v3 Report</h1>
+  <p>Run ID: s3files-news-20260723-gate | Source: seed_article | Final winners selected after all five steps by average score.</p>
+</header>
+<main>
+  <h2>Final Top 3</h2>
+
+            <article class="pick">
+              <div class="rank">1</div>
+              <div>
+                <h3>Launching S3 Files, making S3 buckets accessible as file systems</h3>
+                <p class="meta">AWS News Blog (explicit article input) | 2026-04-07 | avg 4.35</p>
+                <p>Amazon S3 Files lets general purpose S3 buckets be mounted as shared NFS file systems by EC2, containers, and Lambda. File changes synchronize with S3; it uses IAM, TLS, POSIX permissions, and CloudWatch/CloudTrail monitoring.</p>
+                <p class="reason">AWS fit is high for the current Cathay-oriented radar. Maturity is enough for PoC planning. Enterprise evidence found: PayU (印度金融服務).</p>
+                <h4>Cathay application scenario</h4>
+                <p>Use this as a controlled internal PoC candidate for insurance operations, compliance review, knowledge retrieval, or AI governance depending on its tags. Start with a small team, measure decision quality, time saved, and risk controls before wider rollout.</p>
+                <h4>Evidence</h4>
+                <ul><li>PayU (印度金融服務) (5/5)</li><li>SBI 生命保險株式會社 (SBI Life Insurance, 日本) (5/5)</li><li>美國總務署 (U.S. General Services Administration, GSA) (4/5)</li></ul>
+                <h4>GCP / Azure equivalent services</h4>
+                <table><tr><th>Capability</th><th>AWS</th><th>GCP</th><th>Azure</th></tr><tr><td>s3</td><td>Amazon S3 / S3 Tables / S3 Metadata</td><td>Cloud Storage / BigLake</td><td>Blob Storage / OneLake</td></tr><tr><td>ec2</td><td>Amazon EC2 Graviton</td><td>Compute Engine (Axion)</td><td>VMs (Cobalt)</td></tr><tr><td>lambda</td><td>AWS Lambda (SnapStart)</td><td>Cloud Run functions</td><td>Azure Functions</td></tr><tr><td>cloudformation</td><td>AWS CloudFormation / CDK</td><td>Infrastructure Manager</td><td>ARM / Bicep</td></tr></table>
+              </div>
+            </article>
+
+  <h2>System Scoring Report</h2>
+  <table><tr><th>ID</th><th>Concept</th><th>Evaluator</th><th>Validator</th><th>Average</th></tr><tr><td>M-2E486BFB</td><td>Launching S3 Files, making S3 buckets accessible as file systems</td><td>4.5</td><td>4.2</td><td>4.35</td></tr></table>
+  <h2>Algorithmic Decision Layer</h2><p>This layer applies an interpretable weighted decision policy above raw average score. It is not a trained ML model yet; human feedback logs are still being accumulated for future calibration.</p><table><tr><th>ID</th><th>Decision score</th><th>Recommended action</th><th>Why</th></tr><tr><td>M-2E486BFB</td><td>4.94</td><td>adopt_candidate_after_review</td><td>evaluator and validator both placed this candidate in Top 3; high evidence confidence; 4 matched enterprise evidence item(s)</td></tr></table>
+  <h2>Evidence Ledger</h2><p>Every candidate now carries an auditable chain from source article to L1 relevance, L2 evaluator score, independent validator score, governance flags, and final radar-ring recommendation.</p><table><tr><th>ID</th><th>Evidence</th><th>Ring</th><th>Governance flags</th></tr><tr><td>M-2E486BFB</td><td>high</td><td>Adopt</td><td>No blocking flag</td></tr></table>
+  <h2>Human Review Gate</h2><p>Status: <b>awaiting_human_review</b>. A reviewer should record approve, reject, override, or comment through the human-pick Lambda before this becomes an implementation recommendation.</p><table><tr><th>Rank</th><th>ID</th><th>Concept</th><th>Average</th><th>Ring</th></tr><tr><td>1</td><td>M-2E486BFB</td><td>Launching S3 Files, making S3 buckets accessible as file systems</td><td>4.35</td><td>Adopt</td></tr></table>
+  <h2>Human Feedback Statistics</h2><p>Sample status: <b>insufficient_for_ml_training</b>. These are descriptive statistics for now, not ML training evidence.</p><table><tr><th>Metric</th><th>Value</th></tr><tr><td>AI pick logs</td><td>4</td></tr><tr><td>Human review logs</td><td>0</td></tr><tr><td>Approvals / rejections / overrides</td><td>0 / 0 / 0</td></tr><tr><td>Average review minutes</td><td>None</td></tr><tr><td>Average AI-human Top3 overlap</td><td>None</td></tr></table>
+  <h2>Audit Packet</h2><p>The audit packet summarizes whether this run has the artifacts needed for governance review.</p><ul><li>evidence_ledger_created: PASS</li><li>review_packet_created: PASS</li><li>decision_layer_created: PASS</li><li>feedback_stats_created: PASS</li><li>quote_gate_allows_run: PASS</li><li>human_review_pending: PASS</li></ul>
+  <h2>Budget Quotation</h2>
+  <p>This implementation is designed to stay within the USD 100 company-account landing-validation budget. Estimated monthly AWS cost for light usage is USD 5-15. Amazon Bedrock and CloudFront are intentionally excluded, and Anthropic API calls are controlled by the per-run quote gate.</p>
+  <table><tr><th>Service</th><th>Purpose</th><th>Estimate USD/month</th></tr><tr><td>S3</td><td>pipeline JSON + HTML reports; lifecycle expires runs/ after 90 days</td><td>1</td></tr><tr><td>Lambda</td><td>run S1-S5</td><td>1</td></tr><tr><td>Step Functions</td><td>orchestrate five-step workflow</td><td>1</td></tr><tr><td>DynamoDB</td><td>AI/human pick log with TTL (RQ1 blind-test data)</td><td>1</td></tr><tr><td>Secrets Manager</td><td>store Anthropic API key</td><td>0.4</td></tr><tr><td>EventBridge Scheduler</td><td>daily 08:00 Taipei trigger (default disabled)</td><td>0</td></tr><tr><td>CloudWatch Logs</td><td>execution logs, 14-day retention</td><td>[1, 3]</td></tr><tr><td>Anthropic API</td><td>evaluator (Sonnet 4.5) + validator (Haiku 4.5) calls</td><td>usage-based; ~USD 0.09 per approved run</td></tr></table>
+  <h3>Excluded for Budget Control</h3>
+  <ul><li>Amazon Bedrock (blocked by SCP)</li><li>CloudFront (global service; region-restricted account)</li><li>Customer-managed KMS (replaced by SSE-S3 / AWS-managed)</li><li>OpenSearch</li><li>RDS</li><li>EC2</li></ul>
+  <h2>Pipeline Funnel</h2>
+  <p>Fetched 1 concepts, kept 1 after L0, ranked 1 through L1, evaluated 1 through L2, and validated 1 before final selection.</p>
+  <h2>Research disclosure（統計誠實揭露）</h2>
+  <p><b>n = 1</b>（單日樣本，單次結果不具統計顯著性；RQ1 結論需累積多日盲測資料）</p><p>評估者（claude-sonnet-4-5）與驗證者（claude-haiku-4-5）Top3 重疊：<b>1/3</b> — 憲法要求兩者為不同模型，程式碼層已強制。</p><p>AI 端本次耗時：管線 wall-clock <b>17.69 秒</b>（其中 LLM 推論 0.0 秒，tokens in/out 0/0）。RQ2 效率倍數須另計人類審查與系統維護時間，不得僅以推論時間計算。</p><p>報價閘門：本次報價 <b>$0.0232</b>（approve），實際 LLM 花費 <b>$0.0</b> — 估 vs 實留痕供閘門校準。</p>
+</main>
+</body>
+</html>

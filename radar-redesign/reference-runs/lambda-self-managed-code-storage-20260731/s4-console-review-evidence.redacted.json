@@ -1,0 +1,31 @@
+{
+  "schema_version": "s4.console-review-evidence.v1",
+  "run_id": "direct-url-20260731-ae6e8775",
+  "generated_by": "scripts/s4-capture-infrastructure-composer.mjs",
+  "review_target": {
+    "run_id": "direct-url-20260731-ae6e8775",
+    "stack_name": "AgenticRadarS4D73F45C0",
+    "target_region": "ap-southeast-1",
+    "recipe": "lambda_self_managed_s3_code_storage_cdk"
+  },
+  "capture_contract": {
+    "redaction_order": "hide_console_chrome_before_capture_then_hash_redacted_png",
+    "redacted_before_hash": true,
+    "hash_scope": "redacted_png",
+    "automated_image_understanding": false,
+    "human_confirmation_record_only": true
+  },
+  "screenshots": [
+    {
+      "view": "infrastructure_composer",
+      "screenshot_ref": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\lambda-self-managed-code-storage-20260731-quote-review\\s4-console-review\\direct-url-20260731-ae6e8775\\infrastructure-composer.png",
+      "sha256": "0880f64f9f9d57b6a4735c83738c1337573d0508bb2db29ed929cf345ae0f0bf",
+      "captured_at": "2026-07-31T07:18:22.925Z",
+      "shared_via": "conversation",
+      "redacted": true,
+      "hash_scope": "redacted_png",
+      "stack_name": "AgenticRadarS4D73F45C0",
+      "target_region": "ap-southeast-1"
+    }
+  ]
+}

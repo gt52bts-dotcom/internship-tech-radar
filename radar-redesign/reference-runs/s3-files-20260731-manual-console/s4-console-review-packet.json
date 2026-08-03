@@ -1,0 +1,82 @@
+{
+  "schema_version": "s4.console-review-packet.v1",
+  "stage": "S4",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "status": "awaiting_human_confirmation",
+  "issued_at": "2026-07-31T08:01:26.153336+00:00",
+  "review_deadline": "2026-07-31T09:01:26.153336+00:00",
+  "review_target": {
+    "stack_name": "AgenticRadarS4AD2B348F",
+    "target_region": "ap-southeast-1",
+    "recipe": "s3_files_cdk",
+    "composer_url": "<aws-console-url-redacted>",
+    "cloudformation_stack_url": "<aws-console-url-redacted>"
+  },
+  "automation": {
+    "mode": "playwright_headful_browser",
+    "command": "node .\\scripts\\s4-capture-infrastructure-composer.mjs --runtime .\\out\\run\\s4-runtime.json --packet .\\out\\run\\s4-console-review-packet.json --output-dir .\\out\\run\\s4-console-review\\direct-url-20260731-f1baf62f --evidence-output .\\out\\run\\s4-console-review\\direct-url-20260731-f1baf62f\\s4-console-review-evidence.json --shared-via conversation",
+    "outputs": {
+      "required_png": ".\\out\\run\\s4-console-review\\direct-url-20260731-f1baf62f\\infrastructure-composer.png",
+      "review_evidence": ".\\out\\run\\s4-console-review\\direct-url-20260731-f1baf62f\\s4-console-review-evidence.json"
+    },
+    "human_display_required": true,
+    "cleanup_must_wait_for_named_confirmation": true
+  },
+  "required_screenshots": [
+    {
+      "view": "infrastructure_composer",
+      "console_location": "CloudFormation stack > Infrastructure Composer",
+      "must_show": [
+        "The run-derived stack's resource relationship canvas",
+        "The deployed resources are visible and match the selected recipe"
+      ]
+    }
+  ],
+  "recommended_screenshots": [
+    {
+      "view": "resource_inventory",
+      "console_location": "CloudFormation stack > Resources or candidate-service resource page",
+      "must_show": [
+        "Resource statuses",
+        "The test workload result when the Console exposes it"
+      ]
+    }
+  ],
+  "human_confirmation": {
+    "required": true,
+    "instruction": "Show the screenshots in the GUI or this conversation, then wait for a named human to approve cleanup."
+  },
+  "evidence_contract": {
+    "schema_version": "s4.console-review-evidence.v1",
+    "required_review_target_fields": [
+      "stack_name",
+      "target_region",
+      "run_id"
+    ],
+    "required_fields_per_screenshot": [
+      "view",
+      "screenshot_ref",
+      "sha256",
+      "captured_at",
+      "shared_via",
+      "redacted",
+      "hash_scope"
+    ],
+    "allowed_shared_via": [
+      "gui",
+      "conversation"
+    ],
+    "privacy_order": "capture visible canvas -> hide/redact Console chrome -> hash the redacted PNG -> show the redacted PNG to the human",
+    "automated_image_understanding": false,
+    "human_confirmation_record_only": true
+  },
+  "privacy": [
+    "Do not commit Console screenshots or unredacted Console URLs to Git.",
+    "Store only redacted screenshot references, SHA-256 hashes, run-derived stack name, Region, and capture time in the review evidence JSON.",
+    "The metadata contract cannot prove the pixels show the correct stack; a named human must confirm the screenshot content before cleanup."
+  ],
+  "timeout_policy": {
+    "review_timeout_minutes": 60,
+    "on_timeout": "After review_deadline, use s4-abort --packet <packet> --execute with a named cost-control approver and reason; record that Console screenshot review was skipped for cost control."
+  }
+}

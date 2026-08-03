@@ -1,0 +1,92 @@
+{
+  "decision_layer_version": "1.0",
+  "run_id": "s3files-news-20260723-0750",
+  "method": "interpretable weighted decision policy",
+  "method_note": "This is an explainable algorithmic decision layer, not a trained ML model. It combines evaluator/validator scores, evidence confidence, enterprise cases, governance flags, and available human feedback signals.",
+  "policy": {
+    "base": "average evaluator/validator score",
+    "positive_signals": [
+      "evidence confidence",
+      "enterprise case evidence",
+      "evaluator-validator agreement",
+      "historical human approval"
+    ],
+    "negative_signals": [
+      "governance flags",
+      "high risk",
+      "low maturity",
+      "historical rejection"
+    ],
+    "actions": [
+      "adopt_candidate_after_review",
+      "trial_with_human_review",
+      "assess_with_human_review",
+      "assess_watchlist",
+      "hold"
+    ]
+  },
+  "top3": [
+    {
+      "id": "M-2E486BFB",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "average_score": 4.35,
+      "decision_score": 4.94,
+      "radar_ring": "Adopt",
+      "evidence_confidence": "high",
+      "recommended_action": "adopt_candidate_after_review",
+      "score_components": {
+        "base_average_score": 4.35,
+        "bonuses": {
+          "evidence": 0.2,
+          "enterprise_case": 0.24,
+          "cross_validator_agreement": 0.15,
+          "historical_human_approval": 0
+        },
+        "penalties": {
+          "governance_flags": 0.0,
+          "risk_gate": 0,
+          "maturity_gate": 0
+        }
+      },
+      "why": [
+        "evaluator and validator both placed this candidate in Top 3",
+        "high evidence confidence",
+        "4 matched enterprise evidence item(s)",
+        "no blocking governance flag",
+        "human feedback sample is still descriptive, not enough for ML training"
+      ]
+    }
+  ],
+  "all_decisions": [
+    {
+      "id": "M-2E486BFB",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "average_score": 4.35,
+      "decision_score": 4.94,
+      "radar_ring": "Adopt",
+      "evidence_confidence": "high",
+      "recommended_action": "adopt_candidate_after_review",
+      "score_components": {
+        "base_average_score": 4.35,
+        "bonuses": {
+          "evidence": 0.2,
+          "enterprise_case": 0.24,
+          "cross_validator_agreement": 0.15,
+          "historical_human_approval": 0
+        },
+        "penalties": {
+          "governance_flags": 0.0,
+          "risk_gate": 0,
+          "maturity_gate": 0
+        }
+      },
+      "why": [
+        "evaluator and validator both placed this candidate in Top 3",
+        "high evidence confidence",
+        "4 matched enterprise evidence item(s)",
+        "no blocking governance flag",
+        "human feedback sample is still descriptive, not enough for ML training"
+      ]
+    }
+  ]
+}

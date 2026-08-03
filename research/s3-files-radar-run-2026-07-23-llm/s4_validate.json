@@ -1,0 +1,35 @@
+{
+  "step": "s4_validate",
+  "mode": "rubric-only (anthropic failed; fallback used)",
+  "quote_decision": "approve",
+  "validator_model": "claude-haiku-4-5",
+  "validator_weights": {
+    "maturity": 0.2,
+    "aws_fit": 0.2,
+    "case_evidence": 0.2,
+    "effort": 0.2,
+    "risk": 0.2
+  },
+  "rescored": [
+    {
+      "id": "M-2E486BFB",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "v_score": 4.2,
+      "flags": []
+    }
+  ],
+  "hard_rule_flags": [],
+  "timing": {
+    "step_wall_seconds": 8.62,
+    "llm_usage": {
+      "calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "inference_seconds": 0.0,
+      "fallback_count": 1,
+      "fallback_errors": [
+        "Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CdJ1Vk9Lmh3u17WARFUfU'}"
+      ]
+    }
+  }
+}

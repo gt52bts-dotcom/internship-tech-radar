@@ -1,0 +1,139 @@
+{
+  "step": "s5_report",
+  "selection_rule": "Top 3 by average evaluator/validator score after all five steps; decision-layer recommendations are attached for governance review",
+  "rq2_timing": {
+    "ai_pipeline_wall_seconds": 17.18,
+    "quote": {
+      "quoted_usd": 0.0232,
+      "decision": "approve",
+      "actual_llm_usd": 0.0
+    },
+    "ai_llm_inference_seconds": 0.0,
+    "tokens": {
+      "input": 0,
+      "output": 0
+    },
+    "step_timings": {
+      "s1": {
+        "step_wall_seconds": 0.0,
+        "llm_usage": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "inference_seconds": 0.0,
+          "fallback_count": 0,
+          "fallback_errors": []
+        }
+      },
+      "s2": {
+        "step_wall_seconds": 0.1,
+        "llm_usage": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "inference_seconds": 0.0,
+          "fallback_count": 0,
+          "fallback_errors": []
+        }
+      },
+      "s3": {
+        "step_wall_seconds": 8.46,
+        "llm_usage": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "inference_seconds": 0.0,
+          "fallback_count": 1,
+          "fallback_errors": [
+            "Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CdJ1V2fV8ohiGqN6rKMQf'}"
+          ]
+        }
+      },
+      "s4": {
+        "step_wall_seconds": 8.62,
+        "llm_usage": {
+          "calls": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "inference_seconds": 0.0,
+          "fallback_count": 1,
+          "fallback_errors": [
+            "Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CdJ1Vk9Lmh3u17WARFUfU'}"
+          ]
+        }
+      }
+    },
+    "note": "RQ2 efficiency multiplier = human_total_minutes / (ai_pipeline_wall_seconds/60 + human_review_minutes + amortized_maintenance_minutes). human_review_minutes and maintenance are recorded separately via record_pick / ops log; inference time alone MUST NOT be reported as the AI-side total."
+  },
+  "agreement": {
+    "n_candidates": 1,
+    "n_note": "n=1 is a small daily sample; single-run results are not statistically significant.",
+    "evaluator_top3": [
+      "M-2E486BFB"
+    ],
+    "validator_top3": [
+      "M-2E486BFB"
+    ],
+    "top3_overlap": 1,
+    "evaluator_model": "claude-sonnet-4-5",
+    "validator_model": "claude-haiku-4-5"
+  },
+  "top3": [
+    {
+      "id": "M-2E486BFB",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "l2_score": 4.5,
+      "validator_score": 4.2,
+      "average_score": 4.35,
+      "url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/"
+    }
+  ],
+  "evidence_ledger_key": "runs/s3files-news-20260723-0800/evidence-ledger.json",
+  "review_packet_key": "runs/s3files-news-20260723-0800/review-packet.json",
+  "decision_layer_key": "runs/s3files-news-20260723-0800/decision-layer.json",
+  "feedback_stats_key": "runs/s3files-news-20260723-0800/feedback-stats.json",
+  "audit_packet_key": "runs/s3files-news-20260723-0800/audit-packet.json",
+  "decision_top3": [
+    {
+      "id": "M-2E486BFB",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "average_score": 4.35,
+      "decision_score": 4.94,
+      "radar_ring": "Adopt",
+      "evidence_confidence": "high",
+      "recommended_action": "adopt_candidate_after_review",
+      "score_components": {
+        "base_average_score": 4.35,
+        "bonuses": {
+          "evidence": 0.2,
+          "enterprise_case": 0.24,
+          "cross_validator_agreement": 0.15,
+          "historical_human_approval": 0
+        },
+        "penalties": {
+          "governance_flags": 0.0,
+          "risk_gate": 0,
+          "maturity_gate": 0
+        }
+      },
+      "why": [
+        "evaluator and validator both placed this candidate in Top 3",
+        "high evidence confidence",
+        "4 matched enterprise evidence item(s)",
+        "no blocking governance flag",
+        "human feedback sample is still descriptive, not enough for ML training"
+      ]
+    }
+  ],
+  "human_review_status": "awaiting_human_review",
+  "all_scores": [
+    {
+      "id": "M-2E486BFB",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "l2_score": 4.5,
+      "validator_score": 4.2,
+      "average_score": 4.35,
+      "flags": []
+    }
+  ]
+}

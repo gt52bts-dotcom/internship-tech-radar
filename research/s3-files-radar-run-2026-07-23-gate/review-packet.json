@@ -1,0 +1,38 @@
+{
+  "review_packet_version": "1.0",
+  "run_id": "s3files-news-20260723-gate",
+  "status": "awaiting_human_review",
+  "review_goal": "Approve, reject, override, or comment on the AI Top 3 before treating it as an implementation recommendation.",
+  "ai_top3": [
+    {
+      "rank": 1,
+      "id": "M-2E486BFB",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "average_score": 4.35,
+      "radar_ring": "Adopt",
+      "evidence_confidence": "high",
+      "governance_flags": []
+    }
+  ],
+  "required_reviewer_actions": {
+    "approve": "Accept AI Top 3 as the current daily recommendation.",
+    "reject": "Reject the AI Top 3 and record why.",
+    "override": "Provide a replacement picked_ids list and rationale.",
+    "comment": "Keep decision pending but add reviewer feedback."
+  },
+  "record_human_pick_payload_example": {
+    "run_id": "s3files-news-20260723-gate",
+    "reviewer": "reviewer-name",
+    "decision": "approve",
+    "picked_ids": [
+      "M-2E486BFB"
+    ],
+    "human_minutes": 15,
+    "blind": false,
+    "note": "Reviewed evidence ledger and accepted current Top 3."
+  },
+  "artifacts": {
+    "report_key": "runs/s3files-news-20260723-gate/report.html",
+    "evidence_ledger_key": "runs/s3files-news-20260723-gate/evidence-ledger.json"
+  }
+}

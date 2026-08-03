@@ -1,0 +1,5 @@
+{
+  "selected_candidate_ids": ["S1-C7ED2885BADB"],
+  "selected_by": "Cleo",
+  "selection_reason": "依使用者指定，針對 AWS Lambda self-managed code storage 單項評估；Skill 3 產出報價單後等待人工同意，再進 Skill 4 PoC 與 Skill 5 實際成本比較報告。"
+}

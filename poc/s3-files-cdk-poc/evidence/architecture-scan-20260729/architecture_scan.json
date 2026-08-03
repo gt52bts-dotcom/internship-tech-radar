@@ -1,0 +1,348 @@
+{
+  "root": "C:\\Users\\youhs\\Documents\\\u5be6\u7fd2\u5c08\u6848\\radar-company-account-complete\\radar",
+  "file_count": 2817,
+  "score": {
+    "points": 24,
+    "max": 26,
+    "percent": 92
+  },
+  "verdict": "complete",
+  "findings": [
+    {
+      "key": "single_entry_radar",
+      "label": "Single Entry A radar workflow",
+      "required": true,
+      "status": "not_aligned",
+      "score": 0,
+      "matches": [
+        "DEPLOY.md (1/4)",
+        "README.md (2/4)",
+        "architecture-scan/architecture_scan.json (1/4)",
+        "architecture-scan/architecture_scan.md (2/4)",
+        "architecture-scan-2026-07-23/architecture_scan.json (4/4)",
+        "architecture-scan-2026-07-23/architecture_scan.md (4/4)",
+        "cdk/app.py (1/4)",
+        "cdk/cdk.json (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-data.assets.json (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-data.metadata.json (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.assets.json (1/4)"
+      ],
+      "hints": [
+        "Use one Entry A flow only; remove Entry B and select the top 3 by final average score."
+      ]
+    },
+    {
+      "key": "static_ui",
+      "label": "CloudFront + S3 static UI",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (2/4)",
+        "README.md (2/4)",
+        "architecture-scan/architecture_scan.json (1/4)",
+        "architecture-scan/architecture_scan.md (2/4)",
+        "architecture-scan-2026-07-23/architecture_scan.json (3/4)",
+        "architecture-scan-2026-07-23/architecture_scan.md (2/4)",
+        "cdk/app.py (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-data.metadata.json (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.template.json (1/4)",
+        "cdk/cdk.out/manifest.json (3/4)",
+        "cdk/cdk.out/tree.json (1/4)"
+      ],
+      "hints": [
+        "Add an S3 web asset bucket and CloudFront distribution in IaC."
+      ]
+    },
+    {
+      "key": "identity_api",
+      "label": "Cognito + API Gateway auth path",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (3/4)",
+        "README.md (2/4)",
+        "architecture-scan/architecture_scan.json (2/4)",
+        "architecture-scan/architecture_scan.md (2/4)",
+        "architecture-scan-2026-07-23/architecture_scan.json (4/4)",
+        "architecture-scan-2026-07-23/architecture_scan.md (2/4)",
+        "cdk/cdk.out/manifest.json (4/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/credentials/_auth.py (1/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/credentials/_chain.py (1/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/credentials/_constants.py (1/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/credentials/_providers.py (1/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/credentials/_types.py (1/4)"
+      ],
+      "hints": [
+        "Add Cognito user pool/client, API Gateway routes, and an authorizer."
+      ]
+    },
+    {
+      "key": "scheduled_ingestion",
+      "label": "EventBridge scheduled ingestion",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (2/3)",
+        "README.md (2/3)",
+        "architecture-scan/architecture_scan.json (2/3)",
+        "architecture-scan/architecture_scan.md (2/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (2/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (1/3)",
+        "cdk/app.py (2/3)",
+        "cdk/cdk.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.metadata.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.template.json (3/3)",
+        "cdk/cdk.out/manifest.json (1/3)"
+      ],
+      "hints": [
+        "Add an EventBridge schedule/rule that invokes the scout Lambda."
+      ]
+    },
+    {
+      "key": "scout_pipeline",
+      "label": "Daily scout L0/L1/L2 pipeline",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (3/4)",
+        "README.md (3/4)",
+        "architecture-scan/architecture_scan.md (1/4)",
+        "architecture-scan-2026-07-23/architecture_scan.json (3/4)",
+        "architecture-scan-2026-07-23/architecture_scan.md (3/4)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.metadata.json (1/4)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.template.json (3/4)",
+        "cdk/cdk.out/manifest.json (2/4)",
+        "cdk/cdk.out/tree.json (2/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/sgmllib.py (2/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/typing_extensions.py (1/4)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/_base_client.py (1/4)"
+      ],
+      "hints": [
+        "Implement source fetch, deterministic L0 filtering, L1 ranking, and L2 scoring."
+      ]
+    },
+    {
+      "key": "bedrock",
+      "label": "Bedrock runtime integration",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (1/3)",
+        "README.md (1/3)",
+        "architecture-scan/architecture_scan.json (1/3)",
+        "architecture-scan/architecture_scan.md (1/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (1/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (1/3)",
+        "cdk/app.py (1/3)",
+        "cdk/cdk.out/manifest.json (1/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/__init__.py (1/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/bedrock/_auth.py (1/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/bedrock/_client.py (1/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/bedrock/_mantle.py (1/3)"
+      ],
+      "hints": [
+        "Add Bedrock runtime calls with model IDs configured through environment or SSM."
+      ]
+    },
+    {
+      "key": "final_scoring_report",
+      "label": "Five-step final scoring report",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (1/5)",
+        "README.md (2/5)",
+        "architecture-scan-2026-07-23/architecture_scan.json (5/5)",
+        "architecture-scan-2026-07-23/architecture_scan.md (2/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/foundry.md (1/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/foundry.py (1/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/google_cloud/README.md (1/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/google_cloud/_client.py (1/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/types/beta/beta_managed_agents_custom_tool_params.py (1/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/types/beta/beta_managed_agents_outcome_evaluation_resource.py (1/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/distro/distro.py (1/5)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/h11/_receivebuffer.py (1/5)"
+      ],
+      "hints": [
+        "Generate one final report after all five steps, including scores and GCP/Azure equivalent-feature comparison."
+      ]
+    },
+    {
+      "key": "rag",
+      "label": "RAG / vector knowledge path",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (1/3)",
+        "architecture-scan/architecture_scan.json (2/3)",
+        "architecture-scan/architecture_scan.md (1/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (2/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.template.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-secrets.template.json (1/3)",
+        "cdk/cdk.out/manifest.json (1/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/typing_extensions.py (1/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/_base_client.py (1/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/lib/tools/_skills.py (1/3)"
+      ],
+      "hints": [
+        "Add Knowledge Bases or another vector retrieval path for needs/context."
+      ]
+    },
+    {
+      "key": "orchestration",
+      "label": "Step Functions orchestration",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (1/3)",
+        "README.md (1/3)",
+        "architecture-scan/architecture_scan.json (1/3)",
+        "architecture-scan/architecture_scan.md (1/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (1/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (1/3)",
+        "cdk/app.py (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.metadata.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.template.json (3/3)",
+        "cdk/cdk.out/manifest.json (3/3)",
+        "cdk/cdk.out/tree.json (3/3)"
+      ],
+      "hints": [
+        "Add a Step Functions state machine for fetch/filter/evaluate/persist/review."
+      ]
+    },
+    {
+      "key": "persistence",
+      "label": "S3 + DynamoDB persistence",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (2/3)",
+        "README.md (2/3)",
+        "architecture-scan/architecture_scan.json (2/3)",
+        "architecture-scan/architecture_scan.md (2/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (3/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (2/3)",
+        "cdk/app.py (2/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.assets.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.metadata.json (2/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (2/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.assets.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.metadata.json (1/3)"
+      ],
+      "hints": [
+        "Persist snapshots/cards to S3 and picks/metrics/metadata to DynamoDB."
+      ]
+    },
+    {
+      "key": "observability",
+      "label": "CloudWatch / CloudTrail observability",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (3/3)",
+        "README.md (3/3)",
+        "architecture-scan/architecture_scan.json (2/3)",
+        "architecture-scan/architecture_scan.md (2/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (3/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (2/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.metadata.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.template.json (2/3)",
+        "cdk/cdk.out/manifest.json (1/3)",
+        "cdk/cdk.out/tree.json (2/3)",
+        "cdk/cdk.out/asset.01a7180459895ac49859a02bc43787d92f9474261e60d26619f19077bd7a12f9/python/anthropic/pagination.py (1/3)"
+      ],
+      "hints": [
+        "Add logs, alarms, audit trail awareness, and token/cost metrics."
+      ]
+    },
+    {
+      "key": "security",
+      "label": "IAM / KMS / secrets security",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (2/3)",
+        "README.md (2/3)",
+        "architecture-scan/architecture_scan.json (1/3)",
+        "architecture-scan/architecture_scan.md (1/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (3/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (3/3)",
+        "cdk/app.py (1/3)",
+        "cdk/cdk.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.assets.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.metadata.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (3/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.assets.json (1/3)"
+      ],
+      "hints": [
+        "Scope IAM permissions, encrypt data, and store secrets/config in SSM or Secrets Manager."
+      ]
+    },
+    {
+      "key": "deployment",
+      "label": "IaC and repeatable deployment",
+      "required": true,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (3/3)",
+        "README.md (3/3)",
+        "architecture-scan/architecture_scan.json (2/3)",
+        "architecture-scan/architecture_scan.md (2/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (3/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (2/3)",
+        "cdk/app.py (2/3)",
+        "cdk/cdk.json (1/3)",
+        "cdk/requirements.txt (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.assets.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.metadata.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-data.template.json (1/3)"
+      ],
+      "hints": [
+        "Add CDK/SAM/Terraform/CloudFormation plus deploy commands."
+      ]
+    },
+    {
+      "key": "ci",
+      "label": "CI/CD validation",
+      "required": false,
+      "status": "implemented",
+      "score": 2,
+      "matches": [
+        "DEPLOY.md (2/3)",
+        "README.md (2/3)",
+        "architecture-scan/architecture_scan.json (1/3)",
+        "architecture-scan/architecture_scan.md (2/3)",
+        "architecture-scan-2026-07-23/architecture_scan.json (1/3)",
+        "architecture-scan-2026-07-23/architecture_scan.md (1/3)",
+        "cdk/app.py (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.assets.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.metadata.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-pipeline.template.json (1/3)",
+        "cdk/cdk.out/cathay-techintel-v3-secrets.template.json (1/3)",
+        "cdk/cdk.out/manifest.json (1/3)"
+      ],
+      "hints": [
+        "Add CI checks for tests, lint, and IaC synthesis."
+      ]
+    }
+  ]
+}

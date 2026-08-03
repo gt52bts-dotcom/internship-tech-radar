@@ -1,0 +1,65 @@
+{
+  "schema_version": "s4.runtime-evidence.v3",
+  "stage": "S4",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "status": "awaiting_console_review",
+  "deployed_at": "2026-07-31T08:01:06.338317+00:00",
+  "lineage": {
+    "source_artifacts": [
+      {
+        "stage": "S1",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s1.json",
+        "sha256": "44c5da87de77c6df217993ea2af6458a10643f1ae9b68e1a7abb0e2f0d3bb541"
+      },
+      {
+        "stage": "S2",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s2.json",
+        "sha256": "02af4ee9a1e672ce8241c2cda6eb15d344445e1829a3e3b366b8f02663b7f9ac"
+      },
+      {
+        "stage": "S3",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s3.json",
+        "sha256": "ca77d4936f30957cace2f24bff8cd61e7465263dbc656170afabc7e565b21cc7"
+      }
+    ]
+  },
+  "deployment": {
+    "recipe": "s3_files_cdk",
+    "stack_name": "AgenticRadarS4AD2B348F",
+    "resource_prefix": "agentic-radar-s4-ad2b348f",
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "deployment_method": "CDK synth followed by CloudFormation create-stack",
+    "stack_status": "CREATE_COMPLETE"
+  },
+  "verification": {
+    "recipe": "s3_files_cdk",
+    "source_to_mount": "verified",
+    "mount_to_s3": "verified",
+    "ssm_status": "Success",
+    "success_criteria": [
+      "CloudFormation stack reaches CREATE_COMPLETE.",
+      "EC2 test client mounts S3 Files.",
+      "An object placed in S3 is readable from the mount.",
+      "A file written through the mount is readable from S3."
+    ]
+  },
+  "console_review": {
+    "status": "required",
+    "evidence_status": "awaiting_capture",
+    "required_checks": [
+      "CloudFormation stack Resources and Template",
+      "Recipe resources and their expected relationships",
+      "Test workload result"
+    ],
+    "required_screenshot_views": [
+      "infrastructure_composer"
+    ],
+    "recommended_screenshot_views": [
+      "resource_inventory"
+    ]
+  },
+  "cleanup": {
+    "status": "pending_console_review"
+  }
+}

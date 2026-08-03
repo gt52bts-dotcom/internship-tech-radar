@@ -1,0 +1,203 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Fresh S3 Files news-driven PoC. Derived from AWS documentation on 2026-07-23.
+
+Parameters:
+  PoCName:
+    Type: String
+    Default: s3files-news-fresh-20260723
+    AllowedPattern: '^[a-z0-9-]{3,40}$'
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+
+Resources:
+  PoCVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.79.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags: [{Key: Name, Value: !Sub '${PoCName}-vpc'}]
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+  VpcGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: {VpcId: !Ref PoCVpc, InternetGatewayId: !Ref InternetGateway}
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref PoCVpc}
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VpcGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PoCVpc
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: 10.79.10.0/24
+      MapPublicIpOnLaunch: true
+  PublicSubnetRouteAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {SubnetId: !Ref PublicSubnet, RouteTableId: !Ref PublicRouteTable}
+
+  NewsPoCBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${PoCName}-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration: {Status: Enabled}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags: [{Key: PoCSource, Value: AWS-News-S3-Files}]
+
+  S3FilesSyncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {Service: elasticfilesystem.amazonaws.com}
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals: {aws:SourceAccount: !Ref AWS::AccountId}
+              ArnLike: {aws:SourceArn: !Sub 'arn:${AWS::Partition}:s3files:${AWS::Region}:${AWS::AccountId}:file-system/*'}
+      Policies:
+        - PolicyName: s3files-sync-only-this-bucket
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [s3:ListBucket, s3:ListBucketVersions]
+                Resource: !GetAtt NewsPoCBucket.Arn
+              - Effect: Allow
+                Action: [s3:GetObject, s3:GetObjectVersion, s3:PutObject, s3:DeleteObject, s3:AbortMultipartUpload]
+                Resource: !Sub '${NewsPoCBucket.Arn}/*'
+              - Effect: Allow
+                Action: [events:PutRule, events:PutTargets, events:DeleteRule, events:RemoveTargets, events:DescribeRule, events:ListRules, events:ListTargetsByRule]
+                Resource: '*'
+
+  NewsFileSystem:
+    Type: AWS::S3Files::FileSystem
+    Properties:
+      AcceptBucketWarning: true
+      Bucket: !GetAtt NewsPoCBucket.Arn
+      Prefix: news-poc/
+      RoleArn: !GetAtt S3FilesSyncRole.Arn
+      Tags: [{Key: Name, Value: !Sub '${PoCName}-filesystem'}]
+
+  ClientSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: S3 Files PoC client egress
+      VpcId: !Ref PoCVpc
+      SecurityGroupEgress:
+        - {IpProtocol: '-1', CidrIp: 0.0.0.0/0}
+  MountTargetSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: NFS from the S3 Files PoC client only
+      VpcId: !Ref PoCVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId: !Ref ClientSecurityGroup
+
+  NewsMountTarget:
+    Type: AWS::S3Files::MountTarget
+    Properties:
+      FileSystemId: !GetAtt NewsFileSystem.FileSystemId
+      SubnetId: !Ref PublicSubnet
+      IpAddressType: IPV4_ONLY
+      SecurityGroups: [!Ref MountTargetSecurityGroup]
+
+  NewsAccessPoint:
+    Type: AWS::S3Files::AccessPoint
+    Properties:
+      FileSystemId: !GetAtt NewsFileSystem.FileSystemId
+      PosixUser: {Uid: '1000', Gid: '1000'}
+      RootDirectory:
+        Path: /workspace
+        CreationPermissions: {OwnerUid: '1000', OwnerGid: '1000', Permissions: '0775'}
+
+  ClientRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement: [{Effect: Allow, Principal: {Service: ec2.amazonaws.com}, Action: sts:AssumeRole}]
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonS3FilesClientFullAccess'
+      Policies:
+        - PolicyName: direct-s3-read-for-news-poc
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [s3:ListBucket]
+                Resource: !GetAtt NewsPoCBucket.Arn
+              - Effect: Allow
+                Action: [s3:GetObject]
+                Resource: !Sub '${NewsPoCBucket.Arn}/news-poc/*'
+  ClientProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: {Roles: [!Ref ClientRole]}
+  FileSystemPolicy:
+    Type: AWS::S3Files::FileSystemPolicy
+    Properties:
+      FileSystemId: !GetAtt NewsFileSystem.FileSystemId
+      Policy:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {AWS: !GetAtt ClientRole.Arn}
+            Action: [s3files:ClientMount, s3files:ClientWrite]
+            Condition:
+              StringEquals: {s3files:AccessPointArn: !GetAtt NewsAccessPoint.AccessPointArn}
+
+  NewsPoCClient:
+    Type: AWS::EC2::Instance
+    DependsOn: [NewsMountTarget, NewsAccessPoint, FileSystemPolicy]
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: t3.micro
+      IamInstanceProfile: !Ref ClientProfile
+      NetworkInterfaces:
+        - DeviceIndex: '0'
+          AssociatePublicIpAddress: true
+          SubnetId: !Ref PublicSubnet
+          GroupSet: [!Ref ClientSecurityGroup]
+      Tags: [{Key: Name, Value: !Sub '${PoCName}-client'}]
+      UserData:
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash
+            set -euxo pipefail
+            dnf -y install amazon-efs-utils
+            mkdir -p /mnt/s3files-news
+            for n in $(seq 1 20); do
+              if mount -t s3files -o accesspoint=${AccessPointId} ${FileSystemId}:/ /mnt/s3files-news; then
+                sudo -u ec2-user bash -c 'printf "fresh news PoC mounted at %s UTC\n" "$(date -u +%Y%m%dT%H%M%SZ)" > /mnt/s3files-news/mount-ready.txt'
+                sync
+                break
+              fi
+              sleep 20
+            done
+          - {AccessPointId: !GetAtt NewsAccessPoint.AccessPointId, FileSystemId: !GetAtt NewsFileSystem.FileSystemId}
+
+Outputs:
+  BucketName: {Value: !Ref NewsPoCBucket}
+  FileSystemId: {Value: !GetAtt NewsFileSystem.FileSystemId}
+  AccessPointId: {Value: !GetAtt NewsAccessPoint.AccessPointId}
+  TestInstanceId: {Value: !Ref NewsPoCClient}

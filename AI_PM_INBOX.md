@@ -10,6 +10,14 @@
 - 已更新 `PROJECT_MEMORY.md`，將 2026-08-03 Mentor S5 report presentation rule 記為後續長期規則；剩餘兩週方向記為收斂 final proposal / 論文素材、明確加入 Future work，不再任意擴新功能。
 - 驗證：主 repo `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 43 tests；`radar-redesign/claude-gui-handoff` 同套測試也通過 43 tests。未建立、修改或清除任何 AWS 資源。
 
+## 2026-08-03 - Cross-computer migration cleanup
+
+- Cleo 要求整理本機舊版本，確保換另一台電腦與新帳號後能從 GitHub 延續目前專案進度。
+- 已建立 `MIGRATION_STATUS.md` 作為換電腦說明，並將 GitHub `main` 定為跨電腦接續來源。
+- 已從 ignored 的 raw `radar-redesign/out/` 挑出三條重要參考 run，整理到 `radar-redesign/reference-runs/`，並紅遮 AWS account ID、AWS ARN、Console URL 與本機絕對路徑；raw runtime dumps、Console 截圖、未遮蔽 Console URL 不推 Git。
+- 待推送項目包含：redacted reference runs、`research/` 小型研究證據、`poc/` 中可公開的小型 PoC evidence、目前 AI PM 科會簡報，以及 migration/project memory 更新。
+- 舊 `radar-company-account-complete` / `cathay-techintel-v3` 本機樹、大量 CDK output、raw `radar-redesign/out/`、舊 screenshots / local runtime folders 會在推送驗證後從本機刪除。
+
 ## 2026-07-31 17:00 正式統整狀態
 
 - 已將今日 inbox 證據統整至正式日誌、Skill 積分、Git dashboard 與 AI 執行軌跡；當日積分為 Scan +1、Compare +1、Evaluate +2、Validate +4、Report +2，總分 10，累積 117。

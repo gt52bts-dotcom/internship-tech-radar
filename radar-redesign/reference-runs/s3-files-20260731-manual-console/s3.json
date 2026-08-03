@@ -1,0 +1,627 @@
+{
+  "schema_version": "s3.evaluation.v4",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "stage": "S3",
+  "status": "evaluated",
+  "evaluated_at": "2026-07-31T07:47:21.951420+00:00",
+  "s2_artifact_ref": {
+    "schema_version": "s2.comparison.v2",
+    "stage": "S2",
+    "status": "ready_for_human_shortlist",
+    "compared_at": "2026-07-31T07:46:59.051117+00:00",
+    "candidate_count": 1
+  },
+  "rubric": {
+    "weights": {
+      "technical_value": 0.35,
+      "adoption_prerequisites": 0.25,
+      "verifiability": 0.25,
+      "risk_and_stop_conditions": 0.15
+    },
+    "fixed_weight_policy": "Weights are fixed for this S3 version and are not tuned per candidate.",
+    "dimensions": [
+      "technical_value",
+      "adoption_prerequisites",
+      "verifiability",
+      "risk_and_stop_conditions"
+    ],
+    "cost_policy": "The single human-selected candidate receives a complete PoC quote before it can be recommended for Skill 4. Level A uses a registered recipe; Level B uses a reusable generic usage model; Level C incomplete quotes block PoC recommendation. Cost is not part of the technical score."
+  },
+  "policy": {
+    "max_small_poc_usd": 3.0,
+    "automatic_poc_start": false
+  },
+  "human_shortlist_gate": {
+    "status": "provided",
+    "selected_candidate_ids": [
+      "S1-65801FA11243"
+    ],
+    "evaluation_mode": "public_evidence",
+    "selected_by": "Cleo",
+    "selection_reason": "User selected this S3 Files article for single-item Skill 3 evaluation before deciding whether to enter Skill 4 PoC."
+  },
+  "evaluated_candidates": [
+    {
+      "candidate_id": "S1-65801FA11243",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+      "source_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "dimension_scores": {
+        "technical_value": 4,
+        "adoption_prerequisites": 4,
+        "verifiability": 5,
+        "risk_and_stop_conditions": 5
+      },
+      "weighted_score": 4.4,
+      "confidence": "medium",
+      "recommend_poc": true,
+      "recommend_s4_compatibility": {
+        "deprecated": true,
+        "maps_to": "recommend_poc",
+        "value": true,
+        "reason": "Kept only for readers of older artifacts; new consumers must use recommend_poc."
+      },
+      "recommendation_reason": "Recommend Skill 4 PoC; the quote is ready for named-human approval.",
+      "cost_estimate": {
+        "status": "estimated",
+        "estimated_usd": 0.04719,
+        "range_usd": {
+          "low": 0.018037,
+          "expected": 0.04719,
+          "high": 0.150962
+        },
+        "recommended_approval_ceiling_usd": 0.2,
+        "quote_id": "POC-QUOTE-C4ECB392A212",
+        "quote": {
+          "schema_version": "poc.cost-quote.v2",
+          "quote_id": "POC-QUOTE-C4ECB392A212",
+          "run_id": "direct-url-20260731-f1baf62f",
+          "candidate_id": "S1-65801FA11243",
+          "candidate_title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+          "generated_at": "2026-07-31T07:47:21.951420+00:00",
+          "valid_until": "2026-08-07",
+          "currency": "USD",
+          "target_region": "ap-southeast-1",
+          "quote_kind": "non_binding_public_price_estimate",
+          "estimation_method": "pre_deployment_cost_estimation",
+          "rate_card_source": "static_public_rate_card",
+          "live_pricing_api_used": false,
+          "formal_procurement_quote_ready": false,
+          "disclaimer": "這是 PoC 前的非正式公開牌價估算，用於 Skill 3 審查與 Skill 4 小額上限控管。它不是 AWS 帳單、正式採購報價，也未套用稅務、折扣、credits、Free Tier 或公司私有價格。",
+          "status": "estimated",
+          "confidence": "medium",
+          "pricing_confidence": "high",
+          "pricing_level": "Level A registered recipe",
+          "recipe": "s3_files_cdk",
+          "pricing_basis": "已登錄 S3 Files CDK PoC recipe；用固定低/中/高用量和公開牌價試算。",
+          "price_snapshot_date": "2026-07-30",
+          "scenarios": {
+            "low": {
+              "scenario": "low",
+              "label": "低用量",
+              "assumptions": {
+                "hours": 1,
+                "active_gb": 0.02,
+                "write_gb": 0.02,
+                "export_read_gb": 0.02,
+                "small_read_gb": 0.02,
+                "import_write_gb": 0.02,
+                "tier1_requests": 30,
+                "tier2_requests": 60
+              },
+              "line_items": [
+                {
+                  "rate_key": "ec2_t3_micro",
+                  "item": "EC2 t3.micro Linux on-demand",
+                  "rate_usd": 0.0132,
+                  "rate_unit": "USD/instance-hour",
+                  "quantity": 1,
+                  "quantity_unit": "hours",
+                  "formula": "hours x USD/instance-hour",
+                  "subtotal_usd": 0.0132,
+                  "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+                  "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "ebs_gp3",
+                  "item": "EBS gp3 storage",
+                  "rate_usd": 0.096,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 0.010958904109589041,
+                  "quantity_unit": "GB-month",
+                  "formula": "8 GiB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 0.001052,
+                  "source_url": "https://aws.amazon.com/ebs/pricing/",
+                  "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_files_storage",
+                  "item": "S3 Files active storage",
+                  "rate_usd": 0.36,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 2.7397260273972603e-05,
+                  "quantity_unit": "GB-month",
+                  "formula": "active GB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 1e-05,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_write",
+                  "item": "S3 Files write access",
+                  "rate_usd": 0.06,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.02,
+                  "quantity_unit": "GB",
+                  "formula": "write GB x USD/GB",
+                  "subtotal_usd": 0.0012,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_export_read",
+                  "item": "S3 Files export/read access",
+                  "rate_usd": 0.03,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.02,
+                  "quantity_unit": "GB",
+                  "formula": "export/read GB x USD/GB",
+                  "subtotal_usd": 0.0006,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_small_read",
+                  "item": "S3 Files small read access",
+                  "rate_usd": 0.03,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.02,
+                  "quantity_unit": "GB",
+                  "formula": "small-read GB x USD/GB",
+                  "subtotal_usd": 0.0006,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_import_write",
+                  "item": "S3 Files import/write access",
+                  "rate_usd": 0.06,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.02,
+                  "quantity_unit": "GB",
+                  "formula": "import/write GB x USD/GB",
+                  "subtotal_usd": 0.0012,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_standard_storage",
+                  "item": "S3 Standard storage",
+                  "rate_usd": 0.025,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 2.7397260273972603e-05,
+                  "quantity_unit": "GB-month",
+                  "formula": "stored GB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 1e-06,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_tier1_request",
+                  "item": "S3 PUT/COPY/POST/LIST requests",
+                  "rate_usd": 5e-06,
+                  "rate_unit": "USD/request",
+                  "quantity": 30,
+                  "quantity_unit": "requests",
+                  "formula": "request count x USD/request",
+                  "subtotal_usd": 0.00015,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_tier2_request",
+                  "item": "S3 GET requests",
+                  "rate_usd": 4e-07,
+                  "rate_unit": "USD/request",
+                  "quantity": 60,
+                  "quantity_unit": "requests",
+                  "formula": "request count x USD/request",
+                  "subtotal_usd": 2.4e-05,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                }
+              ],
+              "total_usd": 0.018037,
+              "display_total_usd": "0.02"
+            },
+            "expected": {
+              "scenario": "expected",
+              "label": "預期用量",
+              "assumptions": {
+                "hours": 2,
+                "active_gb": 0.1,
+                "write_gb": 0.1,
+                "export_read_gb": 0.1,
+                "small_read_gb": 0.1,
+                "import_write_gb": 0.1,
+                "tier1_requests": 100,
+                "tier2_requests": 200
+              },
+              "line_items": [
+                {
+                  "rate_key": "ec2_t3_micro",
+                  "item": "EC2 t3.micro Linux on-demand",
+                  "rate_usd": 0.0132,
+                  "rate_unit": "USD/instance-hour",
+                  "quantity": 2,
+                  "quantity_unit": "hours",
+                  "formula": "hours x USD/instance-hour",
+                  "subtotal_usd": 0.0264,
+                  "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+                  "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "ebs_gp3",
+                  "item": "EBS gp3 storage",
+                  "rate_usd": 0.096,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 0.021917808219178082,
+                  "quantity_unit": "GB-month",
+                  "formula": "8 GiB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 0.002104,
+                  "source_url": "https://aws.amazon.com/ebs/pricing/",
+                  "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_files_storage",
+                  "item": "S3 Files active storage",
+                  "rate_usd": 0.36,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 0.000273972602739726,
+                  "quantity_unit": "GB-month",
+                  "formula": "active GB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 9.9e-05,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_write",
+                  "item": "S3 Files write access",
+                  "rate_usd": 0.06,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.1,
+                  "quantity_unit": "GB",
+                  "formula": "write GB x USD/GB",
+                  "subtotal_usd": 0.006,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_export_read",
+                  "item": "S3 Files export/read access",
+                  "rate_usd": 0.03,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.1,
+                  "quantity_unit": "GB",
+                  "formula": "export/read GB x USD/GB",
+                  "subtotal_usd": 0.003,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_small_read",
+                  "item": "S3 Files small read access",
+                  "rate_usd": 0.03,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.1,
+                  "quantity_unit": "GB",
+                  "formula": "small-read GB x USD/GB",
+                  "subtotal_usd": 0.003,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_import_write",
+                  "item": "S3 Files import/write access",
+                  "rate_usd": 0.06,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.1,
+                  "quantity_unit": "GB",
+                  "formula": "import/write GB x USD/GB",
+                  "subtotal_usd": 0.006,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_standard_storage",
+                  "item": "S3 Standard storage",
+                  "rate_usd": 0.025,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 0.000273972602739726,
+                  "quantity_unit": "GB-month",
+                  "formula": "stored GB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 7e-06,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_tier1_request",
+                  "item": "S3 PUT/COPY/POST/LIST requests",
+                  "rate_usd": 5e-06,
+                  "rate_unit": "USD/request",
+                  "quantity": 100,
+                  "quantity_unit": "requests",
+                  "formula": "request count x USD/request",
+                  "subtotal_usd": 0.0005,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_tier2_request",
+                  "item": "S3 GET requests",
+                  "rate_usd": 4e-07,
+                  "rate_unit": "USD/request",
+                  "quantity": 200,
+                  "quantity_unit": "requests",
+                  "formula": "request count x USD/request",
+                  "subtotal_usd": 8e-05,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                }
+              ],
+              "total_usd": 0.04719,
+              "display_total_usd": "0.05"
+            },
+            "high": {
+              "scenario": "high",
+              "label": "高用量",
+              "assumptions": {
+                "hours": 4,
+                "active_gb": 0.5,
+                "write_gb": 0.5,
+                "export_read_gb": 0.5,
+                "small_read_gb": 0.5,
+                "import_write_gb": 0.5,
+                "tier1_requests": 500,
+                "tier2_requests": 1000
+              },
+              "line_items": [
+                {
+                  "rate_key": "ec2_t3_micro",
+                  "item": "EC2 t3.micro Linux on-demand",
+                  "rate_usd": 0.0132,
+                  "rate_unit": "USD/instance-hour",
+                  "quantity": 4,
+                  "quantity_unit": "hours",
+                  "formula": "hours x USD/instance-hour",
+                  "subtotal_usd": 0.0528,
+                  "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+                  "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "ebs_gp3",
+                  "item": "EBS gp3 storage",
+                  "rate_usd": 0.096,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 0.043835616438356165,
+                  "quantity_unit": "GB-month",
+                  "formula": "8 GiB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 0.004208,
+                  "source_url": "https://aws.amazon.com/ebs/pricing/",
+                  "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_files_storage",
+                  "item": "S3 Files active storage",
+                  "rate_usd": 0.36,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 0.0027397260273972603,
+                  "quantity_unit": "GB-month",
+                  "formula": "active GB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 0.000986,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_write",
+                  "item": "S3 Files write access",
+                  "rate_usd": 0.06,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.5,
+                  "quantity_unit": "GB",
+                  "formula": "write GB x USD/GB",
+                  "subtotal_usd": 0.03,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_export_read",
+                  "item": "S3 Files export/read access",
+                  "rate_usd": 0.03,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.5,
+                  "quantity_unit": "GB",
+                  "formula": "export/read GB x USD/GB",
+                  "subtotal_usd": 0.015,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_small_read",
+                  "item": "S3 Files small read access",
+                  "rate_usd": 0.03,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.5,
+                  "quantity_unit": "GB",
+                  "formula": "small-read GB x USD/GB",
+                  "subtotal_usd": 0.015,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_files_import_write",
+                  "item": "S3 Files import/write access",
+                  "rate_usd": 0.06,
+                  "rate_unit": "USD/GB",
+                  "quantity": 0.5,
+                  "quantity_unit": "GB",
+                  "formula": "import/write GB x USD/GB",
+                  "subtotal_usd": 0.03,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS S3 Files public pricing example rate",
+                  "effective_date": "2026-07-30"
+                },
+                {
+                  "rate_key": "s3_standard_storage",
+                  "item": "S3 Standard storage",
+                  "rate_usd": 0.025,
+                  "rate_unit": "USD/GB-month",
+                  "quantity": 0.0027397260273972603,
+                  "quantity_unit": "GB-month",
+                  "formula": "stored GB x hours / 730 x USD/GB-month",
+                  "subtotal_usd": 6.8e-05,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_tier1_request",
+                  "item": "S3 PUT/COPY/POST/LIST requests",
+                  "rate_usd": 5e-06,
+                  "rate_unit": "USD/request",
+                  "quantity": 500,
+                  "quantity_unit": "requests",
+                  "formula": "request count x USD/request",
+                  "subtotal_usd": 0.0025,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                },
+                {
+                  "rate_key": "s3_tier2_request",
+                  "item": "S3 GET requests",
+                  "rate_usd": 4e-07,
+                  "rate_unit": "USD/request",
+                  "quantity": 1000,
+                  "quantity_unit": "requests",
+                  "formula": "request count x USD/request",
+                  "subtotal_usd": 0.0004,
+                  "source_url": "https://aws.amazon.com/s3/pricing/",
+                  "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+                  "effective_date": "2026-07-01"
+                }
+              ],
+              "total_usd": 0.150962,
+              "display_total_usd": "0.16"
+            }
+          },
+          "expected_total_usd": 0.04719,
+          "estimated_range_usd": {
+            "low": 0.018037,
+            "expected": 0.04719,
+            "high": 0.150962
+          },
+          "recommended_approval_ceiling_usd": 0.2,
+          "approval_ceiling_basis": "高用量情境往上取到下一個 USD 0.05。",
+          "verified_recipe_facts": [
+            "Registered recipe creates one t3.micro test instance when createTestInstance=true.",
+            "Amazon Linux 2023 public AMI root volume is treated as 8 GiB gp3."
+          ],
+          "zero_direct_charge_resources": [
+            "VPC, subnet, route table, internet gateway, security groups, IAM role, and CloudFormation have no separate hourly line item in this recipe."
+          ],
+          "exclusions": [
+            "Tax, private pricing, Savings Plans, credits, enterprise discounts, and Free Tier are excluded.",
+            "This quote must be regenerated if the public pricing page changes or the quote expires.",
+            "Actual billing must be checked separately after Skill 4, using Billing/Cost Explorer/CUR evidence when attributable.",
+            "Unexpected data transfer, retries, log ingestion, and resources outside the registered recipe are excluded."
+          ],
+          "sources": [
+            {
+              "url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+              "purpose": "AWS public EC2 price file, Asia Pacific (Singapore)"
+            },
+            {
+              "url": "https://aws.amazon.com/ebs/pricing/",
+              "purpose": "AWS public EBS pricing, Asia Pacific (Singapore)"
+            },
+            {
+              "url": "https://aws.amazon.com/s3/pricing/",
+              "purpose": "AWS S3 Files public pricing example rate"
+            },
+            {
+              "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html",
+              "purpose": "AWS Price List files/rate card interpretation"
+            }
+          ]
+        },
+        "score_policy": "Cost is excluded from S3 score and is checked separately before deployment."
+      },
+      "region_status": {
+        "target_region": "ap-southeast-1",
+        "status": "available_ap_southeast_1",
+        "severity": "info",
+        "blocks_s3": false,
+        "requires_region_confirmation": false
+      },
+      "governance_flags": [],
+      "poc_review_notes": [],
+      "assessment_scope": {
+        "mode": "public_evidence",
+        "company_fit": "not_assessed",
+        "custom_environment_required": false
+      },
+      "stop_conditions": [
+        "Skill 4 must resolve a candidate-specific registered PoC recipe before deployment.",
+        "The standard small-cost ceiling and cleanup guarantee must pass before deployment."
+      ],
+      "s4_path": "poc",
+      "evidence_refs": {
+        "source_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+        "linked_evidence_count": 7,
+        "evidence_limits": []
+      }
+    }
+  ],
+  "cost_quote_reports": [
+    {
+      "report_id": "POC-QUOTE-C4ECB392A212-skill3-quote",
+      "quote_id": "POC-QUOTE-C4ECB392A212",
+      "candidate_id": "S1-65801FA11243",
+      "status": "estimated",
+      "markdown": "# Skill 3 PoC 報價單：Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog\n\n- Quote ID：POC-QUOTE-C4ECB392A212\n- 狀態：已完成估算\n- Run ID：direct-url-20260731-f1baf62f\n- Candidate ID：S1-65801FA11243\n- 目標區域：ap-southeast-1\n- 報價性質：非正式公開牌價估算\n- 即時 AWS Pricing API：否\n- 正式採購報價：否\n- 有效期限：2026-08-07\n\n- 預期費用 USD：0.04719\n- 低/中/高情境 USD：0.018037 / 0.04719 / 0.150962\n- 建議核准上限 USD：0.2\n- Recipe：s3_files_cdk\n\n## 明細\n\n- EC2 t3.micro Linux on-demand: qty=2 hours, rate=0.0132 USD/instance-hour, subtotal=0.0264 USD\n- EBS gp3 storage: qty=0.021917808219178082 GB-month, rate=0.096 USD/GB-month, subtotal=0.002104 USD\n- S3 Files active storage: qty=0.000273972602739726 GB-month, rate=0.36 USD/GB-month, subtotal=9.9e-05 USD\n- S3 Files write access: qty=0.1 GB, rate=0.06 USD/GB, subtotal=0.006 USD\n- S3 Files export/read access: qty=0.1 GB, rate=0.03 USD/GB, subtotal=0.003 USD\n- S3 Files small read access: qty=0.1 GB, rate=0.03 USD/GB, subtotal=0.003 USD\n- S3 Files import/write access: qty=0.1 GB, rate=0.06 USD/GB, subtotal=0.006 USD\n- S3 Standard storage: qty=0.000273972602739726 GB-month, rate=0.025 USD/GB-month, subtotal=7e-06 USD\n- S3 PUT/COPY/POST/LIST requests: qty=100 requests, rate=5e-06 USD/request, subtotal=0.0005 USD\n- S3 GET requests: qty=200 requests, rate=4e-07 USD/request, subtotal=8e-05 USD\n\n## 來源\n\n- AWS public EC2 price file, Asia Pacific (Singapore): https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json\n- AWS public EBS pricing, Asia Pacific (Singapore): https://aws.amazon.com/ebs/pricing/\n- AWS S3 Files public pricing example rate: https://aws.amazon.com/s3/pricing/\n- AWS Price List files/rate card interpretation: https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html\n"
+    }
+  ],
+  "summary": {
+    "evaluated_count": 1,
+    "recommend_poc_count": 1,
+    "highest_score": 4.4,
+    "automatic_poc_start": false
+  },
+  "evaluation_issues": []
+}

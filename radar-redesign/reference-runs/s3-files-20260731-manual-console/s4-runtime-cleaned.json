@@ -1,0 +1,265 @@
+{
+  "schema_version": "s4.runtime-evidence.v3",
+  "stage": "S4",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "status": "cleanup_verified",
+  "deployed_at": "2026-07-31T08:01:06.338317+00:00",
+  "lineage": {
+    "source_artifacts": [
+      {
+        "stage": "S1",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s1.json",
+        "sha256": "44c5da87de77c6df217993ea2af6458a10643f1ae9b68e1a7abb0e2f0d3bb541"
+      },
+      {
+        "stage": "S2",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s2.json",
+        "sha256": "02af4ee9a1e672ce8241c2cda6eb15d344445e1829a3e3b366b8f02663b7f9ac"
+      },
+      {
+        "stage": "S3",
+        "path": "C:\\Users\\youhs\\Documents\\實習專案\\radar-redesign\\out\\s3-files-20260731-manual-console\\s3.json",
+        "sha256": "ca77d4936f30957cace2f24bff8cd61e7465263dbc656170afabc7e565b21cc7"
+      }
+    ]
+  },
+  "deployment": {
+    "recipe": "s3_files_cdk",
+    "stack_name": "AgenticRadarS4AD2B348F",
+    "resource_prefix": "agentic-radar-s4-ad2b348f",
+    "profile": "intern",
+    "target_region": "ap-southeast-1",
+    "deployment_method": "CDK synth followed by CloudFormation create-stack",
+    "stack_status": "CREATE_COMPLETE"
+  },
+  "verification": {
+    "recipe": "s3_files_cdk",
+    "source_to_mount": "verified",
+    "mount_to_s3": "verified",
+    "ssm_status": "Success",
+    "success_criteria": [
+      "CloudFormation stack reaches CREATE_COMPLETE.",
+      "EC2 test client mounts S3 Files.",
+      "An object placed in S3 is readable from the mount.",
+      "A file written through the mount is readable from S3."
+    ]
+  },
+  "console_review": {
+    "status": "confirmed",
+    "evidence_status": "captured_and_confirmed",
+    "required_checks": [
+      "CloudFormation stack Resources and Template",
+      "Recipe resources and their expected relationships",
+      "Test workload result"
+    ],
+    "required_screenshot_views": [
+      "infrastructure_composer"
+    ],
+    "recommended_screenshot_views": [
+      "resource_inventory"
+    ],
+    "confirmed_by": "Cleo",
+    "confirmed_at": "2026-07-31T08:05:24.920276+00:00",
+    "notes": "Cleo manually confirmed the AWS Console / Infrastructure Composer review succeeded; no Playwright screenshot was used in this run.",
+    "display_channel_confirmed": "conversation",
+    "evidence": {
+      "schema_version": "s4.console-review-evidence.v1",
+      "review_target": {
+        "stack_name": "AgenticRadarS4AD2B348F",
+        "target_region": "ap-southeast-1",
+        "recipe": "s3_files_cdk",
+        "composer_url": "<aws-console-url-redacted>",
+        "cloudformation_stack_url": "<aws-console-url-redacted>",
+        "run_id": "direct-url-20260731-f1baf62f"
+      },
+      "capture_contract": {
+        "redaction_order": "manual_console_review_confirmed_by_user_without_uploaded_image_file",
+        "redacted_before_hash": true,
+        "hash_scope": "redacted_png",
+        "automated_image_understanding": false,
+        "human_confirmation_record_only": true
+      },
+      "screenshots": [
+        {
+          "view": "infrastructure_composer",
+          "screenshot_ref": "conversation://manual-console-confirmation/direct-url-20260731-f1baf62f",
+          "sha256": "43385cc001c27e9e72fc9003401beecee7618c04d2f6032d31d1f41016f1b6ac",
+          "captured_at": "2026-07-31T16:15:00+08:00",
+          "shared_via": "conversation",
+          "redacted": true,
+          "hash_scope": "redacted_png"
+        }
+      ],
+      "automated_image_understanding": false,
+      "human_confirmation_record_only": true
+    }
+  },
+  "cleanup": {
+    "status": "verified",
+    "verified_at": "2026-07-31T08:07:42.553872+00:00",
+    "pre_cleanup_usage_snapshot_status": "captured",
+    "checks": {
+      "cloudformation_stack": "deleted",
+      "versioned_test_bucket": "emptied_before_stack_delete",
+      "run_derived_resource_prefix": "matched"
+    }
+  },
+  "pre_cleanup_usage_snapshot": {
+    "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+    "status": "captured",
+    "run_id": "direct-url-20260731-f1baf62f",
+    "captured_at": "2026-07-31T08:05:24.920276+00:00",
+    "source_type": "aws_runtime_facts",
+    "billing_evidence": false,
+    "actual_cost_status": "not_billing_evidence",
+    "rule": "This snapshot records immediately available runtime facts before cleanup. Actual AWS cost still requires attributable Billing, Cost Explorer, or CUR evidence.",
+    "deployment": {
+      "recipe": "s3_files_cdk",
+      "stack_name": "AgenticRadarS4AD2B348F",
+      "resource_prefix": "agentic-radar-s4-ad2b348f",
+      "target_region": "ap-southeast-1"
+    },
+    "timeline": {
+      "deployed_at": "2026-07-31T08:01:06.338317+00:00",
+      "captured_at": "2026-07-31T08:05:24.920276+00:00",
+      "elapsed_seconds": 258
+    },
+    "sections": {
+      "cloudformation": {
+        "stack_status": "CREATE_COMPLETE",
+        "creation_time": "2026-07-31T07:53:00.497000+00:00",
+        "last_updated_time": null,
+        "tags": {},
+        "resource_count": 19,
+        "resources": [
+          {
+            "logical_resource_id": "CDKMetadata",
+            "resource_type": "AWS::CDK::Metadata",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "ClientInstanceProfile",
+            "resource_type": "AWS::IAM::InstanceProfile",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "ClientInstanceRole",
+            "resource_type": "AWS::IAM::Role",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "ClientSecurityGroup",
+            "resource_type": "AWS::EC2::SecurityGroup",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "DataBucket",
+            "resource_type": "AWS::S3::Bucket",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "InternetGateway",
+            "resource_type": "AWS::EC2::InternetGateway",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "MountTargetSecurityGroup",
+            "resource_type": "AWS::EC2::SecurityGroup",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicRoute",
+            "resource_type": "AWS::EC2::Route",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicRouteTable",
+            "resource_type": "AWS::EC2::RouteTable",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicSubnet",
+            "resource_type": "AWS::EC2::Subnet",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicSubnetRouteTableAssociation",
+            "resource_type": "AWS::EC2::SubnetRouteTableAssociation",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FileSystem",
+            "resource_type": "AWS::S3Files::FileSystem",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesAccessPoint",
+            "resource_type": "AWS::S3Files::AccessPoint",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesBucketAccessRole",
+            "resource_type": "AWS::IAM::Role",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesFileSystemPolicy",
+            "resource_type": "AWS::S3Files::FileSystemPolicy",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesMountTarget",
+            "resource_type": "AWS::S3Files::MountTarget",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "TestInstance",
+            "resource_type": "AWS::EC2::Instance",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "Vpc",
+            "resource_type": "AWS::EC2::VPC",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "VpcGatewayAttachment",
+            "resource_type": "AWS::EC2::VPCGatewayAttachment",
+            "resource_status": "CREATE_COMPLETE"
+          }
+        ]
+      },
+      "s3": {
+        "bucket_name": "agentic-radar-s4-ad2b348f-<aws-account-id-redacted>-ap-southeast-1",
+        "tags": {
+          "status": "captured",
+          "values": {
+            "Project": "agentic-radar-s4-ad2b348f",
+            "aws:cloudformation:stack-name": "AgenticRadarS4AD2B348F",
+            "aws:cloudformation:logical-id": "DataBucket",
+            "ManagedBy": "CDK-CloudFormation",
+            "aws:cloudformation:stack-id": "<aws-arn-redacted>"
+          }
+        },
+        "object_count_current": 3,
+        "object_version_count": 3,
+        "delete_marker_count": 0,
+        "total_size_bytes": 188,
+        "list_pages": 1
+      },
+      "ec2": {
+        "instance_id": "i-0f09f7e67fcc6849f",
+        "state": "running",
+        "instance_type": "t3.micro",
+        "launch_time": "2026-07-31T07:58:59+00:00",
+        "tags": {
+          "aws:cloudformation:stack-id": "<aws-arn-redacted>",
+          "aws:cloudformation:logical-id": "TestInstance",
+          "Name": "agentic-radar-s4-ad2b348f-test-client",
+          "aws:cloudformation:stack-name": "AgenticRadarS4AD2B348F"
+        }
+      }
+    },
+    "collection_errors": []
+  }
+}

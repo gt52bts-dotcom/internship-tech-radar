@@ -1,0 +1,42 @@
+{
+  "step": "s2_compare",
+  "input_count": 1,
+  "kept_count": 1,
+  "cut": [],
+  "articles": [
+    {
+      "url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "source": "AWS News Blog (explicit article input)",
+      "summary": "Amazon S3 Files lets general purpose S3 buckets be mounted as shared NFS file systems by EC2, containers, and Lambda. File changes synchronize with S3; it uses IAM, TLS, POSIX permissions, and CloudWatch/CloudTrail monitoring.",
+      "tags": [
+        "s3",
+        "ec2",
+        "lambda",
+        "cloudformation"
+      ],
+      "status": "general availability",
+      "date": "2026-04-07",
+      "signals": {
+        "maturity": 5,
+        "aws_fit": 5,
+        "risk": 3,
+        "effort": 3
+      },
+      "cloud": "aws",
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+      "id": "M-2E486BFB",
+      "l1_score": 6.0
+    }
+  ],
+  "timing": {
+    "step_wall_seconds": 0.1,
+    "llm_usage": {
+      "calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "inference_seconds": 0.0,
+      "fallback_count": 0,
+      "fallback_errors": []
+    }
+  }
+}

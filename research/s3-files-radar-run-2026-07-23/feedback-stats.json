@@ -1,0 +1,25 @@
+{
+  "feedback_stats_version": "1.0",
+  "sample_status": "insufficient_for_ml_training",
+  "sample_note": "This is descriptive feedback telemetry, not a trained ML model. Use it for trend evidence now; promote to ML calibration only after enough labeled human reviews accumulate.",
+  "counts": {
+    "runs_with_logs": 1,
+    "ai_pick_logs": 1,
+    "human_review_logs": 0,
+    "approvals": 0,
+    "rejections": 0,
+    "overrides": 0,
+    "comment_only": 0,
+    "blind_reviews": 0
+  },
+  "metrics": {
+    "approval_rate": null,
+    "override_rate": null,
+    "average_human_review_minutes": null,
+    "average_ai_human_top3_overlap": null
+  },
+  "signals": {
+    "approved_ids": {},
+    "rejected_ids": {}
+  }
+}

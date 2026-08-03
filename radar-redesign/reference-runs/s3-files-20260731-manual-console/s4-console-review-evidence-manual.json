@@ -1,0 +1,35 @@
+{
+  "schema_version": "s4.console-review-evidence.v1",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "review_target": {
+    "stack_name": "AgenticRadarS4AD2B348F",
+    "target_region": "ap-southeast-1",
+    "recipe": "s3_files_cdk",
+    "composer_url": "<aws-console-url-redacted>",
+    "cloudformation_stack_url": "<aws-console-url-redacted>",
+    "run_id": "direct-url-20260731-f1baf62f"
+  },
+  "capture_contract": {
+    "redaction_order": "manual_console_review_confirmed_by_user_without_uploaded_image_file",
+    "redacted_before_hash": true,
+    "hash_scope": "redacted_png",
+    "automated_image_understanding": false,
+    "human_confirmation_record_only": true
+  },
+  "screenshots": [
+    {
+      "view": "infrastructure_composer",
+      "screenshot_ref": "conversation://manual-console-confirmation/direct-url-20260731-f1baf62f",
+      "sha256": "43385cc001c27e9e72fc9003401beecee7618c04d2f6032d31d1f41016f1b6ac",
+      "captured_at": "2026-07-31T16:15:00+08:00",
+      "shared_via": "conversation",
+      "redacted": true,
+      "hash_scope": "redacted_png",
+      "stack_name": "AgenticRadarS4AD2B348F",
+      "target_region": "ap-southeast-1",
+      "manual_confirmation_note": "Cleo confirmed the Console check succeeded in conversation; screenshot file was not uploaded to Codex."
+    }
+  ],
+  "automated_image_understanding": false,
+  "human_confirmation_record_only": true
+}

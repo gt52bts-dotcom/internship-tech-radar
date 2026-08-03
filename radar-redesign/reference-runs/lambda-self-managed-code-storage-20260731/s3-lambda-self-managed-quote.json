@@ -1,0 +1,7 @@
+{
+  "report_id": "POC-QUOTE-D3255FE85969-skill3-quote",
+  "quote_id": "POC-QUOTE-D3255FE85969",
+  "candidate_id": "S1-C7ED2885BADB",
+  "status": "estimated",
+  "markdown": "# Skill 3 PoC 報價單：AWS Lambda 宣布自主管理程式碼儲存空間 - AWS\n\n- Quote ID：POC-QUOTE-D3255FE85969\n- 狀態：已完成估算\n- Run ID：direct-url-20260731-ae6e8775\n- Candidate ID：S1-C7ED2885BADB\n- 目標區域：ap-southeast-1\n- 報價性質：非正式公開牌價估算\n- 即時 AWS Pricing API：否\n- 正式採購報價：否\n- 有效期限：2026-08-07\n\n- 預期費用 USD：0.000249\n- 低/中/高情境 USD：7.2e-05 / 0.000249 / 0.000886\n- 建議核准上限 USD：0.05\n- Recipe：lambda_self_managed_s3_code_storage_cdk\n\n## 明細\n\n- Lambda requests: qty=15 requests, rate=2e-07 USD/request, subtotal=3e-06 USD\n- Lambda x86 duration: qty=5 GB-seconds, rate=1.66667e-05 USD/GB-second, subtotal=8.3e-05 USD\n- S3 Standard storage: qty=2.7397260273972603e-05 GB-month, rate=0.025 USD/GB-month, subtotal=1e-06 USD\n- S3 PUT/COPY/POST/LIST requests: qty=30 requests, rate=5e-06 USD/request, subtotal=0.00015 USD\n- S3 GET requests: qty=30 requests, rate=4e-07 USD/request, subtotal=1.2e-05 USD\n\n## 來源\n\n- AWS Lambda public request price: https://aws.amazon.com/lambda/pricing/\n- AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore): https://aws.amazon.com/s3/pricing/\n- AWS Price List files/rate card interpretation: https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html\n"
+}
