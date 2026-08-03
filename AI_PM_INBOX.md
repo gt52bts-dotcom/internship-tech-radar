@@ -965,3 +965,10 @@
 - Cleo 進一步修正：既然已經有新版 PNG 圖卡，人類報告就不要再放舊版 Mermaid 流程圖；報告要直接內嵌 PNG，不只是提供連結。已更新目前 Lambda Skill 3 報告並調整 Skill 3 程式/文件規則。
 - Cleo 回報 `C:/Users/...png` 絕對路徑在 Markdown 預覽器中仍顯示成網址連結，未直接渲染圖片；已將目前 Lambda Skill 3 報告改成同資料夾相對 HTML `<img src="./skill3-poc-architecture-lambda-reference.png">`，並更新長期規則避免未來再用本機絕對路徑。
 - Cleo 再次回報相對 `<img>` 仍顯示成網址型態；已將目前 Lambda Skill 3 Markdown 改成 base64 data URI 圖片內嵌，並另外產生自包含 HTML 報告 `skill3-poc-decision-report.html` 作為人類預覽版。長期規則補充：Markdown 預覽器若阻擋本機圖，優先產 HTML/data URI 版本。
+
+## 2026-08-03 14:54 - Lambda self-managed code storage Skill 5 interim
+
+- Cleo 要求在剛完成 Skill 4 live deployment 後繼續 Skill 5；已確認 S4 目前是「部署與自動驗證完成」，但還不是 final close，因為 Console review 與 cleanup 尚未完成。
+- 已用 S1/S2/S3/S4 validation artifact 與 `s4-runtime.json` 產生 S5 interim：`radar-redesign/out/smoke-20260803-lambda-s3-decision-report/s5-report-interim.json` 與 `s5-report-interim.md`。
+- S5 interim 狀態：`status=interim`，conclusion=`poc_passed_pending_closure`。報告明確寫出 CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過，但 AWS Console review 與 cleanup 尚待完成。
+- 報告目前不宣稱 final，不宣稱 cleanup 完成，也不把 runtime facts 轉成 AWS 帳務成本。下一步需等 Cleo 在 Console / Infrastructure Composer 人工確認後，先產 cleanup 前用量快照，再執行 cleanup，最後產 S5 final。
