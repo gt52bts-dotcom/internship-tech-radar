@@ -19,10 +19,10 @@
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 20 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
+| Skill 1 - Scan | 21 | 已能以 AWS 官方 URL、RSS、動態分類、GA 證據與 S1 解釋層取得可驗證候選。 |
 | Skill 2 - Compare | 18 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
 | Skill 3 - Evaluate | 24 | 已把成本、權限、安全、GA 證據、架構圖與 cleanup 前決策納入判斷。 |
-| Skill 4 - Validate | 41 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並完成 approval、resource inventory review 與 cleanup 契約硬化。 |
+| Skill 4 - Validate | 40 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並完成 approval、resource inventory review 與 cleanup 契約硬化。 |
 | Skill 5 - Report | 24 | 已能產出 artifact-only final／interim report、成本邊界、資源盤點、交接包與主管可讀入口。 |
 
 ## 每日趨勢
@@ -44,12 +44,12 @@
 | 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 |
 | 2026-07-30 | 1 | 1 | 2 | 4 | 2 | 10 |
 | 2026-07-31 | 1 | 1 | 2 | 4 | 2 | 10 |
-| 2026-08-03 | 1 | 1 | 2 | 4 | 2 | 10 |
-| **2026-08-03 累積** | **20** | **18** | **24** | **41** | **24** | **127** |
+| 2026-08-03 | 2 | 1 | 2 | 3 | 2 | 10 |
+| **2026-08-03 累積** | **21** | **18** | **24** | **40** | **24** | **127** |
 
 ## 今日判定
 
-2026-08-03 的核心成果是完成 Lambda 與 S3 Files 兩條 AWS 官方案例的 S1-S5 final 證據鏈，並將 Skill 4 close gate 從截圖 metadata 強化為 structured resource inventory、報價對照與權限面盤點。S3 Files 本次 PoC 已完成部署、雙向同步驗證、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final；公開牌價估算仍不等於 AWS 帳務成本。
+2026-08-03 的核心成果是修正 S1-S5 的決策鏈：S1 新增解釋層，Skill 3 合併分數、報價、架構圖與 `poc_decision_gate`，Skill 4 close gate 從截圖 metadata 強化為 structured resource inventory、報價對照、權限面與分段計時，Skill 5 移除 AWS 帳務成本比對。Lambda 與 S3 Files 兩條 AWS 官方案例也完成 final evidence chain；公開牌價估算仍不等於 AWS Billing / Cost Explorer / CUR 帳務成本。
 
 ## 相關檔案
 

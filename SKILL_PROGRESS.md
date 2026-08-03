@@ -35,8 +35,8 @@
 | 2026-07-29 | 2 | 2 | 1 | 4 | 1 | 10 | direct |
 | 2026-07-30 | 1 | 1 | 2 | 4 | 2 | 10 | direct |
 | 2026-07-31 | 1 | 1 | 2 | 4 | 2 | 10 | direct |
-| 2026-08-03 | 1 | 1 | 2 | 4 | 2 | 10 | direct |
-| **2026-08-03 累積** | **20** | **18** | **24** | **41** | **24** | **127** |  |
+| 2026-08-03 | 2 | 1 | 2 | 3 | 2 | 10 | direct |
+| **2026-08-03 累積** | **21** | **18** | **24** | **40** | **24** | **127** |  |
 
 ## 2026-07-21 評分理由
 
@@ -48,7 +48,7 @@
 
 ## 當前狀態
 
-截至 2026-08-03，累積總分為 127。S1-S5 已整理為五個 repository-backed Skills；今日完成 Lambda self-managed S3 code storage 與 S3 Files 兩條官方案例的 final report 與 cleanup 回查，並將 Skill 4 close gate 強化為 structured resource inventory、報價對照與權限面盤點。實際 AWS 帳務成本仍未以 Billing / Cost Explorer / CUR 歸因，不能把公開牌價估算寫成帳單。
+截至 2026-08-03，累積總分為 127。S1-S5 已整理為五個 repository-backed Skills；今日主軸是新增 S1 解釋層、合併 Skill 3 PoC 決策關卡、將 Skill 4 close gate 強化為 structured resource inventory / 報價對照 / 權限面盤點，並移除 Skill 5 的 AWS 帳務成本比對。Lambda self-managed S3 code storage 與 S3 Files 兩條官方案例也已完成 final report 與 cleanup 回查；實際 AWS 帳務成本仍未以 Billing / Cost Explorer / CUR 歸因，不能把公開牌價估算寫成帳單。
 
 ## 2026-07-24 評分理由
 
@@ -108,10 +108,10 @@
 
 ## 2026-08-03 評分理由
 
-- Scan +1：以 AWS 官方 S3 Files 文章建立新的可追溯 S1 artifact；範圍集中在單一官方候選，未計入廣泛掃描。
+- Scan +2：新增 S1 解釋層，能從官方文章產出原文重點、前後差異、最小架構與應用情境，並以字元區間測試確認可追溯；同時以 AWS 官方 S3 Files 文章建立新的 S1 artifact。
 - Compare +1：整理 S3 Files 的 Region 證據、recipe、價格來源與部署前提，供單項 PoC 決策使用；未主張多候選採用排名。
 - Evaluate +2：Skill 3 產出 4.4 / 5 評分、低／預期／高用量報價、USD 0.20 核准上限與內嵌架構圖 HTML 報告，讓人類在部署前判斷價值與成本。
-- Validate +4：完成 Lambda 收尾與 S3 Files live PoC；S3 Files stack 達 `CREATE_COMPLETE`，S3 Files mount、S3→mount、mount→S3 通過，resource inventory 盤點 19 個資源且 quote reconciliation consistent，cleanup 後 CloudFormation stack 不存在。
+- Validate +3：完成 Lambda 收尾與 S3 Files live PoC；S3 Files stack 達 `CREATE_COMPLETE`，S3 Files mount、S3→mount、mount→S3 通過，resource inventory 盤點 19 個資源且 quote reconciliation consistent，cleanup 後 CloudFormation stack 不存在。今日驗證成果很完整，但部分 S4 舊截圖路徑與 GUI 同步仍待整理，因此不再把所有新增分數集中到 Validate。
 - Report +2：產出 Lambda 與 S3 Files 的 Skill 5 final，更新 S4 resource inventory gate、S5 final 文案、專案記憶與正式日誌；仍清楚標示公開牌價估算不是 AWS 帳務成本。
 
 ## 2026-07-29 評分理由

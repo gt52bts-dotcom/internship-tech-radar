@@ -10,27 +10,27 @@
 
 ## 專案狀態
 
-目前主線是 artifact-first 的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，人工選定一項候選後進入 Skill 3，Skill 3 先產出 PoC 報價單，Skill 4 只在人工核准後部署候選專用 PoC，Skill 5 只依 artifact 產出可回查報告。
+目前主線是 artifact-first 的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，Skill 3 對候選產出中文說明、分數、PoC 報價與單一 `poc_decision_gate`，人類在看完同一份決策報告後才核准是否進入 Skill 4，Skill 5 只依 artifact 產出可回查報告。
 
-截至 2026-08-03，Lambda self-managed S3 code storage 與 S3 Files 兩個 AWS 官方文章案例都已完成實際 PoC、人工確認、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final report。S3 Files 新版流程已改用 structured resource inventory 對照報價與權限面；Amazon Connect Customer Data Lake 已跑到 Skill 5 interim，因缺可部署 recipe 與測試環境，沒有建立 AWS 資源。
+截至 2026-08-03，今日主線是完成 S1 解釋層、Skill 3 合併 PoC 決策關卡、HTML 架構圖報告、S4 structured resource inventory、分段計時，以及 Skill 5 移除帳務成本比對。Lambda self-managed S3 code storage 與 S3 Files 兩個 AWS 官方文章案例都已完成實際 PoC、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final report；Amazon Connect Customer Data Lake 已跑到 Skill 5 interim，因缺可部署 recipe 與測試環境，沒有建立 AWS 資源。
 
 五個階段已整理為 repository 內的正式 Skill packages，入口位於 [`radar-redesign/skills/`](./radar-redesign/skills/)。每個 Skill 均有獨立 `SKILL.md` 與 UI metadata，並共用同一套已測試的 S1-S5 核心。
 
 ```mermaid
 flowchart LR
-    A["Skill 1 Scan<br/>URL Import / Discovery"] --> B["Skill 2 Compare<br/>證據提案卡"]
-    B --> C["Human Shortlist"]
-    C --> D["Skill 3 Evaluate<br/>固定 rubric"]
-    D --> E["Human PoC Approval"]
-    E --> F["Skill 4 Validate<br/>候選專用 CDK / CloudFormation"]
-    F --> G["Skill 5 Report<br/>artifact-only 報告"]
+    A["Skill 1 Scan<br/>URL Import / Explanation"]
+    A --> B["Skill 2 Compare<br/>證據提案卡"]
+    B --> C["Skill 3 Evaluate<br/>分數 / 報價 / 架構圖"]
+    C --> D["Human PoC Decision<br/>poc_decision_gate"]
+    D --> E["Skill 4 Validate<br/>候選專用 CDK / CloudFormation"]
+    E --> F["Skill 5 Report<br/>artifact-only 報告"]
 ```
 
 ## 每日工作日誌
 
 | 日期 | 今日主軸 |
 |---|---|
-| [8/3](./logs/daily/work-log-2026-08-03.md) | 完成 Lambda 與 S3 Files final 證據鏈，將 Skill 4 close gate 強化為資源盤點、報價對照與權限面證據 |
+| [8/3](./logs/daily/work-log-2026-08-03.md) | 合併 Skill 3 PoC 決策關卡，新增 S1 解釋層、S4 資源盤點、分段計時與 S5 成本邊界，並完成 Lambda / S3 Files final 驗證 |
 | [7/31](./logs/daily/work-log-2026-07-31.md) | 補強可重用 PoC 估價系統，完成 Lambda 與 S3 Files 兩次 S1-S5 實測、cleanup 前用量快照與 final report |
 | [7/30](./logs/daily/work-log-2026-07-30.md) | 五個 Skills 正式化，完成 S3 Files 公開牌價估算與 live PoC 雙向驗證 |
 | [7/29](./logs/daily/work-log-2026-07-29.md) | 完成新版 S1-S5 實際 PoC 與嚴格清理盤點，GitHub 主線收斂為新版架構 |
@@ -64,10 +64,10 @@ flowchart LR
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 20 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 21 |
 | Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 18 |
 | Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 24 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 41 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 40 |
 | Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 24 |
 
 ## 最終發表驗證衝刺

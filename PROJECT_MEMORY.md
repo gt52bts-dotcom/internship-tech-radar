@@ -386,3 +386,8 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - `s4-close` 可接受 `s4.resource-inventory.v1` 作為人工確認 evidence；Skill 5 final 應稱為「資源盤點人工確認」，不得在沒有截圖時寫成 Infrastructure Composer 截圖確認。
 - S4 PoC 的價值定位是部署可行性、帳號/Region 相容性、IAM/resource wiring、runtime verification、pre-cleanup usage snapshot 與 cleanup 可重現性；不是用短期 runtime facts 偽裝成 AWS 帳單或正式採購報價。
 - Skill 5 final 可以接受具 `cleanup_verified` 與 structured resource inventory 的新版 runtime；若處理舊 runtime 沒有 inventory，必須在限制中說明證據較舊、圖片內容仍是人工確認，不應混成新版完整證據鏈。
+
+## 2026-08-03 Daily Log Writing Rule
+
+- Formal daily logs should emphasize the day's structural project changes, design decisions, workflow corrections, validation evidence, and remaining risks. Do not let the last PoC run of the day dominate the narrative when larger S1-S5 architecture or process changes happened earlier.
+- When reporting Git activity, distinguish whole-repository statistics from engineering-core statistics that exclude large reference artifacts, binary deletions, or generated evidence. Do not present one as the other.
