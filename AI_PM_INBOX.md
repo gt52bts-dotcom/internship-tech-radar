@@ -972,3 +972,9 @@
 - 已用 S1/S2/S3/S4 validation artifact 與 `s4-runtime.json` 產生 S5 interim：`radar-redesign/out/smoke-20260803-lambda-s3-decision-report/s5-report-interim.json` 與 `s5-report-interim.md`。
 - S5 interim 狀態：`status=interim`，conclusion=`poc_passed_pending_closure`。報告明確寫出 CloudFormation deployment、REFERENCE 設定與 Lambda invoke 已通過，但 AWS Console review 與 cleanup 尚待完成。
 - 報告目前不宣稱 final，不宣稱 cleanup 完成，也不把 runtime facts 轉成 AWS 帳務成本。下一步需等 Cleo 在 Console / Infrastructure Composer 人工確認後，先產 cleanup 前用量快照，再執行 cleanup，最後產 S5 final。
+
+## 2026-08-03 15:04 - Lambda run 每階段產物打包
+
+- Cleo 要求另行打包目前每階段產物；已建立分階段 package，包含 `S1-Scan`、`S2-Compare`、`S3-Evaluate`、`S4-Validate`、`S5-Report` 與 `README.md`。
+- Zip 位置：`C:\Users\youhs\Documents\實習專案\lambda-stage-artifacts-20260803-150444.zip`，大小 4,637,011 bytes，SHA-256=`4AD02C82B8C4DC8F427E677A293D3938D1F632B1502B1065B341B84D40E78ECF`。
+- 包內包含 S3 自包含 HTML/Markdown 決策報告、GPT-style 架構圖 PNG、S4 approval/deployment/runtime/console review packet，以及 S5 interim 報告。此包不是 final close package，因 Console review 與 cleanup 尚未完成。
