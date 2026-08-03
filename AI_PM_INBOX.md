@@ -992,3 +992,9 @@
 
 - Cleo 確認希望另一台電腦只看 GitHub 就能接上目前進度；已更新 `MIGRATION_STATUS.md`，補上最新 pushed checkpoint、Skill 3 評估報告需產生 GPT-style PNG/HTML 圖卡的規則、S4 PoC 的價值定位，以及哪些 local runtime/zip artifacts 不會進 GitHub。
 - GitHub 是可接續的 source of truth；但 raw `radar-redesign/out/`、本機 stage package zip、Console/runtime 原始 artifact 不會推上去。另一台電腦需依 GitHub 的程式、記憶與 migration 文件重新產生或向本機取得 zip。
+
+## 2026-08-03 15:31 - Skill 3 decision report HTML-first rule
+
+- Cleo 修正前一版措辭：「若 Markdown 不顯示圖片」不是例外，而是目前已知一定會發生；因此 Skill 3 人類評估報告應直接給 HTML 檔案。
+- 已更新 CLI：`s3` 新增 `--decision-report-html-output` 與 `--decision-report-image`，可把 GPT-style PNG 架構圖以 data URI 嵌入 HTML 報告。Markdown 只保留為內部 fallback，不作為主要 review artifact。
+- 已同步 `PROJECT_MEMORY.md`、`MIGRATION_STATUS.md` 與 Skill 3 文件，讓另一台電腦接續時知道「先產 PNG，再產 self-contained HTML，才進入人類 PoC approval」。

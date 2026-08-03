@@ -29,10 +29,9 @@ The current GitHub version includes:
 - Skill 3 is the main human decision point: by the end of S3 the report should
   already explain the news, show its value, provide a public-rate-card PoC quote,
   and include a human-readable architecture image.
-- Human-facing Skill 3 decision reports should include a GPT-style raster PNG
-  architecture infographic, not only a Mermaid/text flowchart. When the Markdown
-  preview does not render local images, produce a self-contained HTML report or
-  data-URI image embed so the image is visible directly.
+- Human-facing Skill 3 decision reports should be HTML by default and include a
+  GPT-style raster PNG architecture infographic embedded as a data URI, not only
+  a Mermaid/text flowchart and not a Markdown image link.
 - Skill 4 PoC is not mainly for proving business value or one-month actual cost.
   Its value is proving deployment feasibility, Region/account compatibility,
   IAM/resource wiring, runtime verification, Console review, pre-cleanup usage
@@ -63,5 +62,6 @@ The following local-only categories should not be required on a new computer:
 4. Use `radar-redesign/reference-runs/` for evidence examples, not raw local
    runtime output.
 5. Regenerate local artifacts through the CLI when needed.
-6. For a new Skill 3 decision report, generate the PNG/HTML review artifact
-   locally before asking for human PoC approval.
+6. For a new Skill 3 decision report, generate the PNG first, then produce the
+   self-contained HTML review artifact locally before asking for human PoC
+   approval.

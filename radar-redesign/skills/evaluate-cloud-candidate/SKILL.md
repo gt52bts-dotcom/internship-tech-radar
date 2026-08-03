@@ -22,7 +22,9 @@ From `radar-redesign/`:
 python -m agentic_cloud_radar.cli s3 `
   --input .\out\run\s2.json `
   --shortlist .\out\run\shortlist.json `
-  --output .\out\run\s3.json
+  --output .\out\run\s3.json `
+  --decision-report-html-output .\out\run\skill3-poc-decision-report.html `
+  --decision-report-image .\out\run\skill3-poc-architecture.png
 ```
 
 Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
@@ -40,7 +42,7 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit or permission to deploy.
 7. Populate `poc_decision_gate` with every evaluated option, including score, quote status, low/expected/high estimate, recommended approval ceiling, blocker list, and the required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`.
 8. When writing the optional Skill 3 PoC decision report, explain the article before the approval decision: what changed, why it matters, key source-backed points, and the inferred minimal implementation architecture.
-9. Before showing the PoC score and quote, insert a human-facing PoC minimum architecture PNG directly in the report. If the candidate has a registered Skill 4 recipe, the PNG should show the resources Skill 4 will actually create or validate; otherwise it may visualize the S1 inferred architecture but must be labeled as a draft, not a deployable production architecture. Do not include the old Mermaid/text flowchart in the human-facing report when a PNG has been generated.
+9. Before showing the PoC score and quote, insert a human-facing PoC minimum architecture PNG directly in the HTML report. If the candidate has a registered Skill 4 recipe, the PNG should show the resources Skill 4 will actually create or validate; otherwise it may visualize the S1 inferred architecture but must be labeled as a draft, not a deployable production architecture. Do not include the old Mermaid/text flowchart in the human-facing report when a PNG has been generated.
 10. After the explanation and diagram, show PoC threshold, score, quote, recipe, blockers, and what Cleo must approve before Skill 4.
 11. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
 12. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
@@ -58,6 +60,13 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 - Keep cost outside the technical rubric score.
 - Do not describe a rubric fallback as an LLM or external API result.
 - Do not infer workload fit from public evidence; report it as not assessed.
+
+## HTML decision report
+
+The human-facing Skill 3 report is HTML by default. Generate or provide the
+GPT-style architecture PNG first, then pass it with `--decision-report-image` so
+the CLI embeds it as a data URI. Markdown may be retained as an internal
+fallback, but it is not the primary review artifact.
 
 ## Validation
 

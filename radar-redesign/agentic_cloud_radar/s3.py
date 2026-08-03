@@ -9,8 +9,11 @@ recipes are still checked separately.
 
 from __future__ import annotations
 
+import base64
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from html import escape
+from pathlib import Path
 from typing import Any
 
 from .costing import build_cost_quote
@@ -524,6 +527,79 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
         ]
     )
     return "\n".join(lines) + "\n"
+
+
+def render_poc_decision_report_html(artifact: dict[str, Any], architecture_image_path: Path | None = None) -> str:
+    """Render the human-facing Skill 3 decision report as self-contained HTML."""
+
+    markdown = render_poc_decision_report(artifact)
+    image_html = _architecture_image_html(architecture_image_path)
+    body_lines: list[str] = []
+    in_list = False
+    for line in markdown.splitlines():
+        if line.startswith("# "):
+            if in_list:
+                body_lines.append("</ul>")
+                in_list = False
+            body_lines.append(f"<h1>{escape(line[2:].strip())}</h1>")
+        elif line.startswith("## "):
+            if in_list:
+                body_lines.append("</ul>")
+                in_list = False
+            body_lines.append(f"<h2>{escape(line[3:].strip())}</h2>")
+            if line[3:].strip() == "PoC 最小系統架構圖":
+                body_lines.append(image_html)
+        elif line.startswith("### "):
+            if in_list:
+                body_lines.append("</ul>")
+                in_list = False
+            body_lines.append(f"<h3>{escape(line[4:].strip())}</h3>")
+        elif line.startswith("- "):
+            if not in_list:
+                body_lines.append("<ul>")
+                in_list = True
+            body_lines.append(f"<li>{escape(line[2:].strip())}</li>")
+        elif not line.strip():
+            if in_list:
+                body_lines.append("</ul>")
+                in_list = False
+        else:
+            if in_list:
+                body_lines.append("</ul>")
+                in_list = False
+            body_lines.append(f"<p>{escape(line.strip())}</p>")
+    if in_list:
+        body_lines.append("</ul>")
+    body = "\n".join(body_lines)
+    return f"""<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Skill 3 PoC 決策報告</title>
+<style>
+body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.65;color:#1f2937;max-width:1180px;margin:32px auto;padding:0 28px;background:#fff;}}
+h1{{font-size:32px;margin:0 0 20px;color:#111827;}} h2{{font-size:26px;margin:34px 0 14px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;}} h3{{font-size:21px;margin:24px 0 8px;}} ul{{padding-left:24px;}} li{{margin:4px 0;}} figure{{margin:18px 0 28px;}} figure img{{display:block;width:100%;height:auto;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.08);}} figcaption{{font-size:14px;color:#6b7280;margin-top:8px;text-align:center;}} .notice{{border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;padding:12px 14px;margin:12px 0 24px;}}
+</style>
+</head>
+<body>
+{body}
+</body>
+</html>
+"""
+
+
+def _architecture_image_html(image_path: Path | None) -> str:
+    if not image_path:
+        return (
+            '<div class="notice">尚未嵌入架構圖 PNG。請先用 image generation 產生 GPT-style '
+            "架構圖，再以 <code>--decision-report-image</code> 重新輸出 HTML。</div>"
+        )
+    data = image_path.read_bytes()
+    suffix = image_path.suffix.lower()
+    mime = "image/jpeg" if suffix in {".jpg", ".jpeg"} else "image/png"
+    encoded = base64.b64encode(data).decode("ascii")
+    alt = escape(image_path.stem.replace("-", " "))
+    return f'<figure><img src="data:{mime};base64,{encoded}" alt="{alt}"><figcaption>{alt}</figcaption></figure>'
 
 
 def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> None:

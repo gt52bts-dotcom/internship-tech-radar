@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from agentic_cloud_radar.s3 import build_evaluate, render_poc_decision_report
+from agentic_cloud_radar.s3 import build_evaluate, render_poc_decision_report, render_poc_decision_report_html
 from agentic_cloud_radar.s4 import build_validate
 from agentic_cloud_radar.s4_deployer import (
     DeploymentError,
@@ -325,6 +325,19 @@ class S3S4Tests(unittest.TestCase):
         self.assertIn("生成圖片仍需人工 QA", report)
         self.assertNotIn("S3 code bucket<br/>versioned deployment package", report)
         self.assertNotIn("```mermaid", report)
+
+    def test_skill3_decision_report_html_embeds_architecture_png(self):
+        result = build_evaluate(_deployable_s2(), _shortlist()).to_dict()
+        with TemporaryDirectory() as temp_dir:
+            image = Path(temp_dir) / "architecture.png"
+            image.write_bytes(b"\x89PNG\r\n\x1a\nunit-test")
+
+            html = render_poc_decision_report_html(result, image)
+
+        self.assertIn("<!doctype html>", html)
+        self.assertIn("data:image/png;base64,", html)
+        self.assertIn("Skill 3 PoC 決策報告", html)
+        self.assertIn("PoC 最小系統架構圖", html)
 
     def test_s4_deployment_context_requires_matching_lineage_and_registered_recipe(self):
         evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()

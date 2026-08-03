@@ -10,7 +10,7 @@ import sys
 
 from .s1 import build_direct_url_scan, build_scan
 from .s2 import build_compare
-from .s3 import build_evaluate, render_poc_decision_report
+from .s3 import build_evaluate, render_poc_decision_report, render_poc_decision_report_html
 from .s4 import build_validate
 from .s4_deployer import (
     DeploymentError,
@@ -49,6 +49,8 @@ def main(argv: list[str] | None = None) -> int:
     s3_parser.add_argument("--shortlist", help="Optional candidate filter JSON file; this is not a PoC approval gate.")
     s3_parser.add_argument("--output", help="Optional path for the S3 evaluation artifact.")
     s3_parser.add_argument("--decision-report-output", help="Optional path for the human-readable Skill 3 PoC decision report.")
+    s3_parser.add_argument("--decision-report-html-output", help="Optional path for the human-facing Skill 3 PoC decision report HTML.")
+    s3_parser.add_argument("--decision-report-image", help="Optional PNG/JPG architecture image to embed into the HTML report.")
 
     s4_parser = subparsers.add_parser("s4", help="Validate S3 results without automatically starting cloud resources.")
     s4_parser.add_argument("--input", required=True, help="Path to an S3 evaluation artifact JSON file.")
@@ -151,6 +153,8 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.shortlist) if args.shortlist else None,
             Path(args.output) if args.output else None,
             Path(args.decision_report_output) if args.decision_report_output else None,
+            Path(args.decision_report_html_output) if args.decision_report_html_output else None,
+            Path(args.decision_report_image) if args.decision_report_image else None,
         )
     if args.command == "s4":
         return _run_s4(
@@ -257,7 +261,14 @@ def _run_s2(input_path: Path, output_path: Path | None) -> int:
     return 0
 
 
-def _run_s3(input_path: Path, shortlist_path: Path | None, output_path: Path | None, decision_report_path: Path | None) -> int:
+def _run_s3(
+    input_path: Path,
+    shortlist_path: Path | None,
+    output_path: Path | None,
+    decision_report_path: Path | None,
+    decision_report_html_path: Path | None,
+    decision_report_image_path: Path | None,
+) -> int:
     with input_path.open("r", encoding="utf-8-sig") as handle:
         compare = json.load(handle)
     shortlist = None
@@ -276,6 +287,12 @@ def _run_s3(input_path: Path, shortlist_path: Path | None, output_path: Path | N
     if decision_report_path:
         decision_report_path.parent.mkdir(parents=True, exist_ok=True)
         decision_report_path.write_text(render_poc_decision_report(result), encoding="utf-8")
+    if decision_report_html_path:
+        decision_report_html_path.parent.mkdir(parents=True, exist_ok=True)
+        decision_report_html_path.write_text(
+            render_poc_decision_report_html(result, decision_report_image_path),
+            encoding="utf-8",
+        )
 
     if result["status"] in {"blocked_s2_not_usable", "needs_revision"}:
         return 1
