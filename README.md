@@ -12,7 +12,7 @@
 
 目前主線是 artifact-first 的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，人工選定一項候選後進入 Skill 3，Skill 3 先產出 PoC 報價單，Skill 4 只在人工核准後部署候選專用 PoC，Skill 5 只依 artifact 產出可回查報告。
 
-截至 2026-07-31，Lambda self-managed S3 code storage 與 S3 Files 兩個 AWS 官方文章案例都已完成實際 PoC、人工 Console 確認、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final report。Amazon Connect Customer Data Lake 已跑到 Skill 5 interim；因缺可部署 recipe 與測試環境，沒有建立 AWS 資源。
+截至 2026-08-03，Lambda self-managed S3 code storage 與 S3 Files 兩個 AWS 官方文章案例都已完成實際 PoC、人工確認、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final report。S3 Files 新版流程已改用 structured resource inventory 對照報價與權限面；Amazon Connect Customer Data Lake 已跑到 Skill 5 interim，因缺可部署 recipe 與測試環境，沒有建立 AWS 資源。
 
 五個階段已整理為 repository 內的正式 Skill packages，入口位於 [`radar-redesign/skills/`](./radar-redesign/skills/)。每個 Skill 均有獨立 `SKILL.md` 與 UI metadata，並共用同一套已測試的 S1-S5 核心。
 
@@ -30,6 +30,7 @@ flowchart LR
 
 | 日期 | 今日主軸 |
 |---|---|
+| [8/3](./logs/daily/work-log-2026-08-03.md) | 完成 Lambda 與 S3 Files final 證據鏈，將 Skill 4 close gate 強化為資源盤點、報價對照與權限面證據 |
 | [7/31](./logs/daily/work-log-2026-07-31.md) | 補強可重用 PoC 估價系統，完成 Lambda 與 S3 Files 兩次 S1-S5 實測、cleanup 前用量快照與 final report |
 | [7/30](./logs/daily/work-log-2026-07-30.md) | 五個 Skills 正式化，完成 S3 Files 公開牌價估算與 live PoC 雙向驗證 |
 | [7/29](./logs/daily/work-log-2026-07-29.md) | 完成新版 S1-S5 實際 PoC 與嚴格清理盤點，GitHub 主線收斂為新版架構 |
@@ -59,19 +60,19 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-截至 2026-07-31，改採硬審核口徑後累積分數 117 分。每日五個 Skill 加總最高 10 分。
+截至 2026-08-03，改採硬審核口徑後累積分數 127 分。每日五個 Skill 加總最高 10 分。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 19 |
-| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 17 |
-| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 22 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 37 |
-| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 22 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 20 |
+| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 18 |
+| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 24 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 41 |
+| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 24 |
 
 ## 最終發表驗證衝刺
 
-2026-07-31（五）第一版完整交付已完成主要證據收斂：五個 Skills、可重用 Skill 3 估價系統、Lambda 與 S3 Files 兩條真實 PoC、cleanup 前即時用量快照、cleanup 回查與 Skill 5 報告都已落地。2026-08-03 起流程改為 Skill 3 直接評估所有 S2 候選並輸出單一 PoC 決策關卡，同時新版 Skill 5 不再做預估成本與實際帳務成本比對。這些只代表隔離測試結果，不延伸為未測環境或公司 production 結論。下一階段重點是 final proposal 素材、Console 截圖流程自動化與 GUI 同步。
+2026-07-31（五）第一版完整交付已完成主要證據收斂：五個 Skills、可重用 Skill 3 估價系統、Lambda 與 S3 Files 兩條真實 PoC、cleanup 前即時用量快照、cleanup 回查與 Skill 5 報告都已落地。2026-08-03 起流程改為 Skill 3 直接評估所有 S2 候選並輸出單一 PoC 決策關卡，Skill 4 close gate 改以 structured resource inventory 為主要證據，Skill 5 不再做預估成本與實際帳務成本比對。這些只代表隔離測試結果，不延伸為未測環境或公司 production 結論。下一階段重點是 final proposal 素材、驗證矩陣與 GUI 同步。
 
 | 日期 | 主軸 | 當日完成條件 |
 |---|---|---|

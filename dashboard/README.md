@@ -15,15 +15,15 @@
 
 ## 累積分數
 
-截至 2026-07-31，嚴格審核後累積總分為 `117`。每日總分最高 10 分。
+截至 2026-08-03，嚴格審核後累積總分為 `127`。每日總分最高 10 分。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 19 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
-| Skill 2 - Compare | 17 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
-| Skill 3 - Evaluate | 22 | 已把成本、權限、安全、GA 證據、fallback 與 cleanup 納入判斷。 |
-| Skill 4 - Validate | 37 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並完成 approval、Console review 與 cleanup 契約硬化。 |
-| Skill 5 - Report | 22 | 已能產出 artifact-only final／interim report、成本對帳、交接包與主管可讀入口。 |
+| Skill 1 - Scan | 20 | 已能以 AWS 官方 URL、RSS、動態分類與 GA 證據取得可驗證候選。 |
+| Skill 2 - Compare | 18 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
+| Skill 3 - Evaluate | 24 | 已把成本、權限、安全、GA 證據、架構圖與 cleanup 前決策納入判斷。 |
+| Skill 4 - Validate | 41 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並完成 approval、resource inventory review 與 cleanup 契約硬化。 |
+| Skill 5 - Report | 24 | 已能產出 artifact-only final／interim report、成本邊界、資源盤點、交接包與主管可讀入口。 |
 
 ## 每日趨勢
 
@@ -49,11 +49,11 @@
 
 ## 今日判定
 
-2026-07-31 的核心成果是完成 Amazon Connect Customer Data Lake 的不部署 evidence chain、Lambda 與 S3 Files 的受控 live PoC、人工 Console 確認與 cleanup 回查，並同步 S4/S5 結案契約、可攜 GUI handoff、成本對帳與 Mentor review package。實際帳務成本與公司環境驗證仍待完成。
+2026-08-03 的核心成果是完成 Lambda 與 S3 Files 兩條 AWS 官方案例的 S1-S5 final 證據鏈，並將 Skill 4 close gate 從截圖 metadata 強化為 structured resource inventory、報價對照與權限面盤點。S3 Files 本次 PoC 已完成部署、雙向同步驗證、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final；公開牌價估算仍不等於 AWS 帳務成本。
 
 ## 相關檔案
 
-- [正式日誌](../logs/daily/work-log-2026-07-31.md)
+- [正式日誌](../logs/daily/work-log-2026-08-03.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)
 - [Skill JSON 資料](./skill-score-data.json)
 - [互動式 Skill dashboard](./cleo-skill-dashboard.html)
@@ -63,5 +63,5 @@
 ## 待修正流程
 
 - Amazon Connect Customer Data Lake 若要進入真實 PoC，仍須補齊候選專屬 recipe、rate card、新加坡可用性／定價證據、可用 instance 與具名授權。
-- Lambda self-managed code storage 的歷史 runtime 尚未取得可作為新版 final 的完整 cleanup 證據；不得外推為結案。
-- `cdk deploy` 仍受 bootstrap role 權限限制；目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑，這不代表 CDK 部署已成功。
+- 公開牌價報價與 cleanup 前 runtime facts 不等於 AWS Billing / Cost Explorer / CUR 帳務成本；Skill 5 不做未取得帳務資料的實際成本比較。
+- `cdk deploy` 仍受 bootstrap role 權限限制；目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑，這不代表 CDK bootstrap 部署已成功。
