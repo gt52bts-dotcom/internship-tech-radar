@@ -955,3 +955,10 @@
 - 已更新 `skills/evaluate-cloud-candidate/SKILL.md` 和 `PROJECT_MEMORY.md`，把架構圖列為 Skill 3 決策報告固定規則。
 - 已重產目前 Lambda 這篇的 `skill3-poc-decision-report.md`，但沒有改 `s3.json`，避免破壞已部署 S4 runtime 的 lineage SHA-256。
 - 驗證：`python -m unittest tests.test_s3_s4 -v` 通過 25 tests；完整 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 50 tests；`python -m compileall agentic_cloud_radar tests` 通過。
+
+## 2026-08-03 14:31 - Skill 3 架構圖改為人類可讀圖卡方向
+
+- Cleo 指出 Mermaid 流程圖仍偏工程化，決策者比較需要類似 GPT 生成的 AWS 架構資訊圖卡，能直接看出資源、箭頭、步驟、關鍵重點、安全考量與 cleanup 建議。
+- 已使用 Codex 內建 image generation 以 Cleo 提供的參考圖為風格，生成 Lambda self-managed code storage 的 PoC 架構圖 PNG。
+- 圖片已保存到 `radar-redesign/out/smoke-20260803-lambda-s3-decision-report/skill3-poc-architecture-lambda-reference.png`，並插入目前的 `skill3-poc-decision-report.md`。
+- 長期規則已寫入 `PROJECT_MEMORY.md`：Agent mode 可在 S4 approval 前用影像生成工具產生人類可讀 PNG；Mermaid/文字圖保留作為可追溯 fallback。生成圖片需人工 QA 小字與箭頭，不能當成部署證據。
