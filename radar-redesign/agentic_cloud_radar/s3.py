@@ -474,9 +474,11 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
             "",
             "## PoC 最小系統架構圖",
             "",
+            "- 請在送出給人類決策前，貼上 GPT-style PNG 架構圖。這裡不再輸出舊版 Mermaid 流程圖，以免讓決策者同時看到兩套圖而混淆。",
+            "- 生成圖片仍需人工 QA：檢查小字、服務名稱、箭頭方向與資源範圍；圖片本身不是部署證據。",
+            "",
         ]
     )
-    _append_architecture_diagrams(lines, artifact)
     lines.extend(
         [
             "",
@@ -566,106 +568,6 @@ def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> N
             names = [str(item.get("name") or "").strip() for item in unstated if str(item.get("name") or "").strip()]
             if names:
                 lines.append(f"- 原文未明講但 PoC 需要確認：{', '.join(names)}")
-
-
-def _append_architecture_diagrams(lines: list[str], artifact: dict[str, Any]) -> None:
-    candidates = artifact.get("evaluated_candidates") or []
-    if not candidates:
-        lines.append("- 尚無候選可產生架構圖。")
-        return
-    for index, candidate in enumerate(candidates, start=1):
-        quote = ((candidate.get("cost_estimate") or {}).get("quote") or {})
-        diagram = _architecture_diagram_for_candidate(candidate, quote)
-        lines.extend(
-            [
-                f"### {index}. {candidate.get('title') or '未命名候選'}",
-                "",
-            ]
-        )
-        if not diagram:
-            lines.extend(
-                [
-                    "- 目前 S1/S3 artifact 沒有足夠服務或 recipe 資訊可產生架構圖。",
-                    "",
-                ]
-            )
-            continue
-        lines.extend(
-            [
-                "- 這張圖是 Skill 3 決策用的 PoC 草圖；有已登錄 recipe 時，它描述 Skill 4 預計建立與驗證的最小資源，不代表公司正式 production 架構。",
-                "",
-                "```mermaid",
-                diagram,
-                "```",
-                "",
-            ]
-        )
-
-
-def _architecture_diagram_for_candidate(candidate: dict[str, Any], quote: dict[str, Any]) -> str:
-    recipe = str(quote.get("recipe") or "")
-    if recipe == "s3_files_cdk":
-        return "\n".join(
-            [
-                "flowchart LR",
-                "  subgraph cloud[\"AWS Cloud / ap-southeast-1\"]",
-                "    subgraph vpc[\"Virtual private cloud (VPC)\"]",
-                "      subgraph sg[\"Security group\"]",
-                "        ec2[\"EC2 test instance\"]",
-                "        mount[\"S3 Files mount target\"]",
-                "      end",
-                "      ec2 -- \"TCP 2049 (NFS)\" --> mount",
-                "    end",
-                "    fs[\"S3 Files filesystem\"]",
-                "    bucket[\"S3 bucket\"]",
-                "  end",
-                "  mount <--> fs",
-                "  fs <--> bucket",
-                "  bucket -- \"S3 to mount test\" --> ec2",
-                "  ec2 -- \"mount to S3 test\" --> bucket",
-            ]
-        )
-    if recipe == "lambda_self_managed_s3_code_storage_cdk":
-        return "\n".join(
-            [
-                "flowchart LR",
-                "  subgraph cloud[\"AWS Cloud / ap-southeast-1\"]",
-                "    subgraph stack[\"CloudFormation stack (run-scoped PoC)\"]",
-                "      bucket[\"S3 code bucket<br/>versioned deployment package\"]",
-                "      policy[\"Bucket policy<br/>allow Lambda service principal\"]",
-                "      fn[\"Lambda function<br/>S3ObjectStorageMode=REFERENCE\"]",
-                "      role[\"IAM execution role\"]",
-                "      logs[\"CloudWatch Logs\"]",
-                "    end",
-                "  end",
-                "  policy -. \"s3:GetObjectVersion\" .-> bucket",
-                "  bucket -- \"object version reference\" --> fn",
-                "  role -. \"runtime permissions\" .-> fn",
-                "  fn --> logs",
-                "  fn -- \"test invoke\" --> result[\"PoC result<br/>invoke verified\"]",
-            ]
-        )
-    architecture = (candidate.get("source_explanation") or {}).get("implementation_architecture") or {}
-    components = list(architecture.get("core_components") or [])
-    if not components:
-        return ""
-    node_lines = ["flowchart LR", "  subgraph cloud[\"AWS Cloud / inferred minimal PoC\"]"]
-    service_nodes: list[str] = []
-    for index, component in enumerate(components, start=1):
-        service = str(component.get("service") or f"Component {index}").strip()
-        role = str(component.get("role") or "role not recorded").strip()
-        node_id = f"c{index}"
-        service_nodes.append(node_id)
-        marker = "source-backed" if component.get("stated_in_source") else "PoC prerequisite"
-        node_lines.append(f"    {node_id}[\"{_mermaid_label(service)}<br/>{_mermaid_label(role)}<br/>{marker}\"]")
-    node_lines.append("  end")
-    for left, right in zip(service_nodes, service_nodes[1:]):
-        node_lines.append(f"  {left} --> {right}")
-    return "\n".join(node_lines)
-
-
-def _mermaid_label(value: str) -> str:
-    return value.replace("\\", "\\\\").replace('"', "'").replace("[", "(").replace("]", ")")
 
 
 def _candidate_by_id(artifact: dict[str, Any], candidate_id: Any) -> dict[str, Any] | None:
