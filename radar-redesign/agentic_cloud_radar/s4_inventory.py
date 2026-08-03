@@ -55,7 +55,7 @@ def build_resource_inventory(
         "schema_version": SCHEMA_VERSION,
         "run_id": (runtime or {}).get("run_id", "unknown-run"),
         "stack_name": _first(runtime, ("stack_name",), ("cloudformation", "stack_name"), ("deployment", "stack_name")),
-        "region": _first(runtime, ("region",), ("cloudformation", "region"), ("deployment", "region")),
+        "region": _first(runtime, ("region",), ("cloudformation", "region"), ("deployment", "region"), ("deployment", "target_region")),
         "captured_at": moment,
         "resource_count": len(resources),
         "resources": resources,

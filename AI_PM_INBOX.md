@@ -1014,3 +1014,12 @@
 - 報價：低用量 USD `0.018037`、預期用量 USD `0.047190`、高用量 USD `0.150963`，建議核准上限 USD `0.20`。
 - 已用 image generation 產出 S3 Files PoC 架構圖，並用 CLI 重新輸出 self-contained HTML。HTML 檢查通過：含 `<img>` 與 `data:image/png;base64`，不含舊版 Mermaid 或「請貼上圖片」提示。
 - 順手修正 `render_poc_decision_report()` 的固定文案，避免已內嵌圖的報告仍顯示「請貼上 GPT-style PNG 架構圖」。驗證：`python -m unittest tests.test_s3_s4 tests.test_costing` 通過 29 tests；`s3.py` 與 `test_s3_s4.py` syntax check 通過。
+
+## 2026-08-03 16:45 - S3 Files Skill 4 live deployment awaiting inventory confirmation
+
+- Cleo 回覆「同意」後，視為核准候選 `S1-903A892142CB` 進入 Skill 4，核准上限沿用 Skill 3 建議 USD `0.20`。已建立 `s4.json`、`s4-approval.json` 與 `s4-deployment-context.json`，並補齊 S1/S2/S3 lineage 絕對路徑。
+- 已執行 `s4-deploy --execute` 建立 S3 Files PoC stack `AgenticRadarS40B5DA545`，runtime artifact 為 `radar-redesign/out/s3-files-20260803-s1-s5/s4-runtime.json`，status=`awaiting_console_review`，cleanup 尚未執行。
+- 自動驗證通過：CloudFormation `CREATE_COMPLETE`，S3 Files mount 驗證完成，S3→mount 與 mount→S3 雙向同步皆為 `verified`，SSM status=`Success`。
+- 新版 resource inventory gate 發現 CLI packet 尚未自動附上 `s4_inventory`；已用 `describe-stack-resources` 與 `build_resource_inventory()` 產出 `s4-resource-inventory.json` 作為本次人工確認依據。盤點 19 個 CloudFormation resources，quote reconciliation=`consistent`，deployed-not-quoted 為空，permission surface 記錄 29 個 action，服務包含 CloudFormation、EC2、IAM、S3、S3Files、SSM。
+- 為避免未來再出現 `no_quote_resource_list`，已修正 `costing.py`：S3 Files 與 Lambda Level A quote 會列出 `priced_resource_types`，並修正 `s4_inventory.py` 從 `deployment.target_region` 讀取 Region。驗證：`python -m unittest tests.test_costing tests.test_s4_inventory tests.test_s5 tests.test_s3_s4` 通過 48 tests。
+- 目前下一步：請 Cleo 檢視 `s4-resource-inventory.json` 摘要後，明確確認 cleanup；確認後才能執行 `s4-close --execute`、產 `pre_cleanup_usage_snapshot.json` 與 Skill 5 final。

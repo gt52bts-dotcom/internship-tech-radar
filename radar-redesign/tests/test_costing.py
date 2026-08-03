@@ -26,6 +26,9 @@ class CostQuoteTests(unittest.TestCase):
         self.assertEqual(quote["valid_until"], "2026-08-06")
         self.assertEqual(len(quote["scenarios"]["expected"]["line_items"]), 10)
         self.assertTrue(all(item["url"].startswith("https://") for item in quote["sources"]))
+        self.assertIn("AWS::S3Files::FileSystem", quote["priced_resource_types"])
+        self.assertIn("AWS::EC2::Instance", quote["priced_resource_types"])
+        self.assertIn("AWS::IAM::Role", quote["priced_resource_types"])
 
     def test_service_hints_use_generic_usage_model(self):
         quote = build_cost_quote(

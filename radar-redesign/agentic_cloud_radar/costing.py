@@ -419,6 +419,25 @@ def _build_s3_files_quote(base: dict[str, Any]) -> dict[str, Any]:
         "zero_direct_charge_resources": [
             "VPC, subnet, route table, internet gateway, security groups, IAM role, and CloudFormation have no separate hourly line item in this recipe.",
         ],
+        "priced_resource_types": [
+            "AWS::CDK::Metadata",
+            "AWS::EC2::Instance",
+            "AWS::EC2::InternetGateway",
+            "AWS::EC2::Route",
+            "AWS::EC2::RouteTable",
+            "AWS::EC2::SecurityGroup",
+            "AWS::EC2::Subnet",
+            "AWS::EC2::SubnetRouteTableAssociation",
+            "AWS::EC2::VPC",
+            "AWS::EC2::VPCGatewayAttachment",
+            "AWS::IAM::InstanceProfile",
+            "AWS::IAM::Role",
+            "AWS::S3::Bucket",
+            "AWS::S3Files::AccessPoint",
+            "AWS::S3Files::FileSystem",
+            "AWS::S3Files::FileSystemPolicy",
+            "AWS::S3Files::MountTarget",
+        ],
         "exclusions": _standard_exclusions() + [
             "Unexpected data transfer, retries, log ingestion, and resources outside the registered recipe are excluded.",
         ],
@@ -452,6 +471,13 @@ def _build_lambda_self_managed_quote(base: dict[str, Any]) -> dict[str, Any]:
         ],
         "zero_direct_charge_resources": [
             "CloudFormation, IAM role, S3 bucket policy, and Lambda function configuration have no separate direct charge.",
+        ],
+        "priced_resource_types": [
+            "AWS::CDK::Metadata",
+            "AWS::IAM::Role",
+            "AWS::Lambda::Function",
+            "AWS::S3::Bucket",
+            "Custom::AWSCDK-ECRDeployment",
         ],
         "exclusions": _standard_exclusions() + [
             "Unexpected data transfer, retries, CloudWatch log ingestion, and resources outside the registered recipe are excluded.",

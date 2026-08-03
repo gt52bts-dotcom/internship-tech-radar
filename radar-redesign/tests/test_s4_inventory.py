@@ -40,6 +40,18 @@ class ResourceInventoryTests(unittest.TestCase):
         self.assertNotIn("codebucket", bucket["physical_id_redacted"])
         self.assertTrue(bucket["physical_id_redacted"].startswith("rada"))
 
+    def test_inventory_reads_region_from_deployment_target_region(self):
+        inventory = build_resource_inventory(
+            {
+                "run_id": "run-1",
+                "deployment": {"stack_name": "radar-run-1", "target_region": "ap-southeast-1"},
+            },
+            RESOURCES,
+        )
+
+        self.assertEqual(inventory["stack_name"], "radar-run-1")
+        self.assertEqual(inventory["region"], "ap-southeast-1")
+
     def test_deployed_resource_missing_from_the_quote_is_flagged(self):
         quote = {"priced_resource_types": ["AWS::S3::Bucket", "AWS::Lambda::Function"]}
 
