@@ -1,6 +1,6 @@
 ---
 name: evaluate-cloud-candidate
-description: Evaluate one human-selected cloud candidate from a Skill 2 artifact with the fixed Skill 3 public-evidence rubric and produce an auditable reusable PoC cost quotation. Use after a person selects one candidate and needs a reproducible score, confidence level, risk analysis, cost estimate, and technical eligibility for a controlled Skill 4 PoC.
+description: Evaluate Skill 2 candidates with the fixed Skill 3 public-evidence rubric and produce auditable reusable PoC cost quotations. Use when a person needs a reproducible score, risk analysis, cost estimate, and a merged human PoC decision gate before any controlled Skill 4 PoC.
 ---
 
 # Skill 3 · Evaluate
@@ -32,12 +32,12 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
 1. Verify S2 lineage and shortlist candidate IDs.
 2. Stop with `needs_human_shortlist` when no human selection exists or more than one candidate is selected.
 3. Score only evidence-supported dimensions with the fixed rubric.
-4. Record weighted score, confidence, Region state, governance flags, stop conditions, and evidence limits.
+4. Record weighted score, Region state, governance flags, stop conditions, and evidence limits.
 5. For the selected candidate, create the entire PoC quote before Skill 4: low/expected/high usage, itemized rates, formulas, official sources, validity, exclusions, quoted Region, `live_pricing_api_used`, and a recommended approval ceiling.
    - Level A: use a registered candidate-specific PoC recipe and rate card.
    - Level B: when no registered cost recipe exists but S2/IaC/service evidence identifies billable AWS services, use the reusable generic usage model and mark `pricing_level=Level B generic usage model`.
    - Level C: when the service/resource scope is still too vague, return `status=incomplete` with missing inputs instead of inventing a number.
-6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, confidence is at least `medium`, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit.
+6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit or permission to deploy.
 7. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
 8. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
 

@@ -379,8 +379,6 @@ def build_cost_quote(
     return {
         **base,
         "status": "incomplete",
-        "confidence": "low",
-        "pricing_confidence": "low",
         "pricing_level": "Level C incomplete",
         "pricing_basis": "候選項目沒有足夠的服務、IaC resource type 或用量線索，無法產生可審核的 PoC 估價。",
         "detected_services": sorted(services),
@@ -405,8 +403,6 @@ def _build_s3_files_quote(base: dict[str, Any]) -> dict[str, Any]:
     return {
         **base,
         "status": "estimated",
-        "confidence": "medium",
-        "pricing_confidence": "high",
         "pricing_level": "Level A registered recipe",
         "recipe": "s3_files_cdk",
         "pricing_basis": "已登錄 S3 Files CDK PoC recipe；用固定低/中/高用量和公開牌價試算。",
@@ -442,8 +438,6 @@ def _build_lambda_self_managed_quote(base: dict[str, Any]) -> dict[str, Any]:
     return {
         **base,
         "status": "estimated",
-        "confidence": "medium",
-        "pricing_confidence": "high",
         "pricing_level": "Level A registered recipe",
         "recipe": "lambda_self_managed_s3_code_storage_cdk",
         "pricing_basis": "已登錄 Lambda self-managed S3 code storage CDK PoC recipe；用固定低/中/高用量和公開牌價試算。",
@@ -485,8 +479,6 @@ def _build_generic_usage_quote(base: dict[str, Any], services: set[str], candida
     return {
         **base,
         "status": "estimated",
-        "confidence": "medium",
-        "pricing_confidence": "medium",
         "pricing_level": "Level B generic usage model",
         "recipe": "generic_usage_model",
         "deployable_recipe_registered": False,

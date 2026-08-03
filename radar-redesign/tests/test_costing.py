@@ -43,7 +43,6 @@ class CostQuoteTests(unittest.TestCase):
 
         self.assertEqual(quote["status"], "estimated")
         self.assertEqual(quote["pricing_level"], "Level B generic usage model")
-        self.assertEqual(quote["pricing_confidence"], "medium")
         self.assertEqual(quote["recipe"], "generic_usage_model")
         self.assertFalse(quote["deployable_recipe_registered"])
         self.assertGreater(quote["expected_total_usd"], 0)

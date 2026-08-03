@@ -114,7 +114,7 @@ def build_approval_template(
         "approved_by": str(approved_by or "").strip() or None,
         "deployment_authorized": bool(authorize),
         "approval_basis": (
-            "Review the Skill 3 score, confidence, quote, Region status, recipe, success criteria, "
+            "Review the Skill 3 score, quote, Region status, recipe, success criteria, "
             "cleanup scope, and known limits before setting deployment_authorized=true."
         ),
         "approved_cost_ceiling_usd": effective_ceiling,
@@ -540,7 +540,7 @@ def _pre_cleanup_usage_snapshot(runtime: dict[str, Any]) -> dict[str, Any]:
         "actual_cost_status": "not_billing_evidence",
         "rule": (
             "This snapshot records immediately available runtime facts before cleanup. "
-            "Actual AWS cost still requires attributable Billing, Cost Explorer, or CUR evidence."
+            "Current Skill 5 does not report actual AWS cost from runtime facts."
         ),
         "deployment": {
             "recipe": deployment.get("recipe"),
@@ -1055,7 +1055,6 @@ def _candidate_summary(candidate: dict[str, Any] | None) -> dict[str, Any] | Non
         "title": candidate.get("title"),
         "source_url": candidate.get("source_url"),
         "weighted_score": candidate.get("weighted_score"),
-        "confidence": candidate.get("confidence"),
         "region_status": (candidate.get("region_status") or {}).get("status"),
     }
 

@@ -919,3 +919,12 @@
 - Skill 1 新增 deterministic explanation layer：`key_points`、`significance`、`implementation_architecture`、`possible_application_contexts`；原文明述與推導內容以 `derivation` 區分。
 - 同步更新主 repo 與 `claude-gui-handoff` 的 Skill 文件，並加入三個 samples：`s1-explanation.example.json`、`s3-merged-poc-gate.example.json`、`s5-report-with-explanation.example.md`。
 - 驗證：`python -m unittest tests.test_costing tests.test_s3_s4 tests.test_s5 -v` 通過 34 tests；`python -m unittest tests.test_s1.S1ExplanationTests -v` 通過 6 tests；`python -m compileall agentic_cloud_radar tests` 通過；全測試 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 48 tests。
+
+## 2026-08-03 12:00 - 移除 Skill 流程的信心指標與新增 Skill 3 PoC 決策報告
+
+- Cleo 明確決定後續不再使用「信心」作為 PoC 判斷指標，因為它不夠具體，容易干擾人類決策。
+- 已從新版 Skill artifacts 移除 `confidence`、`pricing_confidence`、`evidence_confidence` 等欄位；Skill 3 的 `recommend_poc` 現在只看加權分是否 `>= 3.75 / 5`、是否沒有 PoC blocker、報價是否 `estimated`。真正部署還必須由 Skill 4 檢查 deployable recipe、具名核准、成本上限、成功條件與 cleanup 範圍。
+- Skill 4 的 evidence check 從 `score_and_confidence_present` 改為 `score_present`；approval template 文案也移除信心。
+- CLI `s3` 新增 `--decision-report-output`，可在 Skill 3 結束時產出中文 PoC 決策報告，列出門檻、分數、報價、低/預期/高成本、recipe、blocker、review notes，最後停下來等 Cleo 決定是否進入 Skill 4。
+- 已照新規則跑一次完整 smoke test 到 Skill 3：URL 匯入 Lambda self-managed S3 code storage，產出 `out/smoke-20260803-lambda-s3-decision-report/skill3-poc-decision-report.md`。結果：Skill 3 分數 `4.15 / 5`，預期成本 USD `0.000749`，高用量 USD `0.003387`，建議核准上限 USD `0.05`，有 deployable recipe，等待 Cleo 是否同意進入 Skill 4。
+- 驗證：`python -m unittest tests.test_costing tests.test_s3_s4 tests.test_s5 -v` 通過 35 tests；`python -m compileall agentic_cloud_radar tests` 通過；完整 `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 49 tests。Smoke test artifacts 搜尋不到 `confidence`、`pricing_confidence`、`evidence_confidence` 或「信心」。

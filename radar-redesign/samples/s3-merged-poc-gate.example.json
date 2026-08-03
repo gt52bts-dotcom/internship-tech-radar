@@ -83,7 +83,6 @@
         "risk_and_stop_conditions": 5
       },
       "weighted_score": 4.15,
-      "confidence": "medium",
       "recommend_poc": true,
       "recommend_s4_compatibility": {
         "deprecated": true,
@@ -119,8 +118,6 @@
           "formal_procurement_quote_ready": false,
           "disclaimer": "這是 PoC 前的非正式公開牌價估算，用於 Skill 3 審查與 Skill 4 小額上限控管。它不是 AWS 帳單、正式採購報價，也未套用稅務、折扣、credits、Free Tier 或公司私有價格。",
           "status": "estimated",
-          "confidence": "medium",
-          "pricing_confidence": "high",
           "pricing_level": "Level A registered recipe",
           "recipe": "lambda_self_managed_s3_code_storage_cdk",
           "pricing_basis": "已登錄 Lambda self-managed S3 code storage CDK PoC recipe；用固定低/中/高用量和公開牌價試算。",

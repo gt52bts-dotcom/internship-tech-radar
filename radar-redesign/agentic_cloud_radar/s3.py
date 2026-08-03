@@ -215,7 +215,6 @@ def _evaluate_candidate(
         sum(dimension_scores[name] * weight for name, weight in RUBRIC_WEIGHTS.items()),
         2,
     )
-    confidence = _confidence(coverage, unknowns)
     governance_flags = _governance_flags(candidate, region)
     quote = build_cost_quote(
         candidate,
@@ -226,7 +225,6 @@ def _evaluate_candidate(
     poc_blockers = _poc_blockers(governance_flags, region, quote)
     recommend_poc = (
         weighted_score >= 3.75
-        and confidence in {"medium", "high"}
         and not poc_blockers
     )
     poc_review_notes = _poc_review_notes(coverage, region, quote)
@@ -237,7 +235,6 @@ def _evaluate_candidate(
         "source_url": candidate.get("source_url"),
         "dimension_scores": dimension_scores,
         "weighted_score": weighted_score,
-        "confidence": confidence,
         "recommend_poc": recommend_poc,
         "recommend_s4_compatibility": {
             "deprecated": True,
@@ -247,7 +244,6 @@ def _evaluate_candidate(
         },
         "recommendation_reason": _recommendation_reason(
             weighted_score,
-            confidence,
             poc_blockers,
             recommend_poc,
             poc_review_notes,
@@ -334,15 +330,6 @@ def _risk_score(stop_conditions: list[str], unknowns: list[str]) -> int:
     return max(score, 0)
 
 
-def _confidence(coverage: dict[str, Any], unknowns: list[str]) -> str:
-    verified = int(coverage.get("verified_dimension_count") or 0)
-    if verified >= 5 and len(unknowns) <= 3:
-        return "high"
-    if verified >= 3:
-        return "medium"
-    return "low"
-
-
 def _governance_flags(candidate: dict[str, Any], region: dict[str, Any]) -> list[str]:
     flags: list[str] = []
     title = str(candidate.get("title") or "").lower()
@@ -377,7 +364,6 @@ def _poc_review_notes(coverage: dict[str, Any], region: dict[str, Any], quote: d
 
 def _recommendation_reason(
     weighted_score: float,
-    confidence: str,
     poc_blockers: list[str],
     recommend_poc: bool,
     poc_review_notes: list[str],
@@ -386,8 +372,6 @@ def _recommendation_reason(
         return "Skill 4 PoC is not recommended until its blockers are resolved: " + ", ".join(_dedupe(poc_blockers)) + "."
     if weighted_score < 3.75:
         return "Skill 4 PoC is not recommended because the weighted score is below the 3.75 threshold."
-    if confidence == "low":
-        return "Skill 4 PoC is not recommended because evidence confidence is low."
     if poc_review_notes:
         return "Recommend Skill 4 PoC. Review notes: " + ", ".join(_dedupe(poc_review_notes)) + "."
     return "Recommend Skill 4 PoC; the quote is ready for named-human approval."
@@ -464,12 +448,90 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def render_poc_decision_report(artifact: dict[str, Any]) -> str:
+    """Render the Skill 3 human decision report shown before any Skill 4 PoC."""
+
+    gate = artifact.get("poc_decision_gate") or {}
+    options = list(gate.get("options") or [])
+    lines = [
+        "# Skill 3 PoC 決策報告",
+        "",
+        f"- Run ID：{artifact.get('run_id') or '未記錄'}",
+        f"- 狀態：{_display_status(artifact.get('status'))}",
+        "- PoC 門檻：Skill 3 加權分 >= 3.75 / 5、沒有 PoC blocker、報價狀態為已完成估算、Skill 4 有可部署 recipe。",
+        "- 人工關卡：即使達標，也必須由 Cleo 明確同意候選、成本上限、成功條件與 cleanup 範圍，Skill 4 才能開始。",
+        "- 本報告不會建立 AWS 資源，也不是部署核准。",
+        "",
+        "## 候選判斷",
+        "",
+    ]
+    if not options:
+        lines.append("- 尚無可判斷候選。")
+    for index, option in enumerate(options, start=1):
+        quote_status = option.get("quote_status") or "unknown"
+        score = option.get("weighted_score")
+        blockers = list(option.get("blockers") or [])
+        candidate = _candidate_by_id(artifact, option.get("candidate_id"))
+        quote = ((candidate.get("cost_estimate") or {}).get("quote") or {}) if candidate else {}
+        has_recipe = _has_deployable_recipe(quote)
+        meets_score = isinstance(score, (int, float)) and score >= 3.75
+        technically_eligible = bool(option.get("technically_eligible")) and has_recipe
+        lines.extend(
+            [
+                f"### {index}. {option.get('title') or '未命名候選'}",
+                "",
+                f"- Candidate ID：{option.get('candidate_id') or '未記錄'}",
+                f"- Skill 3 分數：{score if score is not None else '未記錄'} / 5",
+                f"- 分數是否達標：{'是' if meets_score else '否'}",
+                f"- 報價狀態：{_display_status(quote_status)}",
+                f"- 預期成本 USD：{option.get('expected_total_usd') if option.get('expected_total_usd') is not None else '未記錄'}",
+                f"- 低/預期/高 USD：{_range_text(option.get('estimated_range_usd') or {})}",
+                f"- 建議核准上限 USD：{option.get('recommended_approval_ceiling_usd') if option.get('recommended_approval_ceiling_usd') is not None else '未記錄'}",
+                f"- 可部署 recipe：{'有，' + str(quote.get('recipe')) if has_recipe else '沒有或尚未登錄'}",
+                f"- PoC blocker：{', '.join(blockers) if blockers else '無'}",
+                f"- Review notes：{', '.join(candidate.get('poc_review_notes') or []) if candidate else '未記錄'}",
+                f"- 是否值得交給 Cleo 決定進入 Skill 4：{'是' if technically_eligible else '否'}",
+                "",
+            ]
+        )
+    lines.extend(
+        [
+            "## Cleo 需要回覆",
+            "",
+            "- 若同意 PoC：請回覆同意進入 Skill 4，並確認候選、核准上限、成功條件與 cleanup 範圍。",
+            "- 若不同意 PoC：請回覆不進 Skill 4，並可指定要改評估標準、換候選或補證據。",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def _candidate_by_id(artifact: dict[str, Any], candidate_id: Any) -> dict[str, Any] | None:
+    for candidate in artifact.get("evaluated_candidates") or []:
+        if str(candidate.get("candidate_id") or "") == str(candidate_id or ""):
+            return candidate
+    return None
+
+
+def _has_deployable_recipe(quote: dict[str, Any]) -> bool:
+    recipe = str(quote.get("recipe") or "")
+    if not recipe or recipe == "generic_usage_model":
+        return False
+    return quote.get("deployable_recipe_registered", True) is not False
+
+
+def _range_text(value: dict[str, Any]) -> str:
+    if not value:
+        return "未記錄"
+    return f"{value.get('low')} / {value.get('expected')} / {value.get('high')}"
+
+
 def _display_status(value: Any) -> str:
     labels = {
         "estimated": "已完成估算",
         "incomplete": "估價資料不足",
         "needs_registered_cost_model": "缺少已註冊成本模型",
         "non_binding_public_price_estimate": "非正式公開牌價估算",
+        "awaiting_poc_decision": "等待 Cleo 決定是否進入 PoC",
         "unknown": "未記錄",
     }
     text = str(value or "unknown")

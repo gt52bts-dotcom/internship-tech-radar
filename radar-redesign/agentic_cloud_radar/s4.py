@@ -292,9 +292,9 @@ def _evidence_checks(candidate: dict[str, Any]) -> list[dict[str, Any]]:
             "detail": f"{len(candidate.get('stop_conditions') or [])} stop conditions recorded.",
         },
         {
-            "name": "score_and_confidence_present",
-            "passed": candidate.get("weighted_score") is not None and bool(candidate.get("confidence")),
-            "detail": f"score={candidate.get('weighted_score')}, confidence={candidate.get('confidence')}",
+            "name": "score_present",
+            "passed": candidate.get("weighted_score") is not None,
+            "detail": f"score={candidate.get('weighted_score')}",
         },
         {
             "name": "cost_quote_recorded",

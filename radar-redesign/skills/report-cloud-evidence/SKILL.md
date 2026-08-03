@@ -30,7 +30,7 @@ Reuse `agentic_cloud_radar/s5.py`.
 
 1. Check stage presence, `run_id`, and candidate lineage.
 2. Mark mismatched or missing required artifacts as `incomplete_artifacts`.
-3. Summarize the Skill 3 score without recalculation and label it against the maximum score, for example `4.4 / 5`; do not show confidence in the human-facing summary.
+3. Summarize the Skill 3 score without recalculation and label it against the maximum score, for example `4.4 / 5`; do not show or derive a separate certainty metric.
 4. Render the Skill 3 quote without recalculation: ID, validity, low/expected/high totals, expected scenario assumptions before line items, human-confirmed resource scope, the largest expected cost driver and what makes it increase, line items, and official sources.
 5. Render the estimate as an estimate. Never present it as verified, reconciled, or invoiced.
 6. If the S4 runtime includes `pre_cleanup_usage_snapshot`, render it as cleanup-before runtime usage evidence: elapsed time, CloudFormation resources, S3 object count/size, Lambda invokes/metrics when available, tags, and recipe-specific resource facts. Keep it separate from actual AWS cost.

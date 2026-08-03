@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from agentic_cloud_radar.s3 import build_evaluate
+from agentic_cloud_radar.s3 import build_evaluate, render_poc_decision_report
 from agentic_cloud_radar.s4 import build_validate
 from agentic_cloud_radar.s4_deployer import (
     DeploymentError,
@@ -195,6 +195,20 @@ class S3S4Tests(unittest.TestCase):
         self.assertIn("recommended_approval_ceiling_usd", option)
         self.assertIn("technically_eligible", option)
         self.assertIn("selected_candidate_id", result["poc_decision_gate"]["required_outputs"])
+        self.assertNotIn("confidence", result["evaluated_candidates"][0])
+        self.assertNotIn("pricing_confidence", result["evaluated_candidates"][0]["cost_estimate"]["quote"])
+
+    def test_skill3_decision_report_states_poc_threshold_without_confidence(self):
+        result = build_evaluate(_deployable_s2()).to_dict()
+
+        report = render_poc_decision_report(result)
+
+        self.assertIn("Skill 3 PoC 決策報告", report)
+        self.assertIn("Skill 3 加權分 >= 3.75 / 5", report)
+        self.assertIn("等待 Cleo 決定是否進入 PoC", report)
+        self.assertIn("是否值得交給 Cleo 決定進入 Skill 4：是", report)
+        self.assertNotIn("信心", report)
+        self.assertNotIn("confidence", report)
 
     def test_s4_does_not_create_a_second_low_risk_track(self):
         request = {"selected_candidate_ids": ["CAND-1"], "selected_by": "Cleo"}

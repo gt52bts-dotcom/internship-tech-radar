@@ -446,7 +446,6 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
     score_text = f"{score} / 5" if score is not None else "未記錄 / 5"
     return {
         "weighted_score": candidate.get("weighted_score"),
-        "confidence": candidate.get("confidence") or "unknown",
         "dimensions": dimensions,
         "rows": [
             ("Skill 3 加權分（滿分 5）", score_text),
@@ -592,7 +591,7 @@ def _pre_cleanup_usage_snapshot(runtime: dict[str, Any] | None) -> dict[str, Any
         "billing_evidence": False,
         "actual_cost_status": "not_billing_evidence",
         "sections": {},
-        "rule": "cleanup 前未提供即時用量快照；實際成本仍只能由 Billing、Cost Explorer 或 CUR artifact 證明。",
+        "rule": "cleanup 前未提供即時用量快照；新版 Skill 5 不把 runtime facts 轉成實際 AWS 成本。",
     }
 
 
@@ -628,7 +627,7 @@ def _render_pre_cleanup_usage_snapshot(snapshot: dict[str, Any]) -> list[str]:
             f"- 快照狀態：{_usage_snapshot_status_label(snapshot.get('status') or 'unknown')}",
             f"- 擷取時間：{snapshot.get('captured_at') or 'unknown'}",
             f"- 建立到 cleanup 前經過：約 {elapsed_text}",
-            "- 性質：這是 runtime facts，不是 AWS 帳單；實際成本仍需 Billing、Cost Explorer 或 CUR artifact。",
+            "- 性質：這是 runtime facts，不是 AWS 帳單；新版 Skill 5 不回報實際 AWS 成本。",
             "",
             "| 類別 | cleanup 前看到的證據 |",
             "| --- | --- |",
@@ -821,7 +820,7 @@ def _related_topics(
         topics.extend(str(item) for item in source.get("tags") or [])
     scope = (((selected or {}).get("comparison_dimensions") or {}).get("technology_scope") or {})
     topics.extend(str(item) for item in scope.get("services_detected") or [])
-    topics.extend(["AWS Pricing Calculator", "Cost Explorer", "CloudFormation", "PoC cleanup", "Future work"])
+    topics.extend(["AWS Pricing Calculator", "CloudFormation", "PoC cleanup", "Future work"])
     return _dedupe([_topic_label(item) for item in topics if item])
 
 

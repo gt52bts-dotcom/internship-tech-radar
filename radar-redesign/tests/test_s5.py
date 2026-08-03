@@ -10,7 +10,7 @@ class Skill5Tests(unittest.TestCase):
         s3 = {
             "stage": "S3", "run_id": "run-1", "evaluated_candidates": [{
                 "candidate_id": "C1", "title": "Lambda feature", "source_url": "https://aws.amazon.com/example",
-                "weighted_score": 4.0, "confidence": "medium", "recommend_s4": True,
+                "weighted_score": 4.0, "recommend_s4": True,
                 "dimension_scores": {"technical_value": 4},
                 "region_status": {"status": "available_ap_southeast_1"},
                 "cost_estimate": {"status": "unknown"}, "stop_conditions": ["Keep the PoC non-production."],
@@ -45,7 +45,6 @@ class Skill5Tests(unittest.TestCase):
                 "title": "Feature",
                 "source_url": "https://aws.amazon.com/example",
                 "weighted_score": 3.35,
-                "confidence": "medium",
                 "recommend_poc": True,
             }],
         }
@@ -169,7 +168,6 @@ class Skill5Tests(unittest.TestCase):
             "title": "Launching S3 Files, making S3 buckets accessible as file systems",
             "source_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
             "weighted_score": 4.4,
-            "confidence": "medium",
             "recommend_poc": True,
             "region_status": {"status": "available_ap_southeast_1"},
             "evidence_refs": {"evidence_limits": []},
@@ -199,7 +197,7 @@ class Skill5Tests(unittest.TestCase):
         self.assertIn("人工需確認的 PoC 資源", report["markdown"])
         self.assertNotIn("| pending |", report["markdown"])
         self.assertNotIn("## 一句結論", report["markdown"])
-        self.assertNotIn("| 信心 |", report["markdown"])
+        self.assertNotIn("信心", report["markdown"])
         self.assertNotIn("### 報價假設與限制", report["markdown"])
         self.assertNotIn("## 後續提醒", report["markdown"])
         self.assertIn("預期總額", report["markdown"])

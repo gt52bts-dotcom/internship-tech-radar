@@ -72,14 +72,14 @@
 ## 2026-07-31 Amazon Connect Customer Data Lake Article Run
 
 - A single-item S1-S5 run was completed for AWS's 2026-07-17 article, `Build an Amazon Connect Customer Data Lake with a Reusable CDK Construct`, under run ID `direct-url-20260731-766826d4`.
-- Skill 3 gave the candidate a 3.75 technical score with medium confidence but did not recommend deployment because its Amazon Connect / RAM / Lake Formation / Glue workflow has no registered PoC recipe and rate card. Singapore availability and candidate-specific pricing evidence also remain unverified.
+- Skill 3 gave the candidate a 3.75 technical score but did not recommend deployment because its Amazon Connect / RAM / Lake Formation / Glue workflow has no registered PoC recipe and rate card. Singapore availability and candidate-specific pricing evidence also remain unverified.
 - Skill 4 created no AWS resources and recorded `not_recommended_for_poc`; Skill 5 is an `interim` report. A future real PoC needs a reviewed recipe, a complete pre-deployment quote, an existing suitable Amazon Connect Customer instance, and explicit named approval.
 
 ## 2026-07-30 Default Context-Free Usage
 
 - 不特別製作或標示「實習版本」。一般使用流程就是：Skill 1 蒐集、Skill 2 比較、真人選候選、Skill 3 依公開證據評估、Skill 4 驗證、Skill 5 報告。
 - 不要求使用者提供公司問題、公司內部資料、自訂環境或禁止資料／權限表單。工作負載適配、Region 與價格尚未確認時，系統寫入 review notes，不要求使用者先完成複雜設定。
-- Skill 3 的唯一必要人類輸入是候選選擇；技術評估依固定 rubric、公開官方證據、信心與 hard blocker 決定。
+- Skill 3 的技術評估依固定 rubric、公開官方證據、hard blocker 與完整報價決定；不再使用信心指標。
 - 真的要建立 AWS 資源時，才保留最小且必要的安全閘門：選定候選、具名核准、固定小額成本上限、已登錄 recipe、明確 `--execute`、Console review 與受限 cleanup。Region、測試資料、成功條件與 cleanup 範圍使用專案安全預設值。
 - 程式內可保留既有 AWS profile 名稱作為實作設定，但文件與 GUI 只描述為隔離測試／sandbox，不以「intern」作為產品版本或使用限制。
 
@@ -173,7 +173,7 @@
 - 若使用者不知道公司實際遇到哪些問題，雷達前面需增加「S-1 問題發現／問題候選蒐集」：用低侵入、非敏感來源整理可能痛點，例如訪談問題清單、公開或內部非敏感文件、常見金融雲端場景、既有日誌中的阻礙、主管指定方向，再由人類確認後進入 S0 需求卡。
 - S0 需求輸入層不應直接負責對外搜尋。S0 可選擇性使用 LLM 協助把使用者描述整理成需求卡、追問缺漏欄位與檢查敏感資訊；真正的外部資料搜尋與技術蒐集應在 S1 Scan，且需等 S0 需求卡經人類確認後才啟動。任何 LLM/API key 都必須放在後端或 Secrets Manager，不可出現在 GUI、repo、日誌或報告中。
 - 舊版技術雷達曾使用受控 `seed_article` 重跑歷史新聞；此設計已不適用新版 `radar-redesign`。新版正式 S1 僅保留 2026-07-28 定義的 `url`／`rss` 真實官方資料入口。
-- 所有新版 RSS 或 URL 候選都必須先完整通過 S1-S5 才能申請 PoC。S5 的 `poc_gate` 要求平均分至少 3.75、證據信心至少 medium、沒有治理旗標；即使符合也只會標記為 `eligible_for_human_poc_review`，`automatic_poc_start` 固定為 false。真人仍需核准範圍、成本、成功標準與 cleanup，雷達不得自行建立付費 PoC 資源。
+- 所有新版 RSS 或 URL 候選都必須先完整通過 S1-S3 決策報告才可申請 PoC。PoC 技術資格要求 Skill 3 加權分至少 3.75 / 5、沒有 PoC blocker、報價狀態為 `estimated`，且 Skill 4 有可部署 recipe；即使符合也只代表可交由 Cleo 人工決定，`automatic_poc_start` 固定為 false。真人仍需核准範圍、成本、成功標準與 cleanup，雷達不得自行建立付費 PoC 資源。
 - 2026-07-24 釐清：若使用者尚未在 human review gate 核准，對外與日誌口徑應說「自動流程完成到 S3 評估／PoC 候選資格判斷」，而不是說「已啟動或完成正式 PoC」。S4 若只產生低風險 validator artifact、rubric fallback 或重用既有驗證證據，需明確標示為非核准 PoC；任何會新建或變更 AWS 付費資源的 S4 PoC 必須等 Cleo 明確同意後才可開始。
 - 2026-07-24 AWS 回查修正：2026-07-23 16:26:33 Asia/Taipei，Cleo 已在 DynamoDB human pick log 對 `s3files-news-20260723-gate` 寫入 `decision=approve`，候選 `M-2E486BFB`，同意最小範圍 S3 Files PoC。此 approval 是正確 run 的人類核准紀錄，但仍不代表 record-human-pick Lambda 會自動建立 PoC 資源；後續 S4 執行仍需依核准範圍、成本、成功標準與 cleanup 做。
 - 2026-07-24 使用者更正：不可在正式日誌或主管可讀文件中寫成「S4 雙向資料驗證與 cleanup 回驗已於今日完成」。若 AI 背景曾做過 AWS 查詢或整理，仍需先和 Cleo 的實際操作、理解程度與可展示證據對齊，才能計入 Cleo 個人日誌或 Skill 分數。
@@ -201,7 +201,7 @@
 - AI PM 評分與紀錄必須嚴格：做事前先定義本次工作屬於哪個 Skill 或動作、完成條件、checkpoint 與驗證方式；做完每一步都要有可檢查的證據，不能只用「感覺完成」計分。
 - 對於較大的工作，先整理計畫型態與時間軸；若目標、驗證方式或主管期待不清楚，AI PM 可以主動反問再繼續。
 - Git 內的正式每日實習日誌放在 `logs/daily/work-log-YYYY-MM-DD.md`；根目錄保留 `AI_PM_INBOX.md` 作為 17:00 前暫存。
-- 2026-07-21 起，日誌增加「主管評分表自評」功能：四大項目為組織認同／組織承諾、盡責、團隊合作、創新求變；另追蹤 Mentor 表單 15 項行為觀察。15 項若缺少實際觀察或使用者補充，必須留白或標示 `暫不評分`，不可為了完整而推論分數；若使用者明確要求「假設 AI 是 mentor 來評分」，可提供 `AI 模擬 mentor 評分`，但必須清楚標示非正式 mentor 分數並附信心與補強方向。累計檔為 `MENTOR_EVALUATION_PROGRESS.md`，主管可讀細則頁為 `dashboard/mentor-evaluation-details.md`。此分數是實習生自評與補強提醒，正式成績仍以主管評分為準。Notion 摘要頁為 `Cleo｜主管評分自評儀表板`：`https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350`；Notion 細則頁為 `Cleo｜主管評分表細則與回覆`：`https://app.notion.com/p/3a49d9fba316814e923ad82718952a71`。
+- 2026-07-21 起，日誌增加「主管評分表自評」功能：四大項目為組織認同／組織承諾、盡責、團隊合作、創新求變；另追蹤 Mentor 表單 15 項行為觀察。15 項若缺少實際觀察或使用者補充，必須留白或標示 `暫不評分`，不可為了完整而推論分數；若使用者明確要求「假設 AI 是 mentor 來評分」，可提供 `AI 模擬 mentor 評分`，但必須清楚標示非正式 mentor 分數並附補強方向。累計檔為 `MENTOR_EVALUATION_PROGRESS.md`，主管可讀細則頁為 `dashboard/mentor-evaluation-details.md`。此分數是實習生自評與補強提醒，正式成績仍以主管評分為準。Notion 摘要頁為 `Cleo｜主管評分自評儀表板`：`https://app.notion.com/p/3a49d9fba316816c8f95d2a2ff997350`；Notion 細則頁為 `Cleo｜主管評分表細則與回覆`：`https://app.notion.com/p/3a49d9fba316814e923ad82718952a71`。
 - 評估團隊合作、溝通及協調能力時，要考慮組織情境。若單位本來只有一個實習職缺或工作安排以個人專案為主，不能把「跨同事／跨團隊互動少」當成主要扣分理由；應改看 mentor 溝通、需求對齊、主動回報、文件同步與依回饋調整方向。
 - 團隊合作亦應採計實際的實習生社群互動：2026-07-23 共融活動時與 11 位實習生共進午餐、建立交流，且平日中午持續與其他 IT 部門實習生一起用餐。後續可將此類融入、交流與合作證據寫入評分自評，但不混入技術 Skill 積分。
 - 2026-07-21 起，建立 GitHub 評分表集合 `evaluation-forms/`。目前包含兩張國泰表單：`國泰｜實習生評鑑表單`、`國泰｜Mentor實習生狀況觀察表`，以及兩張國立臺灣海洋大學表單：`學生校外實習成效問卷（實習機構）`、`學生校外實習成績考核表（實習機構主管用）`。日後使用者問「評分表／評鑑表」時，先讀 `evaluation-forms/README.md` 再判斷要使用哪張表單，不要把不同表單混在一起。
@@ -313,8 +313,8 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - S2 必須區分 source-backed fact、planning inference、unknown；不得用自動總分取代人類 shortlist。
 - 2026-07-29 S2 已補上 `official_region_lookup`：AWS 公開搜尋索引只用於發現候選相關官方 URL，隨後必須重新抓取 `aws.amazon.com`／`docs.aws.amazon.com` 正文；搜尋 snippet、rank 與通用 endpoint 均不可作為 Region 證據。只有實抓同段同時出現候選功能詞與 `Singapore`／`ap-southeast-1` 才可把 Region 狀態提升為 `available_ap_southeast_1`；若查不到，只能說本次證據不足，不能寫成該功能必定不支援新加坡，也不能因此讓 S2 流程停止。
 - 2026-07-29 S3/S4 本機切片已新增：S3 只吃 S2 artifact 與 human shortlist request，沒有 shortlist 就停在 `needs_human_shortlist`；固定 rubric 為 technical_value 0.35、adoption_prerequisites 0.25、verifiability 0.25、risk_and_stop_conditions 0.15，成本不列入技術分數。S4 只吃 S3 artifact，預設產生低風險 validation artifact，不建立 AWS resources；paid PoC 必須再通過 Region、USD 3、approved_by、automatic_poc_start=false 檢查。
-- 2026-07-29 使用者修正 S4 交付定義：S4 的最終目標是可在已登入的 `intern` AWS 帳號完成完整、受控的 PoC 部署、功能回驗與 cleanup，而非只留低風險 validator artifact。每次正式 PoC 前，系統必須先通知 Cleo S3 評估結果、候選、分數／信心、Region 與風險、預計資源、成本上限、成功條件與 cleanup；必須等 Cleo 在通知後明確核准才可執行 `cdk deploy` 或建立任何付費資源。S4 後續仍不得自動啟動付費 PoC，也不得跳過 CloudFormation 與 AWS Console 的人工回驗。
-- 2026-07-29 已完成一條新的實際 S1→S4 S3 Files PoC：Cleo 手動跑出的 S1/S2/S3 artifact 共用 run `direct-url-20260729-e330af79`，候選為官方 S3 Files 新聞、S3 score `3.85/5`、confidence `medium`、`recommend_s4=true`。S4 deployment context 保留三個 artifact SHA-256，stack/resource prefix 衍生自該 run；CDK synth 後以同一份 CloudFormation 模板建立新 stack，因既有 CDK bootstrap role 不可 assume，未使用舊 bootstrap role。CloudFormation、CLI/SSM 與 Cleo 的 Infrastructure Composer 檢視共同證明 VPC/S3/S3 Files/mount target/access point/EC2 關聯，以及 S3→mount 與 mount→S3 均成功。Cleanup 時 versioned bucket 必須先清除所有物件版本與 delete markers；最終 stack、bucket、S3 Files 均不存在，EC2 只有 terminated 歷史、無 active 資源。這是可宣稱的實際 PoC，但只能代表這條 S3 Files 案例與 intern 環境，不能延伸成新版完整 S5 或公司生產環境已驗證。
+- 2026-07-29 使用者修正 S4 交付定義：S4 的最終目標是可在已登入的 `intern` AWS 帳號完成完整、受控的 PoC 部署、功能回驗與 cleanup，而非只留低風險 validator artifact。每次正式 PoC 前，系統必須先通知 Cleo Skill 3 評估結果、候選、分數、Region 與風險、預計資源、成本上限、成功條件與 cleanup；必須等 Cleo 在通知後明確核准才可執行 `cdk deploy` 或建立任何付費資源。S4 後續仍不得自動啟動付費 PoC，也不得跳過 CloudFormation 與 AWS Console 的人工回驗。
+- 2026-07-29 已完成一條新的實際 S1→S4 S3 Files PoC：Cleo 手動跑出的 S1/S2/S3 artifact 共用 run `direct-url-20260729-e330af79`，候選為官方 S3 Files 新聞、Skill 3 score `3.85/5`、`recommend_s4=true`。S4 deployment context 保留三個 artifact SHA-256，stack/resource prefix 衍生自該 run；CDK synth 後以同一份 CloudFormation 模板建立新 stack，因既有 CDK bootstrap role 不可 assume，未使用舊 bootstrap role。CloudFormation、CLI/SSM 與 Cleo 的 Infrastructure Composer 檢視共同證明 VPC/S3/S3 Files/mount target/access point/EC2 關聯，以及 S3→mount 與 mount→S3 均成功。Cleanup 時 versioned bucket 必須先清除所有物件版本與 delete markers；最終 stack、bucket、S3 Files 均不存在，EC2 只有 terminated 歷史、無 active 資源。這是可宣稱的實際 PoC，但只能代表這條 S3 Files 案例與 intern 環境，不能延伸成新版完整 S5 或公司生產環境已驗證。
 - 2026-07-29 AI 協作定位釐清：S1-S4 的 runtime 行為目前主要由可重現的 deterministic code／AWS 服務執行（S1/S2 真實 HTTP fetch、S3 固定 rubric、CDK synth、CloudFormation resource creation、SSM 驗證），不是由 runtime LLM 自行操作帳號。Codex/LLM 的價值在於把 Cleo 的目標轉成可執行流程、設計與撰寫程式、解讀 artifact、在 CDK bootstrap role、PowerShell BOM JSON、versioned bucket cleanup 等真實錯誤出現時提出替代方案並維持證據與安全邊界；Cleo 則親自選候選、確認範圍、手動跑 S1-S3、核准 S4、在 Console 檢視與確認 cleanup。此「固定程式 + AI 協作判斷 + 人類核准」三層關係是 final proposal AI 使用軌跡的核心案例，不能寫成 AI 或 Cleo 單方獨立完成。
 - 2026-07-29 使用者要求 S1-S4 持續提供可逐段對照程式碼的詳細註解；新增的總覽文件必須清楚區分 deterministic runtime、人工 shortlist／approval gate，以及由 artifact lineage 驅動的外掛式真實 PoC runner，不能把本機 S4 validator 說成會自行部署。
 - 2026-07-29 S2 Region 規則補強：對 `ap-southeast-1`，官方候選相關句子若明示「all commercial AWS Regions」或「所有商業 AWS 區域」，且同句提到該候選已偵測到的服務，可視為功能級 Region 證據並標為 `available_ap_southeast_1`；一般泛稱 AWS Regions、無候選服務上下文或不相干的 Region 文字仍不可通過。這保留嚴謹證據界線，也避免明確全商業區公告被錯標為 `region_unknown`。
@@ -357,7 +357,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 ## 2026-08-03 Mentor S5 Report Presentation Rule
 
 - Human-facing Skill 5 reports must replace the old one-sentence conclusion with `新聞摘要：應用面優勢`, focused on what the new feature enables in real application scenarios and what advantages it claims or suggests.
-- Human-facing S5 summaries must show scores as `x / 5` and should not display confidence; machine-readable JSON may still retain confidence for workflow compatibility.
+- Human-facing and machine-readable Skill artifacts must not use a separate certainty score as a decision indicator. PoC eligibility is decided by score threshold, blockers, quote readiness, deployable recipe, and named human approval.
 - S1-S5 evidence must be visible step by step: S1 source fetch, S2 comparison/linked evidence, S3 score and quote, S4 validation/runtime/cleanup, and S5 report status.
 - Verified facts belong under the technical validation status, not as a vague standalone `已證實事實` section.
 - The old human-facing `後續提醒` section is removed. S5 reports must include `Future work`, reviewer-style questions, and human-useful related reading keywords.
