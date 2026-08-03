@@ -46,13 +46,15 @@ Keep the packet, evidence JSON, and screenshot in the same run folder under `./o
     --packet .\out\run\s4-console-review-packet.json `
     --review-evidence .\out\run\s4-console-review-evidence.json `
     --confirmed-by "<named-human>" `
-    --shared-via conversation `
+     --shared-via conversation `
      --notes "Infrastructure Composer screenshot reviewed; cleanup approved." `
      --output .\out\run\s4-runtime-cleaned.json `
+     --usage-snapshot-output .\out\run\pre_cleanup_usage_snapshot.json `
      --execute
    ```
 
-8. Only when the output status is `cleanup_verified`, invoke Skill 5 with `--runtime .\out\run\s4-runtime-cleaned.json`. New v3 runtime needs screenshot metadata and `display_channel_confirmed` to become `final`; abort cleanup is reported as `final_without_console_review`, never as an actual-PoC final.
+8. Before cleanup, `s4-close` records `pre_cleanup_usage_snapshot.json` with immediate runtime facts such as timestamps, CloudFormation resources, S3 object counts/sizes, Lambda invokes/metrics when available, tags, and recipe-specific resource state. This is not a Billing, Cost Explorer, or CUR artifact.
+9. Only when the output status is `cleanup_verified`, invoke Skill 5 with `--runtime .\out\run\s4-runtime-cleaned.json`. New v3 runtime needs screenshot metadata and `display_channel_confirmed` to become `final`; abort cleanup is reported as `final_without_console_review`, never as an actual-PoC final.
 
 ## Timeout / Abort
 

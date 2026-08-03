@@ -97,6 +97,7 @@ def main(argv: list[str] | None = None) -> int:
     cleanup_parser.add_argument("--input", required=True, help="Path to a Console-reviewed S4 runtime JSON file.")
     cleanup_parser.add_argument("--execute", action="store_true", help="Actually delete only the reviewed PoC stack and its test data.")
     cleanup_parser.add_argument("--output", required=True, help="Path for the cleanup-complete S4 runtime JSON file.")
+    cleanup_parser.add_argument("--usage-snapshot-output", help="Optional path for pre_cleanup_usage_snapshot.json.")
 
     close_parser = subparsers.add_parser(
         "s4-close",
@@ -110,6 +111,7 @@ def main(argv: list[str] | None = None) -> int:
     close_parser.add_argument("--notes", help="Optional concise Console review note.")
     close_parser.add_argument("--execute", action="store_true", help="Actually clean the reviewed run after the explicit human confirmation.")
     close_parser.add_argument("--output", required=True, help="Path for the cleanup-verified S4 runtime JSON file.")
+    close_parser.add_argument("--usage-snapshot-output", help="Optional path for pre_cleanup_usage_snapshot.json.")
 
     abort_parser = subparsers.add_parser(
         "s4-abort",
@@ -121,6 +123,7 @@ def main(argv: list[str] | None = None) -> int:
     abort_parser.add_argument("--reason", required=True, help="Why the normal Console review path is being skipped.")
     abort_parser.add_argument("--execute", action="store_true", help="Actually delete only the run-derived PoC stack and test data.")
     abort_parser.add_argument("--output", required=True, help="Path for the abort-cleanup S4 runtime JSON file.")
+    abort_parser.add_argument("--usage-snapshot-output", help="Optional path for pre_cleanup_usage_snapshot.json.")
 
     s5_parser = subparsers.add_parser("s5", help="Render a source-bound JSON and Markdown report from S1-S4 artifacts.")
     s5_parser.add_argument("--s1", required=True, help="Path to an S1 scan artifact JSON file.")
@@ -174,14 +177,16 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.shared_via, args.notes, Path(args.output)
         )
     if args.command == "s4-cleanup":
-        return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output))
+        return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output), Path(args.usage_snapshot_output) if args.usage_snapshot_output else None)
     if args.command == "s4-close":
         return _run_s4_close(
-            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.shared_via, args.notes, args.execute, Path(args.output)
+            Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.shared_via, args.notes, args.execute, Path(args.output),
+            Path(args.usage_snapshot_output) if args.usage_snapshot_output else None,
         )
     if args.command == "s4-abort":
         return _run_s4_abort(
-            Path(args.input), Path(args.packet) if args.packet else None, args.confirmed_by, args.reason, args.execute, Path(args.output)
+            Path(args.input), Path(args.packet) if args.packet else None, args.confirmed_by, args.reason, args.execute, Path(args.output),
+            Path(args.usage_snapshot_output) if args.usage_snapshot_output else None,
         )
     if args.command == "s5":
         return _run_s5(
@@ -371,12 +376,14 @@ def _run_s4_console_review(
         return 1
 
 
-def _run_s4_cleanup(input_path: Path, execute: bool, output_path: Path) -> int:
+def _run_s4_cleanup(input_path: Path, execute: bool, output_path: Path, usage_snapshot_path: Path | None) -> int:
     if not execute:
         print("s4-cleanup only creates or deletes resources when --execute is explicitly supplied.", file=sys.stderr)
         return 1
     try:
-        _write_json(output_path, execute_cleanup(_read_json(input_path)))
+        result = execute_cleanup(_read_json(input_path))
+        _write_json(output_path, result)
+        _write_usage_snapshot_if_requested(usage_snapshot_path, result)
         return 0
     except DeploymentError as exc:
         _write_runtime_failure_if_present(output_path, exc)
@@ -392,6 +399,7 @@ def _run_s4_close(
     notes: str | None,
     execute: bool,
     output_path: Path,
+    usage_snapshot_path: Path | None,
 ) -> int:
     if not execute:
         print("s4-close only deletes resources when --execute is explicitly supplied after human screenshot confirmation.", file=sys.stderr)
@@ -400,7 +408,9 @@ def _run_s4_close(
         reviewed = record_console_review(
             _read_json(input_path), confirmed_by, notes, _read_json(evidence_path), _read_json(packet_path), shared_via
         )
-        _write_json(output_path, execute_cleanup(reviewed))
+        result = execute_cleanup(reviewed)
+        _write_json(output_path, result)
+        _write_usage_snapshot_if_requested(usage_snapshot_path, result)
         return 0
     except DeploymentError as exc:
         _write_runtime_failure_if_present(output_path, exc)
@@ -408,16 +418,21 @@ def _run_s4_close(
 
 
 def _run_s4_abort(
-    input_path: Path, packet_path: Path | None, confirmed_by: str, reason: str, execute: bool, output_path: Path
+    input_path: Path,
+    packet_path: Path | None,
+    confirmed_by: str,
+    reason: str,
+    execute: bool,
+    output_path: Path,
+    usage_snapshot_path: Path | None,
 ) -> int:
     if not execute:
         print("s4-abort only deletes resources when --execute is explicitly supplied by a named approver.", file=sys.stderr)
         return 1
     try:
-        _write_json(
-            output_path,
-            execute_abort_cleanup(_read_json(input_path), confirmed_by, reason, _read_json(packet_path) if packet_path else None),
-        )
+        result = execute_abort_cleanup(_read_json(input_path), confirmed_by, reason, _read_json(packet_path) if packet_path else None)
+        _write_json(output_path, result)
+        _write_usage_snapshot_if_requested(usage_snapshot_path, result)
         return 0
     except DeploymentError as exc:
         _write_runtime_failure_if_present(output_path, exc)
@@ -497,6 +512,17 @@ def _write_json(path: Path | None, value: dict) -> None:
         raise ValueError("An output path is required.")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def _write_usage_snapshot_if_requested(path: Path | None, runtime: dict) -> None:
+    if path is None:
+        return
+    snapshot = runtime.get("pre_cleanup_usage_snapshot") or {
+        "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+        "status": "not_recorded",
+        "rule": "No pre-cleanup usage snapshot was present in the runtime artifact.",
+    }
+    _write_json(path, snapshot)
 
 
 if __name__ == "__main__":

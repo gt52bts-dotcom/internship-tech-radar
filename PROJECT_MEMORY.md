@@ -347,3 +347,18 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - The snapshot is immediate runtime evidence only: deployment/capture timestamps, elapsed seconds, CloudFormation resource inventory, S3 object/version counts and bytes, Lambda configuration and CloudWatch metrics when available, and recipe-specific facts such as EC2 state.
 - The snapshot is not an AWS bill. Skill 5 may use it to explain what ran before cleanup, but actual cost remains pending unless an attributable Billing, Cost Explorer, or CUR artifact is provided.
 - Cleanup should not be delayed while waiting for billing data; Cost Explorer/Billing reconciliation is a later evidence step.
+
+## 2026-08-03 Mentor S5 Report Presentation Rule
+
+- Human-facing Skill 5 reports must replace the old one-sentence conclusion with `新聞摘要：應用面優勢`, focused on what the new feature enables in real application scenarios and what advantages it claims or suggests.
+- Human-facing S5 summaries must show scores as `x / 5` and should not display confidence; machine-readable JSON may still retain confidence for workflow compatibility.
+- S1-S5 evidence must be visible step by step: S1 source fetch, S2 comparison/linked evidence, S3 score and quote, S4 validation/runtime/cleanup, and S5 report status.
+- Verified facts belong under the technical validation status, not as a vague standalone `已證實事實` section.
+- The old human-facing `後續提醒` section is removed. S5 reports must include `Future work`, reviewer-style questions, and human-useful related reading keywords.
+- The report should ask what else is worth doing for this news item in the PoC, and what a reviewer would challenge or ask Cleo to explain further.
+- The evidence source table must not include a pending PoC billing row as if it were evidence. Actual cost remains in the cost reconciliation table and only becomes evidence when Cost Explorer, Billing, or CUR attribution exists.
+- PoC quotation presentation must put expected scenario assumptions before line-item details, identify the resources a human must confirm, and call out the most expensive expected line item plus the usage condition that would increase it.
+- PoC quotes usually rely on monthly or usage-based public price units; reports must state the conversion basis. Lambda must be described as charged only when invoked, based on request count and duration/GB-second, not as an always-on resource.
+- Remove the human-facing `報價假設與限制` heading. Keep necessary cost nature and evidence boundaries in clearer quote/cost status language.
+- Lifecycle language must make timing clear: S1-S3 are the human decision zone; S4 validates the selected PoC; S5 reports the evidence and should preserve cleanup evidence. Resource cleanup or completion marking must not erase evidence needed for S5 review.
+- The remaining two weeks should prioritize convergence: polish final proposal/paper material, keep Future work explicit, and avoid expanding into new large features unless they directly support the final report story.

@@ -79,6 +79,7 @@ python -m agentic_cloud_radar.cli s4-close `
   --shared-via conversation `
   --notes "<concise-review-note>" `
   --output .\out\run\s4-runtime-cleaned.json `
+  --usage-snapshot-output .\out\run\pre_cleanup_usage_snapshot.json `
   --execute
 ```
 
@@ -92,8 +93,10 @@ python -m agentic_cloud_radar.cli s4-close `
 6. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
 7. Run the Playwright capture command from the Console review packet. It opens a headful browser, uses an existing or newly authenticated AWS Console session, navigates to CloudFormation / Infrastructure Composer, captures the canvas PNG, and writes local evidence JSON.
 8. Pause for explicit named-human cleanup confirmation. Do not infer confirmation from a prior deployment approval.
-9. Run `s4-close --execute`; it requires the packet, screenshot evidence, and the channel where the human actually saw the image. It cleans only the reviewed run and re-queries the scoped resources.
-10. Produce Skill 5's actual-PoC conclusion only from the resulting `cleanup_verified` runtime artifact.
+9. Run `s4-close --execute`; before deletion it records `pre_cleanup_usage_snapshot.json` with immediately available runtime facts: create/delete-before timestamps, CloudFormation resources, resource tags when available, S3 object count/versions/bytes, Lambda configuration and CloudWatch metrics when present, and recipe-specific runtime facts such as EC2 state.
+10. Treat the pre-cleanup snapshot as usage evidence, not billing evidence. Do not delay cleanup for Cost Explorer or Billing data.
+11. It cleans only the reviewed run and re-queries the scoped resources.
+12. Produce Skill 5's actual-PoC conclusion only from the resulting `cleanup_verified` runtime artifact.
 
 The packet's `review_deadline` is the sole objective definition of a review timeout. After that deadline, or after deployment/normal-close failure, use `s4-abort --execute` only with a named cost-control approver and reason. A timeout abort must also include `--packet .\out\run\s4-console-review-packet.json`. It records `skipped_for_cost_control` / `abort_without_console_review`; Skill 5 must not treat that as normal screenshot-backed Console review.
 

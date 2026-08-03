@@ -31,35 +31,43 @@ Reuse `agentic_cloud_radar/s5.py`.
 
 1. Check stage presence, `run_id`, and candidate lineage.
 2. Mark mismatched or missing required artifacts as `incomplete_artifacts`.
-3. Summarize the Skill 3 score and confidence without recalculation.
-4. Render the Skill 3 quote without recalculation: ID, validity, low/expected/high totals, expected line items, assumptions, exclusions and official sources.
+3. Summarize the Skill 3 score without recalculation and label it against the maximum score, for example `4.4 / 5`; do not show confidence in the human-facing summary.
+4. Render the Skill 3 quote without recalculation: ID, validity, low/expected/high totals, expected scenario assumptions before line items, human-confirmed resource scope, the largest expected cost driver and what makes it increase, line items, and official sources.
 5. Compare the public-price estimate with actual AWS cost only if an attributable Billing, Cost Explorer, or CUR artifact is provided.
-6. Separate verified facts from unknown or unverified statements.
-7. Build an evidence ledger linking claims to source, runtime, or billing artifacts.
-8. Produce one JSON report, embedded Markdown, and a stable GUI model.
-9. Mark the report `final` only when runtime status is `cleanup_verified`; for new `s4.runtime-evidence.v3`, Infrastructure Composer screenshot metadata and `display_channel_confirmed` must both be present. A cost-control abort is `final_without_console_review` with report type `closed_without_console_review`, never a normal actual-PoC final.
+6. If the S4 runtime includes `pre_cleanup_usage_snapshot`, render it as cleanup-before runtime usage evidence: elapsed time, CloudFormation resources, S3 object count/size, Lambda invokes/metrics when available, tags, and recipe-specific resource facts. Keep it separate from actual AWS cost.
+7. Put verified facts under the technical validation status instead of a vague standalone section.
+8. Show S1-S5 stage evidence explicitly, including S1 source fetch, S2 comparison evidence, S3 score/quote, S4 runtime/cleanup, and S5 report status.
+9. Build an evidence source table linking claims to source, runtime, or billing artifacts; do not include a pending PoC billing row as if it were evidence.
+10. Produce one JSON report, embedded Markdown, and a stable GUI model.
+11. Mark the report `final` only when runtime status is `cleanup_verified`; for new `s4.runtime-evidence.v3`, Infrastructure Composer screenshot metadata and `display_channel_confirmed` must both be present. A cost-control abort is `final_without_console_review` with report type `closed_without_console_review`, never a normal actual-PoC final.
 
 ## Required report sections
 
 - Candidate and official source.
-- One-sentence conclusion.
+- News summary focused on the new feature's application-side advantages.
 - Skill 3 evaluation.
 - PoC 成本估算報價單.
 - 預估成本 vs 可歸因實際帳務成本.
+- cleanup 前即時用量快照.
 - Skill 4 validation and runtime checks.
 - Console review outcome, including forced-cleanup reason and approver when applicable.
-- Verified facts.
+- Verified facts under 技術驗證狀態.
 - Unknown or insufficiently supported claims.
-- Next reminders.
-- Evidence ledger and S1-S4 funnel.
+- Future work: what else is worth doing for this news item and PoC.
+- Reviewer questions: questions a reviewer would ask before trusting or extending the result.
+- Human-useful related reading keywords.
+- S1-S5 stage evidence.
+- Evidence source table and S1-S4 funnel.
 
 ## Claim rules
 
 - A named-human cost ceiling is not an official price.
 - A public-price quotation is a non-binding estimate, not an AWS invoice or formal AWS sales quote.
+- PoC quotes normally use monthly or usage-based public price units; when a PoC runs for only hours, the report must state the conversion basis. Lambda cost must be described as request and duration/GB-second based, not as an always-on charge.
 - The Skill 3 quote is a static public-rate-card estimate unless `live_pricing_api_used=true`; it is not a real-time AWS Pricing API quotation.
 - `recommend_poc` in artifacts means technically eligible for a controlled PoC, not proof that the candidate fits the company's workload.
 - Runtime duration, CloudFormation status, and cleanup status are not actual billing evidence.
+- `pre_cleanup_usage_snapshot` is immediate runtime evidence only; it may support the cost explanation but must never be converted into actual AWS billing cost.
 - If no attributable Cost Explorer, Billing, or CUR artifact is present, actual cost must remain `pending`.
 - Do not omit zero-charge recipe resources, usage assumptions, exclusions or source URLs.
 - `CREATE_COMPLETE` is deployment evidence, not cleanup evidence.

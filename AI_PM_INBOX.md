@@ -1,5 +1,15 @@
 # AI PM 當日進度暫存
 
+## 2026-08-03 07:54 - Mentor S5 報告收斂回饋落地
+
+- 時間判定：2026-08-03 07:54 Asia/Taipei，為週一且未到 17:00，因此本次只記入 inbox，不建立或定稿今日正式日誌。
+- Mentor 回饋重點已整理為 S5 人類可讀報告規則：一句摘要改為「新聞摘要：應用面優勢」；S1-S5 每階段證據都要顯示；分數標滿分、不寫信心；已證實事實移入技術驗證狀態；不寫「後續提醒」，改放 Future work、reviewer questions 與延伸閱讀關鍵字。
+- 報價呈現已依回饋調整：預期情境假設放在明細前；列出人類需確認的 PoC 資源；指出預期報價中最貴項目與什麼用量會使費用增加；月費型項目說明折算口徑；Lambda 說明只有被呼叫時依 request 與 duration/GB-second 計費。
+- 證據來源表已刪除「待補實際帳務成本」這種尚未成證據的 PoC billing row；實際成本仍留在「預估成本 vs 可歸因實際帳務成本」表中，並維持 Cost Explorer/Billing/CUR 歸因才可宣稱。
+- 已更新 `radar-redesign/agentic_cloud_radar/s5.py`、`radar-redesign/tests/test_s5.py`、`radar-redesign/skills/report-cloud-evidence/SKILL.md`，重產 S3 Files 與 Lambda self-managed code storage 兩份 S5 範例報告，並重建 `radar-redesign/claude-gui-handoff/`。
+- 已更新 `PROJECT_MEMORY.md`，將 2026-08-03 Mentor S5 report presentation rule 記為後續長期規則；剩餘兩週方向記為收斂 final proposal / 論文素材、明確加入 Future work，不再任意擴新功能。
+- 驗證：主 repo `python -m unittest discover -s tests -p 'test_*.py' -v` 通過 43 tests；`radar-redesign/claude-gui-handoff` 同套測試也通過 43 tests。未建立、修改或清除任何 AWS 資源。
+
 ## 2026-07-31 17:00 正式統整狀態
 
 - 已將今日 inbox 證據統整至正式日誌、Skill 積分、Git dashboard 與 AI 執行軌跡；當日積分為 Scan +1、Compare +1、Evaluate +2、Validate +4、Report +2，總分 10，累積 117。

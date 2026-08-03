@@ -191,9 +191,22 @@ class Skill5Tests(unittest.TestCase):
 
         self.assertIn("## PoC 成本估算報價單", report["markdown"])
         self.assertIn("## 預估成本 vs 可歸因實際帳務成本", report["markdown"])
+        self.assertIn("## 新聞摘要：應用面優勢", report["markdown"])
+        self.assertIn("## Future work", report["markdown"])
+        self.assertIn("## Reviewer questions", report["markdown"])
+        self.assertIn("## S1-S5 階段證據", report["markdown"])
+        self.assertIn("Skill 3 加權分（滿分 5）", report["markdown"])
+        self.assertIn("4.4 / 5", report["markdown"])
+        self.assertIn("主要成本驅動", report["markdown"])
+        self.assertIn("人工需確認的 PoC 資源", report["markdown"])
         self.assertIn("實際成本狀態：待補實際帳務證據", report["markdown"])
         self.assertNotIn("| pending |", report["markdown"])
         self.assertNotIn("| pending_actual_cost |", report["markdown"])
+        self.assertNotIn("## 一句結論", report["markdown"])
+        self.assertNotIn("| 信心 |", report["markdown"])
+        self.assertNotIn("### 報價假設與限制", report["markdown"])
+        self.assertNotIn("## 後續提醒", report["markdown"])
+        self.assertNotIn("| PoC 可歸因實際帳務成本 | AWS billing evidence | 待補實際帳務證據 |", report["markdown"])
         self.assertIn("預期總額", report["markdown"])
         self.assertEqual(report["cost_quote"]["expected_total_usd"], 0.04719)
         self.assertEqual(report["cost_reconciliation"]["actual"]["status"], "pending")
@@ -201,6 +214,7 @@ class Skill5Tests(unittest.TestCase):
         self.assertEqual(report["gui_model"]["cost_quote"]["status_label"], "已完成估算")
         self.assertEqual(report["gui_model"]["cost_reconciliation"]["status"], "pending_actual_cost")
         self.assertEqual(report["gui_model"]["cost_reconciliation"]["status_label"], "待補實際成本")
+        self.assertGreaterEqual(len(report["gui_model"]["stage_evidence"]), 6)
 
     def test_attributable_billing_artifact_is_compared_to_estimate(self):
         from agentic_cloud_radar.costing import build_cost_quote
