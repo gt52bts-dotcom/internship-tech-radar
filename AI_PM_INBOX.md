@@ -978,3 +978,12 @@
 - Cleo 要求另行打包目前每階段產物；已建立分階段 package，包含 `S1-Scan`、`S2-Compare`、`S3-Evaluate`、`S4-Validate`、`S5-Report` 與 `README.md`。
 - Zip 位置：`C:\Users\youhs\Documents\實習專案\lambda-stage-artifacts-20260803-150444.zip`，大小 4,637,011 bytes，SHA-256=`4AD02C82B8C4DC8F427E677A293D3938D1F632B1502B1065B341B84D40E78ECF`。
 - 包內包含 S3 自包含 HTML/Markdown 決策報告、GPT-style 架構圖 PNG、S4 approval/deployment/runtime/console review packet，以及 S5 interim 報告。此包不是 final close package，因 Console review 與 cleanup 尚未完成。
+
+## 2026-08-03 15:18 - Lambda S4 cleanup and S5 final
+
+- Cleo 回報已在 AWS Console / Infrastructure Composer 人工確認完成，並授權清除剛剛 S4 部署的資源。
+- 已建立 manual Console review evidence：`radar-redesign/out/smoke-20260803-lambda-s3-decision-report/s4-console-review-evidence-manual.json`，明確標示 `automated_image_understanding=false`，圖片內容由 Cleo 人工確認。
+- 已執行 `s4-close --execute`，先產出 `pre_cleanup_usage_snapshot.json`，再清除 run-derived CloudFormation stack。Cleaned runtime：`s4-runtime-cleaned.json`，status=`cleanup_verified`。
+- Cleanup checks 通過：CloudFormation stack deleted、versioned test bucket emptied、run-derived resource prefix matched。AWS CLI `describe-stacks` 回查 `AgenticRadarS4BD3AD967` 回傳 stack 不存在，符合 cleanup 成功。
+- 已產出 S5 final：`s5-report-final.json` 與 `s5-report-final.md`，status=`final`，conclusion=`validated_and_cleaned`。報告包含 cleanup 前 runtime usage snapshot，但仍不把公開牌價預估轉成 AWS 帳務成本。
+- Cleo 提出核心反思：若 S3 的報價單與架構圖已足以判斷新聞價值，而實際帳務成本又要等完整帳期才有意義，S4 PoC 的價值應轉向「功能/權限/部署/cleanup 可行性證據」，而不是拿來做短期實際成本比較。
