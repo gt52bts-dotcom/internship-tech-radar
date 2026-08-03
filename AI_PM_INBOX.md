@@ -963,3 +963,4 @@
 - 圖片已保存到 `radar-redesign/out/smoke-20260803-lambda-s3-decision-report/skill3-poc-architecture-lambda-reference.png`，並插入目前的 `skill3-poc-decision-report.md`。
 - 長期規則已寫入 `PROJECT_MEMORY.md`：Agent mode 可在 S4 approval 前用影像生成工具產生人類可讀 PNG；Mermaid/文字圖保留作為可追溯 fallback。生成圖片需人工 QA 小字與箭頭，不能當成部署證據。
 - Cleo 進一步修正：既然已經有新版 PNG 圖卡，人類報告就不要再放舊版 Mermaid 流程圖；報告要直接內嵌 PNG，不只是提供連結。已更新目前 Lambda Skill 3 報告並調整 Skill 3 程式/文件規則。
+- Cleo 回報 `C:/Users/...png` 絕對路徑在 Markdown 預覽器中仍顯示成網址連結，未直接渲染圖片；已將目前 Lambda Skill 3 報告改成同資料夾相對 HTML `<img src="./skill3-poc-architecture-lambda-reference.png">`，並更新長期規則避免未來再用本機絕對路徑。
