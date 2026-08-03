@@ -2,7 +2,9 @@
 
 Last updated: 2026-08-03 Asia/Taipei.
 
-Latest pushed checkpoint: `45141e6 Record Lambda cleanup and S5 final`.
+Latest pushed checkpoint: GitHub `main` latest tip after the 2026-08-03 Skill 4
+resource inventory gate update. Run `git log -1 --oneline` after cloning for the
+exact commit hash.
 
 ## What Is In GitHub
 
@@ -36,6 +38,11 @@ The current GitHub version includes:
   Its value is proving deployment feasibility, Region/account compatibility,
   IAM/resource wiring, runtime verification, Console review, pre-cleanup usage
   snapshot capture, and safe cleanup.
+- Skill 4 close should rely on structured resource inventory, quote-vs-deployed
+  reconciliation, permission surface, and stage timing as the verifiable gate.
+  Console / Infrastructure Composer screenshots are supporting human-review
+  evidence only; the program records screenshot metadata and hashes but does not
+  claim to automatically understand the image content.
 - Skill 5 should report the evidence chain and limits. It should not turn short
   runtime usage facts into AWS Billing/Cost Explorer/CUR actual cost.
 
