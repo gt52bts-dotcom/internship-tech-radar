@@ -998,3 +998,10 @@
 - Cleo 修正前一版措辭：「若 Markdown 不顯示圖片」不是例外，而是目前已知一定會發生；因此 Skill 3 人類評估報告應直接給 HTML 檔案。
 - 已更新 CLI：`s3` 新增 `--decision-report-html-output` 與 `--decision-report-image`，可把 GPT-style PNG 架構圖以 data URI 嵌入 HTML 報告。Markdown 只保留為內部 fallback，不作為主要 review artifact。
 - 已同步 `PROJECT_MEMORY.md`、`MIGRATION_STATUS.md` 與 Skill 3 文件，讓另一台電腦接續時知道「先產 PNG，再產 self-contained HTML，才進入人類 PoC approval」。
+
+## 2026-08-03 15:40 - Skill 4 resource inventory gate patch
+
+- Cleo 提供 Claude patch，方向是把 Skill 4 close gate 從「只看 Console 截圖 metadata」強化成「可驗證資源盤點」。已套用 patch：新增 `s4_inventory.py` 與 `pipeline_timing.py`，讓 S4 runtime 可整理 CloudFormation resources、quote-vs-deployed resource reconciliation、permission surface 與各階段 timing。
+- Skill 4 文件已同步說明：Console / Infrastructure Composer 截圖仍是人眼輔助確認；程式會記錄檔案 metadata、hash、分享方式，但不自動判讀圖片內容，也不把圖片當成唯一證據。
+- Skill 5 已更新為可呈現 structured inventory、timing、permission/resource review notes，並對舊 runtime 證據較寬的情況保留限制說明。
+- 驗證：`python -m unittest tests.test_s4_inventory tests.test_s5 tests.test_s3_s4 tests.test_costing` 通過 47 tests；Python syntax check 通過 19 files；`git diff --check HEAD~1..HEAD` 無 whitespace 問題。

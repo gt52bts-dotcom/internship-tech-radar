@@ -378,3 +378,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - The active implementation is `radar-redesign/`; old company-account / `cathay-techintel-v3` local implementation copies are not part of the deployable current version and may be deleted after curated evidence is committed.
 - Raw `radar-redesign/out/`, Console screenshots, unredacted Console URLs, CDK `cdk.out/`, zips, dependency folders, local browser/session data, `.env`, AWS profiles, and `.local/` runtime folders must not be required for migration and should not be pushed.
 - For cross-computer evidence continuity, use redacted curated artifacts under `radar-redesign/reference-runs/` instead of raw runtime dumps.
+
+## 2026-08-03 Skill 4 Resource Inventory Gate Decision
+
+- Skill 4 的主要 close gate 從「Console 截圖 metadata」改為「可驗證資源盤點」。Console / Infrastructure Composer 截圖仍可用來讓 Cleo 人工確認畫面，但程式只驗證截圖的保存與分享 metadata，不宣稱自己已自動判讀圖片內容。
+- `s4_inventory` 應以 CloudFormation stack resources、resource identifiers、tags、quote expected resources、permission surface 與 stage timing 產出 structured inventory，讓 Skill 5 能說明實際建立了什麼、哪些資源符合報價預期、哪些權限面需要 reviewer 注意。
+- S4 PoC 的價值定位是部署可行性、帳號/Region 相容性、IAM/resource wiring、runtime verification、pre-cleanup usage snapshot 與 cleanup 可重現性；不是用短期 runtime facts 偽裝成 AWS 帳單或正式採購報價。
+- Skill 5 final 可以接受具 `cleanup_verified` 與 structured resource inventory 的新版 runtime；若處理舊 runtime 沒有 inventory，必須在限制中說明證據較舊、圖片內容仍是人工確認，不應混成新版完整證據鏈。
