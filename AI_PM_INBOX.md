@@ -1,5 +1,18 @@
 # AI PM 當日進度暫存
 
+## 2026-08-04 08:41 - 恢復 AI 每小時執行軌跡與跨 AI 交接
+
+- Cleo 指出 2026-07-27 之後的 AI 執行軌跡缺少每小時紀錄；確認此為 AI PM 紀錄流程中斷，非使用者取消規則。
+- Cleo 決定過去缺漏不追補，從 2026-08-04 起恢復每小時紀錄。
+- Cleo 今日可能在 Codex 與 Claude 之間切換，因 token 接近不足；後續交接要以 GitHub、專案記憶、今日 inbox、最新正式日誌與 AI 執行軌跡為共同來源。
+- 已建立今日 AI 執行軌跡，並將跨 AI 交接規則寫入專案記憶。
+
+## 2026-08-04 09:11 - 將 Skill 收尾 checklist 寫入五階段流程
+
+- Cleo 要求把「不用每次人工提醒 AI 收尾」的條件寫進 Skill。
+- 已同步更新主 repo 與 Claude GUI handoff 的五份 Skill 說明，新增每階段結束前必跑的 checklist：更新日誌或 inbox、必要時更新 README / migration、執行或說明驗證、檢查 git status、完成有意義的 commit、需要共享時 push、確認 GitHub 可見、留下下一步。
+- 已將此規則補進專案記憶，作為後續 AI PM 與 Skill 執行的長期要求。
+
 ## 2026-08-03 07:54 - Mentor S5 報告收斂回饋落地
 
 - 時間判定：2026-08-03 07:54 Asia/Taipei，為週一且未到 17:00，因此本次只記入 inbox，不建立或定稿今日正式日誌。

@@ -392,3 +392,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Formal daily logs should emphasize the day's structural project changes, design decisions, workflow corrections, validation evidence, and remaining risks. Do not let the last PoC run of the day dominate the narrative when larger S1-S5 architecture or process changes happened earlier.
 - When reporting Git activity, distinguish whole-repository statistics from engineering-core statistics that exclude large reference artifacts, binary deletions, or generated evidence. Do not present one as the other.
 - Formal logs and supervisor-facing entry pages should avoid file names, internal status codes, command flags, commit hashes, and abstract English machine terms unless they are truly necessary evidence. Prefer clear Traditional Chinese descriptions such as「人工核准區」、「資源盤點」、「結案報告」、「清除回查」and explain technical details in human terms.
+
+## 2026-08-04 AI Execution Trace Continuity Rule
+
+- 從 2026-08-04 起恢復 AI 每小時執行軌跡；過去 2026-07-27 至 2026-08-03 缺少每小時紀錄的部分不追補成假即時紀錄。
+- Cleo 可能因 token 或工具限制在 Codex 與 Claude 之間切換；每次交接都要把目前目標、已完成事項、下一步、驗證證據與限制寫清楚，讓另一個 AI 能從 GitHub、PROJECT_MEMORY、AI_PM_INBOX、最新日誌與 AI 執行軌跡接續。
+- 跨 AI 交接時不得只依賴對話記憶；GitHub main 與專案內文字紀錄是可接續的主要來源。
+- 五個 Skill 每次執行結束都必須跑收尾 checklist：更新日誌或 inbox、必要時更新 README / migration、執行或說明驗證、檢查 git status、完成有意義的 commit、需要共享時 push、確認 GitHub 可見、留下下一步。Cleo 不應每次手動追問這些基本收尾。

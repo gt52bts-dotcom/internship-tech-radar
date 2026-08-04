@@ -56,6 +56,19 @@ Run:
 python -m unittest tests.test_s1 -v
 ```
 
+## Stage closure checklist
+
+Before ending the Skill run, complete and report this checklist so the human does not have to chase basic closure:
+
+- Update `AI_PM_INBOX.md` or the formal daily log with the stage outcome, evidence, blockers, and next step.
+- Update `README.md`, `MIGRATION_STATUS.md`, or another handoff document when the run changes project state or cross-computer continuity.
+- Run the relevant validation command, or state clearly why it could not be run.
+- Check `git status --short` and identify whether changes are expected.
+- Commit meaningful completed work.
+- Push the branch when the work is meant to be shared.
+- Verify the pushed state is visible on GitHub before claiming it is synced.
+- Leave the next required human or AI action in plain Traditional Chinese.
+
 ## Explanation layer
 
 Beside the evidence layer, each candidate carries an `explanation` block built by

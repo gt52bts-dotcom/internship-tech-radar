@@ -74,6 +74,19 @@ fallback, but it is not the primary review artifact.
 python -m unittest tests.test_s3_s4 -v
 ```
 
+## Stage closure checklist
+
+Before ending the Skill run, complete and report this checklist so the human does not have to chase basic closure:
+
+- Update `AI_PM_INBOX.md` or the formal daily log with the stage outcome, evidence, blockers, and next step.
+- Update `README.md`, `MIGRATION_STATUS.md`, or another handoff document when the run changes project state or cross-computer continuity.
+- Run the relevant validation command, or state clearly why it could not be run.
+- Check `git status --short` and identify whether changes are expected.
+- Commit meaningful completed work.
+- Push the branch when the work is meant to be shared.
+- Verify the pushed state is visible on GitHub before claiming it is synced.
+- Leave the next required human or AI action in plain Traditional Chinese.
+
 ## Merged decision gate
 
 S3 ends with `poc_decision_gate`, the only human gate before Skill 4. It lists every candidate with weighted score out of 5, Region state, quote status, expected total, recommended ceiling, technical eligibility, and blockers, so one person decides both questions at once: which candidate, and whether the estimated cost is worth spending.
