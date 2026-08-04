@@ -6,6 +6,13 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+
+from .pipeline_timing import (
+    STAGE_FOR_COMMAND,
+    merge_stage_record,
+    now_iso,
+    set_human_wait,
+)
 import sys
 
 from .s1 import build_direct_url_scan, build_scan
@@ -26,6 +33,130 @@ from .s5 import build_report
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run one CLI command and record how long its stage took.
+
+    Timing wraps the dispatch rather than living inside each stage, so every
+    command is measured the same way and a new subcommand is covered
+    automatically. The span is written back into the artifact the command just
+    produced, which means timings travel with the run instead of sitting in a
+    separate file that a second machine would not have.
+    """
+
+    # The stage rewrites its output file, so a previous run's record has to be
+    # read before dispatch or a rerun would silently look like a first attempt.
+    previous = _existing_timings(argv)
+    started_at = now_iso()
+    code, args = _dispatch(argv)
+    ended_at = now_iso()
+    if args is not None:
+        try:
+            _record_stage_timing(args, started_at, ended_at, previous)
+        except Exception:  # timing must never fail a real command
+            pass
+    return code
+
+
+def _existing_timings(argv: list[str] | None) -> dict:
+    """Read the outgoing artifact's timings before the command overwrites it."""
+
+    argv = list(argv if argv is not None else sys.argv[1:])
+    if "--output" not in argv:
+        return {}
+    index = argv.index("--output")
+    if index + 1 >= len(argv):
+        return {}
+    path = Path(argv[index + 1])
+    if not path.exists():
+        return {}
+    try:
+        return _read_json(path).get("stage_timings") or {}
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _record_stage_timing(
+    args: argparse.Namespace,
+    started_at: str,
+    ended_at: str,
+    previous: dict | None = None,
+) -> None:
+    command = getattr(args, "command", "")
+    stage = STAGE_FOR_COMMAND.get(command)
+    output = getattr(args, "output", None)
+    if not stage or not output:
+        return
+    output_path = Path(output)
+    if not output_path.exists():
+        return
+
+    artifact = _read_json(output_path)
+    # The artifact's own record wins per stage: rerunning a stage must increment
+    # its attempt count, not reset it from a stale upstream copy.
+    accumulated = dict(_upstream_timings(args) or {})
+    accumulated.update(previous or {})
+    accumulated.update(artifact.get("stage_timings") or {})
+    timings = merge_stage_record(accumulated, stage, started_at, ended_at, command)
+    timings = _apply_gate_waits(args, timings, artifact)
+
+    artifact["stage_timings"] = timings
+    first_success = _first_success_at(args, artifact)
+    if first_success:
+        artifact["first_success_at"] = first_success
+    _write_json(output_path, artifact)
+
+
+def _upstream_timings(args: argparse.Namespace) -> dict | None:
+    """Carry the accumulated record forward from whichever artifact fed this stage."""
+
+    for attr in ("input", "s4", "runtime", "s3", "s2", "s1"):
+        value = getattr(args, attr, None)
+        if not value:
+            continue
+        path = Path(value)
+        if not path.exists():
+            continue
+        try:
+            upstream = _read_json(path).get("stage_timings")
+        except (json.JSONDecodeError, OSError):
+            continue
+        if upstream:
+            return upstream
+    return None
+
+
+def _apply_gate_waits(
+    args: argparse.Namespace,
+    timings: dict,
+    artifact: dict,
+) -> dict:
+    """Derive human wait from when each gate was actually decided."""
+
+    command = getattr(args, "command", "")
+    if command == "s4-approval-template":
+        approved_at = (artifact.get("authorization") or {}).get("approved_at") or artifact.get("approved_at")
+        timings = set_human_wait(timings, "S3", "poc_decision_gate", approved_at)
+    if command in {"s4-close", "s4-console-review", "s4-abort"}:
+        review = artifact.get("console_review") or artifact.get("resource_inventory") or {}
+        confirmed_at = review.get("confirmed_at") or artifact.get("confirmed_at")
+        timings = set_human_wait(timings, "S4", "resource_inventory_confirmation", confirmed_at)
+    return timings
+
+
+def _first_success_at(args: argparse.Namespace, artifact: dict) -> str | None:
+    """The moment S4 verification first passed, used for time-to-first-success."""
+
+    if artifact.get("first_success_at"):
+        return str(artifact["first_success_at"])
+    if getattr(args, "command", "") != "s4-deploy":
+        return None
+    checks = artifact.get("runtime_checks") or artifact.get("verification") or {}
+    passed = checks.get("all_passed") if isinstance(checks, dict) else None
+    if passed or artifact.get("status") == "awaiting_console_review":
+        return now_iso()
+    return None
+
+
+def _dispatch(argv: list[str] | None = None) -> tuple[int, argparse.Namespace | None]:
     parser = argparse.ArgumentParser(prog="agentic-cloud-radar")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -142,11 +273,11 @@ def main(argv: list[str] | None = None) -> int:
         return _run_s1(
             Path(args.input),
             Path(args.output) if args.output else None,
-        )
+        ), args
     if args.command == "s1-url":
-        return _run_s1_url(args.url, Path(args.output) if args.output else None)
+        return _run_s1_url(args.url, Path(args.output) if args.output else None), args
     if args.command == "s2":
-        return _run_s2(Path(args.input), Path(args.output) if args.output else None)
+        return _run_s2(Path(args.input), Path(args.output) if args.output else None), args
     if args.command == "s3":
         return _run_s3(
             Path(args.input),
@@ -155,13 +286,13 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.decision_report_output) if args.decision_report_output else None,
             Path(args.decision_report_html_output) if args.decision_report_html_output else None,
             Path(args.decision_report_image) if args.decision_report_image else None,
-        )
+        ), args
     if args.command == "s4":
         return _run_s4(
             Path(args.input),
             Path(args.approval) if args.approval else None,
             Path(args.output) if args.output else None,
-        )
+        ), args
     if args.command == "s4-approval-template":
         return _run_s4_approval_template(
             Path(args.input),
@@ -169,30 +300,30 @@ def main(argv: list[str] | None = None) -> int:
             args.approved_by,
             args.authorize,
             Path(args.output),
-        )
+        ), args
     if args.command == "s4-deploy":
         return _run_s4_deploy(
             Path(args.input), Path(args.approval), Path(args.output), args.execute,
             Path(args.runtime_output) if args.runtime_output else None,
-        )
+        ), args
     if args.command == "s4-console-review-packet":
-        return _run_s4_console_review_packet(Path(args.input), args.review_timeout_minutes, Path(args.output))
+        return _run_s4_console_review_packet(Path(args.input), args.review_timeout_minutes, Path(args.output)), args
     if args.command == "s4-console-review":
         return _run_s4_console_review(
             Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.shared_via, args.notes, Path(args.output)
-        )
+        ), args
     if args.command == "s4-cleanup":
-        return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output), Path(args.usage_snapshot_output) if args.usage_snapshot_output else None)
+        return _run_s4_cleanup(Path(args.input), args.execute, Path(args.output), Path(args.usage_snapshot_output) if args.usage_snapshot_output else None), args
     if args.command == "s4-close":
         return _run_s4_close(
             Path(args.input), Path(args.packet), Path(args.review_evidence), args.confirmed_by, args.shared_via, args.notes, args.execute, Path(args.output),
             Path(args.usage_snapshot_output) if args.usage_snapshot_output else None,
-        )
+        ), args
     if args.command == "s4-abort":
         return _run_s4_abort(
             Path(args.input), Path(args.packet) if args.packet else None, args.confirmed_by, args.reason, args.execute, Path(args.output),
             Path(args.usage_snapshot_output) if args.usage_snapshot_output else None,
-        )
+        ), args
     if args.command == "s5":
         return _run_s5(
             Path(args.s1),
@@ -202,9 +333,9 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.runtime) if args.runtime else None,
             Path(args.output),
             Path(args.markdown_output) if args.markdown_output else None,
-        )
+        ), args
     parser.error("unknown command")
-    return 2
+    return 2, None
 
 
 def _run_s1(

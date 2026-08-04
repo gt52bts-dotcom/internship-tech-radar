@@ -1092,3 +1092,11 @@
 - 已確認 `origin/main` 與本機 HEAD 同步在 `66109aa`；GitHub 可接手 code、Skill 文件、記憶、inbox、每日軌跡與 docs 摘要。
 - 不會透過 GitHub 自動帶走的內容：`radar-redesign/out/` 原始執行產物、HTML/PNG 本機報告、AWS Console 登入狀態、下載 zip、暫存 `_tmp_review_files*` 資料夾、任何本機憑證。
 - 下一台電腦應先 pull GitHub，再讀 `PROJECT_MEMORY.md`、`MIGRATION_STATUS.md`、`AI_PM_INBOX.md`、最新 daily log 與 `ai-execution-trace/daily/2026-08-04.md`。
+
+## 2026-08-04 17:12 - Skill 4 recipe registry patch review
+
+- Cleo 上傳 `files (4).zip`，內容是 Claude 補強後的 S4 recipe registry 與 S1-S5 分段計時 patch。
+- 已套用兩個 patch，並補一個收尾修正：不能部署的候選產生 approval template 時，不再輸出像是已準備清理的 success criteria / cleanup scope；S3 人工核准欄位也統一成 `approved_cost_ceiling_usd`，舊欄位只保留相容讀取。
+- 驗證通過：S4 recipe/S3-S4/S5/costing 共 68 項測試通過，S4 inventory/CLI timing 共 23 項測試通過，相關 Python 檔案語法檢查通過。
+- 使用 WorkSpaces AI Agents 既有 Skill 3 產物重跑 S4 gate：approval template 顯示 `not_deployable_missing_recipe`，即使強制把 authorization 改成 true，preflight 仍因缺少 deployable recipe、成本上限、清理策略、成功條件與證據計畫而擋下。
+- 結論：這包可以推上 GitHub；但 WorkSpaces 那篇仍不能直接進 live S4 部署，下一步是實作 WorkSpaces 專用 S4 recipe，而不是建立 AWS 資源。

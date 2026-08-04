@@ -100,3 +100,28 @@ Before ending the Skill run, complete and report this checklist so the human doe
 - Push the branch when the work is meant to be shared.
 - Verify the pushed state is visible on GitHub before claiming it is synced.
 - Leave the next required human or AI action in plain Traditional Chinese.
+
+
+## 各階段計時
+
+每個 CLI 指令都會被計時，結果寫回該指令產出的 artifact，並隨流程往下傳遞。
+不需要額外的狀態檔，換一台電腦接手也不會遺失。
+
+兩個時鐘分開記錄：
+
+| 欄位 | 意義 |
+|---|---|
+| `machine_seconds` | 程式運算與擷取耗時 |
+| `human_wait_seconds` | 停留在人工關卡的時間 |
+
+**人工等待由程式推導，不由人填寫**：
+
+- S3 的等待 = 核准文件的 `approved_at` − S3 的 `ended_at`
+- S4 的等待 = 盤點確認的 `confirmed_at` − S4 的 `ended_at`
+
+要人自己記錄花了多久，正是這套流程要消除的「額外做事」，而且自填的數字不構成證據。
+
+重跑同一階段時，保留最初的 `started_at`、更新 `ended_at`、`attempt_count` 加一——
+取最後一次，不累加重疊區間。跨主機的區間會標記 `cross_host`，報告據此加註時鐘差異的但書。
+
+`time_to_first_success_seconds` 從 S1 起算到 S4 首次驗證通過。

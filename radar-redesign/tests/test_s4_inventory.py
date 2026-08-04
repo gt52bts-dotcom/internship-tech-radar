@@ -141,3 +141,82 @@ class StageTimingTests(unittest.TestCase):
         timings = build_stage_timings(self.STAGES, first_success_at="2026-08-01T02:00:00+00:00")
 
         self.assertEqual(timings["time_to_first_success_seconds"], 7200.0)
+
+
+class StageRecordingTests(unittest.TestCase):
+    """The accumulated per-stage record, as written by the CLI wrapper."""
+
+    def test_first_run_opens_a_stage_with_one_attempt(self):
+        from agentic_cloud_radar.pipeline_timing import merge_stage_record
+
+        timings = merge_stage_record({}, "S3", "2026-08-01T00:00:00+00:00", "2026-08-01T00:00:05+00:00", "s3")
+
+        self.assertEqual(timings["S3"]["attempt_count"], 1)
+        self.assertEqual(timings["S3"]["commands"], ["s3"])
+        self.assertEqual(len(timings["S3"]["recorded_on"]), 1)
+
+    def test_rerun_keeps_the_first_start_and_takes_the_last_end(self):
+        from agentic_cloud_radar.pipeline_timing import merge_stage_record
+
+        first = merge_stage_record({}, "S3", "2026-08-01T00:00:00+00:00", "2026-08-01T00:00:05+00:00", "s3")
+        second = merge_stage_record(first, "S3", "2026-08-01T01:00:00+00:00", "2026-08-01T01:00:09+00:00", "s3")
+
+        self.assertEqual(second["S3"]["attempt_count"], 2)
+        self.assertEqual(second["S3"]["started_at"], "2026-08-01T00:00:00+00:00")
+        self.assertEqual(second["S3"]["ended_at"], "2026-08-01T01:00:09+00:00")
+
+    def test_upstream_stages_are_carried_forward_untouched(self):
+        from agentic_cloud_radar.pipeline_timing import merge_stage_record
+
+        upstream = merge_stage_record({}, "S1", "2026-08-01T00:00:00+00:00", "2026-08-01T00:00:22+00:00", "s1")
+        merged = merge_stage_record(upstream, "S2", "2026-08-01T00:01:00+00:00", "2026-08-01T00:01:17+00:00", "s2")
+
+        self.assertEqual(merged["S1"]["ended_at"], "2026-08-01T00:00:22+00:00")
+        self.assertEqual(sorted(merged), ["S1", "S2"])
+
+    def test_human_wait_is_derived_from_when_the_gate_was_decided(self):
+        from agentic_cloud_radar.pipeline_timing import merge_stage_record, set_human_wait
+
+        timings = merge_stage_record({}, "S3", "2026-08-01T00:00:00+00:00", "2026-08-01T00:00:10+00:00", "s3")
+        timings = set_human_wait(timings, "S3", "poc_decision_gate", "2026-08-01T01:30:10+00:00")
+
+        self.assertEqual(timings["S3"]["human_wait_seconds"], 5400.0)
+        self.assertEqual(timings["S3"]["human_gate"], "poc_decision_gate")
+
+    def test_missing_gate_decision_leaves_human_wait_unrecorded(self):
+        from agentic_cloud_radar.pipeline_timing import merge_stage_record, set_human_wait
+
+        timings = merge_stage_record({}, "S3", "2026-08-01T00:00:00+00:00", "2026-08-01T00:00:10+00:00", "s3")
+        timings = set_human_wait(timings, "S3", "poc_decision_gate", None)
+
+        self.assertNotIn("human_wait_seconds", timings["S3"])
+
+    def test_cross_host_spans_are_flagged_rather_than_presented_as_precise(self):
+        timings = {
+            "S4": {
+                "started_at": "2026-08-01T00:00:00+00:00",
+                "ended_at": "2026-08-01T00:10:00+00:00",
+                "recorded_on": ["aaaa1111", "bbbb2222"],
+                "attempt_count": 2,
+            }
+        }
+
+        report = build_stage_timings(timings)
+
+        self.assertEqual(report["cross_host_stages"], ["S4"])
+        self.assertIn("時鐘差異", report["measurement_note"])
+
+    def test_single_host_run_carries_no_measurement_caveat(self):
+        timings = {
+            "S1": {
+                "started_at": "2026-08-01T00:00:00+00:00",
+                "ended_at": "2026-08-01T00:00:20+00:00",
+                "recorded_on": ["aaaa1111"],
+                "attempt_count": 1,
+            }
+        }
+
+        report = build_stage_timings(timings)
+
+        self.assertEqual(report["cross_host_stages"], [])
+        self.assertEqual(report["measurement_note"], "")

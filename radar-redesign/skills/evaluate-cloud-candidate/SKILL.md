@@ -40,7 +40,7 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
    - Level B: when no registered cost recipe exists but S2/IaC/service evidence identifies billable AWS services, use the reusable generic usage model and mark `pricing_level=Level B generic usage model`.
    - Level C: when the service/resource scope is still too vague, return `status=incomplete` with missing inputs instead of inventing a number.
 6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit or permission to deploy.
-7. Populate `poc_decision_gate` with every evaluated option, including score, quote status, low/expected/high estimate, recommended approval ceiling, blocker list, the PoC proof question, and the required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`.
+7. Populate `poc_decision_gate` with every evaluated option, including score, quote status, low/expected/high estimate, recommended approval ceiling, blocker list, the PoC proof question, and the required human outputs: `selected_candidate_id`, `approved_by`, `approved_cost_ceiling_usd`.
 8. When writing the optional Skill 3 PoC decision report, explain the article before the approval decision: what changed, why it matters, key source-backed points, and the inferred minimal implementation architecture.
 9. Before showing the PoC score and quote, insert a human-facing PoC minimum architecture PNG directly in the HTML report. If the candidate has a registered Skill 4 recipe, the PNG should show the resources Skill 4 will actually create or validate; otherwise it may visualize the S1 inferred architecture but must be labeled as a draft, not a deployable production architecture. Do not include the old Mermaid/text flowchart in the human-facing report when a PNG has been generated.
 10. After the explanation and diagram, show the PoC proof question before the approval controls: "What does this PoC need to prove, and what will the decision-maker know if it succeeds?" Answer it in concrete evidence terms such as deployability, Region/account compatibility, IAM/resource wiring, runtime behavior, cleanup repeatability, or limits that remain unknown. If this cannot be answered, Skill 3 must not recommend moving to Skill 4 even when the numeric score is high.
@@ -92,7 +92,7 @@ Before ending the Skill run, complete and report this checklist so the human doe
 
 S3 ends with `poc_decision_gate`, the only human gate before Skill 4. It lists every candidate with weighted score out of 5, Region state, quote status, expected total, recommended ceiling, technical eligibility, and blockers, so one person decides both questions at once: which candidate, and whether the estimated cost is worth spending.
 
-Required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`. Technical eligibility is never approval.
+Required human outputs: `selected_candidate_id`, `approved_by`, `approved_cost_ceiling_usd`. Technical eligibility is never approval.
 
 ## PoC proof question
 
@@ -109,3 +109,29 @@ Valid answers are concrete and testable: for example, that the feature can be de
 The quote is a pre-deployment public-rate-card estimate. This pipeline does not collect actual AWS billing and never reconciles estimate against invoice, so the billing method and formula for every line item must be correct on their own: monthly-rate resources prorated by PoC hours, request-priced resources by request count, Lambda charged only per invocation plus GB-seconds. Do not omit any resource the recipe creates, including default CloudWatch log groups.
 
 Pass the S3 artifact to `$validate-cloud-poc`.
+
+
+## 與 Skill 4 的銜接
+
+每個評估候選都帶 `poc_recipe`（registry 的判定）與 `s4_readiness`（給人看的結論）。
+
+候選若沒有可部署 recipe，報告必須同時說清楚四件事，不可只寫「不行」：
+
+- 技術上值得評估
+- 但目前不能進入 Skill 4
+- 原因是缺少專用 recipe（或只有草案）
+- **下一步是建立 recipe，不是建立 AWS 資源**
+
+`recommend_poc=true` 只代表技術資格，不代表可以部署。可否部署由
+`s4_readiness.can_enter_skill4` 決定，來源是
+`agentic_cloud_radar/s4_recipes/registry.py`。
+
+machine-readable 的 key 一律使用英文：`can_enter_skill4`、`readiness_status`、
+`technical_assessment_zh`、`reason_zh`、`next_step_zh`、`authoring_template`、
+`recipe_decision`。中文只出現在值與報告文字中。
+
+決策報告在本輪沒有任何可部署 recipe 時，**不得**出現「請回覆同意進入 Skill 4」，
+必須改寫為「技術上值得評估，但目前不能進 Skill 4；下一步是建立或補齊專用
+recipe，不是建立 AWS 資源」。
+
+Skill 3 不得以通用成本模型作為進入 Skill 4 的依據。

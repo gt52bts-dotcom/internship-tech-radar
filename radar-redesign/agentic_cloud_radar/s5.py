@@ -72,7 +72,10 @@ def build_report(
         "validation": _validation_summary(validation, runtime),
         "resource_inventory": _resource_inventory_section(runtime, _cost_quote(selected)),
         "permission_surface": _permission_surface_section(runtime),
-        "stage_timings": build_stage_timings((runtime or {}).get("stage_timings"), (runtime or {}).get("first_success_at")),
+        "stage_timings": build_stage_timings(
+            _collect_stage_timings(runtime, validate, evaluate, compare, scan),
+            _first_success(runtime, validate),
+        ),
         "verified_facts": _verified_facts(scan, compare, selected, runtime),
         "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime),
         "future_work": _future_work(selected, runtime),
@@ -404,6 +407,26 @@ def _render_architecture_and_significance(section: dict[str, Any]) -> list[str]:
     lines.append("")
     lines.append("> 架構草案與應用場景為推導內容，未經驗證，不列入已證實的事實。")
     return lines
+
+
+def _collect_stage_timings(*artifacts: dict[str, Any] | None) -> dict[str, Any]:
+    """Gather the accumulated per-stage record from whichever artifact carries it.
+
+    Timings ride along inside the artifacts, and the latest stage holds the most
+    complete copy, so later artifacts are merged over earlier ones.
+    """
+
+    merged: dict[str, Any] = {}
+    for artifact in reversed([a for a in artifacts if a]):
+        merged.update(artifact.get("stage_timings") or {})
+    return merged
+
+
+def _first_success(*artifacts: dict[str, Any] | None) -> str | None:
+    for artifact in artifacts:
+        if artifact and artifact.get("first_success_at"):
+            return str(artifact["first_success_at"])
+    return None
 
 
 def _resource_inventory_section(runtime: dict[str, Any] | None, quote: dict[str, Any]) -> dict[str, Any]:

@@ -44,6 +44,15 @@ DEPLOYMENT_APPROVAL_SCHEMA = "s4.deployment-approval.v1"
 REQUIRED_CONSOLE_VIEW = "infrastructure_composer"
 
 
+from .s4_recipes import (
+    canonicalize_approval,
+    deployment_preflight,
+    get_recipe,
+    read_cost_ceiling,
+    select_recipe,
+)
+
+
 class DeploymentError(RuntimeError):
     """Raised when an explicit S4 deployment or cleanup command cannot finish."""
 
@@ -62,26 +71,21 @@ class PocRecipe:
     success_criteria: tuple[str, ...]
 
 
-S3_FILES_RECIPE = PocRecipe(
-    key="s3_files_cdk",
-    poc_directory=PROJECT_ROOT / "poc" / "s3-files-cdk-poc",
-    success_criteria=(
-        "CloudFormation stack reaches CREATE_COMPLETE.",
-        "EC2 test client mounts S3 Files.",
-        "An object placed in S3 is readable from the mount.",
-        "A file written through the mount is readable from S3.",
-    ),
-)
+def _from_registry(recipe_id: str) -> PocRecipe:
+    """Build the deployer's runtime view from the registry definition."""
 
-LAMBDA_SELF_MANAGED_STORAGE_RECIPE = PocRecipe(
-    key="lambda_self_managed_s3_code_storage_cdk",
-    poc_directory=PROJECT_ROOT / "poc" / "lambda-self-managed-storage-cdk-poc",
-    success_criteria=(
-        "CloudFormation stack reaches CREATE_COMPLETE.",
-        "The Lambda function is created with S3ObjectStorageMode=REFERENCE.",
-        "The function can be invoked from the sandbox test account.",
-    ),
-)
+    definition = get_recipe(recipe_id)
+    if definition is None or definition.poc_directory is None:
+        raise DeploymentError(f"Registry has no deployable definition for {recipe_id}.")
+    return PocRecipe(
+        key=definition.recipe_id,
+        poc_directory=definition.poc_directory,
+        success_criteria=tuple(definition.success_criteria),
+    )
+
+
+S3_FILES_RECIPE = _from_registry("s3_files_cdk")
+LAMBDA_SELF_MANAGED_STORAGE_RECIPE = _from_registry("lambda_self_managed_s3_code_storage_cdk")
 
 
 def build_approval_template(
@@ -107,17 +111,35 @@ def build_approval_template(
         recommended_ceiling,
         policy_ceiling,
     )
+    decision = select_recipe(selected)
+    can_enter_skill4 = bool(decision.get("deployable_recipe_registered"))
+    # An approval file for a candidate with no deployable recipe must not look
+    # ready. Flipping deployment_authorized by hand still fails the context gate,
+    # but the template should say so rather than leave the reader to find out.
+    authorized = bool(authorize) and can_enter_skill4
     return {
         "schema_version": DEPLOYMENT_APPROVAL_SCHEMA,
+        "template_status": "ready_for_human_approval" if can_enter_skill4 else "not_deployable_missing_recipe",
+        "approved_at": _now() if authorized and approved_by else None,
         "run_id": evaluate.get("run_id"),
         "selected_candidate_id": candidate_id,
         "approved_by": str(approved_by or "").strip() or None,
-        "deployment_authorized": bool(authorize),
+        "deployment_authorized": authorized,
+        "recipe_decision": decision,
+        "can_enter_skill4": can_enter_skill4,
+        "missing_recipe_reason_zh": "" if can_enter_skill4 else decision.get("reason_zh", ""),
+        "required_next_step_zh": (
+            "確認分數、報價、區域狀態與清除範圍後，將 deployment_authorized 設為 true。"
+            if can_enter_skill4
+            else decision.get("next_step_zh", "下一步是建立或補齊專用 recipe，不是建立 AWS 資源。")
+        ),
         "approval_basis": (
             "Review the Skill 3 score, quote, Region status, recipe, success criteria, "
             "cleanup scope, and known limits before setting deployment_authorized=true."
         ),
-        "approved_cost_ceiling_usd": effective_ceiling,
+        "approved_cost_ceiling_usd": effective_ceiling if can_enter_skill4 else None,
+        "success_criteria": list(recipe.success_criteria) if (recipe and can_enter_skill4) else [],
+        "cleanup_scope": list(DEFAULT_CLEANUP_SCOPE) if can_enter_skill4 else [],
         "cost_ceiling_policy": {
             "rule": "effective_ceiling_usd = min(Skill 3 recommended approval ceiling, human approved ceiling, built-in small-cost ceiling)",
             "skill3_recommended_approval_ceiling_usd": recommended_ceiling,
@@ -145,14 +167,13 @@ def build_approval_template(
             "s2_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S2_JSON",
             "s3_artifact_path": "REPLACE_WITH_ABSOLUTE_PATH_TO_S3_JSON",
         },
-        "success_criteria": list(recipe.success_criteria if recipe else []),
-        "cleanup_scope": list(DEFAULT_CLEANUP_SCOPE),
     }
 
 
 def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any]) -> dict[str, Any]:
     """Create an auditable, non-deploying context from a human-approved S3 run."""
 
+    approval = canonicalize_approval(approval)
     validation = build_validate(evaluate, approval).to_dict()
     selected_id = str(approval.get("selected_candidate_id") or "").strip()
     selected = next(
@@ -165,6 +186,11 @@ def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any])
     recipe = _recipe_for(selected) if selected else None
     if not recipe and selected:
         errors.append("needs_poc_recipe")
+
+    # The recipe gate runs inside the real context builder, not beside it: a
+    # deployment that never reads the preflight would be protected only in tests.
+    preflight = run_deployment_preflight(selected, approval, _region_state(selected, approval))
+    errors.extend(f"preflight:{name}" for name in preflight.get("failed_checks") or [])
 
     run_id = str(evaluate.get("run_id") or "unknown-run")
     suffix = hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:8]
@@ -180,6 +206,7 @@ def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any])
         "s4_validation": _selected_validation(validation, selected_id),
         "authorization": {
             "approved_by": approval.get("approved_by"),
+            "approved_at": approval.get("approved_at"),
             "deployment_authorized": approval.get("deployment_authorized") is True,
             "automatic_poc_start": False,
             "approval_basis": approval.get("approval_basis"),
@@ -194,9 +221,21 @@ def build_deployment_context(evaluate: dict[str, Any], approval: dict[str, Any])
         },
         "success_criteria": list(approval.get("success_criteria") or (recipe.success_criteria if recipe else [])),
         "cleanup_scope": list(approval.get("cleanup_scope") or DEFAULT_CLEANUP_SCOPE),
+        "approved_cost_ceiling_usd": read_cost_ceiling(approval),
+        "preflight": preflight,
         "errors": _dedupe(errors),
     }
     return context
+
+
+def _region_state(candidate: dict[str, Any] | None, approval: dict[str, Any]) -> dict[str, Any]:
+    """Combine the candidate's recorded Region evidence with the approver's acknowledgement."""
+
+    region = ((candidate or {}).get("region_status") or {})
+    return {
+        "status": region.get("status"),
+        "region_warning_acknowledged": approval.get("region_warning_acknowledged") is True,
+    }
 
 
 def execute_deployment(context: dict[str, Any]) -> dict[str, Any]:
@@ -1156,18 +1195,45 @@ def _selected_validation(validation: dict[str, Any], selected_id: str) -> dict[s
 
 
 def _recipe_for(candidate: dict[str, Any] | None) -> PocRecipe | None:
-    title = str((candidate or {}).get("title") or "").lower()
-    source_url = str((candidate or {}).get("source_url") or "").lower()
-    if "s3 files" in title:
-        return S3_FILES_RECIPE
-    if "lambda-self-managed-code-storage" in source_url or ("lambda" in title and "storage" in source_url):
-        return LAMBDA_SELF_MANAGED_STORAGE_RECIPE
-    return None
+    """Resolve through the registry so S3 and S4 never disagree.
+
+    A draft or unmatched candidate returns ``None``, which the caller reports as
+    ``needs_poc_recipe``. Nothing here falls back to a nearby recipe.
+    """
+
+    decision = select_recipe(candidate)
+    if not decision.get("deployable_recipe_registered"):
+        return None
+    return _recipe_by_key(str(decision.get("recipe_id") or ""))
 
 
 def _recipe_by_key(key: str) -> PocRecipe | None:
-    recipes = (S3_FILES_RECIPE, LAMBDA_SELF_MANAGED_STORAGE_RECIPE)
-    return next((recipe for recipe in recipes if recipe.key == key), None)
+    definition = get_recipe(key)
+    if definition is None or not definition.is_deployable() or definition.poc_directory is None:
+        return None
+    return PocRecipe(
+        key=definition.recipe_id,
+        poc_directory=definition.poc_directory,
+        success_criteria=tuple(definition.success_criteria),
+    )
+
+
+def run_deployment_preflight(
+    candidate: dict[str, Any] | None,
+    approval: dict[str, Any] | None,
+    region_state: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Public entry point for the eight pre-deployment checks.
+
+    Skill 4 must call this and refuse to continue unless the status is
+    ``ready_for_deployment``. Keeping it here rather than inline means the same
+    checks run whether the caller is the CLI, a test, or another surface.
+    """
+
+    decision = select_recipe(candidate)
+    result = deployment_preflight(decision, approval, region_state)
+    result["recipe_decision"] = decision
+    return result
 
 
 def _require_deployable_context(context: dict[str, Any]) -> None:

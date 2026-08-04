@@ -175,3 +175,71 @@ Each stage records `started_at`, `ended_at`, and, at a human gate, `human_wait_s
 a single elapsed figure would say the pipeline is slow when the code ran in seconds.
 When human wait dominates, the finding is that the bottleneck is the approval path.
 `time_to_first_success_seconds` gives one comparable figure for adoption friction.
+
+
+## Recipe 框架（registry + contract）
+
+Skill 4 不再把 recipe 寫死在部署器裡。可部署的實作全部宣告在
+`agentic_cloud_radar/s4_recipes/registry.py`，契約定義在 `base.py`。
+
+**單一來源**：Skill 3 與 Skill 4 讀同一張表，所以候選不會在一個階段可部署、
+在另一個階段變成未知。
+
+### 選擇結果只有三種
+
+| 狀態 | 意義 | 可否建立 AWS 資源 |
+|---|---|---|
+| `recipe_registered` | 已比對到可部署 recipe | 通過部署前檢查後可以 |
+| `recipe_draft_only` | 只有草案，尚缺前置條件 | **否** |
+| `needs_new_recipe` | 完全沒有對應 recipe | **否** |
+
+只有 `deployable_recipe_registered=true` 才允許建立資源。
+**通用成本模型（Level B generic usage model）不構成部署依據。**
+
+### 部署前八項檢查
+
+`build_deployment_context()` 會直接呼叫 `run_deployment_preflight()`，結果寫入
+`context["preflight"]`；任一項未過即加入 `context["errors"]`，且
+`context["status"]` 為 `not_deployable`。這道關卡在主流程內，不是旁邊的輔助函式。
+
+必須全部通過才允許建立資源：
+
+1. `selected_candidate_id`
+2. 具名人工核准（`approved_by` 且 `deployment_authorized=true`）
+3. 核准花費上限（大於零）
+4. 已登錄且可部署的 recipe
+5. 目標區域已確認，或已由核准者明確承認
+6. 清除策略存在
+7. 成功條件存在
+8. 證據蒐集計畫存在
+
+任何一項未過即回傳 `blocked`，`context["status"]` 隨之為 `not_deployable`。
+
+核准上限的欄位一律為 `approved_cost_ceiling_usd`。舊的 `approved_ceiling_usd`
+僅在讀取時相容，輸出 artifact 一律正規化為前者。
+
+### 核准文件會表明 recipe 狀態
+
+`build_approval_template()` 產出 `recipe_decision`、`can_enter_skill4`、
+`missing_recipe_reason_zh`、`required_next_step_zh`、`success_criteria`、
+`cleanup_scope`、`approved_cost_ceiling_usd`。
+
+沒有可部署 recipe 時：`template_status = "not_deployable_missing_recipe"`、
+`deployment_authorized = false`、`success_criteria` 留空、上限為 `null`。
+**即使人工把 `deployment_authorized` 改成 true，`build_deployment_context()` 仍會擋下。**
+
+### 新增 recipe
+
+照 [`docs/s4-recipe-authoring-template.md`](../../docs/s4-recipe-authoring-template.md) 填寫。
+契約未填完者一律登錄為草案（`deployable=False`），registry 會拒絕交給部署器。
+
+**不得臨場補寫 recipe 後直接部署。** 新 recipe 必須先進 registry、通過測試、
+由具名人員審查，才可能用於實際部署。
+
+### 已登錄項目
+
+| recipe_id | 狀態 |
+|---|---|
+| `s3_files_cdk` | 可部署 |
+| `lambda_self_managed_s3_code_storage_cdk` | 可部署 |
+| `workspaces_ai_agent_access_draft` | **草案，不可部署**（缺區域確認、環境準備、成本模型） |

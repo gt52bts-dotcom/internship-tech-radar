@@ -256,6 +256,8 @@ class S3S4Tests(unittest.TestCase):
                 "approved_by": "Cleo",
                 "selected_candidate_id": "CAND-1",
                 "deployment_authorized": True,
+                "approved_cost_ceiling_usd": 0.05,
+                "region_warning_acknowledged": True,
                 "region_warning_acknowledged": True,
                 "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
             }
@@ -354,6 +356,8 @@ class S3S4Tests(unittest.TestCase):
                 "approved_by": "Cleo",
                 "selected_candidate_id": "CAND-1",
                 "deployment_authorized": True,
+                "approved_cost_ceiling_usd": 0.05,
+                "region_warning_acknowledged": True,
                 "lineage": {**{f"{key}_artifact_path": str(path) for key, path in paths.items()}},
             }
             context = build_deployment_context(evaluate, approval)
@@ -530,6 +534,7 @@ class S3S4Tests(unittest.TestCase):
             approval = {
                 "approved_by": "Cleo", "selected_candidate_id": "CAND-1",
                 "deployment_authorized": True,
+                "approved_cost_ceiling_usd": 0.05,
                 "region_warning_acknowledged": True,
                 "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
             }
@@ -581,6 +586,8 @@ class S3S4Tests(unittest.TestCase):
                 paths[key].write_text(json.dumps(payload), encoding="utf-8")
             approval = {
                 "approved_by": "Cleo", "selected_candidate_id": "CAND-1", "deployment_authorized": True,
+                "approved_cost_ceiling_usd": 0.05,
+                "region_warning_acknowledged": True,
                 "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
             }
             context = build_deployment_context(evaluate, approval)

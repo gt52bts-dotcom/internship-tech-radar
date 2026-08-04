@@ -16,6 +16,7 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from .s4_recipes import select_recipe
 from .costing import build_cost_quote
 
 
@@ -125,6 +126,8 @@ def _poc_decision_gate(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
                 "recommended_approval_ceiling_usd": quote.get("recommended_approval_ceiling_usd"),
                 "technically_eligible": bool(item.get("recommend_poc")),
                 "blockers": list(item.get("governance_flags") or []),
+                "recipe_decision": item.get("poc_recipe") or {},
+                "can_enter_skill4": bool((item.get("poc_recipe") or {}).get("deployable_recipe_registered")),
             }
         )
     return {
@@ -137,7 +140,7 @@ def _poc_decision_gate(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
         "required_outputs": [
             "selected_candidate_id",
             "approved_by",
-            "approved_ceiling_usd",
+            "approved_cost_ceiling_usd",
         ],
         "rule": "Skill 4 never starts without this gate. Technical eligibility is not approval.",
         "options": options,
@@ -194,6 +197,47 @@ def _base_artifact(compare: dict[str, Any], candidate_filter: dict[str, Any] | N
     }
 
 
+def _s4_readiness(decision: dict[str, Any], recommend_poc: bool) -> dict[str, Any]:
+    """Say plainly whether this candidate may proceed, and what the next step is.
+
+    A candidate can be worth evaluating and still be unable to deploy. Reporting
+    those two facts separately stops "值得評估" from being read as "可以部署".
+    """
+
+    registered = bool(decision.get("deployable_recipe_registered"))
+    if registered and recommend_poc:
+        return {
+            "can_enter_skill4": True,
+            "readiness_status": "ready_for_skill4",
+            "technical_assessment_zh": "技術上值得評估。",
+            "reason_zh": decision.get("reason_zh", ""),
+            "next_step_zh": "進行人工核准與 Skill 4 部署前檢查。",
+        }
+    if registered and not recommend_poc:
+        return {
+            "can_enter_skill4": False,
+            "readiness_status": "score_or_blocker_failed",
+            "technical_assessment_zh": "已有可部署 recipe，但技術資格門檻未通過。",
+            "reason_zh": "加權分未達門檻，或存在阻斷條件。",
+            "next_step_zh": "補足證據後重新評估，不是建立 AWS 資源。",
+        }
+    return {
+        "can_enter_skill4": False,
+        "readiness_status": "missing_deployable_recipe",
+        "technical_assessment_zh": (
+            "技術上值得評估，但目前不能進 Skill 4。" if recommend_poc
+            else "技術資格門檻亦未通過，且目前不能進 Skill 4。"
+        ),
+        "reason_zh": decision.get("reason_zh", ""),
+        "next_step_zh": decision.get(
+            "next_step_zh", "下一步是建立或補齊專用 recipe，不是建立 AWS 資源。"
+        ),
+        "authoring_template": decision.get(
+            "authoring_template", "docs/s4-recipe-authoring-template.md"
+        ),
+    }
+
+
 def _evaluate_candidate(
     candidate: dict[str, Any],
     gate: dict[str, Any],
@@ -201,6 +245,7 @@ def _evaluate_candidate(
     evaluated_at: str,
 ) -> dict[str, Any]:
     del gate
+    recipe_decision = select_recipe(candidate)
     dimensions = candidate.get("comparison_dimensions") or {}
     proposal = candidate.get("proposal_card") or {}
     coverage = candidate.get("evidence_coverage") or {}
@@ -236,6 +281,8 @@ def _evaluate_candidate(
         "candidate_id": candidate.get("candidate_id"),
         "title": candidate.get("title"),
         "source_url": candidate.get("source_url"),
+        "poc_recipe": recipe_decision,
+        "s4_readiness": _s4_readiness(recipe_decision, recommend_poc),
         "source_explanation": candidate.get("explanation") or {},
         "initial_claims": candidate.get("initial_claims") or [],
         "possible_application_contexts": candidate.get("possible_application_contexts") or [],
@@ -515,17 +562,32 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
                 f"- PoC blocker：{', '.join(blockers) if blockers else '無'}",
                 f"- Review notes：{', '.join(candidate.get('poc_review_notes') or []) if candidate else '未記錄'}",
                 f"- 是否值得交給 Cleo 決定進入 Skill 4：{'是' if technically_eligible else '否'}",
+                f"- 目前可否進入 Skill 4：{'可以' if has_recipe else '不可以，缺少可部署 recipe'}",
                 "",
             ]
         )
-    lines.extend(
-        [
-            "## Cleo 需要回覆",
-            "",
-            "- 若同意 PoC：請回覆同意進入 Skill 4，並確認候選、核准上限、成功條件與 cleanup 範圍。",
-            "- 若不同意 PoC：請回覆不進 Skill 4，並可指定要改評估標準、換候選或補證據。",
-        ]
-    )
+    deployable_options = [
+        option for option in options
+        if (option.get("recipe_decision") or {}).get("deployable_recipe_registered")
+    ]
+    lines.extend(["## Cleo 需要回覆", ""])
+    if deployable_options:
+        lines.extend(
+            [
+                "- 若同意 PoC：請回覆同意進入 Skill 4，並確認候選、核准上限、成功條件與 cleanup 範圍。",
+                "- 若不同意 PoC：請回覆不進 Skill 4，並可指定要改評估標準、換候選或補證據。",
+            ]
+        )
+    else:
+        # Offering "同意進入 Skill 4" when no candidate has a deployable recipe
+        # would invite an approval that the deployment gate then refuses.
+        lines.extend(
+            [
+                "- 技術上值得評估，但目前不能進 Skill 4：本輪沒有任何候選具備可部署 recipe。",
+                "- 下一步是建立或補齊專用 recipe，不是建立 AWS 資源。",
+                "- 撰寫方式見 docs/s4-recipe-authoring-template.md。",
+            ]
+        )
     return "\n".join(lines) + "\n"
 
 

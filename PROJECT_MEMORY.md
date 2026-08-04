@@ -414,3 +414,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Raw local run artifacts under `radar-redesign/out/`, downloaded Claude zip files, extracted `_tmp_review_files*` folders, browser sessions, AWS Console login state, and local credentials are not expected to travel through GitHub.
 - A new Codex instance on another computer should start by cloning/pulling the repository, reading `AGENTS.md`, `PROJECT_MEMORY.md`, `MIGRATION_STATUS.md`, `AI_PM_INBOX.md`, the latest `logs/daily/work-log-YYYY-MM-DD.md`, and `ai-execution-trace/daily/2026-08-04.md`.
 - If a local HTML/PNG decision report is needed on the other computer, regenerate it from the committed code and the relevant URL or use the curated docs summary instead of expecting ignored `out/` artifacts to exist.
+
+## 2026-08-04 Skill 4 Recipe Registry Gate
+
+- Skill 4 now treats deployable recipes as a registered contract, not as ad hoc logic inferred from a headline. A candidate may be valuable and quoted in Skill 3, but Skill 4 must refuse live deployment unless a deployable recipe declares resources, cost coverage, success criteria, cleanup scope, evidence plan, and region/environment handling.
+- The WorkSpaces AI Agents article remains blocked before live Skill 4 because it only matches a draft WorkSpaces recipe. Even forced authorization must be rejected by preflight until a WorkSpaces-specific recipe and cost/deployment/cleanup plan are implemented.
+- Skill 3 human-facing approval should use the canonical field `approved_cost_ceiling_usd`. Older `approved_ceiling_usd` artifacts may be read for compatibility, but new reports and templates should not write that old field.
+- S1-S5 pipeline timing should be carried across stage artifacts and rendered in Skill 5, separating program execution time from human waiting time.
