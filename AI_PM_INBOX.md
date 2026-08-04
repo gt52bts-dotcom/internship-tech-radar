@@ -25,6 +25,13 @@
 - 已根據 8/3 正式日誌、AI 執行軌跡與 Git commit 紀錄整理成投影片素材，重點放在人類判斷與 AI 落地的對照，而不是聊天流水帳。
 - 產物位於 `docs/ai-human-trace-2026-08-03.md`，包含一頁式對比表、雙欄版、視覺呈現建議與長官版講稿。
 
+## 2026-08-04 10:05 - Skill 1 雷達掃描新功能候選
+
+- Cleo 要求開啟 S1 雷達，尋找適合實作的新功能文章。
+- 已用 Skill 1 discovery 掃描 AWS 官方來源，條件為一年內、官方 GA 證據、排除 Bedrock、目標區域 `ap-southeast-1`；產出 `radar-redesign/out/s1-radar-20260804-new-features/s1.json`。
+- 為了判斷實作適合度，接著跑 Skill 2 比較層，產出 `radar-redesign/out/s1-radar-20260804-new-features/s2.json`；本次尚未進入 Skill 3、未產報價、未啟動 PoC。
+- 已整理候選摘要到 `docs/s1-radar-2026-08-04-candidates.md`。目前優先建議：DynamoDB Mapper for Kotlin；第二順位為 EC2 C9g/C9gd Graviton5；WorkSpaces / AWS Transform 類候選題目有展示價值但 PoC 較重。
+
 ## 2026-08-03 07:54 - Mentor S5 報告收斂回饋落地
 
 - 時間判定：2026-08-03 07:54 Asia/Taipei，為週一且未到 17:00，因此本次只記入 inbox，不建立或定稿今日正式日誌。
