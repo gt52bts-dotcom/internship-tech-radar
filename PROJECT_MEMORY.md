@@ -391,3 +391,4 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - Formal daily logs should emphasize the day's structural project changes, design decisions, workflow corrections, validation evidence, and remaining risks. Do not let the last PoC run of the day dominate the narrative when larger S1-S5 architecture or process changes happened earlier.
 - When reporting Git activity, distinguish whole-repository statistics from engineering-core statistics that exclude large reference artifacts, binary deletions, or generated evidence. Do not present one as the other.
+- Formal logs and supervisor-facing entry pages should avoid file names, internal status codes, command flags, commit hashes, and abstract English machine terms unless they are truly necessary evidence. Prefer clear Traditional Chinese descriptions such as「人工核准區」、「資源盤點」、「結案報告」、「清除回查」and explain technical details in human terms.

@@ -1,6 +1,6 @@
 # Cleo Skill 積分儀表板
 
-> GitHub 是專案 source of truth。此頁整理主管可讀入口、五個 Skill 累積分數與每日趨勢；正式日誌仍以 `logs/daily/` 為準。
+> GitHub 是專案共同紀錄來源。此頁整理主管可讀入口、五個 Skill 累積分數與每日趨勢；正式日誌仍以每日工作日誌為準。
 
 ## 主管快速入口
 
@@ -19,11 +19,11 @@
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 21 | 已能以 AWS 官方 URL、RSS、動態分類、GA 證據與 S1 解釋層取得可驗證候選。 |
+| Skill 1 - Scan | 21 | 已能以 AWS 官方 URL、RSS、動態分類、正式發布證據與新聞解釋層取得可驗證候選。 |
 | Skill 2 - Compare | 18 | 已能用官方補充來源比較候選、部署前提與適用限制。 |
-| Skill 3 - Evaluate | 24 | 已把成本、權限、安全、GA 證據、架構圖與 cleanup 前決策納入判斷。 |
-| Skill 4 - Validate | 40 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並完成 approval、resource inventory review 與 cleanup 契約硬化。 |
-| Skill 5 - Report | 24 | 已能產出 artifact-only final／interim report、成本邊界、資源盤點、交接包與主管可讀入口。 |
+| Skill 3 - Evaluate | 24 | 已把成本、權限、安全、正式發布證據、架構圖與清除前決策納入判斷。 |
+| Skill 4 - Validate | 40 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並完成人工核准、資源盤點與資源清除規則硬化。 |
+| Skill 5 - Report | 24 | 已能產出結案／階段性報告、成本邊界、資源盤點、交接包與主管可讀入口。 |
 
 ## 每日趨勢
 
@@ -49,7 +49,7 @@
 
 ## 今日判定
 
-2026-08-03 的核心成果是修正 S1-S5 的決策鏈：S1 新增解釋層，Skill 3 合併分數、報價、架構圖與 `poc_decision_gate`，Skill 4 close gate 從截圖 metadata 強化為 structured resource inventory、報價對照、權限面與分段計時，Skill 5 移除 AWS 帳務成本比對。Lambda 與 S3 Files 兩條 AWS 官方案例也完成 final evidence chain；公開牌價估算仍不等於 AWS Billing / Cost Explorer / CUR 帳務成本。
+2026-08-03 的核心成果是修正 S1-S5 的決策鏈：S1 新增新聞解釋層，Skill 3 合併分數、報價、架構圖與人工核准區，Skill 4 從截圖確認強化為資源盤點、報價對照、權限面與分段計時，Skill 5 移除 AWS 帳務成本比對。Lambda 與 S3 Files 兩條 AWS 官方案例也完成結案證據鏈；公開牌價估算仍不等於 AWS 實際帳務成本。
 
 ## 相關檔案
 
@@ -63,5 +63,5 @@
 ## 待修正流程
 
 - Amazon Connect Customer Data Lake 若要進入真實 PoC，仍須補齊候選專屬 recipe、rate card、新加坡可用性／定價證據、可用 instance 與具名授權。
-- 公開牌價報價與 cleanup 前 runtime facts 不等於 AWS Billing / Cost Explorer / CUR 帳務成本；Skill 5 不做未取得帳務資料的實際成本比較。
+- 公開牌價報價與清除前執行紀錄不等於 AWS 實際帳務成本；Skill 5 不做未取得帳務資料的實際成本比較。
 - `cdk deploy` 仍受 bootstrap role 權限限制；目前以 `cdk synth` 加 CloudFormation deploy 作為替代路徑，這不代表 CDK bootstrap 部署已成功。
