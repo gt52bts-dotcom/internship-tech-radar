@@ -27,6 +27,7 @@ Require all of the following:
 
 - Matching S1/S2/S3 lineage and artifact hashes.
 - Skill 3 `recommend_poc=true`.
+- A concrete PoC proof question from Skill 3: what this PoC must prove, what decision evidence success adds beyond the Skill 3 report, and what remains unknown afterward.
 - A registered candidate-specific recipe and its complete S3 quotation.
 - The effective ceiling is the minimum of Skill 3's recommended approval ceiling, the human-approved ceiling, and the built-in sandbox ceiling.
 - Target Region must be officially verified, or `region_unknown` must be explicitly acknowledged with `region_warning_acknowledged=true`.
@@ -86,17 +87,18 @@ python -m agentic_cloud_radar.cli s4-close `
 ## Workflow
 
 1. Validate lineage, quote status, estimated range, validity and approval before contacting AWS.
-2. Synthesize the candidate recipe and inspect CloudFormation.
-3. Create only run-derived sandbox resources.
-4. If the same run-derived stack is already `CREATE_COMPLETE`, resume its verification instead of creating duplicate resources.
-5. Treat candidate-service propagation as eventually consistent: use a bounded retry for expected transient read-back gaps, and fail after the timeout.
-6. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
-7. Run the Playwright capture command from the Console review packet. It opens a headful browser, uses an existing or newly authenticated AWS Console session, navigates to CloudFormation / Infrastructure Composer, captures the canvas PNG, and writes local evidence JSON.
-8. Pause for explicit named-human cleanup confirmation. Do not infer confirmation from a prior deployment approval.
-9. Run `s4-close --execute`; before deletion it records `pre_cleanup_usage_snapshot.json` with immediately available runtime facts: create/delete-before timestamps, CloudFormation resources, resource tags when available, S3 object count/versions/bytes, Lambda configuration and CloudWatch metrics when present, and recipe-specific runtime facts such as EC2 state.
-10. Treat the pre-cleanup snapshot as usage evidence, not billing evidence. Do not delay cleanup for Cost Explorer or Billing data.
-11. It cleans only the reviewed run and re-queries the scoped resources.
-12. Produce Skill 5's actual-PoC conclusion only from the resulting `cleanup_verified` runtime artifact.
+2. Restate the PoC proof question in the approval or deployment notes. If the proof question is vague, missing, or already fully answered by Skill 3, stop before deployment and ask for a clearer purpose.
+3. Synthesize the candidate recipe and inspect CloudFormation.
+4. Create only run-derived sandbox resources.
+5. If the same run-derived stack is already `CREATE_COMPLETE`, resume its verification instead of creating duplicate resources.
+6. Treat candidate-service propagation as eventually consistent: use a bounded retry for expected transient read-back gaps, and fail after the timeout.
+7. Record deployment status and runtime checks without secrets, account IDs, full ARNs, or private addresses.
+8. Run the Playwright capture command from the Console review packet. It opens a headful browser, uses an existing or newly authenticated AWS Console session, navigates to CloudFormation / Infrastructure Composer, captures the canvas PNG, and writes local evidence JSON.
+9. Pause for explicit named-human cleanup confirmation. Do not infer confirmation from a prior deployment approval.
+10. Run `s4-close --execute`; before deletion it records `pre_cleanup_usage_snapshot.json` with immediately available runtime facts: create/delete-before timestamps, CloudFormation resources, resource tags when available, S3 object count/versions/bytes, Lambda configuration and CloudWatch metrics when present, and recipe-specific runtime facts such as EC2 state.
+11. Treat the pre-cleanup snapshot as usage evidence, not billing evidence. Do not delay cleanup for Cost Explorer or Billing data.
+12. It cleans only the reviewed run and re-queries the scoped resources.
+13. Produce Skill 5's actual-PoC conclusion only from the resulting `cleanup_verified` runtime artifact.
 
 The packet's `review_deadline` is the sole objective definition of a review timeout. After that deadline, or after deployment/normal-close failure, use `s4-abort --execute` only with a named cost-control approver and reason. A timeout abort must also include `--packet .\out\run\s4-console-review-packet.json`. It records `skipped_for_cost_control` / `abort_without_console_review`; Skill 5 must not treat that as normal screenshot-backed Console review.
 

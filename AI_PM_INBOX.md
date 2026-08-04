@@ -13,6 +13,12 @@
 - 已同步更新主 repo 與 Claude GUI handoff 的五份 Skill 說明，新增每階段結束前必跑的 checklist：更新日誌或 inbox、必要時更新 README / migration、執行或說明驗證、檢查 git status、完成有意義的 commit、需要共享時 push、確認 GitHub 可見、留下下一步。
 - 已將此規則補進專案記憶，作為後續 AI PM 與 Skill 執行的長期要求。
 
+## 2026-08-04 09:25 - PoC 前必答的證明問題
+
+- Cleo 指出「這次 PoC 要證明什麼？如果成功，決策會多知道什麼？」是關鍵問題。
+- 已將此規則加入 Skill 3 與 Skill 4：Skill 3 的決策報告必須在核准前回答 PoC proof question；Skill 4 部署前必須檢查這個問題是否具體，若問題模糊、缺漏，或 Skill 3 已經完全回答，就不應建立 AWS 資源。
+- 規則已同步到 Claude GUI handoff 版本，避免另一台電腦或 Claude 接續時漏掉這個判斷。
+
 ## 2026-08-03 07:54 - Mentor S5 報告收斂回饋落地
 
 - 時間判定：2026-08-03 07:54 Asia/Taipei，為週一且未到 17:00，因此本次只記入 inbox，不建立或定稿今日正式日誌。

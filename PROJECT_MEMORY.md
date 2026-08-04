@@ -399,3 +399,4 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Cleo 可能因 token 或工具限制在 Codex 與 Claude 之間切換；每次交接都要把目前目標、已完成事項、下一步、驗證證據與限制寫清楚，讓另一個 AI 能從 GitHub、PROJECT_MEMORY、AI_PM_INBOX、最新日誌與 AI 執行軌跡接續。
 - 跨 AI 交接時不得只依賴對話記憶；GitHub main 與專案內文字紀錄是可接續的主要來源。
 - 五個 Skill 每次執行結束都必須跑收尾 checklist：更新日誌或 inbox、必要時更新 README / migration、執行或說明驗證、檢查 git status、完成有意義的 commit、需要共享時 push、確認 GitHub 可見、留下下一步。Cleo 不應每次手動追問這些基本收尾。
+- 每次進入 Skill 4 前，Skill 3 報告必須回答「這次 PoC 要證明什麼？如果成功，決策者會多知道什麼？」；答案必須是具體可測的證據，例如部署可行性、Region/帳號相容性、資源關係、權限邊界、runtime 行為、cleanup 可重現性或仍未知的限制。若回答不出來，即使分數高也不應進入 Skill 4。

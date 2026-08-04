@@ -38,10 +38,12 @@ Reuse the fixed rubric in `agentic_cloud_radar/s3.py`.
    - Level B: when no registered cost recipe exists but S2/IaC/service evidence identifies billable AWS services, use the reusable generic usage model and mark `pricing_level=Level B generic usage model`.
    - Level C: when the service/resource scope is still too vague, return `status=incomplete` with missing inputs instead of inventing a number.
 6. Set the one decision field, `recommend_poc`, only when the score is `>= 3.75` on the 5-point weighted rubric, no PoC blocker exists, and the quote status is `estimated`. Treat this field as technical eligibility for a controlled PoC, not proof of workload fit or permission to deploy.
-7. Populate `poc_decision_gate` with every evaluated option, including score, quote status, low/expected/high estimate, recommended approval ceiling, blocker list, and the required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`.
-8. When writing the optional Skill 3 PoC decision report, explain the article before the approval decision: what changed, why it matters, key source-backed points, and the inferred minimal implementation architecture. Then show PoC threshold, score, quote, recipe, blockers, and what Cleo must approve before Skill 4.
-9. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
-10. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
+7. Populate `poc_decision_gate` with every evaluated option, including score, quote status, low/expected/high estimate, recommended approval ceiling, blocker list, the PoC proof question, and the required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`.
+8. When writing the optional Skill 3 PoC decision report, explain the article before the approval decision: what changed, why it matters, key source-backed points, and the inferred minimal implementation architecture.
+9. Before showing the PoC score and quote, show the PoC proof question: "What does this PoC need to prove, and what will the decision-maker know if it succeeds?" Answer it in concrete evidence terms such as deployability, Region/account compatibility, IAM/resource wiring, runtime behavior, cleanup repeatability, or limits that remain unknown. If this cannot be answered, Skill 3 must not recommend moving to Skill 4 even when the numeric score is high.
+10. After the proof question, show PoC threshold, score, quote, recipe, blockers, and what Cleo must approve before Skill 4.
+11. Keep Region and pricing uncertainty in `poc_review_notes`; do not require the user to configure an environment.
+12. `recommend_s4` is an input-only compatibility fallback for old artifacts. New S3 artifacts do not produce low-risk or separate paid-PoC decision fields.
 
 ## Guardrails
 
@@ -81,6 +83,16 @@ Before ending the Skill run, complete and report this checklist so the human doe
 S3 ends with `poc_decision_gate`, the only human gate before Skill 4. It lists every candidate with weighted score out of 5, Region state, quote status, expected total, recommended ceiling, technical eligibility, and blockers, so one person decides both questions at once: which candidate, and whether the estimated cost is worth spending.
 
 Required human outputs: `selected_candidate_id`, `approved_by`, `approved_ceiling_usd`. Technical eligibility is never approval.
+
+## PoC proof question
+
+Before Skill 4 approval, the report must answer in plain Traditional Chinese:
+
+- What exactly is this PoC trying to prove?
+- If it succeeds, what new decision evidence will the reviewer have that Skill 3 alone did not provide?
+- Which questions will still remain unanswered after this small PoC?
+
+Valid answers are concrete and testable: for example, that the feature can be deployed in the target Region, the recipe creates the expected resource relationships, the permission surface is bounded, the runtime check actually passes, cleanup is repeatable, or a specific integration behavior works. Invalid answers are vague value statements such as "prove it is useful", "prove the article is valuable", or "prove it should be adopted".
 
 ## Cost scope
 
