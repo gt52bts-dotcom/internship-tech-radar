@@ -1079,3 +1079,10 @@
 - 重要限制：目前使用 `generic_usage_model`，尚未登錄 WorkSpaces AI agent access 專用 Skill 4 recipe；`ap-southeast-1` 支援狀態也尚未由程式確認。
 - 已產出自包含 HTML 決策報告與 GPT-style 架構圖，本機路徑在 `radar-redesign/out/workspaces-ai-agents-20260804-s1-s3/`。
 - GitHub 交接摘要新增於 `radar-redesign/docs/workspaces-ai-agents-2026-08-04-skill3-summary.md`，明確寫出本次 PoC 若要繼續應證明什麼，以及為何目前不能直接建立 AWS 資源。
+
+## 2026-08-04 跨電腦接手提醒
+
+- Cleo 表示週四、週五可能不使用目前這台電腦，會在另一台電腦用 GitHub 接續 AI PM 專案。
+- 已確認 `origin/main` 與本機 HEAD 同步在 `66109aa`；GitHub 可接手 code、Skill 文件、記憶、inbox、每日軌跡與 docs 摘要。
+- 不會透過 GitHub 自動帶走的內容：`radar-redesign/out/` 原始執行產物、HTML/PNG 本機報告、AWS Console 登入狀態、下載 zip、暫存 `_tmp_review_files*` 資料夾、任何本機憑證。
+- 下一台電腦應先 pull GitHub，再讀 `PROJECT_MEMORY.md`、`MIGRATION_STATUS.md`、`AI_PM_INBOX.md`、最新 daily log 與 `ai-execution-trace/daily/2026-08-04.md`。

@@ -407,3 +407,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Skill 3 score is `4.6 / 5`, with expected generic PoC estimate USD `0.000543`, high scenario USD `0.005537`, and suggested approval ceiling USD `0.05`.
 - Do not proceed to Skill 4 yet: the current quote uses `generic_usage_model`, `deployable_recipe_registered=false`, and `ap-southeast-1` feature support is not programmatically confirmed.
 - Before any live WorkSpaces PoC, create a WorkSpaces-specific Skill 4 recipe, cost model, success criteria, cleanup scope, and region/environment confirmation.
+
+## 2026-08-04 Cross-Computer Continuity
+
+- Cleo may work from another computer on Thursday and Friday. GitHub `origin/main` is the handoff source of truth for code, Skill documents, project memory, daily-log evidence, AI execution traces, and curated docs.
+- Raw local run artifacts under `radar-redesign/out/`, downloaded Claude zip files, extracted `_tmp_review_files*` folders, browser sessions, AWS Console login state, and local credentials are not expected to travel through GitHub.
+- A new Codex instance on another computer should start by cloning/pulling the repository, reading `AGENTS.md`, `PROJECT_MEMORY.md`, `MIGRATION_STATUS.md`, `AI_PM_INBOX.md`, the latest `logs/daily/work-log-YYYY-MM-DD.md`, and `ai-execution-trace/daily/2026-08-04.md`.
+- If a local HTML/PNG decision report is needed on the other computer, regenerate it from the committed code and the relevant URL or use the curated docs summary instead of expecting ignored `out/` artifacts to exist.
