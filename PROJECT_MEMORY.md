@@ -400,3 +400,10 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - 跨 AI 交接時不得只依賴對話記憶；GitHub main 與專案內文字紀錄是可接續的主要來源。
 - 五個 Skill 每次執行結束都必須跑收尾 checklist：更新日誌或 inbox、必要時更新 README / migration、執行或說明驗證、檢查 git status、完成有意義的 commit、需要共享時 push、確認 GitHub 可見、留下下一步。Cleo 不應每次手動追問這些基本收尾。
 - 每次進入 Skill 4 前，Skill 3 報告必須回答「這次 PoC 要證明什麼？如果成功，決策者會多知道什麼？」；答案必須是具體可測的證據，例如部署可行性、Region/帳號相容性、資源關係、權限邊界、runtime 行為、cleanup 可重現性或仍未知的限制。若回答不出來，即使分數高也不應進入 Skill 4。
+## 2026-08-04 WorkSpaces AI Agents Evaluation State
+
+- Cleo selected the AWS article `Amazon WorkSpaces Now Lets AI Agents Operate Desktop Applications` for a single-item Skill 1-3 run.
+- Run ID is `direct-url-20260804-20fd4c4b`; candidate ID is `S1-791440D21925`.
+- Skill 3 score is `4.6 / 5`, with expected generic PoC estimate USD `0.000543`, high scenario USD `0.005537`, and suggested approval ceiling USD `0.05`.
+- Do not proceed to Skill 4 yet: the current quote uses `generic_usage_model`, `deployable_recipe_registered=false`, and `ap-southeast-1` feature support is not programmatically confirmed.
+- Before any live WorkSpaces PoC, create a WorkSpaces-specific Skill 4 recipe, cost model, success criteria, cleanup scope, and region/environment confirmation.

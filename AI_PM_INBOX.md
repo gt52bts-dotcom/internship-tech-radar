@@ -1070,3 +1070,12 @@
 - 已產 Skill 5 final：`s5-report-final.json` 與 `s5-report-final.md`。結論為 `validated_and_cleaned`，文字已改成「自動化驗證與資源盤點人工確認」，不再錯寫 Infrastructure Composer 截圖。
 - Skill 5 final 仍明確保留成本邊界：Skill 3 報價是公開牌價估算，cleanup 前快照是 runtime facts，不是 AWS Billing / Cost Explorer / CUR 帳務證據。
 - 驗證：`python -m unittest tests.test_s5 tests.test_s3_s4 tests.test_s4_inventory tests.test_costing` 通過 50 tests；`s5.py`、`s4_deployer.py`、`test_s5.py`、`test_s3_s4.py` syntax check 通過。
+## 2026-08-04 WorkSpaces AI Agents Skill 1-3 評估
+
+- 依 Cleo 指定，針對 AWS 文章 `Amazon WorkSpaces Now Lets AI Agents Operate Desktop Applications` 執行 Skill 1、Skill 2、Skill 3。
+- Run ID：`direct-url-20260804-20fd4c4b`；Candidate ID：`S1-791440D21925`。
+- Skill 3 分數為 `4.6 / 5`，決策狀態為 `awaiting_poc_decision`，不會自動進入 Skill 4。
+- 報價已產出：低用量 USD `0.000054`、預期用量 USD `0.000543`、高用量 USD `0.005537`、建議核准上限 USD `0.05`。
+- 重要限制：目前使用 `generic_usage_model`，尚未登錄 WorkSpaces AI agent access 專用 Skill 4 recipe；`ap-southeast-1` 支援狀態也尚未由程式確認。
+- 已產出自包含 HTML 決策報告與 GPT-style 架構圖，本機路徑在 `radar-redesign/out/workspaces-ai-agents-20260804-s1-s3/`。
+- GitHub 交接摘要新增於 `radar-redesign/docs/workspaces-ai-agents-2026-08-04-skill3-summary.md`，明確寫出本次 PoC 若要繼續應證明什麼，以及為何目前不能直接建立 AWS 資源。
