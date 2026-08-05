@@ -19,7 +19,18 @@
 - 人類可以觀察或中止 agent session。
 - 活動證據可透過 S3、CloudWatch、CloudTrail 等來源留下紀錄。
 
-## Skill 3 結論
+> 2026-08-05 校正：以下 8/4 初步評估已由新版 Skill 3 rubric 取代。本文件保留作為當日分析紀錄；目前應以 `2.65 / 5`、`recommend_poc=false`、`can_enter_skill4=false` 和 `compliance_review_required` blocker 為準。
+
+## 2026-08-05 校正後結論
+
+- Skill 3 分數：2.65 / 5（未達 3.75 / 5 PoC 門檻）
+- 評分細項：技術能力 4、證據可驗證性 3、導入前置條件 2、可控制性與停止機制 2、可逆性與終止 1。
+- PoC blocker：`compliance_review_required`
+- 第一段基礎設施驗證報價：低／預期／高 USD 0.05／0.10／0.40；建議核准上限 USD 0.50。
+- 專用第一段基礎設施驗證 recipe 已登錄，但不代表可以部署。完整桌面 agent session 是第二段，必須另行定義任務與核准。
+- 結論：不可進入 Skill 4，沒有建立 AWS 資源。
+
+## 2026-08-04 初步 Skill 3 結論（歷史紀錄）
 
 - Skill 3 分數：4.6 / 5
 - 決策狀態：等待人工決策
