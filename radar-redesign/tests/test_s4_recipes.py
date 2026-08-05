@@ -243,7 +243,10 @@ class Skill3HandoffTests(unittest.TestCase):
 
         candidate = result["evaluated_candidates"][0]
         self.assertEqual(candidate["poc_recipe"]["status"], "recipe_registered")
-        self.assertTrue(candidate["s4_readiness"]["can_enter_skill4"])
+        self.assertEqual(candidate["weighted_score"], 2.65)
+        self.assertFalse(candidate["recommend_poc"])
+        self.assertIn("compliance_review_required", candidate["governance_flags"])
+        self.assertFalse(candidate["s4_readiness"]["can_enter_skill4"])
 
 
     def test_decision_gate_shows_recipe_verdict_per_option(self):
@@ -285,7 +288,17 @@ class MainFlowGateTests(unittest.TestCase):
         candidate = result["evaluated_candidates"][0]
         self.assertEqual(candidate["poc_recipe"]["status"], "recipe_registered")
         self.assertEqual(candidate["poc_recipe"]["recipe_id"], "workspaces_ai_agent_access_cdk")
-        self.assertTrue(candidate["s4_readiness"]["can_enter_skill4"])
+        self.assertEqual(
+            candidate["dimension_scores"],
+            {
+                "technical_value": 4,
+                "verifiability": 3,
+                "adoption_prerequisites": 2,
+                "risk_and_stop_conditions": 2,
+                "reversibility_and_cleanup": 1,
+            },
+        )
+        self.assertFalse(candidate["s4_readiness"]["can_enter_skill4"])
 
 
     def test_workspaces_report_can_enter_skill4(self):
@@ -298,6 +311,11 @@ class MainFlowGateTests(unittest.TestCase):
         self.assertIn("開一台受控的雲端 Windows 桌面給 AI 用", report)
         self.assertIn("如果目的只是偶爾人工看一次 canvas，完整桌面 PoC 太重", report)
         self.assertIn("AI agent -> WorkSpaces Applications / AppStream streaming session", report)
+        self.assertIn("評分細項", report)
+        self.assertIn("技術能力：4 / 5", report)
+        self.assertIn("證據可驗證性：3 / 5", report)
+        self.assertIn("導入前置條件：2 / 5", report)
+        self.assertIn("可逆性與終止：1 / 5", report)
         self.assertIn("不開啟 URL", report)
         self.assertIn("第二段", report)
         self.assertIn("cleanup 不能退款", report)
@@ -322,9 +340,8 @@ class MainFlowGateTests(unittest.TestCase):
 
             context = build_deployment_context(evaluate, approval)
 
-        self.assertEqual(context["status"], "ready_for_manual_deployment")
-        self.assertEqual(context["deployment"]["recipe"], "workspaces_ai_agent_access_cdk")
-        self.assertNotIn("preflight:deployable_recipe_exists", context["errors"])
+        self.assertEqual(context["status"], "not_deployable")
+        self.assertIn("poc_gate_not_passed", context["errors"])
 
 
     def test_generic_usage_model_context_is_not_deployable(self):

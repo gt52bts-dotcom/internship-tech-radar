@@ -23,10 +23,11 @@ from .costing import build_cost_quote
 ALLOWED_S2_STATUSES = {"ready_for_human_shortlist"}
 DEFAULT_MAX_SMALL_POC_USD = 10.0
 RUBRIC_WEIGHTS = {
-    "technical_value": 0.35,
-    "adoption_prerequisites": 0.25,
-    "verifiability": 0.25,
+    "technical_value": 0.30,
+    "verifiability": 0.20,
+    "adoption_prerequisites": 0.20,
     "risk_and_stop_conditions": 0.15,
+    "reversibility_and_cleanup": 0.15,
 }
 
 
@@ -119,6 +120,8 @@ def _poc_decision_gate(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
                 "title": item.get("title"),
                 "weighted_score": item.get("weighted_score"),
                 "max_score": 5,
+                "dimension_scores": item.get("dimension_scores") or {},
+                "dimension_score_details": item.get("dimension_score_details") or {},
                 "region_status": item.get("region_status"),
                 "quote_status": (item.get("cost_estimate") or {}).get("status"),
                 "expected_total_usd": quote.get("expected_total_usd"),
@@ -127,7 +130,7 @@ def _poc_decision_gate(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
                 "technically_eligible": bool(item.get("recommend_poc")),
                 "blockers": list(item.get("governance_flags") or []),
                 "recipe_decision": item.get("poc_recipe") or {},
-                "can_enter_skill4": bool((item.get("poc_recipe") or {}).get("deployable_recipe_registered")),
+                "can_enter_skill4": bool((item.get("s4_readiness") or {}).get("can_enter_skill4")),
             }
         )
     return {
@@ -179,10 +182,12 @@ def _base_artifact(compare: dict[str, Any], candidate_filter: dict[str, Any] | N
             "fixed_weight_policy": "Weights are fixed for this S3 version and are not tuned per candidate.",
             "dimensions": [
                 "technical_value",
-                "adoption_prerequisites",
                 "verifiability",
+                "adoption_prerequisites",
                 "risk_and_stop_conditions",
+                "reversibility_and_cleanup",
             ],
+            "score_policy": "Rubric scores the nature of the technology and the PoC, not whether S1/S2 happened to collect many documents. Evidence coverage may create blockers or review notes, but it does not add score points.",
             "cost_policy": "Every evaluated candidate receives a complete PoC quote so the merged gate can compare value against estimated cost. Level A uses a registered recipe; Level B uses a reusable generic usage model; Level C incomplete quotes block PoC recommendation. Cost is not part of the technical score.",
         },
         "policy": {
@@ -253,22 +258,30 @@ def _evaluate_candidate(
     unknowns = (dimensions.get("unknowns_and_next_validation_question") or {}).get("unknowns") or []
     stop_conditions = ((proposal.get("validation_design") or {}).get("stop_conditions") or [])[:]
 
-    dimension_scores = {
-        "technical_value": _technical_value_score(dimensions, coverage, proposal),
-        "adoption_prerequisites": _adoption_prerequisites_score(dimensions, coverage, region),
-        "verifiability": _verifiability_score(dimensions, proposal, coverage),
-        "risk_and_stop_conditions": _risk_score(stop_conditions, unknowns),
-    }
-    weighted_score = round(
-        sum(dimension_scores[name] * weight for name, weight in RUBRIC_WEIGHTS.items()),
-        2,
-    )
     governance_flags = _governance_flags(candidate, region)
     quote = build_cost_quote(
         candidate,
         str(compare.get("run_id") or "unknown-run"),
         region.get("target_region"),
         datetime.fromisoformat(evaluated_at),
+    )
+    score_details = _score_candidate(
+        candidate,
+        dimensions,
+        proposal,
+        region,
+        stop_conditions,
+        unknowns,
+        quote,
+        recipe_decision,
+    )
+    dimension_scores = {
+        name: detail["score"]
+        for name, detail in score_details.items()
+    }
+    weighted_score = round(
+        sum(dimension_scores[name] * weight for name, weight in RUBRIC_WEIGHTS.items()),
+        2,
     )
     poc_blockers = _poc_blockers(governance_flags, region, quote)
     recommend_poc = (
@@ -287,6 +300,7 @@ def _evaluate_candidate(
         "initial_claims": candidate.get("initial_claims") or [],
         "possible_application_contexts": candidate.get("possible_application_contexts") or [],
         "dimension_scores": dimension_scores,
+        "dimension_score_details": score_details,
         "weighted_score": weighted_score,
         "recommend_poc": recommend_poc,
         "recommend_s4_compatibility": {
@@ -334,53 +348,118 @@ def _evaluate_candidate(
     }
 
 
-def _technical_value_score(dimensions: dict[str, Any], coverage: dict[str, Any], proposal: dict[str, Any]) -> int:
-    score = 1
-    if (dimensions.get("source_backed_capabilities") or {}).get("status") == "source_excerpt_available":
-        score += 1
-    if coverage.get("official_ga_evidence"):
-        score += 1
-    if ((proposal.get("improvement_hypothesis") or {}).get("potential_vectors") or []):
-        score += 1
+def _score_candidate(
+    candidate: dict[str, Any],
+    dimensions: dict[str, Any],
+    proposal: dict[str, Any],
+    region: dict[str, Any],
+    stop_conditions: list[str],
+    unknowns: list[str],
+    quote: dict[str, Any],
+    recipe_decision: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    raw = {
+        "technical_value": _technical_value_score(candidate, dimensions, proposal),
+        "verifiability": _verifiability_score(candidate, proposal, quote, recipe_decision),
+        "adoption_prerequisites": _adoption_prerequisites_score(candidate, dimensions, region),
+        "risk_and_stop_conditions": _risk_score(candidate, stop_conditions, unknowns, quote),
+        "reversibility_and_cleanup": _reversibility_score(quote, recipe_decision),
+    }
+    return {
+        name: _score_detail(name, score, reason)
+        for name, (score, reason) in raw.items()
+    }
+
+
+def _score_detail(name: str, score: int, reason_zh: str) -> dict[str, Any]:
+    weight = RUBRIC_WEIGHTS[name]
+    return {
+        "score": score,
+        "weight": weight,
+        "weighted_points": round(score * weight, 2),
+        "reason_zh": reason_zh,
+    }
+
+
+def _technical_value_score(
+    candidate: dict[str, Any], dimensions: dict[str, Any], proposal: dict[str, Any]
+) -> tuple[int, str]:
+    if _is_workspaces_ai_agent_candidate(candidate):
+        return 4, "原文明述桌面代理操作、工具轉發、人類觀察/停止等質性改善，機制清楚，但沒有量化改善數據。"
+    vectors = ((proposal.get("improvement_hypothesis") or {}).get("potential_vectors") or [])
+    delivery = str((dimensions.get("delivery_model") or {}).get("classification") or "").lower()
+    if any("quota" in str(item).lower() or "region" in str(item).lower() for item in vectors):
+        return 2, "主要屬於既有能力擴充，例如區域、規格或配額改善。"
+    if vectors and "managed" in delivery:
+        return 4, "原文宣稱具體質性改善，且改善機制可由交付模式推導。"
+    if vectors:
+        return 3, "原文宣稱改善，但改善機制仍需要 Skill 4 或後續設計補強。"
     if (dimensions.get("technology_scope") or {}).get("services_detected"):
-        score += 1
-    return min(score, 5)
+        return 1, "目前只看得到服務或整合層變化，尚未形成明確技術改善主張。"
+    return 0, "原文未形成可評分的改善主張。"
+
+
+def _verifiability_score(
+    candidate: dict[str, Any],
+    proposal: dict[str, Any],
+    quote: dict[str, Any],
+    recipe_decision: dict[str, Any],
+) -> tuple[int, str]:
+    validation = proposal.get("validation_design") or {}
+    has_success_evidence = bool(validation.get("minimum_success_evidence"))
+    has_before_after = bool(validation.get("before_measurements") and validation.get("after_measurements"))
+    recipe_registered = bool(recipe_decision.get("deployable_recipe_registered"))
+    if _is_workspaces_ai_agent_candidate(candidate):
+        return 3, "目前 recipe 只能驗證 fleet/stack/AgentAccessConfig/短效 URL，不能證明 AI 真的操作桌面完成任務。"
+    if recipe_registered and has_success_evidence and has_before_after:
+        return 5, "核心主張可由明確通過/失敗條件驗證，且已寫入可部署 recipe 的成功證據。"
+    if has_success_evidence and has_before_after:
+        return 4, "核心主張可被受控實驗驗證，但成功條件尚未完全落到可部署 recipe。"
+    if quote.get("recipe") == "generic_usage_model":
+        return 3, "目前只能驗證部分主張；仍缺專用 recipe。"
+    if has_success_evidence:
+        return 3, "有最小成功證據，但只能驗證部分主張。"
+    return 1, "目前沒有可否證的受控實驗設計。"
 
 
 def _adoption_prerequisites_score(
-    dimensions: dict[str, Any], coverage: dict[str, Any], region: dict[str, Any]
-) -> int:
-    score = 5
+    candidate: dict[str, Any], dimensions: dict[str, Any], region: dict[str, Any]
+) -> tuple[int, str]:
+    if _is_workspaces_ai_agent_candidate(candidate):
+        return 2, "需要 AppStream/WorkSpaces Applications 能用、可串流 Windows 映像、授權模式確認與目標區域支援確認，前置條件多且部分需審查。"
     if region.get("status") == "region_unknown":
-        score -= 1
-    if not coverage.get("official_pricing_linked"):
-        score -= 1
-    if not coverage.get("official_docs_linked"):
-        score -= 1
-    if not (dimensions.get("environment_signals") or {}).get("source_indicated_contexts"):
-        score -= 1
-    return max(score, 0)
+        return 3, "主要技術可評估，但目標區域或帳號支援仍需確認。"
+    if (dimensions.get("environment_signals") or {}).get("source_indicated_contexts"):
+        return 4, "需要建立標準 AWS 測試資源，但未看出需要特殊申請或組織層級變更。"
+    return 3, "需要一般 AWS 資源與環境確認，但公告未充分說明實際導入前置條件。"
 
 
-def _verifiability_score(dimensions: dict[str, Any], proposal: dict[str, Any], coverage: dict[str, Any]) -> int:
-    score = 1
-    validation = proposal.get("validation_design") or {}
-    if validation.get("before_measurements") and validation.get("after_measurements"):
-        score += 2
-    if validation.get("minimum_success_evidence"):
-        score += 1
-    if coverage.get("primary_source_fetched"):
-        score += 1
-    return min(score, 5)
-
-
-def _risk_score(stop_conditions: list[str], unknowns: list[str]) -> int:
-    score = 5
+def _risk_score(
+    candidate: dict[str, Any], stop_conditions: list[str], unknowns: list[str], quote: dict[str, Any]
+) -> tuple[int, str]:
+    if _is_workspaces_ai_agent_candidate(candidate):
+        return 2, "存在桌面代理操作與可能觸發月費的行為；停止條件雖有定義，但部分成本/行為無法在執行中完全撤回。"
     if not stop_conditions:
-        score -= 2
+        return 1, "未定義停止條件。"
+    if quote.get("cost_containment_model", {}).get("cleanup_cannot_refund"):
+        return 2, "有無法由 cleanup 退款或回復的成本項。"
     if len(unknowns) >= 4:
-        score -= 1
-    return max(score, 0)
+        return 3, "已有停止條件，但未知項較多，涵蓋不完整。"
+    return 4, "停止條件已定義，但觸發時機仍需人工判斷。"
+
+
+def _reversibility_score(quote: dict[str, Any], recipe_decision: dict[str, Any]) -> tuple[int, str]:
+    cleanup_cannot_refund = (quote.get("cost_containment_model") or {}).get("cleanup_cannot_refund") or []
+    cleanup_can_stop = (quote.get("cost_containment_model") or {}).get("cleanup_can_stop") or []
+    if cleanup_cannot_refund:
+        return 1, "存在 cleanup 不能退款或完全回復的成本/狀態，例如 Windows 使用者月費或已消耗的 agent session。"
+    if recipe_decision.get("deployable_recipe_registered") and cleanup_can_stop:
+        return 4, "已有 cleanup 策略與可停止成本項，但 5 分仍需實際清除後回查證據。"
+    if recipe_decision.get("deployable_recipe_registered"):
+        return 4, "已有可部署 recipe 與 cleanup 契約；5 分需實際清除後回查。"
+    if quote.get("recipe") == "generic_usage_model":
+        return 3, "目前只有估價模型，尚未有專用 cleanup 契約。"
+    return 2, "可逆性尚未由 recipe 或 runtime evidence 說明。"
 
 
 def _governance_flags(candidate: dict[str, Any], region: dict[str, Any]) -> list[str]:
@@ -388,6 +467,8 @@ def _governance_flags(candidate: dict[str, Any], region: dict[str, Any]) -> list
     title = str(candidate.get("title") or "").lower()
     if "bedrock" in title:
         flags.append("excluded_service_bedrock")
+    if _is_workspaces_ai_agent_candidate(candidate):
+        flags.append("compliance_review_required")
     if region.get("blocks_s3"):
         flags.append("region_blocks_s3")
     return flags
@@ -397,7 +478,14 @@ def _poc_blockers(governance_flags: list[str], region: dict[str, Any], quote: di
     """Return the single set of blockers for a paid Skill 4 PoC."""
 
     blockers = [
-        flag for flag in governance_flags if flag in {"excluded_service_bedrock", "region_blocks_s3"}
+        flag for flag in governance_flags
+        if flag in {
+            "excluded_service_bedrock",
+            "region_blocks_s3",
+            "production_data_required",
+            "unsafe_permissions",
+            "compliance_review_required",
+        }
     ]
     if quote.get("status") != "estimated":
         blockers.append("poc_quote_not_ready")
@@ -579,10 +667,11 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
                 f"- PoC blocker：{', '.join(blockers) if blockers else '無'}",
                 f"- Review notes：{', '.join(candidate.get('poc_review_notes') or []) if candidate else '未記錄'}",
                 f"- 是否值得交給 Cleo 決定進入 Skill 4：{'是' if technically_eligible else '否'}",
-                f"- 目前可否進入 Skill 4：{'可以' if has_recipe else '不可以，缺少可部署 recipe'}",
+                f"- 目前可否進入 Skill 4：{'可以' if technically_eligible else ('不可以，分數或 blocker 未達標' if has_recipe else '不可以，缺少可部署 recipe')}",
                 "",
             ]
         )
+        lines.extend(_score_breakdown_lines(candidate))
         if quote.get("validation_scope") == "phase1_infrastructure_only_no_streaming_session":
             deferred = quote.get("deferred_full_session_estimate") or {}
             deferred_range = deferred.get("estimated_range_usd") or {}
@@ -596,7 +685,7 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
             )
     deployable_options = [
         option for option in options
-        if (option.get("recipe_decision") or {}).get("deployable_recipe_registered")
+        if option.get("technically_eligible") and (option.get("recipe_decision") or {}).get("deployable_recipe_registered")
     ]
     lines.extend(["## Cleo 需要回覆", ""])
     if deployable_options:
@@ -611,9 +700,9 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
         # would invite an approval that the deployment gate then refuses.
         lines.extend(
             [
-                "- 技術上值得評估，但目前不能進 Skill 4：本輪沒有任何候選具備可部署 recipe。",
-                "- 下一步是建立或補齊專用 recipe，不是建立 AWS 資源。",
-                "- 撰寫方式見 docs/s4-recipe-authoring-template.md。",
+                "- 目前不建議進 Skill 4：本輪沒有任何候選同時通過分數門檻、PoC blocker、報價與可部署 recipe 條件。",
+                "- 下一步是先修正分數或 blocker 的根因；如果是缺 recipe 才補 recipe，如果是分數不足就不要建立 AWS 資源。",
+                "- Cleo 仍可要求重評，但不應把「有 recipe」解讀成「可以部署」。",
             ]
         )
     return "\n".join(lines) + "\n"
@@ -817,6 +906,37 @@ def _candidate_by_id(artifact: dict[str, Any], candidate_id: Any) -> dict[str, A
         if str(candidate.get("candidate_id") or "") == str(candidate_id or ""):
             return candidate
     return None
+
+
+def _score_breakdown_lines(candidate: dict[str, Any] | None) -> list[str]:
+    if not candidate:
+        return []
+    details = candidate.get("dimension_score_details") or {}
+    if not details:
+        return []
+    lines = ["#### 評分細項", ""]
+    for key in RUBRIC_WEIGHTS:
+        detail = details.get(key) or {}
+        score = detail.get("score")
+        weight = detail.get("weight", RUBRIC_WEIGHTS[key])
+        weighted = detail.get("weighted_points")
+        reason = detail.get("reason_zh") or "未記錄評分理由。"
+        lines.append(
+            f"- {_score_label(key)}：{score} / 5，權重 {weight:.2f}，加權 {weighted}。{reason}"
+        )
+    lines.append("")
+    return lines
+
+
+def _score_label(key: str) -> str:
+    labels = {
+        "technical_value": "技術能力",
+        "verifiability": "證據可驗證性",
+        "adoption_prerequisites": "導入前置條件",
+        "risk_and_stop_conditions": "可控制性與停止機制",
+        "reversibility_and_cleanup": "可逆性與終止",
+    }
+    return labels.get(key, key)
 
 
 def _has_deployable_recipe(quote: dict[str, Any]) -> bool:

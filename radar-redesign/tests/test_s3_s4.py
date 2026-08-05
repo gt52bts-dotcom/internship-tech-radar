@@ -172,11 +172,11 @@ class S3S4Tests(unittest.TestCase):
 
         self.assertEqual(result["status"], "awaiting_poc_decision")
         evaluated = result["evaluated_candidates"][0]
-        self.assertTrue(evaluated["recommend_poc"])
+        self.assertFalse(evaluated["recommend_poc"])
         self.assertEqual(evaluated["region_status"]["status"], "region_unknown")
         self.assertFalse(evaluated["region_status"]["blocks_s3"])
         self.assertTrue(evaluated["region_status"]["requires_region_confirmation"])
-        self.assertEqual(evaluated["s4_path"], "poc")
+        self.assertEqual(evaluated["s4_path"], "not_recommended")
         self.assertIn("target_region_support_not_verified", evaluated["poc_review_notes"])
         self.assertEqual(evaluated["cost_estimate"]["status"], "estimated")
         self.assertEqual(evaluated["cost_estimate"]["quote"]["pricing_level"], "Level B generic usage model")
@@ -195,7 +195,7 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(result["status"], "awaiting_poc_decision")
         self.assertEqual(result["evaluation_mode"], "public_evidence")
         evaluated = result["evaluated_candidates"][0]
-        self.assertTrue(evaluated["recommend_poc"])
+        self.assertFalse(evaluated["recommend_poc"])
         self.assertEqual(evaluated["assessment_scope"]["company_fit"], "not_assessed")
         self.assertNotIn("paid_poc_context_gaps", evaluated)
 
@@ -239,10 +239,10 @@ class S3S4Tests(unittest.TestCase):
 
         result = build_validate(s3).to_dict()
 
-        self.assertEqual(result["status"], "awaiting_poc_approval")
+        self.assertEqual(result["status"], "no_poc_candidates")
         validated = result["validated_candidates"][0]
-        self.assertTrue(validated["recommend_poc"])
-        self.assertEqual(validated["validation_status"], "awaiting_poc_approval")
+        self.assertFalse(validated["recommend_poc"])
+        self.assertEqual(validated["validation_status"], "not_recommended_for_poc")
         self.assertFalse(validated["automatic_poc_start"])
 
     def test_s4_deployment_context_blocks_generic_quote_without_deployable_recipe(self):
@@ -524,8 +524,7 @@ class S3S4Tests(unittest.TestCase):
         self.assertEqual(cleaned["cleanup"]["pre_cleanup_usage_snapshot_status"], "captured")
 
     def test_s4_deployment_context_uses_defaults_without_environment_configuration(self):
-        s2 = _sample_s2()
-        s2["candidates"][0]["title"] = "Launching S3 Files, making S3 buckets accessible as file systems"
+        s2 = _deployable_s2()
         evaluate = build_evaluate(s2, _shortlist()).to_dict()
         with TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -536,7 +535,7 @@ class S3S4Tests(unittest.TestCase):
             approval = {
                 "approved_by": "Cleo", "selected_candidate_id": "CAND-1",
                 "deployment_authorized": True,
-                "approved_cost_ceiling_usd": 0.05,
+                "approved_cost_ceiling_usd": 0.2,
                 "region_warning_acknowledged": True,
                 "lineage": {f"{key}_artifact_path": str(path) for key, path in paths.items()},
             }

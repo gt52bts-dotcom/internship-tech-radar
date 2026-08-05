@@ -431,3 +431,11 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - A full desktop agent session is phase 2 and needs separate approval. Once a Windows streaming user launches a session, the Windows RDS SAL user fee is monthly and cleanup cannot refund it. One-user full-session estimates are tracked separately at about USD 6.47 / 6.5325 / 6.87, and a second unique user can add another monthly user fee.
 - The recipe validates the WorkSpaces Applications / AppStream agent-access entry point: CloudFormation stack creation, fleet running state, stack AgentAccessConfig, and redacted streaming URL generation. It does not prove a full LLM-driven desktop business workflow.
 - Do not run live Skill 4 for WorkSpaces without Cleo's explicit approval, because it creates AppStream / WorkSpaces Applications resources and may incur cost. The completed code has only been validated by tests and CDK synth so far.
+
+## 2026-08-05 Skill 3 Scoring Correction
+
+- Skill 3 scoring must score the technology and PoC nature, not S1/S2 evidence completeness. Evidence coverage can create blockers or review notes, but must not add score points.
+- The Skill 3 rubric now has five dimensions: technical value, verifiability, adoption prerequisites, controllability/stop conditions, and reversibility/cleanup.
+- Human-facing Skill 3 reports must show score breakdown lines for every dimension: score, weight, weighted points, and the concrete reason.
+- WorkSpaces AI Agents is the reference correction case: score 2.65 / 5 with technical value 4, verifiability 3, adoption prerequisites 2, controllability 2, reversibility 1. It is not recommended for Skill 4 under the current scope, despite having a deployable recipe.
+- Do not restore a visible confidence score in reports. If evidence coverage is too weak, use review notes or blockers instead of letting coverage inflate the technical score.
