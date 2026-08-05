@@ -294,6 +294,10 @@ class MainFlowGateTests(unittest.TestCase):
         self.assertIn("WorkSpaces", report)
         self.assertIn("Skill 4", report)
         self.assertIn("workspaces_ai_agent_access_cdk", report)
+        self.assertIn("Infrastructure Composer", report)
+        self.assertIn("開一台受控的雲端 Windows 桌面給 AI 用", report)
+        self.assertIn("如果目的只是偶爾人工看一次 canvas，這可能太重", report)
+        self.assertIn("AI agent -> WorkSpaces Applications / AppStream streaming session", report)
 
 
     def test_workspaces_context_is_deployable_when_authorized(self):

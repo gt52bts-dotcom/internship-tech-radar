@@ -683,6 +683,9 @@ def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> N
                 "",
             ]
         )
+        if _is_workspaces_ai_agent_candidate(candidate):
+            _append_workspaces_article_explanation(lines)
+            continue
         if significance:
             lines.extend(
                 [
@@ -711,6 +714,33 @@ def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> N
                 lines.append(f"- 原文未明講但 PoC 需要確認：{', '.join(names)}")
 
 
+def _is_workspaces_ai_agent_candidate(candidate: dict[str, Any]) -> bool:
+    text = " ".join(
+        str(value or "")
+        for value in (
+            candidate.get("title"),
+            candidate.get("source_url"),
+            candidate.get("summary"),
+            candidate.get("candidate_id"),
+        )
+    ).lower()
+    services = " ".join(str(item) for item in candidate.get("related_aws_services") or []).lower()
+    return "workspaces" in f"{text} {services}" and ("agent" in text or "ai" in text)
+
+
+def _append_workspaces_article_explanation(lines: list[str]) -> None:
+    lines.extend(
+        [
+            "- 這篇文章在講什麼：AWS 現在讓 AI agent 連到 WorkSpaces Applications 的桌面串流工作階段，讓 agent 可以「看見畫面、點擊、輸入、捲動」，必要時也能把某些動作改走 MCP tool，而不是全部靠截圖和滑鼠點擊。",
+            "- 以前的做法：如果我要 AI 幫我進 AWS Console 看 Infrastructure Composer canvas，通常只能靠瀏覽器自動化或人工截圖。這種方式很脆弱，登入狀態、畫面位置、網路延遲、按鈕文字改版都可能讓流程失敗。",
+            "- 現在的差別：WorkSpaces agent access 提供一個比較正式的桌面工作階段入口。AI 可以在受控的遠端桌面裡操作 Console；人類也可以用 observer URL 即時看它在做什麼，必要時停止它。",
+            "- 實體例子：你可以把它想成「開一台受控的雲端 Windows 桌面給 AI 用」。AI 在那台桌面打開 AWS Console、進 Infrastructure Composer、看中間 canvas、截圖或回報看到的資源；你在旁邊用瀏覽器觀看，不用把自己的本機登入狀態直接交給自動化流程。",
+            "- 這篇文章真正有價值的點：它不是單純讓 AI 多一個截圖工具，而是把原本零散的「AI 看畫面、AI 點按鈕、人類監看、必要時停止、留下監控紀錄」變成 WorkSpaces Applications 可設定的基礎能力。",
+            "- 推導的最小架構：AI agent -> WorkSpaces Applications / AppStream streaming session -> AWS Console / Infrastructure Composer；AgentAccessConfig 啟用 computer vision、computer input、MCP tool forwarding 與 VIEW_STOP；CloudTrail / CloudWatch 可留下連線與操作面的監控證據。",
+        ]
+    )
+
+
 def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
     gate = artifact.get("poc_decision_gate") or {}
     options = list(gate.get("options") or [])
@@ -731,6 +761,9 @@ def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
                 [
                     "- Skill 4 PoC 的額外價值：確認 Cleo 的 AWS 帳號與目標 Region 真的能建立 WorkSpaces Applications / AppStream agent-access 基礎設施，而不是只停留在文件推論。",
                     "- 它會驗證 fleet 是否能啟動、stack 是否真的有 AgentAccessConfig、是否能產生短效 streaming URL，並保留 cleanup 前後的結構化證據。",
+                    "- 對你原本的 Console canvas 需求：這個功能有機會把「AI 進 AWS Console、開 Infrastructure Composer、看 canvas、回報或截圖」做成比較可控的遠端桌面流程，人類可以旁觀與停止，比把本機瀏覽器狀態直接交給自動化安全。",
+                    "- 成本提醒：這個 PoC 看起來貴，主要是因為 WorkSpaces/AppStream 需要啟動可串流的 Windows 桌面環境，且 Windows 使用者月費可能形成一次性基礎成本；它不是像 Lambda 那種只按幾次請求付極小金額的服務。",
+                    "- 決策含義：如果目的只是偶爾人工看一次 canvas，這可能太重；如果目標是建立可監看、可停止、可留證據的 AI Console 操作能力，它才有 PoC 價值。",
                     "- 它不會證明完整的 LLM 桌面自動化業務流程；若要證明 AI 真的操作桌面完成任務，下一版 recipe 要再加入 agent/MCP 連線與任務結果斷言。",
                 ]
             )
