@@ -50,11 +50,12 @@
 
 ## 今日判定
 
-2026-08-04 的核心成果是把每階段收尾 checklist 與 PoC proof question 納入正式流程，並以官方新功能雷達及 WorkSpaces AI Agents 驗證 S1-S3 決策鏈。WorkSpaces 雖評為 4.6 / 5，因專用 Skill 4 recipe 與目標區域證據尚未完成，停在人工決策且未建立 AWS 資源。
+2026-08-04 的核心成果是把每階段收尾 checklist 與 PoC proof question 納入正式流程，並以官方新功能雷達及 WorkSpaces AI Agents 驗證 Skill 1 至 Skill 3 決策鏈。2026-08-05 已校正 Skill 3 評分模型：證據覆蓋率不再加分，而改為 review note 或 blocker。WorkSpaces AI Agents 的最終分數為 `2.65 / 5`，低於 `3.75 / 5` 門檻，且有 `compliance_review_required` blocker；雖已有第一段基礎設施驗證 recipe，仍不可進入 Skill 4，亦未建立 AWS 資源。
 
 ## 相關檔案
 
-- [正式日誌](../logs/daily/work-log-2026-08-04.md)
+- [最新校正日誌](../logs/daily/work-log-2026-08-05.md)
+- [8/4 正式日誌](../logs/daily/work-log-2026-08-04.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)
 - [Skill JSON 資料](./skill-score-data.json)
 - [互動式 Skill dashboard](./cleo-skill-dashboard.html)
