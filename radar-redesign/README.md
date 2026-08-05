@@ -4,12 +4,13 @@
 
 ## 目前狀態（2026-07-31）
 
-- 五個 Skills 已形成第一版可重用流程：Skill 1 / Skill 2 可處理多候選掃描與比較，Skill 3 起一次只評估一個由人類選定的候選。
+- 五個 Skills 已形成第一版可重用流程：Skill 1 / Skill 2 可處理多候選掃描與比較，Skill 3 對 S2 候選產出固定 rubric、可稽核報價與單一人工決策關卡。
 - Skill 3 已補上可重用 PoC 估價系統。已登錄 recipe 走候選專屬 rate card；沒有 recipe 時可用偵測到的 AWS 服務產生一般估價；證據不足時明確停在無法估價，不填造金額。
 - Skill 4 是唯一會建立 AWS 資源、可能產生費用的受控 PoC 階段。部署前需要報價單、具名核准、成本上限、候選專屬 recipe 與 `--execute`。
 - Skill 4 cleanup 前會先輸出 `pre_cleanup_usage_snapshot.json`，記錄立即可取得的用量證據，例如 CloudFormation 資源、S3 物件數與大小、EC2 / Lambda runtime facts。這不是 AWS 帳單；新版 Skill 5 不再做預估成本與實際帳務成本比對。
 - 2026-07-31 已完成兩條實際 AWS PoC：Lambda self-managed S3 code storage 與 S3 Files。兩者都完成部署驗證、人工 Console 確認、cleanup 前用量快照、run-scoped cleanup 與 Skill 5 final report。
 - Amazon Connect Customer Data Lake 已跑到 Skill 5 interim，但缺可部署 recipe 與合適測試環境，因此沒有建立 AWS 資源。
+- 2026-08-05 校正 Skill 3 評分模型：證據覆蓋率不再增加技術分數，只能形成 review note 或 blocker。WorkSpaces AI Agents 的案例為 2.65 / 5，低於 PoC 門檻且有 `compliance_review_required` blocker；雖有第一段基礎設施驗證 recipe，仍不能進入 Skill 4，沒有建立 AWS 資源。
 
 ## 五個正式 Skills
 
@@ -83,7 +84,7 @@ python -m agentic_cloud_radar.cli s2 `
 
 ## S3/S4：評估、受控部署與驗證
 
-S3 只接受 S2 artifact 和單項 human selection request；沒有人工選定候選，或一次選超過一項，就會停在 `needs_human_shortlist`。S4 的 gate artifact 不會建立 AWS 資源，也不會自動啟動 PoC；Skill 4 本身只有一種含資源、可能產生成本的受控 PoC。
+Skill 3 只接受 S2 artifact，會先對其候選產出固定 rubric、報價與單一人工決策關卡；它不會自動啟動 PoC。Skill 4 的 gate artifact 也不會建立 AWS 資源；Skill 4 本身才是唯一可能產生成本的受控 PoC 階段。
 
 S3 v4 採公開證據模式：候選必須先產出完整 PoC 預估報價單與中文 PoC 決策報告。決策報告必須先說明這篇文章在做什麼（以前/現在/差別、原文重點、推導的最小架構），再列出分數、成本、recipe、blocker 與 Cleo 需要回覆的核准項目。唯一決策欄位 `recommend_poc` 要求 5 分制加權分 `>= 3.75`、沒有 PoC blocker，且報價狀態為 `estimated`。這個欄位代表「技術上具備受控 PoC 資格」，不是公司工作負載適配性已驗證，也不是業務採用建議。Skill 4 只代表受控、會建立 AWS 資源的付費 PoC；正式付費部署還必須有可部署 recipe、具名核准、成本上限、成功條件與 cleanup 範圍。Region 與定價不確定性會列在 `poc_review_notes`，正式付費部署時 Region 必須可用，或由具名核准人在 approval 明確標示 `region_warning_acknowledged=true`。舊決策欄位只作讀取舊 artifact 的相容 fallback。
 
@@ -172,6 +173,8 @@ python -m compileall agentic_cloud_radar
 python -m unittest discover -s tests -v
 ```
 
-2026-07-31 驗證紀錄：`tests.test_s3_s4` 與 `tests.test_s5` 共 32 項通過；全測試 `unittest discover` 共 43 項通過；`compileall` 通過。
+GitHub Actions 會在後續 push 與 PR 執行 `compileall` 和不依賴外部網站的完整單元測試。RSS 與即時 AWS 文章檢查是可選的 integration test；在本機要啟用時，先設定 `RUN_LIVE_AWS_TESTS=1` 後再執行同一個 `unittest discover` 指令。
+
+驗證紀錄：2026-07-31 的 `unittest discover` 共 43 項通過；2026-08-04 的擴充測試紀錄為 91 項通過；2026-08-05 的 `tests.test_s3_s4`、`tests.test_s4_recipes` 與 `tests.test_costing` 回歸測試共 63 項通過。
 
 PowerShell 5.1 用 `Set-Content -Encoding utf8` 產生 JSON 時可能加上 BOM；CLI 以 `utf-8-sig` 讀取 input，因此有 BOM 或無 BOM 都可讀取。
