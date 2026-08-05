@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from agentic_cloud_radar.s1 import build_direct_url_scan
@@ -36,6 +37,10 @@ class S2CompareTests(unittest.TestCase):
             [source_text],
         )
 
+    @unittest.skipUnless(
+        os.getenv("RUN_LIVE_AWS_TESTS") == "1",
+        "Live AWS source checks are opt-in; unit tests must not depend on changing external content.",
+    )
     def test_compares_a_real_s1_candidate_with_source_linked_evidence(self):
         scan = build_direct_url_scan(REAL_AWS_S3_FILES_URL).to_dict()
         result = build_compare(scan).to_dict()
