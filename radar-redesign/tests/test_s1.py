@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from agentic_cloud_radar.s1 import _has_explicit_ga_wording, _maturity_evidence, build_direct_url_scan, build_scan
@@ -13,6 +14,10 @@ class S1ScanTests(unittest.TestCase):
         self.assertEqual(result["status"], "needs_revision")
         self.assertFalse(result["external_fetch_performed"])
 
+    @unittest.skipUnless(
+        os.getenv("RUN_LIVE_AWS_TESTS") == "1",
+        "Live AWS page checks are opt-in; unit tests must not depend on changing external content.",
+    )
     def test_direct_url_entry_fetches_the_real_official_page_without_s0(self):
         result = build_direct_url_scan(REAL_AWS_S3_FILES_URL).to_dict()
 
@@ -26,6 +31,10 @@ class S1ScanTests(unittest.TestCase):
         self.assertFalse(candidate["seed_article"])
         self.assertIn("aws.amazon.com", candidate["source_url"])
 
+    @unittest.skipUnless(
+        os.getenv("RUN_LIVE_AWS_TESTS") == "1",
+        "Live AWS RSS checks are opt-in; unit tests must not depend on changing external feeds.",
+    )
     def test_rss_entry_discovers_current_public_sources(self):
         card = {
             "problem_statement": "Find current AWS technology changes relevant to cloud operations and infrastructure workflows.",
