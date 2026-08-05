@@ -12,7 +12,7 @@
 
 目前主線是以證據為核心的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，Skill 3 對候選產出中文說明、分數、PoC 報價與人工核准區，人類在看完同一份決策報告後才核准是否進入 Skill 4，Skill 5 只依已留下的證據產出可回查報告。
 
-截至 2026-08-03，今日主線是完成 S1 新聞解釋能力、Skill 3 合併 PoC 決策報告、網頁架構圖報告、S4 資源盤點、分段計時，以及 Skill 5 移除帳務成本比對。Lambda 自主管理程式碼儲存與 S3 Files 兩個 AWS 官方文章案例都已完成實際 PoC、清除前用量快照、受控資源清除與 Skill 5 結案報告；Amazon Connect Customer Data Lake 已跑到階段性報告，因缺可部署方案與測試環境，沒有建立 AWS 資源。
+截至 2026-08-05，主線已完成 S1 新聞解釋、Skill 3 合併 PoC 決策報告、網頁架構圖報告、Skill 4 資源盤點、分段計時，以及 Skill 5 的成本邊界。最新案例 WorkSpaces AI Agents 已完成 Skill 1 至 Skill 3 的重新評估：它有第一段基礎設施驗證 recipe，但 Skill 3 為 `2.65 / 5`（低於 `3.75 / 5`），且有 `compliance_review_required` blocker，因此不能進入 Skill 4，沒有建立 AWS 資源。Lambda 自主管理程式碼儲存與 AWS S3 Files 兩個官方文章案例則都已完成實際 PoC、清除前用量快照、受控資源清除與 Skill 5 結案報告；Amazon Connect Customer Data Lake 已跑到階段性報告，因缺可部署方案與測試環境，沒有建立 AWS 資源。
 
 五個階段已整理為專案內的正式 Skill 套件。每個 Skill 都有自己的說明與介面設定，並共用同一套已測試的 S1-S5 核心。
 
@@ -29,6 +29,8 @@ flowchart LR
 
 | 日期 | 今日主軸 |
 |---|---|
+| [8/5](./logs/daily/work-log-2026-08-05.md) | 校正 Skill 3 評分模型：證據覆蓋率不再加分；WorkSpaces AI Agents 改為 2.65 / 5、不可進 Skill 4，並加入自動測試工作流程 |
+| [8/4](./logs/daily/work-log-2026-08-04.md) | 完成新功能雷達與 WorkSpaces AI Agents 的 S1-S3 初步評估；後續評分已於 8/5 校正 |
 | [8/3](./logs/daily/work-log-2026-08-03.md) | 合併 Skill 3 PoC 決策報告，新增 S1 新聞解釋、S4 資源盤點、分段計時與 S5 成本邊界，並完成 Lambda / S3 Files 結案驗證 |
 | [7/31](./logs/daily/work-log-2026-07-31.md) | 補強可重用 PoC 估價系統，完成 Lambda 與 S3 Files 兩次 S1-S5 實測、清除前用量快照與結案報告 |
 | [7/30](./logs/daily/work-log-2026-07-30.md) | 五個 Skills 正式化，完成 S3 Files 公開牌價估算與實際 PoC 雙向驗證 |
@@ -59,15 +61,15 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-截至 2026-08-03，改採硬審核口徑後累積分數 127 分。每日五個 Skill 加總最高 10 分。
+截至 2026-08-04，改採硬審核口徑後累積分數 135 分。每日五個 Skill 加總最高 10 分；2026-08-05 的評分模型校正不另外新增每日 Skill 分數。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 21 |
-| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 18 |
-| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 24 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 23 |
+| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 20 |
+| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 26 |
 | Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 40 |
-| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 24 |
+| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 26 |
 
 ## 最終發表驗證衝刺
 
@@ -86,7 +88,7 @@ flowchart LR
 | 交付物 | 日期 / 時點 | 目前狀態 | 完成條件 |
 |---|---|---|---|
 | AI PM 科會 10 分鐘報告 | 2026-08-11（二）15:30 | 簡報與講稿已完成；直接沿用原訂 2026-07-28 報告版本。 | 準時完成 10 分鐘報告；依既有版本呈現 2-3 組去識別化 input/output 前後差異、限制與下一步。 |
-| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 已完成。五個正式 Skill 套件已建立；全測試 43 項通過。S3 Files 與 Lambda 自主管理程式碼儲存都已完整走過掃描到報告、實際 PoC、人工 Console 確認、清除前用量快照、資源清除與結案報告；Mentor 審查包已建立。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor 審查包。 |
+| S1-S5 Skills 第一版完整交付 | 2026-07-31（五） | 已完成。五個正式 Skill 套件已建立；7/31 全測試 43 項通過。後續擴充測試在 8/4 記錄 91 項通過，8/5 的 Skill 3／Skill 4／recipe／costing 回歸測試 63 項通過；GitHub Actions 會在後續 push 與 PR 執行不依賴外部網站的完整單元測試，RSS 與即時 AWS 文章檢查保留為可選 integration test。AWS S3 Files 與 Lambda 自主管理程式碼儲存都已完整走過掃描到報告、實際 PoC、人工 Console 確認、清除前用量快照、資源清除與結案報告；Mentor 審查包已建立。 | 至少一條公開 AWS URL 完整跑過 S1-S5；五個 Skills 的輸入、輸出、跑法與限制可重現，並交付 Mentor 審查包。 |
 | CIP 雙週工作進度（7/20-7/31） | 2026-07-31（五） | 已匯出 `2026CIP_WangGuanting_biweekly_worklog2_20260720-20260731.docx`，內容按成果與影響整理。 | 匯出正式檔案，內容按成果與影響整理，不寫成逐日流水帳。 |
 | CIP 雙週工作進度（8/3-8/14） | 2026-08-14（五） | 未開始。 | 匯出正式檔案，補齊該期間成果、問題、學習與下期重點。 |
 | 最終部會實習成果簡報 / 展示 | 2026-08-17（一） | 素材累積中。 | 完成最終簡報、展示路線、時間控制與可驗證成果標註。 |
