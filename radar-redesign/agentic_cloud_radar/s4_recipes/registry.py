@@ -233,7 +233,7 @@ WORKSPACES_AI_AGENT_ACCESS = RecipeDefinition(
         "CloudFormation stack reaches CREATE_COMPLETE.",
         "WorkSpaces Applications fleet is associated with the stack and reaches RUNNING.",
         "The stack contains AgentAccessConfig with computer vision and computer input enabled.",
-        "Skill 4 can generate a short-lived streaming URL for the agent-access stack/fleet.",
+        "Skill 4 can generate a short-lived streaming URL for the agent-access stack/fleet without opening it or connecting an agent session.",
     ),
     evidence_to_collect=(
         "CloudFormation describe-stack-resources output.",
@@ -245,6 +245,8 @@ WORKSPACES_AI_AGENT_ACCESS = RecipeDefinition(
     cleanup_strategy="Delete the run-derived CloudFormation stack after human review; verify the AppStream fleet, stack, association, VPC, subnet, route, internet gateway, and security group are removed.",
     cleanup_verification=(
         "CloudFormation stack is DELETE_COMPLETE or no longer returned.",
+        "If the stack deletion is delayed, the AppStream fleet is explicitly stopped before cleanup continues.",
+        "No phase-1 test user is created; any later phase-2 user must be removed by its own cleanup contract.",
         "AppStream fleet and stack names derived from the run are no longer returned.",
         "Run-derived VPC and security group resources are gone.",
     ),
@@ -254,9 +256,12 @@ WORKSPACES_AI_AGENT_ACCESS = RecipeDefinition(
         "Do not continue if the selected Region does not list WorkSpaces for AI agents pricing or service availability.",
         "Do not continue if fleet creation remains failed or stopped after the wait window.",
         "Do not continue if the generated streaming URL would need to be exposed in Git or logs.",
+        "Do not open the generated streaming URL or connect an AI agent in this phase; doing so can trigger monthly Windows user fees and requires a separate approval ceiling.",
+        "Do not create or reuse a second unique streaming user without a separate full-session approval.",
     ),
     unsupported_conditions=(
         "This recipe does not validate a real business workflow inside the desktop.",
+        "This recipe does not open a Windows streaming session and does not intentionally trigger a Windows user monthly fee.",
         "This recipe does not build a custom application image or MCP forwarding server.",
         "This recipe does not deploy Bedrock/LLM agent runtime infrastructure.",
     ),

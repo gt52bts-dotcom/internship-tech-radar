@@ -472,6 +472,20 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
                 "",
             ]
         )
+        if quote.get("validation_scope") == "phase1_infrastructure_only_no_streaming_session":
+            deferred = quote.get("deferred_full_session_estimate") or {}
+            deferred_range = deferred.get("estimated_range_usd") or {}
+            lines.extend(
+                [
+                    "## WorkSpaces 成本形態提醒",
+                    "",
+                    "- 本報價只核准第一段基礎設施驗證：建立 fleet/stack、確認 AgentAccessConfig、產生短效 streaming URL，但不開啟 URL、不連線 AI agent、不啟動實際 Windows 桌面串流。",
+                    "- 因此這次低/預期/高成本主要是 fleet 運行時間，清除後可以停止後續計費。",
+                    "- 完整桌面操作測試是第二段，必須另行核准；一旦有 Windows 使用者真的啟動串流，Windows 使用者月費會整月收取，cleanup 不能把這筆費用退掉。",
+                    f"- 若做第二段完整桌面連線，估算區間約為 USD {deferred_range.get('low')} / {deferred_range.get('expected')} / {deferred_range.get('high')}；建議至少用 USD {deferred.get('recommended_minimum_ceiling_usd')} 才能容納第二個 unique user 的風險。",
+                    "",
+                ]
+            )
         expected = (quote.get("scenarios") or {}).get("expected") or {}
         for item in expected.get("line_items") or []:
             lines.append(
@@ -569,6 +583,17 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
                 "",
             ]
         )
+        if quote.get("validation_scope") == "phase1_infrastructure_only_no_streaming_session":
+            deferred = quote.get("deferred_full_session_estimate") or {}
+            deferred_range = deferred.get("estimated_range_usd") or {}
+            lines.extend(
+                [
+                    "- WorkSpaces 成本邊界：本次只核准第一段基礎設施驗證；不開啟 URL、不連線 AI agent、不觸發實際 Windows 桌面串流。",
+                    "- 完整桌面操作是第二段，必須另行核准；一旦 Windows 使用者啟動串流，月費整月收取，cleanup 不能退款。",
+                    f"- 第二段完整桌面連線估算 USD：{deferred_range.get('low')} / {deferred_range.get('expected')} / {deferred_range.get('high')}；若可能出現第二個 unique user，建議核准上限至少 USD {deferred.get('recommended_minimum_ceiling_usd')}。",
+                    "",
+                ]
+            )
     deployable_options = [
         option for option in options
         if (option.get("recipe_decision") or {}).get("deployable_recipe_registered")
@@ -760,11 +785,11 @@ def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
             lines.extend(
                 [
                     "- Skill 4 PoC 的額外價值：確認 Cleo 的 AWS 帳號與目標 Region 真的能建立 WorkSpaces Applications / AppStream agent-access 基礎設施，而不是只停留在文件推論。",
-                    "- 它會驗證 fleet 是否能啟動、stack 是否真的有 AgentAccessConfig、是否能產生短效 streaming URL，並保留 cleanup 前後的結構化證據。",
+                    "- 目前建議只做第一段：驗證 fleet 是否能啟動、stack 是否真的有 AgentAccessConfig、是否能產生短效 streaming URL，並保留 cleanup 前後的結構化證據；不要開啟 URL，也不要讓 AI agent 真的連進桌面。",
                     "- 對你原本的 Console canvas 需求：這個功能有機會把「AI 進 AWS Console、開 Infrastructure Composer、看 canvas、回報或截圖」做成比較可控的遠端桌面流程，人類可以旁觀與停止，比把本機瀏覽器狀態直接交給自動化安全。",
-                    "- 成本提醒：這個 PoC 看起來貴，主要是因為 WorkSpaces/AppStream 需要啟動可串流的 Windows 桌面環境，且 Windows 使用者月費可能形成一次性基礎成本；它不是像 Lambda 那種只按幾次請求付極小金額的服務。",
-                    "- 決策含義：如果目的只是偶爾人工看一次 canvas，這可能太重；如果目標是建立可監看、可停止、可留證據的 AI Console 操作能力，它才有 PoC 價值。",
-                    "- 它不會證明完整的 LLM 桌面自動化業務流程；若要證明 AI 真的操作桌面完成任務，下一版 recipe 要再加入 agent/MCP 連線與任務結果斷言。",
+                    "- 成本提醒：第一段報價不包含 Windows 使用者月費；完整桌面連線一旦觸發 Windows 使用者串流，月費整月收取，cleanup 不能退款。",
+                    "- 決策含義：如果目的只是偶爾人工看一次 canvas，完整桌面 PoC 太重；如果目標是建立可監看、可停止、可留證據的 AI Console 操作能力，才值得另開第二段 PoC。",
+                    "- 它不會證明完整的 LLM 桌面自動化業務流程；若要證明 AI 真的操作桌面完成任務，必須先定義一個具體任務，再另行核准第二段 agent/MCP 連線測試。",
                 ]
             )
         elif recipe:
@@ -779,7 +804,10 @@ def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
                 "- 目前沒有可部署 recipe，因此 PoC 的下一步價值不是建立 AWS 資源，而是先補齊 recipe、成本模型、成功條件與 cleanup 範圍。"
             )
         if cost is not None:
-            lines.append(f"- 對這次決策的意義：用預期成本 USD {cost} 換取實際可行性與治理證據，幫 Cleo 判斷這篇新聞是否值得進一步投資。")
+            if recipe == "workspaces_ai_agent_access_cdk":
+                lines.append(f"- 對這次決策的意義：用第一段預期成本 USD {cost} 驗證帳號與 Region 相容性；不把完整桌面操作混進同一筆核准。")
+            else:
+                lines.append(f"- 對這次決策的意義：用預期成本 USD {cost} 換取實際可行性與治理證據，幫 Cleo 判斷這篇新聞是否值得進一步投資。")
         lines.append("")
     return lines
 

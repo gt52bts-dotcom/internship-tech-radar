@@ -1419,13 +1419,17 @@ def _verify_workspaces_ai_agent_access(context: dict[str, Any], outputs: dict[st
         },
         "streaming_url": {
             "generated": True,
+            "opened": False,
+            "agent_session_connected": False,
             "redacted": True,
             "expires_at": streaming.get("Expires"),
             "url_sha256": hashlib.sha256(str(streaming.get("StreamingURL")).encode("utf-8")).hexdigest(),
+            "phase1_cost_boundary": "URL is generated for compatibility evidence only; opening it or connecting an agent is a separate phase-2 approval.",
         },
         "success_criteria": list(context.get("success_criteria") or []),
         "known_limits": [
             "This validation does not run a full LLM-driven desktop business workflow.",
+            "This validation does not open a Windows streaming session and is not intended to trigger the monthly Windows user fee.",
             "A stronger follow-up recipe should connect an agent through the MCP endpoint and assert a task result.",
         ],
     }

@@ -296,8 +296,11 @@ class MainFlowGateTests(unittest.TestCase):
         self.assertIn("workspaces_ai_agent_access_cdk", report)
         self.assertIn("Infrastructure Composer", report)
         self.assertIn("開一台受控的雲端 Windows 桌面給 AI 用", report)
-        self.assertIn("如果目的只是偶爾人工看一次 canvas，這可能太重", report)
+        self.assertIn("如果目的只是偶爾人工看一次 canvas，完整桌面 PoC 太重", report)
         self.assertIn("AI agent -> WorkSpaces Applications / AppStream streaming session", report)
+        self.assertIn("不開啟 URL", report)
+        self.assertIn("第二段", report)
+        self.assertIn("cleanup 不能退款", report)
 
 
     def test_workspaces_context_is_deployable_when_authorized(self):
@@ -355,7 +358,7 @@ class MainFlowGateTests(unittest.TestCase):
         self.assertTrue(template["can_enter_skill4"])
         self.assertTrue(template["deployment_authorized"])
         self.assertTrue(template["success_criteria"])
-        self.assertEqual(template["approved_cost_ceiling_usd"], 7.0)
+        self.assertEqual(template["approved_cost_ceiling_usd"], 0.5)
 
 
     def test_deployable_candidate_still_produces_a_usable_approval_template(self):

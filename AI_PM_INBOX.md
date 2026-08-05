@@ -1114,3 +1114,11 @@
 - Skill 4 cleanup 範圍：先停止本 run 對應的 AppStream fleet，再刪除 run-derived CloudFormation stack；不再沿用 S3 Files / Lambda recipe 的 DataBucket cleanup 假設。
 - 重要限制：這個 recipe 驗證的是 WorkSpaces AI agent access 的基礎入口，不等於已經跑完整的 LLM 桌面工作流程。若後續要證明「AI 真的操作桌面完成任務」，需要再加 agent framework / MCP 連線 / 任務結果斷言。
 - 目前尚未 live 建立 AWS 資源；只完成程式、成本模型、CDK synth 與單元測試驗證。
+
+## 2026-08-05 - WorkSpaces AI Agents 報價模型修正
+
+- Cleo 指出原 WorkSpaces 報價把「基礎設施驗證」和「真的開 Windows 桌面串流」混在同一筆 Skill 4 核准裡，會低估成本風險：Windows 使用者月費一旦觸發是整月收取，cleanup 不能退費。
+- 已將 WorkSpaces Skill 4 recipe 收斂為第一段基礎設施驗證：建立 fleet/stack、確認 AgentAccessConfig、產生短效 streaming URL，但不開啟 URL、不連線 AI agent、不啟動實際 Windows 桌面串流。
+- 第一段報價修正為低用量 USD 0.05、預期用量 USD 0.10、高用量 USD 0.40，建議核准上限 USD 0.50。
+- 完整桌面 agent session 改列為第二段、需另行核准；一位 Windows streaming user 的估算區間約 USD 6.47 / 6.5325 / 6.87，若出現第二個 unique user 需提高核准上限。
+- 這次修正補上框架盲點：報價單必須說明 cleanup 能不能止血，不能只列低/預期/高金額。

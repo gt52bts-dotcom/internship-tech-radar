@@ -426,6 +426,8 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 ## 2026-08-05 WorkSpaces AI Agents Skill 4 Recipe Completion
 
 - The WorkSpaces AI Agents article is no longer blocked by a draft-only recipe: `workspaces_ai_agent_access_cdk` is now a deployable Skill 4 recipe with explicit resources, success criteria, cleanup scope, evidence plan, and registered cost model.
-- The current WorkSpaces PoC cost model is Level A registered: low USD 0.05, expected USD 6.5325, high USD 6.87, recommended approval ceiling USD 7.0. The small PoC policy ceiling is now USD 10.0.
+- Correction after Cleo's cost review: the current Skill 4 recipe is phase-1 infrastructure validation only. It may create the fleet/stack, verify AgentAccessConfig, and generate a short-lived streaming URL, but it must not open the URL or connect an AI agent session.
+- The phase-1 WorkSpaces PoC cost model is Level A registered: low USD 0.05, expected USD 0.10, high USD 0.40, recommended approval ceiling USD 0.50.
+- A full desktop agent session is phase 2 and needs separate approval. Once a Windows streaming user launches a session, the Windows RDS SAL user fee is monthly and cleanup cannot refund it. One-user full-session estimates are tracked separately at about USD 6.47 / 6.5325 / 6.87, and a second unique user can add another monthly user fee.
 - The recipe validates the WorkSpaces Applications / AppStream agent-access entry point: CloudFormation stack creation, fleet running state, stack AgentAccessConfig, and redacted streaming URL generation. It does not prove a full LLM-driven desktop business workflow.
 - Do not run live Skill 4 for WorkSpaces without Cleo's explicit approval, because it creates AppStream / WorkSpaces Applications resources and may incur cost. The completed code has only been validated by tests and CDK synth so far.
