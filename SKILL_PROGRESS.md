@@ -49,7 +49,7 @@
 
 ## 當前狀態
 
-截至 2026-08-04，累積總分為 135。S1-S5 已整理為五個正式 Skill；今日將每階段收尾 checklist 與 PoC proof question 寫入流程，完成官方新功能雷達與 WorkSpaces AI Agents 的 S1-S3 決策報告。WorkSpaces 雖評為 4.6 / 5，因尚未登錄專用 Skill 4 recipe、目標區域支援未確認，停在人工決策且未建立 AWS 資源。
+截至 2026-08-04，累積總分為 135。S1-S5 已整理為五個正式 Skill；當日將每階段收尾 checklist 與 PoC proof question 寫入流程，完成官方新功能雷達與 WorkSpaces AI Agents 的 Skill 1 至 Skill 3 初步評估。2026-08-05 已重新校正評分模型：WorkSpaces 最終為 2.65 / 5，低於 PoC 門檻，且有 `compliance_review_required` blocker。它已有第一段基礎設施驗證 recipe，但不可進入 Skill 4，沒有建立 AWS 資源。
 
 ## 2026-07-24 評分理由
 
@@ -119,9 +119,17 @@
 
 - Scan +2：以 AWS 官方來源完成 8 個新功能候選雷達，並對 WorkSpaces AI Agents 建立可追溯的單篇 S1 artifact。
 - Compare +2：完成雷達候選的 S2 比較，並保留 WorkSpaces 的專用 recipe 與區域證據限制，未把分析寫成可部署結論。
-- Evaluate +2：將 PoC proof question 寫入 Skill 3／4 gate；WorkSpaces 產出 4.6 / 5、USD 0.05 建議上限與停止條件的部署前決策。
+- Evaluate +2：將 PoC proof question 寫入 Skill 3／4 gate，並完成 WorkSpaces 初步部署前決策。其 Skill 3 分數、報價與 Skill 4 資格已在 2026-08-05 依新 rubric 校正；不把 8/4 的初步 4.6 / 5 或通用估價視為目前結論。
 - Validate +0：今日未進入新的 Skill 4 部署或實機驗證，不以文件或分析取代驗證分數。
 - Report +2：完成候選摘要、WorkSpaces GitHub 交接摘要、人類／AI 軌跡對比素材與跨 AI 接手規則。
+
+## 2026-08-05 校正紀錄（不另計每日 Skill 分數）
+
+- Skill 3 改為評估技術能力、可驗證性、導入前置條件、可控制性與停止機制、可逆性與終止；證據覆蓋率只形成 review note 或 blocker，不再提高分數。
+- WorkSpaces AI Agents 最終為 2.65 / 5：技術能力 4、證據可驗證性 3、導入前置條件 2、可控制性與停止機制 2、可逆性與終止 1。
+- 第一段基礎設施驗證報價為低／預期／高 USD 0.05／0.10／0.40，建議核准上限 USD 0.50；完整桌面 agent session 屬第二段，未納入同一筆核准。
+- `recommend_poc=false`、`can_enter_skill4=false`，並新增 `compliance_review_required` blocker；沒有建立 AWS 資源。
+- 已完成 Skill 3／Skill 4／recipe／costing 回歸測試 63 項。
 
 ## 2026-07-29 評分理由
 
