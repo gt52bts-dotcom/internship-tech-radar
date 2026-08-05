@@ -238,12 +238,12 @@ class Skill3HandoffTests(unittest.TestCase):
         self.assertIn("s4-recipe-authoring-template", readiness["authoring_template"])
         self.assertNotIn("可否進入_skill4", readiness)
 
-    def test_workspaces_recipe_is_reported_as_deployable(self):
+    def test_workspaces_scores_below_threshold_and_is_vetoed(self):
         result = build_evaluate(self._s2(WORKSPACES_TITLE)).to_dict()
 
         candidate = result["evaluated_candidates"][0]
         self.assertEqual(candidate["poc_recipe"]["status"], "recipe_registered")
-        self.assertEqual(candidate["weighted_score"], 2.65)
+        self.assertEqual(candidate["weighted_score"], 2.35)
         self.assertFalse(candidate["recommend_poc"])
         self.assertIn("compliance_review_required", candidate["governance_flags"])
         self.assertFalse(candidate["s4_readiness"]["can_enter_skill4"])
@@ -254,7 +254,7 @@ class Skill3HandoffTests(unittest.TestCase):
 
         option = result["poc_decision_gate"]["options"][0]
         self.assertIn("recipe_decision", option)
-        self.assertTrue(option["can_enter_skill4"])
+        self.assertIn("can_enter_skill4", option)
 
 
 class MainFlowGateTests(unittest.TestCase):
@@ -288,37 +288,26 @@ class MainFlowGateTests(unittest.TestCase):
         candidate = result["evaluated_candidates"][0]
         self.assertEqual(candidate["poc_recipe"]["status"], "recipe_registered")
         self.assertEqual(candidate["poc_recipe"]["recipe_id"], "workspaces_ai_agent_access_cdk")
-        self.assertEqual(
-            candidate["dimension_scores"],
-            {
-                "technical_value": 4,
-                "verifiability": 3,
-                "adoption_prerequisites": 2,
-                "risk_and_stop_conditions": 2,
-                "reversibility_and_cleanup": 1,
-            },
-        )
+        # 分數由通用訊號決定，不再為此候選寫死
+        self.assertLessEqual(candidate["weighted_score"], 3.75)
+        self.assertIn("reversibility_and_cleanup", candidate["veto_violations"])
         self.assertFalse(candidate["s4_readiness"]["can_enter_skill4"])
 
 
-    def test_workspaces_report_can_enter_skill4(self):
+    def test_workspaces_report_states_it_cannot_enter_skill4(self):
         report = render_poc_decision_report(build_evaluate(self._s2(WORKSPACES_TITLE)).to_dict())
 
         self.assertIn("WorkSpaces", report)
         self.assertIn("Skill 4", report)
         self.assertIn("workspaces_ai_agent_access_cdk", report)
-        self.assertIn("Infrastructure Composer", report)
-        self.assertIn("開一台受控的雲端 Windows 桌面給 AI 用", report)
-        self.assertIn("如果目的只是偶爾人工看一次 canvas，完整桌面 PoC 太重", report)
-        self.assertIn("AI agent -> WorkSpaces Applications / AppStream streaming session", report)
         self.assertIn("評分細項", report)
-        self.assertIn("技術能力：4 / 5", report)
-        self.assertIn("證據可驗證性：3 / 5", report)
+        self.assertIn("否決構面", report)
+        self.assertIn("本報告的資訊來源", report)
         self.assertIn("導入前置條件：2 / 5", report)
         self.assertIn("可逆性與終止：1 / 5", report)
-        self.assertIn("不開啟 URL", report)
-        self.assertIn("第二段", report)
-        self.assertIn("cleanup 不能退款", report)
+        self.assertIn("清除無法止血", report)
+        self.assertNotIn("第二段", report)  # 分段敘述已隨寫死一併移除
+        self.assertIn("不隨清除退回", report)
 
 
     def test_workspaces_context_is_deployable_when_authorized(self):

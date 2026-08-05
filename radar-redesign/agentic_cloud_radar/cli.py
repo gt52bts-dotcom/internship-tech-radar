@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 import json
 from pathlib import Path
 
+from .rubric import render_criteria_markdown
 from .pipeline_timing import (
     STAGE_FOR_COMMAND,
     merge_stage_record,
@@ -259,6 +260,12 @@ def _dispatch(argv: list[str] | None = None) -> tuple[int, argparse.Namespace | 
     abort_parser.add_argument("--output", required=True, help="Path for the abort-cleanup S4 runtime JSON file.")
     abort_parser.add_argument("--usage-snapshot-output", help="Optional path for pre_cleanup_usage_snapshot.json.")
 
+    rubric_parser = subparsers.add_parser(
+        "rubric",
+        help="Print the Skill 3 scoring criteria table generated from rubric.py.",
+    )
+    rubric_parser.add_argument("--output", help="Write the criteria table to a Markdown file.")
+
     s5_parser = subparsers.add_parser("s5", help="Render a source-bound JSON and Markdown report from S1-S4 artifacts.")
     s5_parser.add_argument("--s1", required=True, help="Path to an S1 scan artifact JSON file.")
     s5_parser.add_argument("--s2", help="Path to an S2 comparison artifact JSON file.")
@@ -324,6 +331,8 @@ def _dispatch(argv: list[str] | None = None) -> tuple[int, argparse.Namespace | 
             Path(args.input), Path(args.packet) if args.packet else None, args.confirmed_by, args.reason, args.execute, Path(args.output),
             Path(args.usage_snapshot_output) if args.usage_snapshot_output else None,
         ), args
+    if args.command == "rubric":
+        return _run_rubric(args.output), args
     if args.command == "s5":
         return _run_s5(
             Path(args.s1),
@@ -588,6 +597,20 @@ def _run_s4_abort(
     except DeploymentError as exc:
         _write_runtime_failure_if_present(output_path, exc)
         return 1
+
+
+def _run_rubric(output: str | None) -> int:
+    """Render the criteria straight from the definition the scorers use."""
+
+    markdown = render_criteria_markdown()
+    if output:
+        path = Path(output)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(markdown, encoding="utf-8")
+        print(f"Wrote {path}")
+    else:
+        print(markdown)
+    return 0
 
 
 def _run_s5(

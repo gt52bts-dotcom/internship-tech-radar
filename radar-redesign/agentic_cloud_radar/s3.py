@@ -16,19 +16,23 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from .rubric import (
+    RUBRIC_CRITERIA,
+    VETO_THRESHOLDS,
+    WEIGHTS,
+    score_adoption_prerequisites,
+    score_reversibility,
+    score_risk_and_stop_conditions,
+    score_technical_value,
+    score_verifiability,
+)
 from .s4_recipes import select_recipe
 from .costing import build_cost_quote
 
 
 ALLOWED_S2_STATUSES = {"ready_for_human_shortlist"}
 DEFAULT_MAX_SMALL_POC_USD = 10.0
-RUBRIC_WEIGHTS = {
-    "technical_value": 0.30,
-    "verifiability": 0.20,
-    "adoption_prerequisites": 0.20,
-    "risk_and_stop_conditions": 0.15,
-    "reversibility_and_cleanup": 0.15,
-}
+RUBRIC_WEIGHTS = WEIGHTS  # 單一來源在 rubric.py
 
 
 @dataclass(frozen=True)
@@ -283,7 +287,14 @@ def _evaluate_candidate(
         sum(dimension_scores[name] * weight for name, weight in RUBRIC_WEIGHTS.items()),
         2,
     )
+    vetoed = [
+        name for name, floor in VETO_THRESHOLDS.items()
+        if dimension_scores.get(name, 5) <= floor
+    ]
     poc_blockers = _poc_blockers(governance_flags, region, quote)
+    poc_blockers.extend(f"veto_{name}" for name in vetoed)
+    if not recipe_decision.get("deployable_recipe_registered"):
+        poc_blockers.append("no_deployable_recipe")
     recommend_poc = (
         weighted_score >= 3.75
         and not poc_blockers
@@ -300,6 +311,10 @@ def _evaluate_candidate(
         "initial_claims": candidate.get("initial_claims") or [],
         "possible_application_contexts": candidate.get("possible_application_contexts") or [],
         "dimension_scores": dimension_scores,
+        "dimension_details": score_details,
+        "veto_violations": vetoed,
+        "poc_blockers": poc_blockers,
+        "information_provenance": _information_provenance(candidate, quote, recipe_decision),
         "dimension_score_details": score_details,
         "weighted_score": weighted_score,
         "recommend_poc": recommend_poc,
@@ -358,12 +373,13 @@ def _score_candidate(
     quote: dict[str, Any],
     recipe_decision: dict[str, Any],
 ) -> dict[str, dict[str, Any]]:
+    explanation = candidate.get("source_explanation") or candidate.get("explanation") or {}
     raw = {
-        "technical_value": _technical_value_score(candidate, dimensions, proposal),
-        "verifiability": _verifiability_score(candidate, proposal, quote, recipe_decision),
-        "adoption_prerequisites": _adoption_prerequisites_score(candidate, dimensions, region),
-        "risk_and_stop_conditions": _risk_score(candidate, stop_conditions, unknowns, quote),
-        "reversibility_and_cleanup": _reversibility_score(quote, recipe_decision),
+        "technical_value": score_technical_value(explanation, proposal, dimensions),
+        "verifiability": score_verifiability(proposal, recipe_decision, explanation),
+        "adoption_prerequisites": score_adoption_prerequisites(region, recipe_decision, quote),
+        "risk_and_stop_conditions": score_risk_and_stop_conditions(stop_conditions, unknowns, quote),
+        "reversibility_and_cleanup": score_reversibility(quote, recipe_decision),
     }
     return {
         name: _score_detail(name, score, reason)
@@ -372,7 +388,7 @@ def _score_candidate(
 
 
 def _score_detail(name: str, score: int, reason_zh: str) -> dict[str, Any]:
-    weight = RUBRIC_WEIGHTS[name]
+    weight = WEIGHTS[name]
     return {
         "score": score,
         "weight": weight,
@@ -381,97 +397,38 @@ def _score_detail(name: str, score: int, reason_zh: str) -> dict[str, Any]:
     }
 
 
-def _technical_value_score(
-    candidate: dict[str, Any], dimensions: dict[str, Any], proposal: dict[str, Any]
-) -> tuple[int, str]:
-    if _is_workspaces_ai_agent_candidate(candidate):
-        return 4, "原文明述桌面代理操作、工具轉發、人類觀察/停止等質性改善，機制清楚，但沒有量化改善數據。"
-    vectors = ((proposal.get("improvement_hypothesis") or {}).get("potential_vectors") or [])
-    delivery = str((dimensions.get("delivery_model") or {}).get("classification") or "").lower()
-    if any("quota" in str(item).lower() or "region" in str(item).lower() for item in vectors):
-        return 2, "主要屬於既有能力擴充，例如區域、規格或配額改善。"
-    if vectors and "managed" in delivery:
-        return 4, "原文宣稱具體質性改善，且改善機制可由交付模式推導。"
-    if vectors:
-        return 3, "原文宣稱改善，但改善機制仍需要 Skill 4 或後續設計補強。"
-    if (dimensions.get("technology_scope") or {}).get("services_detected"):
-        return 1, "目前只看得到服務或整合層變化，尚未形成明確技術改善主張。"
-    return 0, "原文未形成可評分的改善主張。"
-
-
-def _verifiability_score(
-    candidate: dict[str, Any],
-    proposal: dict[str, Any],
-    quote: dict[str, Any],
-    recipe_decision: dict[str, Any],
-) -> tuple[int, str]:
-    validation = proposal.get("validation_design") or {}
-    has_success_evidence = bool(validation.get("minimum_success_evidence"))
-    has_before_after = bool(validation.get("before_measurements") and validation.get("after_measurements"))
-    recipe_registered = bool(recipe_decision.get("deployable_recipe_registered"))
-    if _is_workspaces_ai_agent_candidate(candidate):
-        return 3, "目前 recipe 只能驗證 fleet/stack/AgentAccessConfig/短效 URL，不能證明 AI 真的操作桌面完成任務。"
-    if recipe_registered and has_success_evidence and has_before_after:
-        return 5, "核心主張可由明確通過/失敗條件驗證，且已寫入可部署 recipe 的成功證據。"
-    if has_success_evidence and has_before_after:
-        return 4, "核心主張可被受控實驗驗證，但成功條件尚未完全落到可部署 recipe。"
-    if quote.get("recipe") == "generic_usage_model":
-        return 3, "目前只能驗證部分主張；仍缺專用 recipe。"
-    if has_success_evidence:
-        return 3, "有最小成功證據，但只能驗證部分主張。"
-    return 1, "目前沒有可否證的受控實驗設計。"
-
-
-def _adoption_prerequisites_score(
-    candidate: dict[str, Any], dimensions: dict[str, Any], region: dict[str, Any]
-) -> tuple[int, str]:
-    if _is_workspaces_ai_agent_candidate(candidate):
-        return 2, "需要 AppStream/WorkSpaces Applications 能用、可串流 Windows 映像、授權模式確認與目標區域支援確認，前置條件多且部分需審查。"
-    if region.get("status") == "region_unknown":
-        return 3, "主要技術可評估，但目標區域或帳號支援仍需確認。"
-    if (dimensions.get("environment_signals") or {}).get("source_indicated_contexts"):
-        return 4, "需要建立標準 AWS 測試資源，但未看出需要特殊申請或組織層級變更。"
-    return 3, "需要一般 AWS 資源與環境確認，但公告未充分說明實際導入前置條件。"
-
-
-def _risk_score(
-    candidate: dict[str, Any], stop_conditions: list[str], unknowns: list[str], quote: dict[str, Any]
-) -> tuple[int, str]:
-    if _is_workspaces_ai_agent_candidate(candidate):
-        return 2, "存在桌面代理操作與可能觸發月費的行為；停止條件雖有定義，但部分成本/行為無法在執行中完全撤回。"
-    if not stop_conditions:
-        return 1, "未定義停止條件。"
-    if quote.get("cost_containment_model", {}).get("cleanup_cannot_refund"):
-        return 2, "有無法由 cleanup 退款或回復的成本項。"
-    if len(unknowns) >= 4:
-        return 3, "已有停止條件，但未知項較多，涵蓋不完整。"
-    return 4, "停止條件已定義，但觸發時機仍需人工判斷。"
-
-
-def _reversibility_score(quote: dict[str, Any], recipe_decision: dict[str, Any]) -> tuple[int, str]:
-    cleanup_cannot_refund = (quote.get("cost_containment_model") or {}).get("cleanup_cannot_refund") or []
-    cleanup_can_stop = (quote.get("cost_containment_model") or {}).get("cleanup_can_stop") or []
-    if cleanup_cannot_refund:
-        return 1, "存在 cleanup 不能退款或完全回復的成本/狀態，例如 Windows 使用者月費或已消耗的 agent session。"
-    if recipe_decision.get("deployable_recipe_registered") and cleanup_can_stop:
-        return 4, "已有 cleanup 策略與可停止成本項，但 5 分仍需實際清除後回查證據。"
-    if recipe_decision.get("deployable_recipe_registered"):
-        return 4, "已有可部署 recipe 與 cleanup 契約；5 分需實際清除後回查。"
-    if quote.get("recipe") == "generic_usage_model":
-        return 3, "目前只有估價模型，尚未有專用 cleanup 契約。"
-    return 2, "可逆性尚未由 recipe 或 runtime evidence 說明。"
-
-
 def _governance_flags(candidate: dict[str, Any], region: dict[str, Any]) -> list[str]:
     flags: list[str] = []
     title = str(candidate.get("title") or "").lower()
     if "bedrock" in title:
         flags.append("excluded_service_bedrock")
-    if _is_workspaces_ai_agent_candidate(candidate):
+    if _touches_screen_or_user_session(candidate):
         flags.append("compliance_review_required")
     if region.get("blocks_s3"):
         flags.append("region_blocks_s3")
     return flags
+
+
+# 觀察畫面或驅動使用者工作階段的能力，不論由哪個產品提供都可能接觸個資，
+# 因此旗標依能力訊號判定，而不是依產品名稱。
+SCREEN_OR_SESSION_TERMS = (
+    "desktop", "screen", "screenshot", "streaming session", "remote session",
+    "computer vision", "computer input", "operate applications", "桌面", "畫面", "工作階段",
+)
+
+
+def _touches_screen_or_user_session(candidate: dict[str, Any]) -> bool:
+    explanation = candidate.get("source_explanation") or candidate.get("explanation") or {}
+    significance = explanation.get("significance") or {}
+    text = " ".join(
+        str(value or "")
+        for value in (
+            candidate.get("title"), candidate.get("summary"),
+            significance.get("after"), significance.get("difference"),
+            *[str(item.get("point") or "") for item in explanation.get("key_points") or []],
+        )
+    ).lower()
+    return any(term in text for term in SCREEN_OR_SESSION_TERMS)
 
 
 def _poc_blockers(governance_flags: list[str], region: dict[str, Any], quote: dict[str, Any]) -> list[str]:
@@ -560,20 +517,6 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
                 "",
             ]
         )
-        if quote.get("validation_scope") == "phase1_infrastructure_only_no_streaming_session":
-            deferred = quote.get("deferred_full_session_estimate") or {}
-            deferred_range = deferred.get("estimated_range_usd") or {}
-            lines.extend(
-                [
-                    "## WorkSpaces 成本形態提醒",
-                    "",
-                    "- 本報價只核准第一段基礎設施驗證：建立 fleet/stack、確認 AgentAccessConfig、產生短效 streaming URL，但不開啟 URL、不連線 AI agent、不啟動實際 Windows 桌面串流。",
-                    "- 因此這次低/預期/高成本主要是 fleet 運行時間，清除後可以停止後續計費。",
-                    "- 完整桌面操作測試是第二段，必須另行核准；一旦有 Windows 使用者真的啟動串流，Windows 使用者月費會整月收取，cleanup 不能把這筆費用退掉。",
-                    f"- 若做第二段完整桌面連線，估算區間約為 USD {deferred_range.get('low')} / {deferred_range.get('expected')} / {deferred_range.get('high')}；建議至少用 USD {deferred.get('recommended_minimum_ceiling_usd')} 才能容納第二個 unique user 的風險。",
-                    "",
-                ]
-            )
         expected = (quote.get("scenarios") or {}).get("expected") or {}
         for item in expected.get("line_items") or []:
             lines.append(
@@ -601,6 +544,107 @@ def _cost_quote_report(evaluated: dict[str, Any]) -> dict[str, Any]:
         "status": status,
         "markdown": "\n".join(lines) + "\n",
     }
+
+
+
+def _information_provenance(
+    candidate: dict[str, Any], quote: dict[str, Any], recipe_decision: dict[str, Any]
+) -> dict[str, Any]:
+    """記錄報告中每一區的資訊由哪個階段產生。
+
+    一份評估報告混合三種來源：原文說了什麼（S1）、比較後整理出什麼（S2）、
+    以及 S3 自己算出來的分數與報價。讀報告的人若分不出來，就會把 S3 的推導
+    當成 AWS 的原文陳述——那正是這套流程最想避免的事。
+    """
+
+    explanation = candidate.get("source_explanation") or candidate.get("explanation") or {}
+    return {
+        "S1": {
+            "說明": "原文與解釋層。內容取自公開文章，未經 S3 加工。",
+            "欄位": [
+                name for name, present in (
+                    ("原文重點 key_points", bool(explanation.get("key_points"))),
+                    ("以前／現在／差別 significance", bool(explanation.get("significance"))),
+                    ("實作架構草案 implementation_architecture",
+                     bool(explanation.get("implementation_architecture"))),
+                    ("可能應用場景 possible_application_contexts",
+                     bool(explanation.get("possible_application_contexts"))),
+                ) if present
+            ],
+        },
+        "S2": {
+            "說明": "比較與提案卡。由 S1 候選整理而成，不含評分。",
+            "欄位": [
+                name for name, present in (
+                    ("比較構面 comparison_dimensions", bool(candidate.get("comparison_dimensions"))),
+                    ("提案卡 proposal_card", bool(candidate.get("proposal_card"))),
+                    ("證據涵蓋 evidence_coverage", bool(candidate.get("evidence_coverage"))),
+                    ("區域證據 region_status", bool(candidate.get("region_status"))),
+                ) if present
+            ],
+        },
+        "S3": {
+            "說明": "本階段自行產生。分數依固定準則計算，報價依公開牌價估算，兩者皆非原文陳述。",
+            "欄位": [
+                "各構面分數與理由 dimension_details", "加權總分 weighted_score",
+                "否決判定 veto_violations",
+                *(["成本估算 cost_estimate"] if quote else []),
+                *(["recipe 判定 poc_recipe"] if recipe_decision else []),
+                "可否進入 Skill 4 s4_readiness",
+            ],
+        },
+    }
+
+
+def _render_criteria_breakdown(candidate: dict[str, Any] | None) -> list[str]:
+    """逐項列出構面得分、權重與判定理由。單一加權數字無法被質疑，細目才能。"""
+
+    details = (candidate or {}).get("dimension_details") or {}
+    if not details:
+        return []
+    lines = [
+        "- 評分細項（權重與門檻於評分前宣告，不依候選調整）：", "",
+        "    | 構面 | 得分 | 權重 | 加權 | 否決門檻 | 判定理由 |",
+        "    | --- | :---: | ---: | ---: | :---: | --- |",
+    ]
+    for name, spec in RUBRIC_CRITERIA.items():
+        detail = details.get(name) or {}
+        score = detail.get("score")
+        floor = spec["veto_at_or_below"]
+        flag = "　**已觸發**" if floor is not None and score is not None and score <= floor else ""
+        lines.append(
+            f"    | {spec['label']} | {score} / 5 | {spec['weight']} | {detail.get('weighted_points')} | "
+            f"{('<= ' + str(floor)) if floor is not None else '—'}{flag} | {detail.get('reason_zh', '')} |"
+        )
+    lines.append("")
+    vetoed = (candidate or {}).get("veto_violations") or []
+    if vetoed:
+        labels = [RUBRIC_CRITERIA[v]["label"] for v in vetoed if v in RUBRIC_CRITERIA]
+        lines.append(
+            "- **否決構面**：" + "、".join(labels)
+            + "。此類缺陷無法由其他構面補償，加權總分不論多高皆不得進入 Skill 4。"
+        )
+    lines.append("- 完整判定條件見 `docs/評分準則.md`。")
+    return lines
+
+
+def _render_information_provenance(candidate: dict[str, Any] | None) -> list[str]:
+    """標示報告中哪些資訊來自 S1／S2，哪些是 S3 自己產生的。"""
+
+    provenance = (candidate or {}).get("information_provenance") or {}
+    if not provenance:
+        return []
+    lines = ["", "## 本報告的資訊來源", "", "| 階段 | 內容 | 說明 |", "| :---: | --- | --- |"]
+    for stage in ("S1", "S2", "S3"):
+        block = provenance.get(stage) or {}
+        fields = "、".join(block.get("欄位") or []) or "（無）"
+        lines.append(f"| {stage} | {fields} | {block.get('說明', '')} |")
+    lines.extend([
+        "",
+        "> S1 與 S2 的內容取自公開來源或其整理；S3 的分數與報價是本階段依固定準則推導，"
+        "不是原文陳述，也不是 AWS 的承諾。",
+    ])
+    return lines
 
 
 def render_poc_decision_report(artifact: dict[str, Any]) -> str:
@@ -659,6 +703,7 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
                 f"- Candidate ID：{option.get('candidate_id') or '未記錄'}",
                 f"- Skill 3 分數：{score if score is not None else '未記錄'} / 5",
                 f"- 分數是否達標：{'是' if meets_score else '否'}",
+                *_render_criteria_breakdown(candidate),
                 f"- 報價狀態：{_display_status(quote_status)}",
                 f"- 預期成本 USD：{option.get('expected_total_usd') if option.get('expected_total_usd') is not None else '未記錄'}",
                 f"- 低/預期/高 USD：{_range_text(option.get('estimated_range_usd') or {})}",
@@ -672,17 +717,9 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
             ]
         )
         lines.extend(_score_breakdown_lines(candidate))
-        if quote.get("validation_scope") == "phase1_infrastructure_only_no_streaming_session":
-            deferred = quote.get("deferred_full_session_estimate") or {}
-            deferred_range = deferred.get("estimated_range_usd") or {}
-            lines.extend(
-                [
-                    "- WorkSpaces 成本邊界：本次只核准第一段基礎設施驗證；不開啟 URL、不連線 AI agent、不觸發實際 Windows 桌面串流。",
-                    "- 完整桌面操作是第二段，必須另行核准；一旦 Windows 使用者啟動串流，月費整月收取，cleanup 不能退款。",
-                    f"- 第二段完整桌面連線估算 USD：{deferred_range.get('low')} / {deferred_range.get('expected')} / {deferred_range.get('high')}；若可能出現第二個 unique user，建議核准上限至少 USD {deferred.get('recommended_minimum_ceiling_usd')}。",
-                    "",
-                ]
-            )
+    first = _candidate_by_id(artifact, (options[0] or {}).get("candidate_id")) if options else None
+    lines.extend(_render_information_provenance(first))
+    lines.append("")
     deployable_options = [
         option for option in options
         if option.get("technically_eligible") and (option.get("recipe_decision") or {}).get("deployable_recipe_registered")
@@ -797,9 +834,6 @@ def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> N
                 "",
             ]
         )
-        if _is_workspaces_ai_agent_candidate(candidate):
-            _append_workspaces_article_explanation(lines)
-            continue
         if significance:
             lines.extend(
                 [
@@ -828,33 +862,6 @@ def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> N
                 lines.append(f"- 原文未明講但 PoC 需要確認：{', '.join(names)}")
 
 
-def _is_workspaces_ai_agent_candidate(candidate: dict[str, Any]) -> bool:
-    text = " ".join(
-        str(value or "")
-        for value in (
-            candidate.get("title"),
-            candidate.get("source_url"),
-            candidate.get("summary"),
-            candidate.get("candidate_id"),
-        )
-    ).lower()
-    services = " ".join(str(item) for item in candidate.get("related_aws_services") or []).lower()
-    return "workspaces" in f"{text} {services}" and ("agent" in text or "ai" in text)
-
-
-def _append_workspaces_article_explanation(lines: list[str]) -> None:
-    lines.extend(
-        [
-            "- 這篇文章在講什麼：AWS 現在讓 AI agent 連到 WorkSpaces Applications 的桌面串流工作階段，讓 agent 可以「看見畫面、點擊、輸入、捲動」，必要時也能把某些動作改走 MCP tool，而不是全部靠截圖和滑鼠點擊。",
-            "- 以前的做法：如果我要 AI 幫我進 AWS Console 看 Infrastructure Composer canvas，通常只能靠瀏覽器自動化或人工截圖。這種方式很脆弱，登入狀態、畫面位置、網路延遲、按鈕文字改版都可能讓流程失敗。",
-            "- 現在的差別：WorkSpaces agent access 提供一個比較正式的桌面工作階段入口。AI 可以在受控的遠端桌面裡操作 Console；人類也可以用 observer URL 即時看它在做什麼，必要時停止它。",
-            "- 實體例子：你可以把它想成「開一台受控的雲端 Windows 桌面給 AI 用」。AI 在那台桌面打開 AWS Console、進 Infrastructure Composer、看中間 canvas、截圖或回報看到的資源；你在旁邊用瀏覽器觀看，不用把自己的本機登入狀態直接交給自動化流程。",
-            "- 這篇文章真正有價值的點：它不是單純讓 AI 多一個截圖工具，而是把原本零散的「AI 看畫面、AI 點按鈕、人類監看、必要時停止、留下監控紀錄」變成 WorkSpaces Applications 可設定的基礎能力。",
-            "- 推導的最小架構：AI agent -> WorkSpaces Applications / AppStream streaming session -> AWS Console / Infrastructure Composer；AgentAccessConfig 啟用 computer vision、computer input、MCP tool forwarding 與 VIEW_STOP；CloudTrail / CloudWatch 可留下連線與操作面的監控證據。",
-        ]
-    )
-
-
 def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
     gate = artifact.get("poc_decision_gate") or {}
     options = list(gate.get("options") or [])
@@ -870,18 +877,7 @@ def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
         lines.append(
             "- Skill 3 已經能回答：這篇新聞在解決什麼問題、可能帶來什麼技術價值、需要哪些 AWS 元件，以及用公開牌價估算小型 PoC 大約會花多少錢。"
         )
-        if recipe == "workspaces_ai_agent_access_cdk":
-            lines.extend(
-                [
-                    "- Skill 4 PoC 的額外價值：確認 Cleo 的 AWS 帳號與目標 Region 真的能建立 WorkSpaces Applications / AppStream agent-access 基礎設施，而不是只停留在文件推論。",
-                    "- 目前建議只做第一段：驗證 fleet 是否能啟動、stack 是否真的有 AgentAccessConfig、是否能產生短效 streaming URL，並保留 cleanup 前後的結構化證據；不要開啟 URL，也不要讓 AI agent 真的連進桌面。",
-                    "- 對你原本的 Console canvas 需求：這個功能有機會把「AI 進 AWS Console、開 Infrastructure Composer、看 canvas、回報或截圖」做成比較可控的遠端桌面流程，人類可以旁觀與停止，比把本機瀏覽器狀態直接交給自動化安全。",
-                    "- 成本提醒：第一段報價不包含 Windows 使用者月費；完整桌面連線一旦觸發 Windows 使用者串流，月費整月收取，cleanup 不能退款。",
-                    "- 決策含義：如果目的只是偶爾人工看一次 canvas，完整桌面 PoC 太重；如果目標是建立可監看、可停止、可留證據的 AI Console 操作能力，才值得另開第二段 PoC。",
-                    "- 它不會證明完整的 LLM 桌面自動化業務流程；若要證明 AI 真的操作桌面完成任務，必須先定義一個具體任務，再另行核准第二段 agent/MCP 連線測試。",
-                ]
-            )
-        elif recipe:
+        if recipe:
             lines.extend(
                 [
                     "- Skill 4 PoC 的額外價值：把 Skill 3 的文件推論轉成可檢查的 AWS runtime facts，確認資源真的能建立、驗證、盤點與清除。",
@@ -893,10 +889,10 @@ def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
                 "- 目前沒有可部署 recipe，因此 PoC 的下一步價值不是建立 AWS 資源，而是先補齊 recipe、成本模型、成功條件與 cleanup 範圍。"
             )
         if cost is not None:
-            if recipe == "workspaces_ai_agent_access_cdk":
-                lines.append(f"- 對這次決策的意義：用第一段預期成本 USD {cost} 驗證帳號與 Region 相容性；不把完整桌面操作混進同一筆核准。")
-            else:
-                lines.append(f"- 對這次決策的意義：用預期成本 USD {cost} 換取實際可行性與治理證據，幫 Cleo 判斷這篇新聞是否值得進一步投資。")
+            lines.append(
+                f"- 對這次決策的意義：用預期成本 USD {cost} 換取實際可行性與治理證據，"
+                "幫 Cleo 判斷這篇新聞是否值得進一步投資。"
+            )
         lines.append("")
     return lines
 

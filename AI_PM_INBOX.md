@@ -1,5 +1,11 @@
 # AI PM 當日進度暫存
 
+## 2026-08-05 17:00 正式統整狀態
+
+- 已將 8/5 暫存證據統整至 Git 正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡；當日積分為 Scan +0、Compare +0、Evaluate +4、Validate +2、Report +2，總分 8，累積 143，目標對齊 direct。
+- WorkSpaces AI Agents 已用通用五構面 rubric 重評為 2.35 / 5，因合規覆核、停止風險與可逆性不足而不建議進入 Skill 4；本日未建立、修改或清除 AWS 資源。
+- Notion 8/5 既有模板列與五項分數已同步；Git push 僅在獨立安全提交、敏感資訊掃描與遠端 ref 回讀完成後才能宣稱。
+
 ## 2026-08-05 - AI PM 簡報狀態更正
 
 - Cleo 明確更正：Claude 提供的 AI PM 簡報僅屬工作素材，尚未完成，且需要大幅調整。
@@ -1129,3 +1135,11 @@
 - 已將 Skill 3 評分改成五構面：技術能力、證據可驗證性、導入前置條件、可控制性與停止機制、可逆性與終止；證據完整度不再加分，只能形成 review note 或 blocker。
 - Skill 3 報告現在會列出每個構面的分數、權重、加權分與具體理由，避免只看總分。
 - WorkSpaces AI Agents 修正後為 2.65 / 5：技術能力 4、可驗證性 3、導入前置條件 2、可控制性 2、可逆性 1，且因桌面畫面代理觀看觸發合規覆核 blocker，因此不建議進 Skill 4。
+## 2026-08-05 - Claude 評分封包整合與成果報告改期
+
+- 已檢查 Claude 提供的 `files (6).zip`，其中的核心建議是把 Skill 3 評分準則抽成通用模組，避免 WorkSpaces 這類單一候選用特例分數影響結果。
+- 已套用並整合封包內容：新增通用評分準則模組、評分準則文件、CLI 匯出指令、rubric 測試，並同步更新 Skill 3 文件與 GUI handoff 版本。
+- WorkSpaces AI Agents 的 Skill 3 評分改由通用訊號推出，不再因文章或服務名稱被硬寫成固定分數；目前測試期待分數為 2.35 / 5，且因停止風險與可逆性問題被否決，不建議進入 Skill 4。
+- 驗證：`python -m unittest tests.test_rubric tests.test_s3_s4 tests.test_s4_recipes tests.test_costing tests.test_s5 tests.test_s4_inventory tests.test_cli_timing -v`，共 120 項通過。
+- 已更新專案記憶：最終雲端技術雷達實習成果報告由 2026-08-17 改為 2026-08-14，標題為《預言者雷達：看見技術的下一步》。
+- 已新增 30 分鐘成果報告大綱，採電梯簡報法，從一句核心主張展開到問題、方法、成果、案例、限制與下一步，供後續拆成投影片。
