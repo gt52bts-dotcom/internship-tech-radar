@@ -226,6 +226,8 @@ class S3S4Tests(unittest.TestCase):
         self.assertIn("HTML 版報告會直接內嵌 GPT-style PNG 架構圖", report)
         self.assertNotIn("```mermaid", report)
         self.assertIn("Skill 3 加權分 >= 3.75 / 5", report)
+        self.assertIn("## PoC 可以額外提供什麼價值", report)
+        self.assertIn("Skill 4 PoC 的額外價值", report)
         self.assertIn("等待 Cleo 決定是否進入 PoC", report)
         self.assertIn("是否值得交給 Cleo 決定進入 Skill 4：是", report)
         self.assertNotIn("信心", report)

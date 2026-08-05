@@ -519,6 +519,9 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
         "",
     ]
     _append_article_explanation(lines, artifact)
+    value_lines = _poc_value_section(artifact)
+    if value_lines:
+        lines.extend(value_lines)
     lines.extend(
         [
             "",
@@ -706,6 +709,46 @@ def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> N
             names = [str(item.get("name") or "").strip() for item in unstated if str(item.get("name") or "").strip()]
             if names:
                 lines.append(f"- 原文未明講但 PoC 需要確認：{', '.join(names)}")
+
+
+def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
+    gate = artifact.get("poc_decision_gate") or {}
+    options = list(gate.get("options") or [])
+    if not options:
+        return []
+    lines = ["", "## PoC 可以額外提供什麼價值", ""]
+    for index, option in enumerate(options, start=1):
+        candidate = _candidate_by_id(artifact, option.get("candidate_id")) or {}
+        title = option.get("title") or candidate.get("title") or f"候選 {index}"
+        recipe = str((option.get("recipe_decision") or {}).get("recipe_id") or "")
+        cost = option.get("estimated_usd")
+        lines.extend([f"### {index}. {title}", ""])
+        lines.append(
+            "- Skill 3 已經能回答：這篇新聞在解決什麼問題、可能帶來什麼技術價值、需要哪些 AWS 元件，以及用公開牌價估算小型 PoC 大約會花多少錢。"
+        )
+        if recipe == "workspaces_ai_agent_access_cdk":
+            lines.extend(
+                [
+                    "- Skill 4 PoC 的額外價值：確認 Cleo 的 AWS 帳號與目標 Region 真的能建立 WorkSpaces Applications / AppStream agent-access 基礎設施，而不是只停留在文件推論。",
+                    "- 它會驗證 fleet 是否能啟動、stack 是否真的有 AgentAccessConfig、是否能產生短效 streaming URL，並保留 cleanup 前後的結構化證據。",
+                    "- 它不會證明完整的 LLM 桌面自動化業務流程；若要證明 AI 真的操作桌面完成任務，下一版 recipe 要再加入 agent/MCP 連線與任務結果斷言。",
+                ]
+            )
+        elif recipe:
+            lines.extend(
+                [
+                    "- Skill 4 PoC 的額外價值：把 Skill 3 的文件推論轉成可檢查的 AWS runtime facts，確認資源真的能建立、驗證、盤點與清除。",
+                    "- 它能提供 reviewer 會追問的證據：實際資源清單、權限面、成功條件、cleanup 結果，而不是只看架構圖與估價。",
+                ]
+            )
+        else:
+            lines.append(
+                "- 目前沒有可部署 recipe，因此 PoC 的下一步價值不是建立 AWS 資源，而是先補齊 recipe、成本模型、成功條件與 cleanup 範圍。"
+            )
+        if cost is not None:
+            lines.append(f"- 對這次決策的意義：用預期成本 USD {cost} 換取實際可行性與治理證據，幫 Cleo 判斷這篇新聞是否值得進一步投資。")
+        lines.append("")
+    return lines
 
 
 def _candidate_by_id(artifact: dict[str, Any], candidate_id: Any) -> dict[str, Any] | None:
