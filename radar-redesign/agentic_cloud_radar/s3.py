@@ -21,7 +21,7 @@ from .costing import build_cost_quote
 
 
 ALLOWED_S2_STATUSES = {"ready_for_human_shortlist"}
-DEFAULT_MAX_SMALL_POC_USD = 3.0
+DEFAULT_MAX_SMALL_POC_USD = 10.0
 RUBRIC_WEIGHTS = {
     "technical_value": 0.35,
     "adoption_prerequisites": 0.25,

@@ -105,7 +105,8 @@
 ## Presentation Schedule
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.
-- AI PM 的簡報與 10 分鐘講稿已完成；8/11 直接沿用原訂 2026-07-28 報告版本，不需重新製作。
+- 2026-08-05 correction: a Claude-produced AI PM deck is draft material only, not a completed deliverable or verified presentation result. Cleo will substantially revise it; do not state that the AI PM presentation, its slide count, speaker notes, or final narrative is complete until Cleo explicitly confirms completion.
+- 既有 AI PM 簡報與 10 分鐘講稿僅為草稿素材；8/11 前須由 Cleo 大幅調整並明確確認可用版本，不能直接宣稱沿用或已完成。
 - Cleo will attend the 2026-08-03, 10:30 department meeting as a listener only; no presentation is required.
 
 ## 2026-07-29 Active S4 PoC
@@ -418,6 +419,13 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 ## 2026-08-04 Skill 4 Recipe Registry Gate
 
 - Skill 4 now treats deployable recipes as a registered contract, not as ad hoc logic inferred from a headline. A candidate may be valuable and quoted in Skill 3, but Skill 4 must refuse live deployment unless a deployable recipe declares resources, cost coverage, success criteria, cleanup scope, evidence plan, and region/environment handling.
-- The WorkSpaces AI Agents article remains blocked before live Skill 4 because it only matches a draft WorkSpaces recipe. Even forced authorization must be rejected by preflight until a WorkSpaces-specific recipe and cost/deployment/cleanup plan are implemented.
+- Historical state on 2026-08-04: the WorkSpaces AI Agents article was blocked before live Skill 4 because it only matched a draft WorkSpaces recipe. This was superseded by the 2026-08-05 WorkSpaces recipe completion note below.
 - Skill 3 human-facing approval should use the canonical field `approved_cost_ceiling_usd`. Older `approved_ceiling_usd` artifacts may be read for compatibility, but new reports and templates should not write that old field.
 - S1-S5 pipeline timing should be carried across stage artifacts and rendered in Skill 5, separating program execution time from human waiting time.
+
+## 2026-08-05 WorkSpaces AI Agents Skill 4 Recipe Completion
+
+- The WorkSpaces AI Agents article is no longer blocked by a draft-only recipe: `workspaces_ai_agent_access_cdk` is now a deployable Skill 4 recipe with explicit resources, success criteria, cleanup scope, evidence plan, and registered cost model.
+- The current WorkSpaces PoC cost model is Level A registered: low USD 0.05, expected USD 6.5325, high USD 6.87, recommended approval ceiling USD 7.0. The small PoC policy ceiling is now USD 10.0.
+- The recipe validates the WorkSpaces Applications / AppStream agent-access entry point: CloudFormation stack creation, fleet running state, stack AgentAccessConfig, and redacted streaming URL generation. It does not prove a full LLM-driven desktop business workflow.
+- Do not run live Skill 4 for WorkSpaces without Cleo's explicit approval, because it creates AppStream / WorkSpaces Applications resources and may incur cost. The completed code has only been validated by tests and CDK synth so far.

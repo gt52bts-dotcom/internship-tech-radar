@@ -1,5 +1,10 @@
 # AI PM 當日進度暫存
 
+## 2026-08-05 - AI PM 簡報狀態更正
+
+- Cleo 明確更正：Claude 提供的 AI PM 簡報僅屬工作素材，尚未完成，且需要大幅調整。
+- 後續日誌、Skill 積分、簡報素材與對外說明不得將 Claude 的「完成 30 分鐘／22 頁」敘述當作已驗證成果；只有 Cleo 明確確認後才能標記為完成或可報告版本。
+
 ## 2026-08-04 17:00 正式統整狀態
 
 - 已將今日暫存證據統整至正式日誌、Skill 積分、Git dashboard 與 AI 執行軌跡；當日積分為 Scan +2、Compare +2、Evaluate +2、Validate +0、Report +2，總分 8，累積 135，目標對齊 direct。
@@ -1100,3 +1105,12 @@
 - 驗證通過：S4 recipe/S3-S4/S5/costing 共 68 項測試通過，S4 inventory/CLI timing 共 23 項測試通過，相關 Python 檔案語法檢查通過。
 - 使用 WorkSpaces AI Agents 既有 Skill 3 產物重跑 S4 gate：approval template 顯示 `not_deployable_missing_recipe`，即使強制把 authorization 改成 true，preflight 仍因缺少 deployable recipe、成本上限、清理策略、成功條件與證據計畫而擋下。
 - 結論：這包可以推上 GitHub；但 WorkSpaces 那篇仍不能直接進 live S4 部署，下一步是實作 WorkSpaces 專用 S4 recipe，而不是建立 AWS 資源。
+
+## 2026-08-05 - WorkSpaces AI Agents Skill 4 recipe 補完整
+
+- 已把 WorkSpaces AI Agents 從「只有草案」補成可部署的 Skill 4 recipe：明確列出會建立的 WorkSpaces Applications / AppStream fleet、stack、stack-fleet association、VPC、subnet、route、internet gateway、security group 等資源。
+- Skill 3 成本模型改為此 PoC 專用的已登錄估價：低用量 USD 0.05、預期用量 USD 6.5325、高用量 USD 6.87，建議核准上限 USD 7.0；小型 PoC policy ceiling 調整為 USD 10.0，避免 WorkSpaces 這類本來就會產生較高基礎費用的案例被舊的 USD 3 規則擋住。
+- Skill 4 驗證範圍：確認 CloudFormation stack 建立成功、fleet 可啟動到 RUNNING、stack 具備 AgentAccessConfig、可產生 streaming URL；streaming URL 只保存雜湊與到期時間，不保存原始 URL。
+- Skill 4 cleanup 範圍：先停止本 run 對應的 AppStream fleet，再刪除 run-derived CloudFormation stack；不再沿用 S3 Files / Lambda recipe 的 DataBucket cleanup 假設。
+- 重要限制：這個 recipe 驗證的是 WorkSpaces AI agent access 的基礎入口，不等於已經跑完整的 LLM 桌面工作流程。若後續要證明「AI 真的操作桌面完成任務」，需要再加 agent framework / MCP 連線 / 任務結果斷言。
+- 目前尚未 live 建立 AWS 資源；只完成程式、成本模型、CDK synth 與單元測試驗證。

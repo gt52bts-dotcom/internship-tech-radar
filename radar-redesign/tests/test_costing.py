@@ -53,6 +53,28 @@ class CostQuoteTests(unittest.TestCase):
         self.assertIn("lambda", quote["detected_services"])
         self.assertIn("glue", quote["detected_services"])
 
+    def test_workspaces_ai_agent_quote_is_level_a_and_itemized(self):
+        quote = build_cost_quote(
+            {
+                "candidate_id": "WS-1",
+                "title": "Amazon WorkSpaces Now Lets AI Agents Operate Desktop Applications",
+            },
+            "unit-test-run",
+            "ap-southeast-1",
+            datetime(2026, 8, 5, 8, 0, tzinfo=timezone.utc),
+        )
+
+        self.assertEqual(quote["status"], "estimated")
+        self.assertEqual(quote["pricing_level"], "Level A registered recipe")
+        self.assertEqual(quote["recipe"], "workspaces_ai_agent_access_cdk")
+        self.assertEqual(quote["expected_total_usd"], 6.5325)
+        self.assertEqual(quote["estimated_range_usd"]["low"], 0.05)
+        self.assertEqual(quote["estimated_range_usd"]["high"], 6.87)
+        self.assertEqual(quote["recommended_approval_ceiling_usd"], 7.0)
+        self.assertIn("AWS::AppStream::Fleet", quote["priced_resource_types"])
+        self.assertIn("AWS::AppStream::Stack", quote["priced_resource_types"])
+        self.assertIn("Pricing Calculator", " ".join(item["purpose"] for item in quote["sources"]))
+
     def test_unknown_scope_returns_incomplete_quote_artifact(self):
         quote = build_cost_quote(
             {"candidate_id": "OTHER-1", "title": "Unknown cloud feature"},

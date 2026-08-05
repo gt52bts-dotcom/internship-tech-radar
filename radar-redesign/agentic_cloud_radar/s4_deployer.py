@@ -86,6 +86,7 @@ def _from_registry(recipe_id: str) -> PocRecipe:
 
 S3_FILES_RECIPE = _from_registry("s3_files_cdk")
 LAMBDA_SELF_MANAGED_STORAGE_RECIPE = _from_registry("lambda_self_managed_s3_code_storage_cdk")
+WORKSPACES_AI_AGENT_ACCESS_RECIPE = _from_registry("workspaces_ai_agent_access_cdk")
 
 
 def build_approval_template(
@@ -883,6 +884,21 @@ def _cleanup_stack_resources(runtime: dict[str, Any]) -> dict[str, str]:
     if not _matches_run_identity(str(runtime.get("run_id") or ""), stack_name, resource_prefix) or not region:
         raise DeploymentError("Cleanup artifact does not match the expected run-derived stack identity.")
     profile = str(deployment.get("profile") or DEFAULT_PROFILE)
+    if deployment.get("recipe") == WORKSPACES_AI_AGENT_ACCESS_RECIPE.key:
+        fleet_name = str(((runtime.get("verification") or {}).get("fleet") or {}).get("name") or f"{resource_prefix}-fleet")
+        if not fleet_name.startswith(f"{resource_prefix}-"):
+            raise DeploymentError("Refusing cleanup because the AppStream fleet does not match this run's resource prefix.")
+        try:
+            _aws(["appstream", "stop-fleet", "--name", fleet_name], profile, region)
+        except DeploymentError:
+            pass
+        _aws(["cloudformation", "delete-stack", "--stack-name", stack_name], profile, region)
+        _aws(["cloudformation", "wait", "stack-delete-complete", "--stack-name", stack_name], profile, region)
+        return {
+            "cloudformation_stack": "deleted",
+            "appstream_fleet": "stopped_before_stack_delete",
+            "run_derived_resource_prefix": "matched",
+        }
     bucket_name = _stack_resource_physical_id(stack_name, "DataBucket", profile, region)
     if not bucket_name.startswith(f"{resource_prefix}-"):
         raise DeploymentError("Refusing cleanup because the stack bucket does not match this run's resource prefix.")
@@ -1270,6 +1286,8 @@ def _synthesize(recipe: PocRecipe, deployment: dict[str, Any], work_dir: Path) -
 def _verify_recipe(recipe: PocRecipe, context: dict[str, Any], outputs: dict[str, str], work_dir: Path) -> dict[str, Any]:
     if recipe.key == LAMBDA_SELF_MANAGED_STORAGE_RECIPE.key:
         return _verify_lambda_self_managed_storage(context, outputs, work_dir)
+    if recipe.key == WORKSPACES_AI_AGENT_ACCESS_RECIPE.key:
+        return _verify_workspaces_ai_agent_access(context, outputs)
     if recipe.key != S3_FILES_RECIPE.key:
         raise DeploymentError("No verification handler is registered for this recipe.")
     required = ("BucketName", "TestInstanceId")
@@ -1342,6 +1360,130 @@ def _verify_lambda_self_managed_storage(
         "cloudformation_reference_mode": "verified",
         "lambda_invoke": "verified",
         "success_criteria": list(context.get("success_criteria") or []),
+    }
+
+
+def _verify_workspaces_ai_agent_access(context: dict[str, Any], outputs: dict[str, str]) -> dict[str, Any]:
+    required = ("AppStreamFleetName", "AppStreamStackName", "AgentAccessConfig", "UserControlMode")
+    if any(name not in outputs for name in required):
+        raise DeploymentError("WorkSpaces agent access stack outputs are incomplete; verification cannot proceed.")
+    if outputs["AgentAccessConfig"] != "COMPUTER_VISION,COMPUTER_INPUT,FORWARD_MCP_TOOLS":
+        raise DeploymentError("WorkSpaces stack does not declare the expected AgentAccessConfig actions.")
+    if outputs["UserControlMode"] != "VIEW_STOP":
+        raise DeploymentError("WorkSpaces stack is not configured for human observe/stop mode.")
+
+    deployment = context["deployment"]
+    profile = str(deployment["profile"])
+    region = str(deployment["target_region"])
+    fleet_name = outputs["AppStreamFleetName"]
+    stack_name = outputs["AppStreamStackName"]
+
+    _aws(["appstream", "start-fleet", "--name", fleet_name], profile, region)
+    fleet = _wait_for_appstream_fleet_running(fleet_name, profile, region)
+    stack = _describe_appstream_stack(stack_name, profile, region)
+    if not _stack_has_agent_access_config(stack):
+        raise DeploymentError("AppStream describe-stacks did not return the expected AgentAccessConfig.")
+
+    streaming = _aws_json(
+        [
+            "appstream",
+            "create-streaming-url",
+            "--stack-name",
+            stack_name,
+            "--fleet-name",
+            fleet_name,
+            "--user-id",
+            "agentic-radar-s4-agent",
+            "--validity",
+            "600",
+        ],
+        profile,
+        region,
+    )
+    if not streaming.get("StreamingURL"):
+        raise DeploymentError("AppStream did not return a streaming URL.")
+
+    return {
+        "recipe": WORKSPACES_AI_AGENT_ACCESS_RECIPE.key,
+        "fleet": {
+            "name": fleet_name,
+            "state": fleet.get("State"),
+            "instance_type": fleet.get("InstanceType"),
+            "fleet_type": fleet.get("FleetType"),
+            "image_name": fleet.get("ImageName"),
+        },
+        "stack": {
+            "name": stack_name,
+            "agent_access_config": _redacted_agent_access_config(stack.get("AgentAccessConfig") or {}),
+            "user_control_mode": outputs["UserControlMode"],
+        },
+        "streaming_url": {
+            "generated": True,
+            "redacted": True,
+            "expires_at": streaming.get("Expires"),
+            "url_sha256": hashlib.sha256(str(streaming.get("StreamingURL")).encode("utf-8")).hexdigest(),
+        },
+        "success_criteria": list(context.get("success_criteria") or []),
+        "known_limits": [
+            "This validation does not run a full LLM-driven desktop business workflow.",
+            "A stronger follow-up recipe should connect an agent through the MCP endpoint and assert a task result.",
+        ],
+    }
+
+
+def _wait_for_appstream_fleet_running(fleet_name: str, profile: str, region: str) -> dict[str, Any]:
+    for _ in range(60):
+        payload = _aws_json(["appstream", "describe-fleets", "--names", fleet_name], profile, region)
+        fleets = payload.get("Fleets") or []
+        if fleets:
+            fleet = fleets[0]
+            state = str(fleet.get("State") or "")
+            if state == "RUNNING":
+                return fleet
+            if state in {"CREATE_FAILED", "DELETE_FAILED"}:
+                raise DeploymentError(f"AppStream fleet entered state {state}.")
+        time.sleep(15)
+    raise DeploymentError("AppStream fleet did not become RUNNING before the validation timeout.")
+
+
+def _describe_appstream_stack(stack_name: str, profile: str, region: str) -> dict[str, Any]:
+    payload = _aws_json(["appstream", "describe-stacks", "--names", stack_name], profile, region)
+    stacks = payload.get("Stacks") or []
+    if not stacks:
+        raise DeploymentError("AppStream did not return the WorkSpaces Applications stack.")
+    return stacks[0]
+
+
+def _stack_has_agent_access_config(stack: dict[str, Any]) -> bool:
+    config = stack.get("AgentAccessConfig") or {}
+    settings = config.get("Settings") or []
+    enabled = {
+        str(item.get("AgentAction") or ""): str(item.get("Permission") or "")
+        for item in settings
+    }
+    return (
+        enabled.get("COMPUTER_VISION") == "ENABLED"
+        and enabled.get("COMPUTER_INPUT") == "ENABLED"
+        and config.get("ScreenResolution") == "W_1280xH_720"
+        and config.get("ScreenImageFormat") == "PNG"
+        and config.get("UserControlMode") == "VIEW_STOP"
+    )
+
+
+def _redacted_agent_access_config(config: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "settings": [
+            {
+                "agent_action": item.get("AgentAction"),
+                "permission": item.get("Permission"),
+            }
+            for item in config.get("Settings") or []
+        ],
+        "screen_resolution": config.get("ScreenResolution"),
+        "screen_image_format": config.get("ScreenImageFormat"),
+        "user_control_mode": config.get("UserControlMode"),
+        "s3_bucket_arn_configured": bool(config.get("S3BucketArn")),
+        "screenshots_upload_enabled": config.get("ScreenshotsUploadEnabled"),
     }
 
 

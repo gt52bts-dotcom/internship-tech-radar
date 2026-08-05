@@ -36,6 +36,7 @@ AWS_SQS_PRICING_URL = "https://aws.amazon.com/sqs/pricing/"
 AWS_SNS_PRICING_URL = "https://aws.amazon.com/sns/pricing/"
 AWS_ATHENA_PRICING_URL = "https://aws.amazon.com/athena/pricing/"
 AWS_LAKE_FORMATION_PRICING_URL = "https://aws.amazon.com/lake-formation/pricing/"
+AWS_WORKSPACES_APPLICATIONS_PRICING_URL = "https://aws.amazon.com/workspaces/applications/pricing/"
 AWS_RAM_DOC_URL = "https://docs.aws.amazon.com/ram/latest/userguide/what-is.html"
 AWS_PRICE_LIST_DOC_URL = (
     "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/"
@@ -213,6 +214,30 @@ RATE_CARD = {
         "source_basis": "Amazon Athena public SQL query pricing",
         "effective_date": "2026-07-31",
     },
+    "workspaces_applications_stream_medium": {
+        "label": "WorkSpaces Applications Windows stream.standard.medium streaming",
+        "rate": Decimal("0.10"),
+        "unit": "USD/streaming-instance-hour",
+        "source_url": AWS_WORKSPACES_APPLICATIONS_PRICING_URL,
+        "source_basis": "AWS WorkSpaces Applications public pricing example for Windows stream.standard.medium. Recheck with Pricing Calculator for non-US Regions before larger runs.",
+        "effective_date": "2026-08-05",
+    },
+    "workspaces_applications_mcp_session": {
+        "label": "WorkSpaces for AI agents MCP active session",
+        "rate": Decimal("0.05"),
+        "unit": "USD/active-session-hour",
+        "source_url": AWS_WORKSPACES_APPLICATIONS_PRICING_URL,
+        "source_basis": "AWS WorkSpaces for AI agents MCP session fee listed for ap-southeast-1.",
+        "effective_date": "2026-08-05",
+    },
+    "workspaces_applications_windows_user_fee": {
+        "label": "WorkSpaces Applications Windows user fee",
+        "rate": Decimal("6.42"),
+        "unit": "USD/unique-user-month",
+        "source_url": AWS_WORKSPACES_APPLICATIONS_PRICING_URL,
+        "source_basis": "AWS WorkSpaces Applications AI agents pricing example includes a Windows RDS SAL user fee; confirm exact Region/license treatment before procurement.",
+        "effective_date": "2026-08-05",
+    },
 }
 
 
@@ -300,6 +325,28 @@ GENERIC_USAGE_SCENARIOS = {
 }
 
 
+WORKSPACES_AI_AGENT_SCENARIOS = {
+    "low": {
+        "label": "低用量",
+        "fleet_hours": Decimal("0.5"),
+        "mcp_session_hours": Decimal("0"),
+        "unique_windows_users": Decimal("0"),
+    },
+    "expected": {
+        "label": "預期用量",
+        "fleet_hours": Decimal("1"),
+        "mcp_session_hours": Decimal("0.25"),
+        "unique_windows_users": Decimal("1"),
+    },
+    "high": {
+        "label": "高用量",
+        "fleet_hours": Decimal("4"),
+        "mcp_session_hours": Decimal("1"),
+        "unique_windows_users": Decimal("1"),
+    },
+}
+
+
 SERVICE_ALIASES = {
     "amazon s3": "s3",
     "s3": "s3",
@@ -371,6 +418,8 @@ def build_cost_quote(
         return _build_s3_files_quote(base)
     if _is_lambda_self_managed_storage(candidate):
         return _build_lambda_self_managed_quote(base)
+    if _is_workspaces_ai_agent_access(candidate):
+        return _build_workspaces_ai_agent_quote(base)
 
     services = _detected_services(candidate)
     if _billable_generic_services(services):
@@ -488,6 +537,63 @@ def _build_lambda_self_managed_quote(base: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _build_workspaces_ai_agent_quote(base: dict[str, Any]) -> dict[str, Any]:
+    scenarios = {
+        name: _price_workspaces_ai_agent_scenario(name, assumptions)
+        for name, assumptions in WORKSPACES_AI_AGENT_SCENARIOS.items()
+    }
+    high_total = Decimal(str(scenarios["high"]["total_usd"]))
+    return {
+        **base,
+        "status": "estimated",
+        "pricing_level": "Level A registered recipe",
+        "recipe": "workspaces_ai_agent_access_cdk",
+        "pricing_basis": (
+            "已登錄 WorkSpaces Applications agent access PoC recipe。此估價用公開牌價與 AWS 官方範例費率試算；"
+            "MCP session rate 已確認列出 ap-southeast-1，串流 instance 與 Windows 使用者費用需在較大 PoC 前用 Pricing Calculator 或 Price List API 再確認。"
+        ),
+        "price_snapshot_date": "2026-08-05",
+        "scenarios": scenarios,
+        "expected_total_usd": scenarios["expected"]["total_usd"],
+        "estimated_range_usd": {name: scenarios[name]["total_usd"] for name in ("low", "expected", "high")},
+        "recommended_approval_ceiling_usd": _money(_round_up(high_total, Decimal("0.50"))),
+        "approval_ceiling_basis": "以高用量情境向上取整到 USD 0.50；此 PoC 可能高於小額 Lambda/S3 類測試。",
+        "verified_recipe_facts": [
+            "Registered recipe creates a minimal WorkSpaces Applications VPC, On-Demand fleet, stack, and fleet-stack association.",
+            "The stack declares AgentAccessConfig with COMPUTER_VISION, COMPUTER_INPUT, FORWARD_MCP_TOOLS, 1280x720 PNG screenshots, and VIEW_STOP observer mode.",
+            "Skill 4 verification starts the fleet, waits for RUNNING, checks the stack/fleet association, and generates a short-lived streaming URL; it does not run a full business workflow agent.",
+        ],
+        "zero_direct_charge_resources": [
+            "CloudFormation, VPC, subnets, route tables, internet gateway, security group, and the AppStream stack configuration have no separate direct charge in this recipe.",
+        ],
+        "priced_resource_types": [
+            "AWS::CDK::Metadata",
+            "AWS::AppStream::Fleet",
+            "AWS::AppStream::Stack",
+            "AWS::AppStream::StackFleetAssociation",
+            "AWS::EC2::InternetGateway",
+            "AWS::EC2::Route",
+            "AWS::EC2::RouteTable",
+            "AWS::EC2::SecurityGroup",
+            "AWS::EC2::Subnet",
+            "AWS::EC2::SubnetRouteTableAssociation",
+            "AWS::EC2::VPC",
+            "AWS::EC2::VPCGatewayAttachment",
+        ],
+        "exclusions": _standard_exclusions() + [
+            "A full agent task run, Bedrock/LLM calls, custom application image building, NAT Gateway, public IPv4 charges, data transfer, CloudTrail data event charges, and custom MCP forwarding servers are excluded.",
+            "The Windows user fee is modeled from the AWS public pricing example and may be waived or changed by BYOL/license settings; confirm before procurement.",
+        ],
+        "sources": _quote_sources(
+            "workspaces_applications_stream_medium",
+            "workspaces_applications_mcp_session",
+            "workspaces_applications_windows_user_fee",
+        ) + [
+            {"url": AWS_PRICING_CALCULATOR_URL, "purpose": "Manual cross-check for WorkSpaces Applications regional fleet and license cost"},
+        ],
+    }
+
+
 def _build_generic_usage_quote(base: dict[str, Any], services: set[str], candidate: dict[str, Any]) -> dict[str, Any]:
     scenarios = {
         name: _price_generic_scenario(name, assumptions, services)
@@ -568,6 +674,30 @@ def _price_lambda_self_managed_scenario(name: str, assumptions: dict[str, Decima
         _line("s3_tier1_request", assumptions["s3_put_requests"], "requests", "PUT/COPY/POST/LIST count x USD/request"),
         _line("s3_tier2_request", assumptions["s3_get_requests"], "requests", "GET count x USD/request"),
         _line("cloudwatch_logs_ingestion", assumptions["log_gb"], "GB ingested", "Lambda 預設 log group 寫入 GB x USD/GB"),
+    ]
+    return _scenario(name, assumptions, items)
+
+
+def _price_workspaces_ai_agent_scenario(name: str, assumptions: dict[str, Decimal]) -> dict[str, Any]:
+    items = [
+        _line(
+            "workspaces_applications_stream_medium",
+            assumptions["fleet_hours"],
+            "streaming-instance-hours",
+            "On-Demand fleet active hours x USD/streaming-instance-hour",
+        ),
+        _line(
+            "workspaces_applications_mcp_session",
+            assumptions["mcp_session_hours"],
+            "active-session-hours",
+            "agent MCP active session hours x USD/hour",
+        ),
+        _line(
+            "workspaces_applications_windows_user_fee",
+            assumptions["unique_windows_users"],
+            "unique users",
+            "unique Windows streaming users in the month x USD/user-month",
+        ),
     ]
     return _scenario(name, assumptions, items)
 
@@ -724,6 +854,20 @@ def _is_s3_files(candidate: dict[str, Any]) -> bool:
 def _is_lambda_self_managed_storage(candidate: dict[str, Any]) -> bool:
     haystack = _candidate_text(candidate)
     return "self-managed" in haystack and ("lambda" in haystack or "function-code" in haystack)
+
+
+def _is_workspaces_ai_agent_access(candidate: dict[str, Any]) -> bool:
+    haystack = _candidate_text(candidate)
+    return (
+        "workspaces" in haystack
+        and (
+            "ai agent" in haystack
+            or "ai agents" in haystack
+            or "agent access" in haystack
+            or "operate desktop applications" in haystack
+            or "mcp" in haystack
+        )
+    )
 
 
 def _quote_sources(*rate_keys: str) -> list[dict[str, str]]:

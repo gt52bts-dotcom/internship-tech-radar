@@ -8,7 +8,7 @@ from typing import Any
 
 
 ALLOWED_S3_STATUSES = {"awaiting_poc_decision", "evaluated"}
-DEFAULT_MAX_SMALL_POC_USD = 3.0
+DEFAULT_MAX_SMALL_POC_USD = 10.0
 
 
 @dataclass(frozen=True)
