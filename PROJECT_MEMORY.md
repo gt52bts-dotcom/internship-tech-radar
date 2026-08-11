@@ -19,6 +19,7 @@
 - The reusable project deliverable is now maintained as five repository-backed Skill packages under `radar-redesign/skills/`: `scan-cloud-technologies`, `compare-cloud-candidates`, `evaluate-cloud-candidate`, `validate-cloud-poc`, and `report-cloud-evidence`.
 - Each Skill has its own `SKILL.md` and `agents/openai.yaml`, but all five must reuse the tested `agentic_cloud_radar/` core rather than copying business logic into Skill folders.
 - The repository version is the source of truth for Mentor review and cross-computer continuity. Personal installation under `$CODEX_HOME/skills` is optional and must not replace the Git copy.
+- For presentation and handoff, every Skill must show its GitHub-relative file location, especially `radar-redesign/skills/<skill-name>/SKILL.md` and `radar-redesign/skills/<skill-name>/agents/openai.yaml`, so another Codex or teammate can discover the instruction file and execution prompt reliably. When explaining non-local Skill discovery, say that Codex first reads the available Skill list, then uses tool/plugin search for deferred external capabilities, and always reads the selected `SKILL.md` before acting.
 
 ## 2026-07-30 Skill 3 / Skill 4 Decision Model Gap
 
@@ -106,6 +107,7 @@
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.
 - The final cloud technology radar internship presentation date is changed from 2026-08-17 to 2026-08-14. Current title: `《預言者雷達：看見技術的下一步》`. The talk should be planned as a 30-minute presentation excluding Q&A, using the elevator-pitch structure: one clear core claim, then layered evidence, process, deliverables, validation, constraints, and next steps.
+- 2026-08-11 update: Cleo reported that the initial 2026-08-14 final presentation deck has been produced. Treat it as draft-complete and awaiting review/polish; do not claim AI has inspected the actual deck file until the file is provided or explicitly located and reviewed.
 - 2026-08-05 correction: a Claude-produced AI PM deck is draft material only, not a completed deliverable or verified presentation result. Cleo will substantially revise it; do not state that the AI PM presentation, its slide count, speaker notes, or final narrative is complete until Cleo explicitly confirms completion.
 - 既有 AI PM 簡報與 10 分鐘講稿僅為草稿素材；8/11 前須由 Cleo 大幅調整並明確確認可用版本，不能直接宣稱沿用或已完成。
 - Cleo will attend the 2026-08-03, 10:30 department meeting as a listener only; no presentation is required.

@@ -2,9 +2,9 @@
 
 ## 2026-08-11 17:00 - 正式日誌統整狀態
 
-- 已核對當日暫存、最近正式日誌、Skill 積分、dashboard 與工作目錄；沒有 8/11 新增的可驗證技術實作、測試、會議或報告證據。
-- 已建立 8/11 正式日誌並同步 Git 版 Skill 積分、dashboard JSON／README、內嵌 dashboard 與 AI 執行軌跡；五項 Skill 均為 0，累積總分維持 143。
-- 8/10 的協理成果報告、雙周誌、Quick Suite 與時間統計資料仍保留為原始日期的報告素材，不跨日重複計分。
+- 已將 8/11 暫存證據統整至正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡。今日為 Scan +2、Compare +2、Evaluate +1、Validate +2、Report +2，總分 9，累積 162，目標對齊 direct。
+- 採計三案 Skill 1 精準計時、S3 Files PoC 時間口徑回查、停止案例「硬做」定義，以及雲端關聯圖、協理詳細投影片稿與四案 HTML 索引；沒有新增 AWS 資源、live PoC、帳務或 Mentor 回饋。
+- 8/10 的 Quick Suite 停止案例與原始報告素材仍保留在 8/10 脈絡；8/11 僅採計當日進行的補跑、回查與可交付報告整理。
 
 ## 2026-08-10 09:15 - 8/14 協理成果報告與 8/3-8/14 雙周誌草稿
 
@@ -1202,5 +1202,50 @@
 
 - Cleo 要比較 AI 技術雷達流程與手動實作時間，因此統計目前四個案例：Lambda self-managed S3 code storage、S3 Files、WorkSpaces AI Agents、Amazon Quick Suite。
 - 已依 Cleo 修正口徑重寫 `docs/four-case-stage-time-comparison-20260810.md`：主表改為 AI / 系統純執行時間，排除 Cleo 核准、Console review、cleanup 人工確認與等待回覆等人工關卡。
-- 新口徑主要統計結果：Lambda 成功案例純執行約 3 分 40 秒以上到 Skill 5 final；S3 Files 成功案例純執行約 21 分 12 秒以上到 Skill 5 final；WorkSpaces 初評約 3 分 23 秒，後續修正版另計；Quick Suite 第一次 Skill 1-3 pipeline 約 4.8 秒就完成不進 Skill 4 的判斷。
+- 新口徑主要統計結果：Lambda 成功案例純執行約 3 分 40 秒以上到 Skill 5 final；S3 Files 當時暫列約 21 分 12 秒以上，後續 2026-08-11 已修正為完整到 Skill 5 約 18 分 45 秒、PoC 部署驗證本體約 8 分 26 秒；WorkSpaces 初評約 3 分 23 秒，後續修正版另計；Quick Suite 第一次 Skill 1-3 pipeline 約 4.8 秒就完成不進 Skill 4 的判斷。
 - 已在文件中標註限制：早期成功案例尚未完整記錄每個 command 的 `started_at/ended_at`，因此成功案例採非人工執行片段推估；WorkSpaces 跨日修正版不適合代表單次流程速度；Quick Suite 若包含後續主管報告中文化修正則約 43 分 10.2 秒，但簡報比較工具效率應採 4.8 秒的第一次純 pipeline。
+
+## 2026-08-11 - Skill 1 精準計時補跑
+
+- Cleo 要把執行時間報告中 Skill 1 未精準紀錄的部分重新跑一次，因此針對三個既有案例只重跑 Skill 1，不改變原本成功 / 失敗案例結論。
+- 補跑指令使用 `python -m agentic_cloud_radar.cli s1-url`，來源為 Cleo 提供的三個 AWS 官方連結；本次只擷取公開頁面內容，沒有建立任何 AWS 資源。
+- 精準 Skill 1 結果：S3 Files `1.118` 秒，Lambda self-managed S3 code storage `0.655` 秒，WorkSpaces AI Agents `0.564` 秒。
+- 補跑 artifact 存於 `radar-redesign/out/timing-rerun-skill1-20260811/`；已同步更新 `docs/four-case-stage-time-comparison-20260810.md`，將 Lambda 總時間調整為約 3 分 40 秒、WorkSpaces 初評約 3 分 24 秒。S3 Files 在後續時間口徑複查後，改為完整到 Skill 5 約 18 分 45 秒、PoC 部署驗證本體約 8 分 26 秒。
+
+## 2026-08-11 - 雲端工作關聯圖草稿
+
+- Cleo 要把自己做過、和雲端相關的工作紀錄畫成 connected graph，並先挑核心再串關聯。
+- 已選定核心為「AI 新技術雷達的五階段證據鏈」，因為它能串起 AWS 官方來源掃描、Skill 1 到 Skill 5 流程、成功 PoC、停止案例、成本治理、cleanup 與成果報告。
+- 已新增 `final-proposal/雲端工作關聯圖-草稿.md`，內容包含 Mermaid connected graph，將 Lambda、S3 Files、WorkSpaces AI Agents、Amazon Quick Suite 四個案例與 AWS / CloudFormation / IAM / 成本估算 / cleanup / 主管報告素材連成同一張圖。
+- Cleo 指出第一版線段容易誤解成 PoC 完成後才知道預算；已修正圖的生命週期：Skill 3 先完成評分、報價、recipe 檢查與 proof question，再進人工核准 gate，通過後才可進 Skill 4 建立受控 AWS PoC，最後 Skill 5 彙整部署前報價、runtime evidence 與 cleanup 回查。
+
+## 2026-08-11 - 協理成果報告詳細投影片內容稿
+
+- Cleo 要依 `final-proposal/2026-08-14-協理成果報告主軸.md` 與雲端工作關聯圖，整理更細緻、更詳盡的投影片內容，並回扣與 AI 協作過程中的亮點。
+- 已新增 `final-proposal/2026-08-14-協理成果報告-詳細投影片內容.md`，規劃 22 頁、30 分鐘報告節奏，逐頁列出投影片標題、畫面重點、講稿、可展示素材與主管可能提問。
+- 內容主線為「AI 新技術雷達五階段證據鏈」：從問題定義、S1-S5 架構、人機分工、成功案例 Lambda / S3 Files、停止案例 WorkSpaces / Quick Suite，到 AI PM 協作方式與公司如何幫助 Cleo 成長。
+- 已特別整理可提及的協作亮點：Cleo 將 PoC proof question、部署前報價、AI 純執行時間、主管版中文報告、官方新聞停止案例、跨電腦交接、resource inventory 等要求，逐步轉成專案規則、程式與報告格式。
+
+## 2026-08-11 - 四案例 Skill 3 HTML 報告集中整理
+
+- Cleo 要把四個案例在 Skill 3 完成後、進入 Skill 4 前的人類決策 HTML 成果報告整理到同一個資料夾，方便 8/14 協理成果報告展示。
+- 已新增資料夾 `final-proposal/skill3-html-reports-20260814/`，並複製四份 HTML：Lambda、S3 Files、WorkSpaces AI Agents、Amazon Quick Suite。
+- WorkSpaces 使用修正版 `workspaces-ai-agents-20260805-new-s3-report` 的 HTML，因為此版本已呈現 2.65 / 5、Windows 使用者月費、cleanup 不能退款、合規與可逆性風險，以及不建議進 Skill 4。
+- 已新增資料夾內 `README.md` 作為索引；檢查四份 HTML 沒有相對圖片或本機檔案依賴，可直接從集中資料夾開啟。
+
+## 2026-08-11 - S3 Files PoC 時間口徑修正
+
+- Cleo 指出 S3 Files PoC 明明很快完成，不應被寫成約 21 分鐘；回查 artifacts 後確認原統計口徑過寬，混入不該算入 PoC 本體的後段等待或整理口徑。
+- 依 `radar-redesign/out/s3-files-20260803-s1-s5/` 重新拆解：Skill 4 部署啟動到 runtime 驗證完成約 8 分 26 秒，這才是 PoC 部署驗證本體。
+- 若把 Skill 4 資源盤點約 3 分 27 秒、cleanup 約 41 秒也算入，Skill 4 AI 純執行約 12 分 34 秒；中間資源盤點到 pre-cleanup snapshot 的約 29 分 32 秒屬人工確認前等待，不納入 AI 純執行。
+- 已更新 `docs/four-case-stage-time-comparison-20260810.md` 與 `final-proposal/2026-08-14-協理成果報告-詳細投影片內容.md`：S3 Files 完整到 Skill 5 改為約 18 分 45 秒，簡報優先說 PoC 部署驗證約 8 分 26 秒。
+
+## 2026-08-11 - 停止案例硬做定義與 Skill GitHub 位置素材
+
+- Cleo 要調整實作時間比較表中兩個停止案例的說法：WorkSpaces 與 Quick Suite 不是單純失敗，而是用來教流程不要把不適合 PoC 的題目硬做成簡略版 demo。
+- 已更新 `docs/four-case-stage-time-comparison-20260810.md`，新增「硬做」定義：在缺少部署前提、成本不可逆、實作細節不足、缺少可部署 recipe，或 PoC 成功後沒有新增決策證據時，仍為了展示而臨時縮小範圍、編架構、建 AWS 資源並包裝成 PoC 成功。
+- 已同步更新 `final-proposal/2026-08-14-協理成果報告-詳細投影片內容.md` 的 Slide 12、16、17，將失敗案例改稱停止案例，並補上 WorkSpaces 與 Quick Suite 的硬做案例說明。
+- 已新增兩張簡報 markdown：`final-proposal/slide-markdown-20260814/01-停止案例與硬做定義.md`、`final-proposal/slide-markdown-20260814/02-Skill搜尋與GitHub執行位置.md`。
+- 已新增五個 Skill 圖像式 SVG 檔於 `final-proposal/skill-visuals-20260814/`，分別對應 Skill 1 Scan、Skill 2 Compare、Skill 3 Evaluate、Skill 4 Validate、Skill 5 Report。
+- 已把 Skill 交接規則寫入 `PROJECT_MEMORY.md`：對外與跨電腦交接時要寫清楚 GitHub 相對路徑 `SKILL.md` 與 `agents/openai.yaml`；Codex 找非本機 Skill 時先看可用 Skill 清單，再用工具/plugin 搜尋，且使用前必須讀完整 `SKILL.md`。
+- 修正 `radar-redesign/skills/report-cloud-evidence/agents/openai.yaml` 的舊口徑，移除 billing reconciliation，改成 Skill 5 只報告部署前估價、runtime evidence、資源盤點、cleanup 狀態與未知限制。
