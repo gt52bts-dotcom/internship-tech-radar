@@ -184,7 +184,7 @@ class S3S4Tests(unittest.TestCase):
         quote_report = result["cost_quote_reports"][0]
         self.assertEqual(quote_report["status"], "estimated")
         self.assertIn("Skill 3 PoC", quote_report["markdown"])
-        self.assertIn("已完成估算", quote_report["markdown"])
+        self.assertIn("已完成前置估算", quote_report["markdown"])
         self.assertIn("generic_usage_model", quote_report["markdown"])
 
     def test_s3_public_evidence_mode_needs_no_environment_form(self):
@@ -212,24 +212,54 @@ class S3S4Tests(unittest.TestCase):
         self.assertNotIn("confidence", result["evaluated_candidates"][0])
         self.assertNotIn("pricing_confidence", result["evaluated_candidates"][0]["cost_estimate"]["quote"])
 
+    def test_ad_claim_without_implementation_details_is_blocked_explicitly(self):
+        sample = _sample_s2()
+        candidate = sample["candidates"][0]
+        candidate["title"] = "Announcing Example Suite for better productivity"
+        candidate["explanation"]["implementation_architecture"] = {
+            "status": "drafted",
+            "derivation": "inferred_architecture",
+            "core_components": [
+                {
+                    "service": "S3",
+                    "role": "物件儲存",
+                    "stated_in_source": True,
+                    "derivation": "source_verbatim",
+                },
+                {
+                    "service": "IAM",
+                    "role": "權限",
+                    "stated_in_source": False,
+                    "derivation": "inferred_architecture",
+                },
+            ],
+        }
+
+        result = build_evaluate(sample).to_dict()
+
+        evaluated = result["evaluated_candidates"][0]
+        self.assertFalse(evaluated["recommend_poc"])
+        self.assertIn("implementation_detail_insufficient", evaluated["poc_blockers"])
+        self.assertIn("implementation_detail_insufficient", result["poc_decision_gate"]["options"][0]["blockers"])
+
     def test_skill3_decision_report_states_poc_threshold_without_confidence(self):
         result = build_evaluate(_deployable_s2()).to_dict()
 
         report = render_poc_decision_report(result)
 
         self.assertIn("Skill 3 PoC 決策報告", report)
-        self.assertIn("## 這篇文章在講什麼", report)
-        self.assertIn("以前：以前要人工處理。", report)
-        self.assertIn("現在：現在可以用 AWS feature 自動完成。", report)
-        self.assertIn("推導的最小架構", report)
-        self.assertIn("## PoC 最小系統架構圖", report)
-        self.assertIn("HTML 版報告會直接內嵌 GPT-style PNG 架構圖", report)
+        self.assertIn("## 主管摘要", report)
+        self.assertIn("## 這篇新聞在講什麼", report)
+        self.assertIn("來源重點", report)
+        self.assertIn("現在可以用 AWS feature 自動完成", report)
+        self.assertIn("## PoC 最小架構判斷", report)
+        self.assertIn("架構圖仍需人工 QA", report)
         self.assertNotIn("```mermaid", report)
-        self.assertIn("Skill 3 加權分 >= 3.75 / 5", report)
-        self.assertIn("## PoC 可以額外提供什麼價值", report)
-        self.assertIn("Skill 4 PoC 的額外價值", report)
-        self.assertIn("等待 Cleo 決定是否進入 PoC", report)
-        self.assertIn("是否值得交給 Cleo 決定進入 Skill 4：是", report)
+        self.assertIn("PoC 判斷規則：分數必須達到 3.75 / 5", report)
+        self.assertIn("## 如果進入 PoC，本來想驗證什麼", report)
+        self.assertIn("Skill 4 的價值", report)
+        self.assertIn("等待 Cleo 判斷是否進入 PoC", report)
+        self.assertIn("是否建議進入 Skill 4：是", report)
         self.assertNotIn("信心", report)
         self.assertNotIn("confidence", report)
 
@@ -325,9 +355,9 @@ class S3S4Tests(unittest.TestCase):
 
         report = render_poc_decision_report(build_evaluate(s2, _shortlist()).to_dict())
 
-        self.assertIn("## PoC 最小系統架構圖", report)
-        self.assertIn("HTML 版報告會直接內嵌 GPT-style PNG 架構圖", report)
-        self.assertIn("生成圖片仍需人工 QA", report)
+        self.assertIn("## PoC 最小架構判斷", report)
+        self.assertIn("Skill 4 實際會建立或驗證的最小架構", report)
+        self.assertIn("架構圖仍需人工 QA", report)
         self.assertNotIn("S3 code bucket<br/>versioned deployment package", report)
         self.assertNotIn("```mermaid", report)
 
@@ -342,7 +372,7 @@ class S3S4Tests(unittest.TestCase):
         self.assertIn("<!doctype html>", html)
         self.assertIn("data:image/png;base64,", html)
         self.assertIn("Skill 3 PoC 決策報告", html)
-        self.assertIn("PoC 最小系統架構圖", html)
+        self.assertIn("PoC 最小架構判斷", html)
 
     def test_s4_deployment_context_requires_matching_lineage_and_registered_recipe(self):
         evaluate = build_evaluate(_deployable_s2(), _shortlist()).to_dict()

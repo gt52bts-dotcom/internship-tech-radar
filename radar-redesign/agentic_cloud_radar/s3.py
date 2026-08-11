@@ -132,7 +132,7 @@ def _poc_decision_gate(evaluated: list[dict[str, Any]]) -> dict[str, Any]:
                 "estimated_range_usd": quote.get("estimated_range_usd") or {},
                 "recommended_approval_ceiling_usd": quote.get("recommended_approval_ceiling_usd"),
                 "technically_eligible": bool(item.get("recommend_poc")),
-                "blockers": list(item.get("governance_flags") or []),
+                "blockers": list(item.get("poc_blockers") or []),
                 "recipe_decision": item.get("poc_recipe") or {},
                 "can_enter_skill4": bool((item.get("s4_readiness") or {}).get("can_enter_skill4")),
             }
@@ -292,6 +292,7 @@ def _evaluate_candidate(
         if dimension_scores.get(name, 5) <= floor
     ]
     poc_blockers = _poc_blockers(governance_flags, region, quote)
+    poc_blockers.extend(_implementation_detail_blockers(candidate, recipe_decision))
     poc_blockers.extend(f"veto_{name}" for name in vetoed)
     if not recipe_decision.get("deployable_recipe_registered"):
         poc_blockers.append("no_deployable_recipe")
@@ -447,6 +448,23 @@ def _poc_blockers(governance_flags: list[str], region: dict[str, Any], quote: di
     if quote.get("status") != "estimated":
         blockers.append("poc_quote_not_ready")
     return blockers
+
+
+def _implementation_detail_blockers(candidate: dict[str, Any], recipe_decision: dict[str, Any]) -> list[str]:
+    """Block ad-claim style sources that lack a concrete deployable path."""
+
+    if recipe_decision.get("deployable_recipe_registered"):
+        return []
+    explanation = candidate.get("source_explanation") or candidate.get("explanation") or {}
+    architecture = explanation.get("implementation_architecture") or {}
+    status = architecture.get("status")
+    stated_components = [
+        item for item in architecture.get("core_components") or []
+        if item.get("stated_in_source")
+    ]
+    if status in {"needs_service_evidence", "drafted"} and len(stated_components) <= 1:
+        return ["implementation_detail_insufficient"]
+    return []
 
 
 def _poc_review_notes(coverage: dict[str, Any], region: dict[str, Any], quote: dict[str, Any]) -> list[str]:
@@ -673,8 +691,7 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
             "",
             "## PoC 最小系統架構圖",
             "",
-            "- HTML 版報告會直接內嵌 GPT-style PNG 架構圖，協助決策者理解 Skill 4 會建立與驗證的最小 PoC 資源。",
-            "- 生成圖片仍需人工 QA：檢查小字、服務名稱、箭頭方向與資源範圍；圖片本身不是部署證據或 Console review 證據。",
+            *_architecture_section_lines(artifact),
             "",
         ]
     )
@@ -709,8 +726,8 @@ def render_poc_decision_report(artifact: dict[str, Any]) -> str:
                 f"- 低/預期/高 USD：{_range_text(option.get('estimated_range_usd') or {})}",
                 f"- 建議核准上限 USD：{option.get('recommended_approval_ceiling_usd') if option.get('recommended_approval_ceiling_usd') is not None else '未記錄'}",
                 f"- 可部署 recipe：{'有，' + str(quote.get('recipe')) if has_recipe else '沒有或尚未登錄'}",
-                f"- PoC blocker：{', '.join(blockers) if blockers else '無'}",
-                f"- Review notes：{', '.join(candidate.get('poc_review_notes') or []) if candidate else '未記錄'}",
+                f"- PoC blocker：{_display_blockers(blockers)}",
+                f"- Review notes：{_display_review_notes(candidate.get('poc_review_notes') or []) if candidate else '未記錄'}",
                 f"- 是否值得交給 Cleo 決定進入 Skill 4：{'是' if technically_eligible else '否'}",
                 f"- 目前可否進入 Skill 4：{'可以' if technically_eligible else ('不可以，分數或 blocker 未達標' if has_recipe else '不可以，缺少可部署 recipe')}",
                 "",
@@ -749,73 +766,150 @@ def render_poc_decision_report_html(artifact: dict[str, Any], architecture_image
     """Render the human-facing Skill 3 decision report as self-contained HTML."""
 
     markdown = render_poc_decision_report(artifact)
-    image_html = _architecture_image_html(architecture_image_path)
+    image_html = _architecture_image_html(architecture_image_path, artifact)
     body_lines: list[str] = []
     in_list = False
+    table_rows: list[list[str]] = []
+
+    def close_list() -> None:
+        nonlocal in_list
+        if in_list:
+            body_lines.append("</ul>")
+            in_list = False
+
+    def close_table() -> None:
+        nonlocal table_rows
+        if not table_rows:
+            return
+        rows = table_rows
+        table_rows = []
+        if len(rows) == 1:
+            body_lines.append("<p>" + " | ".join(escape(cell) for cell in rows[0]) + "</p>")
+            return
+        header = rows[0]
+        body = rows[2:] if len(rows) > 1 and all(set(cell) <= {":", "-"} for cell in rows[1]) else rows[1:]
+        body_lines.append("<table>")
+        body_lines.append("<thead><tr>" + "".join(f"<th>{escape(cell)}</th>" for cell in header) + "</tr></thead>")
+        body_lines.append("<tbody>")
+        for row in body:
+            body_lines.append("<tr>" + "".join(f"<td>{escape(cell)}</td>" for cell in row) + "</tr>")
+        body_lines.append("</tbody></table>")
+
+    def parse_table_row(line: str) -> list[str] | None:
+        stripped = line.strip()
+        if not (stripped.startswith("|") and stripped.endswith("|")):
+            return None
+        return [cell.strip() for cell in stripped.strip("|").split("|")]
+
     for line in markdown.splitlines():
+        table_row = parse_table_row(line)
+        if table_row is not None:
+            close_list()
+            table_rows.append(table_row)
+            continue
+        close_table()
         if line.startswith("# "):
-            if in_list:
-                body_lines.append("</ul>")
-                in_list = False
+            close_list()
             body_lines.append(f"<h1>{escape(line[2:].strip())}</h1>")
         elif line.startswith("## "):
-            if in_list:
-                body_lines.append("</ul>")
-                in_list = False
+            close_list()
             body_lines.append(f"<h2>{escape(line[3:].strip())}</h2>")
             if line[3:].strip() == "PoC 最小系統架構圖":
                 body_lines.append(image_html)
         elif line.startswith("### "):
-            if in_list:
-                body_lines.append("</ul>")
-                in_list = False
+            close_list()
             body_lines.append(f"<h3>{escape(line[4:].strip())}</h3>")
-        elif line.startswith("- "):
+        elif line.startswith("#### "):
+            close_list()
+            body_lines.append(f"<h4>{escape(line[5:].strip())}</h4>")
+        elif line.startswith("> "):
+            close_list()
+            body_lines.append(f"<blockquote>{escape(line[2:].strip())}</blockquote>")
+        elif line.startswith("- ") or line.startswith("  - "):
             if not in_list:
                 body_lines.append("<ul>")
                 in_list = True
-            body_lines.append(f"<li>{escape(line[2:].strip())}</li>")
+            body_lines.append(f"<li>{escape(line.strip()[2:].strip())}</li>")
         elif not line.strip():
-            if in_list:
-                body_lines.append("</ul>")
-                in_list = False
+            close_list()
         else:
-            if in_list:
-                body_lines.append("</ul>")
-                in_list = False
+            close_list()
             body_lines.append(f"<p>{escape(line.strip())}</p>")
-    if in_list:
-        body_lines.append("</ul>")
+    close_list()
+    close_table()
     body = "\n".join(body_lines)
+    summary_html = _decision_summary_html(artifact)
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <title>Skill 3 PoC 決策報告</title>
 <style>
-body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.65;color:#1f2937;max-width:1180px;margin:32px auto;padding:0 28px;background:#fff;}}
-h1{{font-size:32px;margin:0 0 20px;color:#111827;}} h2{{font-size:26px;margin:34px 0 14px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;}} h3{{font-size:21px;margin:24px 0 8px;}} ul{{padding-left:24px;}} li{{margin:4px 0;}} figure{{margin:18px 0 28px;}} figure img{{display:block;width:100%;height:auto;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.08);}} figcaption{{font-size:14px;color:#6b7280;margin-top:8px;text-align:center;}} .notice{{border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;padding:12px 14px;margin:12px 0 24px;}}
+body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.65;color:#1f2937;max-width:1180px;margin:32px auto;padding:0 28px;background:#f8fafc;}}
+h1{{font-size:34px;margin:0 0 18px;color:#111827;letter-spacing:0;}} h2{{font-size:25px;margin:36px 0 14px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;}} h3{{font-size:20px;margin:24px 0 8px;}} h4{{font-size:17px;margin:18px 0 6px;color:#374151;}} ul{{padding-left:24px;}} li{{margin:4px 0;}} code{{background:#eef2ff;border-radius:4px;padding:1px 4px;}} figure{{margin:18px 0 28px;}} figure img{{display:block;width:100%;height:auto;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.08);}} figcaption{{font-size:14px;color:#6b7280;margin-top:8px;text-align:center;}} .notice{{border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;padding:14px 16px;margin:12px 0 24px;}} .blocked{{border-color:#f97316;background:#fff7ed;color:#9a3412;}} .page{{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.06);}} .summary{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:6px 0 28px;}} .metric{{border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;background:#fff;}} .metric b{{display:block;font-size:13px;color:#6b7280;margin-bottom:4px;}} .metric span{{font-size:18px;font-weight:700;color:#111827;}} table{{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:14px;}} th,td{{border:1px solid #e5e7eb;padding:9px 10px;vertical-align:top;}} th{{background:#f3f4f6;text-align:left;color:#374151;}} blockquote{{border-left:4px solid #94a3b8;background:#f8fafc;margin:14px 0;padding:10px 14px;color:#475569;}} @media(max-width:760px){{body{{padding:0 14px;}} .page{{padding:18px;}} .summary{{grid-template-columns:1fr;}}}}
 </style>
 </head>
 <body>
+<main class="page">
+{summary_html}
 {body}
+</main>
 </body>
 </html>
 """
 
 
-def _architecture_image_html(image_path: Path | None) -> str:
+def _decision_summary_html(artifact: dict[str, Any]) -> str:
+    candidates = artifact.get("evaluated_candidates") or []
+    first = candidates[0] if candidates else {}
+    score = first.get("weighted_score", "未記錄")
+    recommend = "是" if first.get("recommend_poc") else "否"
+    blockers = _display_blockers(first.get("poc_blockers") or [])
+    readiness = ((first.get("s4_readiness") or {}).get("readiness_status") or "未記錄")
+    return (
+        '<section class="summary">'
+        f'<div class="metric"><b>Skill 3 分數</b><span>{escape(str(score))} / 5</span></div>'
+        f'<div class="metric"><b>建議進入 PoC</b><span>{recommend}</span></div>'
+        f'<div class="metric"><b>Skill 4 狀態</b><span>{escape(_display_status(readiness))}</span></div>'
+        f'<div class="metric"><b>擋下原因</b><span>{escape(blockers)}</span></div>'
+        "</section>"
+    )
+
+
+def _architecture_image_html(image_path: Path | None, artifact: dict[str, Any]) -> str:
     if not image_path:
-        return (
-            '<div class="notice">尚未嵌入架構圖 PNG。請先用 image generation 產生 GPT-style '
-            "架構圖，再以 <code>--decision-report-image</code> 重新輸出 HTML。</div>"
-        )
+        candidates = artifact.get("evaluated_candidates") or []
+        first = candidates[0] if candidates else {}
+        blockers = set(first.get("poc_blockers") or [])
+        if "implementation_detail_insufficient" in blockers or not first.get("recommend_poc"):
+            return (
+                '<div class="notice blocked"><strong>本輪沒有可部署的最小 PoC 架構。</strong><br>'
+                "來源文章只足以支持產品能力與成效宣稱，尚不足以定義 Skill 4 會建立的資源、"
+                "成功條件、成本邊界與 cleanup 範圍；因此不產生可被誤解為部署藍圖的架構圖。</div>"
+            )
+        return '<div class="notice">尚未嵌入架構圖 PNG；本 HTML 不應作為 Skill 4 核准依據。</div>'
     data = image_path.read_bytes()
     suffix = image_path.suffix.lower()
     mime = "image/jpeg" if suffix in {".jpg", ".jpeg"} else "image/png"
     encoded = base64.b64encode(data).decode("ascii")
     alt = escape(image_path.stem.replace("-", " "))
     return f'<figure><img src="data:{mime};base64,{encoded}" alt="{alt}"><figcaption>{alt}</figcaption></figure>'
+
+
+def _architecture_section_lines(artifact: dict[str, Any]) -> list[str]:
+    candidates = artifact.get("evaluated_candidates") or []
+    blockers = set()
+    for candidate in candidates:
+        blockers.update(candidate.get("poc_blockers") or [])
+    if "implementation_detail_insufficient" in blockers:
+        return [
+            "- 本輪不產生可部署架構圖：來源只足以支持產品能力與成效宣稱，尚不足以定義 Skill 4 會建立的資源、成功條件、成本邊界與 cleanup 範圍。",
+            "- 若後續要重評，應先補官方實作文件、可部署 recipe、成功條件與 cleanup 範圍；不能用推測圖取代部署證據。",
+        ]
+    return [
+        "- HTML 版報告會直接內嵌 GPT-style PNG 架構圖，協助決策者理解 Skill 4 會建立與驗證的最小 PoC 資源。",
+        "- 生成圖片仍需人工 QA：檢查小字、服務名稱、箭頭方向與資源範圍；圖片本身不是部署證據或 Console review 證據。",
+    ]
 
 
 def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> None:
@@ -955,11 +1049,494 @@ def _display_status(value: Any) -> str:
         "needs_registered_cost_model": "缺少已註冊成本模型",
         "non_binding_public_price_estimate": "非正式公開牌價估算",
         "awaiting_poc_decision": "等待 Cleo 決定是否進入 PoC",
+        "ready_for_skill4": "可進入 Skill 4，仍需具名核准",
+        "score_or_blocker_failed": "分數或 blocker 未通過",
+        "missing_deployable_recipe": "缺少可部署 recipe",
         "unknown": "未記錄",
     }
     text = str(value or "unknown")
     return labels.get(text, text)
 
 
+def _display_blockers(values: list[str]) -> str:
+    labels = {
+        "implementation_detail_insufficient": "實作細節不足，無法定義受控 PoC",
+        "no_deployable_recipe": "缺少可部署 recipe",
+        "poc_quote_not_ready": "PoC 報價尚未完成",
+        "target_region_support_not_verified": "目標區域支援尚未確認",
+        "compliance_review_required": "需要合規覆核",
+        "excluded_service_bedrock": "目前排除 Bedrock 類服務",
+        "region_blocks_s3": "目標區域阻擋 Skill 3 評估",
+        "production_data_required": "需要 production data，不符合 PoC 邊界",
+        "unsafe_permissions": "權限範圍不安全",
+        "veto_verifiability": "證據可驗證性觸及否決門檻",
+        "veto_risk_and_stop_conditions": "停止機制觸及否決門檻",
+        "veto_reversibility_and_cleanup": "可逆性與清理觸及否決門檻",
+    }
+    rendered = [labels.get(str(value), str(value)) for value in values if str(value).strip()]
+    return "；".join(_dedupe(rendered)) if rendered else "無"
+
+
+def _display_review_notes(values: list[str]) -> str:
+    labels = {
+        "target_region_support_not_verified": "目標區域支援尚未確認",
+        "official_pricing_not_linked": "官方定價來源尚未連結",
+        "cost_quote_incomplete": "成本估算尚未完成",
+    }
+    rendered = [labels.get(str(value), str(value)) for value in values if str(value).strip()]
+    return "；".join(_dedupe(rendered)) if rendered else "無"
+
+
 def _dedupe(values: list[str]) -> list[str]:
     return list(dict.fromkeys(str(value) for value in values if str(value).strip()))
+
+
+# Clean human-facing Skill 3 renderer.
+#
+# Some older artifacts contain mojibake in derived Chinese fields.  The HTML and
+# Markdown report is the supervisor-facing layer, so it deliberately renders
+# stable Chinese labels and plain-language explanations from structured codes
+# instead of exposing raw machine fields.
+
+def render_poc_decision_report(artifact: dict[str, Any]) -> str:
+    """Render the Skill 3 human decision report shown before any Skill 4 PoC."""
+
+    candidates = artifact.get("evaluated_candidates") or []
+    first = candidates[0] if candidates else {}
+    lines = [
+        "# Skill 3 PoC 決策報告",
+        "",
+        f"- 執行識別碼：{artifact.get('run_id') or '未記錄'}",
+        f"- 目前狀態：{_display_status(artifact.get('status'))}",
+        "- PoC 判斷規則：分數必須達到 3.75 / 5、沒有 PoC 阻擋原因、成本估算已完成，而且 Skill 4 有可部署 recipe。",
+        "- 這份報告只負責判斷是否值得進入 Skill 4；不代表已經建立任何 AWS 資源。",
+        "",
+    ]
+    lines.extend(_executive_conclusion_lines(first))
+    lines.extend(["", "## 這篇新聞在講什麼", ""])
+    _append_article_explanation(lines, artifact)
+    lines.extend(_poc_value_section(artifact))
+    lines.extend(["", "## PoC 最小架構判斷", "", *_architecture_section_lines(artifact), ""])
+    lines.extend(["", "## Skill 3 評估結果", ""])
+    if not candidates:
+        lines.append("- 沒有可評估的候選項目。")
+    for index, candidate in enumerate(candidates, start=1):
+        lines.extend(_candidate_decision_lines(index, candidate))
+    lines.extend(_render_information_provenance(first))
+    lines.extend(["", "## Cleo 可以怎麼決定", ""])
+    if any(_can_enter_skill4(candidate) for candidate in candidates):
+        lines.extend(
+            [
+                "- 若 Cleo 同意此 PoC 的目的、成本上限與清除範圍，可以指定單一候選項目進入 Skill 4。",
+                "- 進入 Skill 4 前仍需明確的人員核准、成本上限、Console review 與 cleanup 條件。",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                "- 這一輪不建議進入 Skill 4。",
+                "- 下一步不是開 AWS 資源，而是補齊官方實作步驟、可部署 recipe、驗證目標與清除範圍。",
+                "- 對簡報來說，這是一個成功擋下的案例：即使來源是 AWS 官方新聞，只要內容偏宣傳、缺少實作方法，也不能直接做 PoC。",
+            ]
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_poc_decision_report_html(artifact: dict[str, Any], architecture_image_path: Path | None = None) -> str:
+    """Render the human-facing Skill 3 decision report as self-contained HTML."""
+
+    markdown = render_poc_decision_report(artifact)
+    image_html = _architecture_image_html(architecture_image_path, artifact)
+    body_lines: list[str] = []
+    in_list = False
+    table_rows: list[list[str]] = []
+
+    def close_list() -> None:
+        nonlocal in_list
+        if in_list:
+            body_lines.append("</ul>")
+            in_list = False
+
+    def close_table() -> None:
+        nonlocal table_rows
+        if not table_rows:
+            return
+        rows = table_rows
+        table_rows = []
+        header = rows[0]
+        body = rows[2:] if len(rows) > 1 and all(set(cell) <= {":", "-"} for cell in rows[1]) else rows[1:]
+        body_lines.append("<table>")
+        body_lines.append("<thead><tr>" + "".join(f"<th>{escape(cell)}</th>" for cell in header) + "</tr></thead>")
+        body_lines.append("<tbody>")
+        for row in body:
+            body_lines.append("<tr>" + "".join(f"<td>{escape(cell)}</td>" for cell in row) + "</tr>")
+        body_lines.append("</tbody></table>")
+
+    def parse_table_row(line: str) -> list[str] | None:
+        stripped = line.strip()
+        if not (stripped.startswith("|") and stripped.endswith("|")):
+            return None
+        return [cell.strip() for cell in stripped.strip("|").split("|")]
+
+    for line in markdown.splitlines():
+        table_row = parse_table_row(line)
+        if table_row is not None:
+            close_list()
+            table_rows.append(table_row)
+            continue
+        close_table()
+        if line.startswith("# "):
+            close_list()
+            body_lines.append(f"<h1>{escape(line[2:].strip())}</h1>")
+        elif line.startswith("## "):
+            close_list()
+            heading = line[3:].strip()
+            body_lines.append(f"<h2>{escape(heading)}</h2>")
+            if heading == "PoC 最小架構判斷":
+                body_lines.append(image_html)
+        elif line.startswith("### "):
+            close_list()
+            body_lines.append(f"<h3>{escape(line[4:].strip())}</h3>")
+        elif line.startswith("#### "):
+            close_list()
+            body_lines.append(f"<h4>{escape(line[5:].strip())}</h4>")
+        elif line.startswith("> "):
+            close_list()
+            body_lines.append(f"<blockquote>{escape(line[2:].strip())}</blockquote>")
+        elif line.startswith("- ") or line.startswith("  - "):
+            if not in_list:
+                body_lines.append("<ul>")
+                in_list = True
+            body_lines.append(f"<li>{escape(line.strip()[2:].strip())}</li>")
+        elif not line.strip():
+            close_list()
+        else:
+            close_list()
+            body_lines.append(f"<p>{escape(line.strip())}</p>")
+    close_list()
+    close_table()
+    body = "\n".join(body_lines)
+    summary_html = _decision_summary_html(artifact)
+    return f"""<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Skill 3 PoC 決策報告</title>
+<style>
+body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.68;color:#1f2937;max-width:1180px;margin:32px auto;padding:0 28px;background:#f8fafc;}}
+h1{{font-size:34px;margin:0 0 18px;color:#111827;letter-spacing:0;}} h2{{font-size:25px;margin:36px 0 14px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;}} h3{{font-size:20px;margin:24px 0 8px;}} h4{{font-size:17px;margin:18px 0 6px;color:#374151;}} ul{{padding-left:24px;}} li{{margin:4px 0;}} code{{background:#eef2ff;border-radius:4px;padding:1px 4px;}} figure{{margin:18px 0 28px;}} figure img{{display:block;width:100%;height:auto;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.08);}} figcaption{{font-size:14px;color:#6b7280;margin-top:8px;text-align:center;}} .notice{{border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;padding:14px 16px;margin:12px 0 24px;}} .blocked{{border-color:#f97316;background:#fff7ed;color:#9a3412;}} .page{{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.06);}} .summary{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:6px 0 28px;}} .metric{{border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;background:#fff;}} .metric b{{display:block;font-size:13px;color:#6b7280;margin-bottom:4px;}} .metric span{{font-size:18px;font-weight:700;color:#111827;}} table{{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:14px;}} th,td{{border:1px solid #e5e7eb;padding:9px 10px;vertical-align:top;}} th{{background:#f3f4f6;text-align:left;color:#374151;}} blockquote{{border-left:4px solid #94a3b8;background:#f8fafc;margin:14px 0;padding:10px 14px;color:#475569;}} @media(max-width:760px){{body{{padding:0 14px;}} .page{{padding:18px;}} .summary{{grid-template-columns:1fr;}}}}
+</style>
+</head>
+<body>
+<main class="page">
+{summary_html}
+{body}
+</main>
+</body>
+</html>
+"""
+
+
+def _decision_summary_html(artifact: dict[str, Any]) -> str:
+    candidates = artifact.get("evaluated_candidates") or []
+    first = candidates[0] if candidates else {}
+    score = first.get("weighted_score", "未記錄")
+    recommend = "是" if first.get("recommend_poc") else "否"
+    blockers = _display_blockers(first.get("poc_blockers") or [])
+    readiness = ((first.get("s4_readiness") or {}).get("readiness_status") or "unknown")
+    return (
+        '<section class="summary">'
+        f'<div class="metric"><b>Skill 3 分數</b><span>{escape(str(score))} / 5</span></div>'
+        f'<div class="metric"><b>建議進入 PoC</b><span>{recommend}</span></div>'
+        f'<div class="metric"><b>Skill 4 狀態</b><span>{escape(_display_status(readiness))}</span></div>'
+        f'<div class="metric"><b>擋下原因</b><span>{escape(blockers)}</span></div>'
+        "</section>"
+    )
+
+
+def _architecture_image_html(image_path: Path | None, artifact: dict[str, Any]) -> str:
+    if not image_path:
+        candidates = artifact.get("evaluated_candidates") or []
+        first = candidates[0] if candidates else {}
+        blockers = set(first.get("poc_blockers") or [])
+        if "implementation_detail_insufficient" in blockers or not first.get("recommend_poc"):
+            return (
+                '<div class="notice blocked"><strong>本輪沒有可部署的最小 PoC 架構。</strong><br>'
+                "這篇官方新聞主要描述產品能力與效益，沒有提供足夠的部署步驟、資源邊界、驗證方法與清除範圍。"
+                "因此這裡不畫成可執行架構，避免讓讀者誤以為可以直接進入 Skill 4 建立 AWS 資源。</div>"
+            )
+        return '<div class="notice">尚未嵌入架構圖 PNG；進入 Skill 4 前應先完成可部署 recipe 與人工 QA。</div>'
+    data = image_path.read_bytes()
+    suffix = image_path.suffix.lower()
+    mime = "image/jpeg" if suffix in {".jpg", ".jpeg"} else "image/png"
+    encoded = base64.b64encode(data).decode("ascii")
+    alt = escape(image_path.stem.replace("-", " "))
+    return (
+        f'<figure><img src="data:{mime};base64,{encoded}" alt="{alt}">'
+        f'<figcaption>PoC 最小系統架構圖：{alt}</figcaption></figure>'
+    )
+
+
+def _executive_conclusion_lines(candidate: dict[str, Any]) -> list[str]:
+    if not candidate:
+        return ["## 主管摘要", "", "- 本輪沒有可評估的候選項目。"]
+    score = candidate.get("weighted_score", "未記錄")
+    blockers = _display_blockers(candidate.get("poc_blockers") or [])
+    if candidate.get("recommend_poc"):
+        conclusion = "建議在取得 Cleo 明確核准後，進入 Skill 4 受控 PoC。"
+    else:
+        conclusion = "不建議進入 Skill 4。這篇新聞可作為技術雷達追蹤資料，但目前不足以支撐實作型 PoC。"
+    return [
+        "## 主管摘要",
+        "",
+        f"- 結論：{conclusion}",
+        f"- Skill 3 分數：{score} / 5。",
+        f"- 主要原因：{blockers}。",
+        "- 管控意義：此案例證明流程不會因為文章是 AWS 官方發布就自動放行；仍會檢查是否有足夠的實作依據、成本邊界與可清除的驗證設計。",
+    ]
+
+
+def _append_article_explanation(lines: list[str], artifact: dict[str, Any]) -> None:
+    candidates = artifact.get("evaluated_candidates") or []
+    if not candidates:
+        lines.append("- 這一輪沒有可說明的候選項目。")
+        return
+    for index, candidate in enumerate(candidates, start=1):
+        title = candidate.get("title") or f"候選項目 {index}"
+        lines.extend([f"### {index}. {title}", ""])
+        if _is_quick_suite(candidate):
+            lines.extend(
+                [
+                    "- 主題：Amazon Quick Suite 是 AWS 宣布的 agentic AI workspace，主打把企業搜尋、商業智慧分析與流程自動化放在同一個工作區。",
+                    "- 原本問題：使用者常需要在多個系統之間找資料、分析指標、整理文件、建立報表或觸發後續工作，流程分散且耗時。",
+                    "- AWS 宣稱的改變：使用者可以用自然語言查詢資料、從企業與外部來源找資訊、產生 dashboard / executive summary，並透過 Quick Flows 或 Quick Automate 觸發流程。",
+                    "- 對公司可能有吸引力的地方：如果能落地，可能減少資料搜尋、儀表板製作、跨系統例行作業與人工整理報告的時間。",
+                    "- 但這篇文章的限制：內容主要是產品介紹與效益宣稱，沒有提供可重現的部署步驟、必要 AWS 資源清單、IAM 權限、資料流、驗證指標或 cleanup 方法。",
+                ]
+            )
+            continue
+        explanation = candidate.get("source_explanation") or {}
+        key_points = list(explanation.get("key_points") or [])
+        lines.append("- 主題：這是一個 AWS 技術候選項目，Skill 3 會檢查它是否足以支撐受控 PoC。")
+        if key_points:
+            lines.append("- 來源重點：")
+            for point in key_points[:3]:
+                text = _plain_text(point.get("point"))
+                if text:
+                    lines.append(f"  - {text}")
+        else:
+            lines.append("- 來源重點：S1/S2 沒有擷取到足夠可直接呈現的重點。")
+
+
+def _poc_value_section(artifact: dict[str, Any]) -> list[str]:
+    candidates = artifact.get("evaluated_candidates") or []
+    if not candidates:
+        return []
+    lines = ["", "## 如果進入 PoC，本來想驗證什麼", ""]
+    for index, candidate in enumerate(candidates, start=1):
+        title = candidate.get("title") or f"候選項目 {index}"
+        cost = ((candidate.get("cost_estimate") or {}).get("quote") or {}).get("expected_total_usd")
+        lines.extend([f"### {index}. {title}", ""])
+        if _is_quick_suite(candidate):
+            lines.extend(
+                [
+                    "- 理想 PoC 問題：能否用一個小型、可清除的環境，驗證 Quick Suite 是否真的能連接資料來源、回答問題、產生分析結果，並把洞察轉成後續動作。",
+                    "- 需要看到的證據：實際連接方式、可建立的 AWS 資源、權限模型、資料進出路徑、測試資料範圍、成功標準與清除方式。",
+                    "- 目前無法前進的原因：文章沒有把上述資訊講清楚；Skill 3 只能推論可能涉及 S3、IAM、CloudWatch 等基礎元件，但這不是可部署 recipe。",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    "- Skill 4 的價值是把文件推論轉成可檢查的 runtime evidence：資源是否能建立、是否能驗證、是否能盤點、是否能清除。",
+                    "- 若缺少 recipe，Skill 3 只能停在文件評估，不能代表已經可以安全建立 AWS 資源。",
+                ]
+            )
+        if cost is not None:
+            lines.append(f"- 目前成本估算只是一個公開牌價的前置估算，預期情境約 USD {cost}；它不是實際帳單，也不是部署許可。")
+        lines.append("")
+    return lines
+
+
+def _architecture_section_lines(artifact: dict[str, Any]) -> list[str]:
+    candidates = artifact.get("evaluated_candidates") or []
+    blockers = set()
+    for candidate in candidates:
+        blockers.update(candidate.get("poc_blockers") or [])
+    if "implementation_detail_insufficient" in blockers:
+        return [
+            "- 判斷：不產生可部署架構圖。",
+            "- 原因：來源文章只足以說明產品能力，無法定義 Skill 4 需要的受控實作邊界。",
+            "- 缺少的最小資訊包含：要建立哪些 AWS 資源、資料如何進出、需要哪些權限、如何驗證成功、如何停止與清除。",
+            "- 這樣擋下是刻意的：避免把官方產品宣傳誤讀成已可部署的技術方案。",
+        ]
+    return [
+        "- 若候選項目通過 Skill 3，這裡應呈現 Skill 4 實際會建立或驗證的最小架構。",
+        "- 架構圖仍需人工 QA，不能被視為已部署證據。",
+    ]
+
+
+def _candidate_decision_lines(index: int, candidate: dict[str, Any]) -> list[str]:
+    score = candidate.get("weighted_score")
+    quote = ((candidate.get("cost_estimate") or {}).get("quote") or {})
+    blockers = candidate.get("poc_blockers") or []
+    review_notes = candidate.get("poc_review_notes") or []
+    has_recipe = _has_deployable_recipe(quote)
+    can_enter = _can_enter_skill4(candidate)
+    lines = [
+        f"### {index}. {candidate.get('title') or '未命名候選項目'}",
+        "",
+        f"- Candidate ID：{candidate.get('candidate_id') or '未記錄'}",
+        f"- Skill 3 分數：{score if score is not None else '未記錄'} / 5",
+        f"- 是否建議進入 Skill 4：{'是' if can_enter else '否'}",
+        f"- 成本估算狀態：{_display_status((candidate.get('cost_estimate') or {}).get('status'))}",
+        f"- 預期情境估算：USD {quote.get('expected_total_usd') if quote.get('expected_total_usd') is not None else '未記錄'}",
+        f"- 低 / 預期 / 高情境：USD {_range_text(quote.get('estimated_range_usd') or {})}",
+        f"- 建議核准上限：USD {quote.get('recommended_approval_ceiling_usd') if quote.get('recommended_approval_ceiling_usd') is not None else '未記錄'}",
+        f"- 是否已有可部署 recipe：{'有' if has_recipe else '沒有'}",
+        f"- PoC 阻擋原因：{_display_blockers(blockers)}",
+        f"- 待確認事項：{_display_review_notes(review_notes)}",
+        "",
+    ]
+    lines.extend(_score_breakdown_lines(candidate))
+    return lines
+
+
+def _score_breakdown_lines(candidate: dict[str, Any] | None) -> list[str]:
+    if not candidate:
+        return []
+    details = candidate.get("dimension_score_details") or candidate.get("dimension_details") or {}
+    if not details:
+        return []
+    lines = [
+        "#### 評分拆解",
+        "",
+        "| 評估面向 | 分數 | 權重 | 加權分 | 判斷理由 |",
+        "| --- | :---: | ---: | ---: | --- |",
+    ]
+    for key in RUBRIC_WEIGHTS:
+        detail = details.get(key) or {}
+        score = detail.get("score")
+        weight = detail.get("weight", RUBRIC_WEIGHTS[key])
+        weighted = detail.get("weighted_points")
+        reason = _score_reason_zh(key, score, candidate)
+        lines.append(f"| {_score_label(key)} | {score} / 5 | {weight:.2f} | {weighted} | {reason} |")
+    lines.append("")
+    return lines
+
+
+def _render_information_provenance(candidate: dict[str, Any] | None) -> list[str]:
+    if not candidate:
+        return []
+    return [
+        "",
+        "## 證據來源與責任邊界",
+        "",
+        "| 階段 | 這一階段做什麼 | 在本報告中的責任 |",
+        "| :---: | --- | --- |",
+        "| Skill 1 | 擷取 AWS 來源內容，整理重點、意義與可能架構。 | 提供新聞事實與初步脈絡，不代表已驗證部署。 |",
+        "| Skill 2 | 把候選項目整理成比較卡，補上可驗證性、風險與下一步問題。 | 協助選題，不直接決定是否開資源。 |",
+        "| Skill 3 | 對單一候選項目評分、估算成本、檢查 blocker 與 Skill 4 recipe。 | 決定是否值得進入受控 PoC，但不會建立 AWS 資源。 |",
+        "",
+        "> 這份 Skill 3 報告是決策文件，不是部署紀錄。只有 Skill 4 在明確核准與 cleanup gate 通過後，才會產生實際 AWS runtime evidence。",
+    ]
+
+
+def _score_label(key: str) -> str:
+    labels = {
+        "technical_value": "技術價值",
+        "verifiability": "可驗證性",
+        "adoption_prerequisites": "導入前提",
+        "risk_and_stop_conditions": "風險與停止條件",
+        "reversibility_and_cleanup": "可回復與清除",
+    }
+    return labels.get(key, key)
+
+
+def _score_reason_zh(key: str, score: Any, candidate: dict[str, Any]) -> str:
+    blockers = set(candidate.get("poc_blockers") or [])
+    quick_suite = _is_quick_suite(candidate)
+    if quick_suite and key == "technical_value":
+        return "題目本身有價值，因為它瞄準企業搜尋、分析與流程自動化的效率問題。"
+    if quick_suite and key == "verifiability":
+        return "文章有描述能力，但缺少可重現的部署與驗證步驟，因此只能做文件層評估。"
+    if quick_suite and key == "adoption_prerequisites":
+        return "需要確認服務可用區域、資料來源連接方式、權限模型與公司環境限制。"
+    if quick_suite and key == "risk_and_stop_conditions":
+        return "目前沒有足夠的停止條件與失敗回復設計，不能直接進入 AWS 實作。"
+    if quick_suite and key == "reversibility_and_cleanup":
+        return "沒有可部署 recipe，也就沒有明確的資源清單與 cleanup 範圍。"
+    if "implementation_detail_insufficient" in blockers:
+        return "來源缺少足夠實作細節，評估結果只能作為追蹤依據。"
+    if score is None:
+        return "未記錄。"
+    return "依 Skill 3 rubric 對技術價值、可驗證性、風險與清除條件進行評估。"
+
+
+def _range_text(value: dict[str, Any]) -> str:
+    if not value:
+        return "未記錄"
+    return f"{value.get('low')} / {value.get('expected')} / {value.get('high')}"
+
+
+def _display_status(value: Any) -> str:
+    labels = {
+        "estimated": "已完成前置估算",
+        "incomplete": "估算資料不足",
+        "needs_registered_cost_model": "需要註冊成本模型",
+        "non_binding_public_price_estimate": "公開牌價前置估算",
+        "awaiting_poc_decision": "等待 Cleo 判斷是否進入 PoC",
+        "awaiting_human_decision": "等待人工決策",
+        "ready_for_skill4": "可進入 Skill 4，但仍需明確核准",
+        "score_or_blocker_failed": "分數或阻擋條件未通過",
+        "missing_deployable_recipe": "缺少可部署 recipe",
+        "no_poc_candidates": "沒有可進入 PoC 的候選項目",
+        "unknown": "未記錄",
+    }
+    text = str(value or "unknown")
+    return labels.get(text, text)
+
+
+def _display_blockers(values: list[str]) -> str:
+    labels = {
+        "implementation_detail_insufficient": "實作細節不足，無法定義受控 PoC",
+        "no_deployable_recipe": "缺少可部署 recipe",
+        "poc_quote_not_ready": "PoC 成本估算尚未完成",
+        "target_region_support_not_verified": "目標區域支援尚未確認",
+        "compliance_review_required": "需要額外合規審查",
+        "excluded_service_bedrock": "涉及目前排除的 Bedrock 實作範圍",
+        "region_blocks_s3": "目標區域阻擋 Skill 3 評估",
+        "production_data_required": "需要正式環境資料，不適合小型 PoC",
+        "unsafe_permissions": "權限範圍不安全",
+        "veto_verifiability": "可驗證性低於最低門檻",
+        "veto_risk_and_stop_conditions": "風險或停止條件低於最低門檻",
+        "veto_reversibility_and_cleanup": "清除與回復能力低於最低門檻",
+    }
+    rendered = [labels.get(str(value), str(value)) for value in values if str(value).strip()]
+    return "；".join(_dedupe(rendered)) if rendered else "無"
+
+
+def _display_review_notes(values: list[str]) -> str:
+    labels = {
+        "target_region_support_not_verified": "目標區域支援尚未確認",
+        "official_pricing_not_linked": "尚未連到候選項目的官方定價頁",
+        "cost_quote_incomplete": "成本估算資料仍不完整",
+    }
+    rendered = [labels.get(str(value), str(value)) for value in values if str(value).strip()]
+    return "；".join(_dedupe(rendered)) if rendered else "無"
+
+
+def _can_enter_skill4(candidate: dict[str, Any]) -> bool:
+    readiness = candidate.get("s4_readiness") or {}
+    return bool(candidate.get("recommend_poc")) and bool(readiness.get("can_enter_skill4"))
+
+
+def _is_quick_suite(candidate: dict[str, Any]) -> bool:
+    title = str(candidate.get("title") or "").lower()
+    url = str(candidate.get("source_url") or "").lower()
+    return "quick suite" in title or "quick-suite" in url
+
+
+def _plain_text(value: Any) -> str:
+    text = str(value or "").strip()
+    return " ".join(text.split())
