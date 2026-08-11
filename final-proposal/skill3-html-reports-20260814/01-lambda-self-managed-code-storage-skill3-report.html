@@ -1,0 +1,61 @@
+﻿<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Skill 3 PoC 決策報告</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.65;color:#1f2937;max-width:1180px;margin:32px auto;padding:0 28px;background:#fff;}
+h1{font-size:32px;margin:0 0 20px;color:#111827;} h2{font-size:26px;margin:34px 0 14px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;} h3{font-size:21px;margin:24px 0 8px;} ul{padding-left:24px;} li{margin:4px 0;} figure{margin:18px 0 28px;} figure img{display:block;width:100%;height:auto;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.08);} figcaption{font-size:14px;color:#6b7280;margin-top:8px;text-align:center;}
+</style>
+</head>
+<body>
+<h1>Skill 3 PoC 決策報告</h1>
+<ul>
+<li>Run ID：direct-url-20260803-51f2781e</li>
+<li>狀態：等待 Cleo 決定是否進入 PoC</li>
+<li>PoC 門檻：Skill 3 加權分 &gt;= 3.75 / 5、沒有 PoC blocker、報價狀態為已完成估算、Skill 4 有可部署 recipe。</li>
+<li>人工關卡：即使達標，也必須由 Cleo 明確同意候選、成本上限、成功條件與 cleanup 範圍，Skill 4 才能開始。</li>
+<li>本報告不會建立 AWS 資源，也不是部署核准。</li>
+</ul>
+<h2>這篇文章在講什麼</h2>
+<h3>1. AWS Lambda 宣布自主管理程式碼儲存空間 - AWS</h3>
+<ul>
+<li>以前：先前，Lambda 在建立函數和層時，一律會將您的部署套件複製到由 Lambda 管理的儲存空間，並計入此限制。</li>
+<li>現在：AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。</li>
+<li>差別：這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。</li>
+<li>原文重點：</li>
+</ul>
+<p>  - AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。</p>
+<p>  - 這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。</p>
+<p>  - AWS Lambda 是一項無伺服器運算服務，可執行您的程式碼，無需您管理伺服器。</p>
+<ul>
+<li>推導的最小架構：Lambda（無伺服器函數執行） → S3（物件儲存） → CloudFormation（基礎設施即程式碼部署）</li>
+</ul>
+<h2>PoC 最小系統架構圖</h2>
+<div style="border:1px solid #d1d5db;border-radius:8px;padding:18px;margin:18px 0 28px;background:#f8fafc;">
+  <h3 style="margin-top:0;">PoC 最小系統架構</h3>
+  <p><strong>Cleo / 人工核准</strong> → <strong>CloudFormation</strong> → <strong>IAM Role</strong> → <strong>Lambda function</strong> → <strong>自主管理 Amazon S3 code bucket</strong> → <strong>CloudWatch Logs</strong></p>
+  <p style="color:#6b7280;margin-bottom:0;">此圖為 GitHub 版安全替代區塊，用文字保留架構重點；原始報告曾使用嵌入 PNG，但 base64 內容可能被 GitHub 誤判為憑證或 AWS key。</p>
+</div>
+<h2>PoC 判斷</h2>
+<h3>1. AWS Lambda 宣布自主管理程式碼儲存空間 - AWS</h3>
+<ul>
+<li>Candidate ID：S1-FF3477F55D4E</li>
+<li>Skill 3 分數：4.15 / 5</li>
+<li>分數是否達標：是</li>
+<li>報價狀態：已完成估算</li>
+<li>預期成本 USD：0.000749</li>
+<li>低/預期/高 USD：0.000322 / 0.000749 / 0.003387</li>
+<li>建議核准上限 USD：0.05</li>
+<li>可部署 recipe：有，lambda_self_managed_s3_code_storage_cdk</li>
+<li>PoC blocker：無</li>
+<li>Review notes：official_pricing_not_linked</li>
+<li>是否值得交給 Cleo 決定進入 Skill 4：是</li>
+</ul>
+<h2>Cleo 需要回覆</h2>
+<ul>
+<li>若同意 PoC：請回覆同意進入 Skill 4，並確認候選、核准上限、成功條件與 cleanup 範圍。</li>
+<li>若不同意 PoC：請回覆不進 Skill 4，並可指定要改評估標準、換候選或補證據。</li>
+</ul>
+</body>
+</html>

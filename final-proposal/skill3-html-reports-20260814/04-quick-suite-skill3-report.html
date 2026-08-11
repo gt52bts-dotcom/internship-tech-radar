@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Skill 3 PoC 決策報告</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.68;color:#1f2937;max-width:1180px;margin:32px auto;padding:0 28px;background:#f8fafc;}
+h1{font-size:34px;margin:0 0 18px;color:#111827;letter-spacing:0;} h2{font-size:25px;margin:36px 0 14px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;} h3{font-size:20px;margin:24px 0 8px;} h4{font-size:17px;margin:18px 0 6px;color:#374151;} ul{padding-left:24px;} li{margin:4px 0;} code{background:#eef2ff;border-radius:4px;padding:1px 4px;} figure{margin:18px 0 28px;} figure img{display:block;width:100%;height:auto;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.08);} figcaption{font-size:14px;color:#6b7280;margin-top:8px;text-align:center;} .notice{border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;padding:14px 16px;margin:12px 0 24px;} .blocked{border-color:#f97316;background:#fff7ed;color:#9a3412;} .page{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:28px;box-shadow:0 8px 24px rgba(15,23,42,.06);} .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:6px 0 28px;} .metric{border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;background:#fff;} .metric b{display:block;font-size:13px;color:#6b7280;margin-bottom:4px;} .metric span{font-size:18px;font-weight:700;color:#111827;} table{width:100%;border-collapse:collapse;margin:12px 0 22px;font-size:14px;} th,td{border:1px solid #e5e7eb;padding:9px 10px;vertical-align:top;} th{background:#f3f4f6;text-align:left;color:#374151;} blockquote{border-left:4px solid #94a3b8;background:#f8fafc;margin:14px 0;padding:10px 14px;color:#475569;} @media(max-width:760px){body{padding:0 14px;} .page{padding:18px;} .summary{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<main class="page">
+<section class="summary"><div class="metric"><b>Skill 3 分數</b><span>3.7 / 5</span></div><div class="metric"><b>建議進入 PoC</b><span>否</span></div><div class="metric"><b>Skill 4 狀態</b><span>缺少可部署 recipe</span></div><div class="metric"><b>擋下原因</b><span>實作細節不足，無法定義受控 PoC；缺少可部署 recipe</span></div></section>
+<h1>Skill 3 PoC 決策報告</h1>
+<ul>
+<li>執行識別碼：direct-url-20260810-1aec8013</li>
+<li>目前狀態：等待 Cleo 判斷是否進入 PoC</li>
+<li>PoC 判斷規則：分數必須達到 3.75 / 5、沒有 PoC 阻擋原因、成本估算已完成，而且 Skill 4 有可部署 recipe。</li>
+<li>這份報告只負責判斷是否值得進入 Skill 4；不代表已經建立任何 AWS 資源。</li>
+</ul>
+<h2>主管摘要</h2>
+<ul>
+<li>結論：不建議進入 Skill 4。這篇新聞可作為技術雷達追蹤資料，但目前不足以支撐實作型 PoC。</li>
+<li>Skill 3 分數：3.7 / 5。</li>
+<li>主要原因：實作細節不足，無法定義受控 PoC；缺少可部署 recipe。</li>
+<li>管控意義：此案例證明流程不會因為文章是 AWS 官方發布就自動放行；仍會檢查是否有足夠的實作依據、成本邊界與可清除的驗證設計。</li>
+</ul>
+<h2>這篇新聞在講什麼</h2>
+<h3>1. Announcing Amazon Quick Suite: your agentic teammate for answering questions and taking action | AWS News Blog</h3>
+<ul>
+<li>主題：Amazon Quick Suite 是 AWS 宣布的 agentic AI workspace，主打把企業搜尋、商業智慧分析與流程自動化放在同一個工作區。</li>
+<li>原本問題：使用者常需要在多個系統之間找資料、分析指標、整理文件、建立報表或觸發後續工作，流程分散且耗時。</li>
+<li>AWS 宣稱的改變：使用者可以用自然語言查詢資料、從企業與外部來源找資訊、產生 dashboard / executive summary，並透過 Quick Flows 或 Quick Automate 觸發流程。</li>
+<li>對公司可能有吸引力的地方：如果能落地，可能減少資料搜尋、儀表板製作、跨系統例行作業與人工整理報告的時間。</li>
+<li>但這篇文章的限制：內容主要是產品介紹與效益宣稱，沒有提供可重現的部署步驟、必要 AWS 資源清單、IAM 權限、資料流、驗證指標或 cleanup 方法。</li>
+</ul>
+<h2>如果進入 PoC，本來想驗證什麼</h2>
+<h3>1. Announcing Amazon Quick Suite: your agentic teammate for answering questions and taking action | AWS News Blog</h3>
+<ul>
+<li>理想 PoC 問題：能否用一個小型、可清除的環境，驗證 Quick Suite 是否真的能連接資料來源、回答問題、產生分析結果，並把洞察轉成後續動作。</li>
+<li>需要看到的證據：實際連接方式、可建立的 AWS 資源、權限模型、資料進出路徑、測試資料範圍、成功標準與清除方式。</li>
+<li>目前無法前進的原因：文章沒有把上述資訊講清楚；Skill 3 只能推論可能涉及 S3、IAM、CloudWatch 等基礎元件，但這不是可部署 recipe。</li>
+<li>目前成本估算只是一個公開牌價的前置估算，預期情境約 USD 0.000543；它不是實際帳單，也不是部署許可。</li>
+</ul>
+<h2>PoC 最小架構判斷</h2>
+<div class="notice blocked"><strong>本輪沒有可部署的最小 PoC 架構。</strong><br>這篇官方新聞主要描述產品能力與效益，沒有提供足夠的部署步驟、資源邊界、驗證方法與清除範圍。因此這裡不畫成可執行架構，避免讓讀者誤以為可以直接進入 Skill 4 建立 AWS 資源。</div>
+<ul>
+<li>判斷：不產生可部署架構圖。</li>
+<li>原因：來源文章只足以說明產品能力，無法定義 Skill 4 需要的受控實作邊界。</li>
+<li>缺少的最小資訊包含：要建立哪些 AWS 資源、資料如何進出、需要哪些權限、如何驗證成功、如何停止與清除。</li>
+<li>這樣擋下是刻意的：避免把官方產品宣傳誤讀成已可部署的技術方案。</li>
+</ul>
+<h2>Skill 3 評估結果</h2>
+<h3>1. Announcing Amazon Quick Suite: your agentic teammate for answering questions and taking action | AWS News Blog</h3>
+<ul>
+<li>Candidate ID：S1-9915BBCD536B</li>
+<li>Skill 3 分數：3.7 / 5</li>
+<li>是否建議進入 Skill 4：否</li>
+<li>成本估算狀態：已完成前置估算</li>
+<li>預期情境估算：USD 0.000543</li>
+<li>低 / 預期 / 高情境：USD 5.4e-05 / 0.000543 / 0.005537</li>
+<li>建議核准上限：USD 0.05</li>
+<li>是否已有可部署 recipe：沒有</li>
+<li>PoC 阻擋原因：實作細節不足，無法定義受控 PoC；缺少可部署 recipe</li>
+<li>待確認事項：目標區域支援尚未確認</li>
+</ul>
+<h4>評分拆解</h4>
+<table>
+<thead><tr><th>評估面向</th><th>分數</th><th>權重</th><th>加權分</th><th>判斷理由</th></tr></thead>
+<tbody>
+<tr><td>技術價值</td><td>4 / 5</td><td>0.30</td><td>1.2</td><td>題目本身有價值，因為它瞄準企業搜尋、分析與流程自動化的效率問題。</td></tr>
+<tr><td>可驗證性</td><td>4 / 5</td><td>0.20</td><td>0.8</td><td>文章有描述能力，但缺少可重現的部署與驗證步驟，因此只能做文件層評估。</td></tr>
+<tr><td>導入前提</td><td>4 / 5</td><td>0.20</td><td>0.8</td><td>需要確認服務可用區域、資料來源連接方式、權限模型與公司環境限制。</td></tr>
+<tr><td>風險與停止條件</td><td>3 / 5</td><td>0.15</td><td>0.45</td><td>目前沒有足夠的停止條件與失敗回復設計，不能直接進入 AWS 實作。</td></tr>
+<tr><td>可回復與清除</td><td>3 / 5</td><td>0.15</td><td>0.45</td><td>沒有可部署 recipe，也就沒有明確的資源清單與 cleanup 範圍。</td></tr>
+</tbody></table>
+<h2>證據來源與責任邊界</h2>
+<table>
+<thead><tr><th>階段</th><th>這一階段做什麼</th><th>在本報告中的責任</th></tr></thead>
+<tbody>
+<tr><td>Skill 1</td><td>擷取 AWS 來源內容，整理重點、意義與可能架構。</td><td>提供新聞事實與初步脈絡，不代表已驗證部署。</td></tr>
+<tr><td>Skill 2</td><td>把候選項目整理成比較卡，補上可驗證性、風險與下一步問題。</td><td>協助選題，不直接決定是否開資源。</td></tr>
+<tr><td>Skill 3</td><td>對單一候選項目評分、估算成本、檢查 blocker 與 Skill 4 recipe。</td><td>決定是否值得進入受控 PoC，但不會建立 AWS 資源。</td></tr>
+</tbody></table>
+<blockquote>這份 Skill 3 報告是決策文件，不是部署紀錄。只有 Skill 4 在明確核准與 cleanup gate 通過後，才會產生實際 AWS runtime evidence。</blockquote>
+<h2>Cleo 可以怎麼決定</h2>
+<ul>
+<li>這一輪不建議進入 Skill 4。</li>
+<li>下一步不是開 AWS 資源，而是補齊官方實作步驟、可部署 recipe、驗證目標與清除範圍。</li>
+<li>對簡報來說，這是一個成功擋下的案例：即使來源是 AWS 官方新聞，只要內容偏宣傳、缺少實作方法，也不能直接做 PoC。</li>
+</ul>
+</main>
+</body>
+</html>

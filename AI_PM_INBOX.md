@@ -2,7 +2,7 @@
 
 ## 2026-08-11 17:00 - 正式日誌統整狀態
 
-- 已將 8/11 暫存證據統整至正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡。今日為 Scan +2、Compare +2、Evaluate +1、Validate +2、Report +2，總分 9，累積 162，目標對齊 direct。
+- 已將 8/11 暫存證據統整至正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡。原先今日為 Scan +2、Compare +2、Evaluate +1、Validate +2、Report +2，總分 9，累積 162；2026-08-11 晚間依 Cleo 回饋下修為 Scan +1、Compare +1、Evaluate +1、Validate +0、Report +2，總分 5，累積 154，目標對齊 direct。
 - 採計三案 Skill 1 精準計時、S3 Files PoC 時間口徑回查、停止案例「硬做」定義，以及雲端關聯圖、協理詳細投影片稿與四案 HTML 索引；沒有新增 AWS 資源、live PoC、帳務或 Mentor 回饋。
 - 8/10 的 Quick Suite 停止案例與原始報告素材仍保留在 8/10 脈絡；8/11 僅採計當日進行的補跑、回查與可交付報告整理。
 
@@ -1249,3 +1249,10 @@
 - 已新增五個 Skill 圖像式 SVG 檔於 `final-proposal/skill-visuals-20260814/`，分別對應 Skill 1 Scan、Skill 2 Compare、Skill 3 Evaluate、Skill 4 Validate、Skill 5 Report。
 - 已把 Skill 交接規則寫入 `PROJECT_MEMORY.md`：對外與跨電腦交接時要寫清楚 GitHub 相對路徑 `SKILL.md` 與 `agents/openai.yaml`；Codex 找非本機 Skill 時先看可用 Skill 清單，再用工具/plugin 搜尋，且使用前必須讀完整 `SKILL.md`。
 - 修正 `radar-redesign/skills/report-cloud-evidence/agents/openai.yaml` 的舊口徑，移除 billing reconciliation，改成 Skill 5 只報告部署前估價、runtime evidence、資源盤點、cleanup 狀態與未知限制。
+
+## 2026-08-11 - 8/10 與 8/11 Skill 分數下修
+
+- Cleo 指出 8/10、8/11 的「對專案的幫助與分數」評分太鬆散；已依專案既有硬審核規則重評。
+- 8/10 從 Scan +1、Compare +2、Evaluate +3、Validate +2、Report +2，總分 +10，下修為 Scan +1、Compare +1、Evaluate +2、Validate +1、Report +1，總分 +6。理由：Quick Suite 停止案例有評估價值，但沒有 Skill 4 / AWS 實機驗證；報告草稿與時間整理不可重複灌分。
+- 8/11 從 Scan +2、Compare +2、Evaluate +1、Validate +2、Report +2，總分 +9，下修為 Scan +1、Compare +1、Evaluate +1、Validate +0、Report +2，總分 +5。理由：主要是補測、時間口徑校正與簡報素材；回查既有 artifacts 不算新的 Validate。
+- 已同步修改 `logs/daily/work-log-2026-08-10.md`、`logs/daily/work-log-2026-08-11.md`、`SKILL_PROGRESS.md`、`dashboard/skill-score-data.json`、`dashboard/README.md`、`dashboard/notion-skill-dashboard.html`、`README.md` 與 `PROJECT_MEMORY.md`；累積總分改為 154。

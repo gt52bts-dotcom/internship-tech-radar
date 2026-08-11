@@ -217,19 +217,19 @@
       "date": "2026-08-10",
       "scores": {
         "scan": 1,
-        "compare": 2,
-        "evaluate": 3,
-        "validate": 2,
-        "report": 2
+        "compare": 1,
+        "evaluate": 2,
+        "validate": 1,
+        "report": 1
       }
     },
     {
       "date": "2026-08-11",
       "scores": {
-        "scan": 2,
-        "compare": 2,
+        "scan": 1,
+        "compare": 1,
         "evaluate": 1,
-        "validate": 2,
+        "validate": 0,
         "report": 2
       }
     }

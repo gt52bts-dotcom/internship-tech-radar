@@ -1,0 +1,83 @@
+﻿<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Skill 3 PoC 決策報告</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.65;color:#1f2937;max-width:1180px;margin:32px auto;padding:0 28px;background:#fff;}
+h1{font-size:32px;margin:0 0 20px;color:#111827;} h2{font-size:26px;margin:34px 0 14px;border-bottom:1px solid #e5e7eb;padding-bottom:8px;} h3{font-size:21px;margin:24px 0 8px;} ul{padding-left:24px;} li{margin:4px 0;} figure{margin:18px 0 28px;} figure img{display:block;width:100%;height:auto;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 2px 10px rgba(15,23,42,.08);} figcaption{font-size:14px;color:#6b7280;margin-top:8px;text-align:center;} .notice{border:1px solid #f59e0b;background:#fffbeb;color:#92400e;border-radius:8px;padding:12px 14px;margin:12px 0 24px;}
+</style>
+</head>
+<body>
+<h1>Skill 3 PoC 決策報告</h1>
+<ul>
+<li>Run ID：direct-url-20260804-20fd4c4b</li>
+<li>狀態：等待 Cleo 決定是否進入 PoC</li>
+<li>PoC 門檻：Skill 3 加權分 &gt;= 3.75 / 5、沒有 PoC blocker、報價狀態為已完成估算、Skill 4 有可部署 recipe。</li>
+<li>人工關卡：即使達標，也必須由 Cleo 明確同意候選、成本上限、成功條件與 cleanup 範圍，Skill 4 才能開始。</li>
+<li>本報告不會建立 AWS 資源，也不是部署核准。</li>
+</ul>
+<h2>這篇文章在講什麼</h2>
+<h3>1. Amazon WorkSpaces Now Lets AI Agents Operate Desktop Applications | Desktop and Application Streaming</h3>
+<ul>
+<li>這篇文章在講什麼：AWS 現在讓 AI agent 連到 WorkSpaces Applications 的桌面串流工作階段，讓 agent 可以「看見畫面、點擊、輸入、捲動」，必要時也能把某些動作改走 MCP tool，而不是全部靠截圖和滑鼠點擊。</li>
+<li>以前的做法：如果我要 AI 幫我進 AWS Console 看 Infrastructure Composer canvas，通常只能靠瀏覽器自動化或人工截圖。這種方式很脆弱，登入狀態、畫面位置、網路延遲、按鈕文字改版都可能讓流程失敗。</li>
+<li>現在的差別：WorkSpaces agent access 提供一個比較正式的桌面工作階段入口。AI 可以在受控的遠端桌面裡操作 Console；人類也可以用 observer URL 即時看它在做什麼，必要時停止它。</li>
+<li>實體例子：你可以把它想成「開一台受控的雲端 Windows 桌面給 AI 用」。AI 在那台桌面打開 AWS Console、進 Infrastructure Composer、看中間 canvas、截圖或回報看到的資源；你在旁邊用瀏覽器觀看，不用把自己的本機登入狀態直接交給自動化流程。</li>
+<li>這篇文章真正有價值的點：它不是單純讓 AI 多一個截圖工具，而是把原本零散的「AI 看畫面、AI 點按鈕、人類監看、必要時停止、留下監控紀錄」變成 WorkSpaces Applications 可設定的基礎能力。</li>
+<li>推導的最小架構：AI agent -&gt; WorkSpaces Applications / AppStream streaming session -&gt; AWS Console / Infrastructure Composer；AgentAccessConfig 啟用 computer vision、computer input、MCP tool forwarding 與 VIEW_STOP；CloudTrail / CloudWatch 可留下連線與操作面的監控證據。</li>
+</ul>
+<h2>PoC 可以額外提供什麼價值</h2>
+<h3>1. Amazon WorkSpaces Now Lets AI Agents Operate Desktop Applications | Desktop and Application Streaming</h3>
+<ul>
+<li>Skill 3 已經能回答：這篇新聞在解決什麼問題、可能帶來什麼技術價值、需要哪些 AWS 元件，以及用公開牌價估算小型 PoC 大約會花多少錢。</li>
+<li>Skill 4 PoC 的額外價值：確認 Cleo 的 AWS 帳號與目標 Region 真的能建立 WorkSpaces Applications / AppStream agent-access 基礎設施，而不是只停留在文件推論。</li>
+<li>目前建議只做第一段：驗證 fleet 是否能啟動、stack 是否真的有 AgentAccessConfig、是否能產生短效 streaming URL，並保留 cleanup 前後的結構化證據；不要開啟 URL，也不要讓 AI agent 真的連進桌面。</li>
+<li>對你原本的 Console canvas 需求：這個功能有機會把「AI 進 AWS Console、開 Infrastructure Composer、看 canvas、回報或截圖」做成比較可控的遠端桌面流程，人類可以旁觀與停止，比把本機瀏覽器狀態直接交給自動化安全。</li>
+<li>成本提醒：第一段報價不包含 Windows 使用者月費；完整桌面連線一旦觸發 Windows 使用者串流，月費整月收取，cleanup 不能退款。</li>
+<li>決策含義：如果目的只是偶爾人工看一次 canvas，完整桌面 PoC 太重；如果目標是建立可監看、可停止、可留證據的 AI Console 操作能力，才值得另開第二段 PoC。</li>
+<li>它不會證明完整的 LLM 桌面自動化業務流程；若要證明 AI 真的操作桌面完成任務，必須先定義一個具體任務，再另行核准第二段 agent/MCP 連線測試。</li>
+</ul>
+<h2>PoC 最小系統架構圖</h2>
+<div style="border:1px solid #d1d5db;border-radius:8px;padding:18px;margin:18px 0 28px;background:#f8fafc;"><h3 style="margin-top:0;">WorkSpaces AI Agents 停止評估架構</h3><p><strong>AWS 官方新聞 → Skill 1 / Skill 2 公開證據 → Skill 3 成本與合規評估 → 停止於 Skill 3，不進入會產生月費風險的 Skill 4</strong></p><p style="color:#6b7280;margin-bottom:0;">此區塊為 GitHub 版安全替代架構圖；移除原始嵌入 PNG base64，避免 GitHub 將圖檔 metadata 誤判為憑證或 AWS key。</p></div>
+<ul>
+<li>HTML 版報告會直接內嵌 GPT-style PNG 架構圖，協助決策者理解 Skill 4 會建立與驗證的最小 PoC 資源。</li>
+<li>生成圖片仍需人工 QA：檢查小字、服務名稱、箭頭方向與資源範圍；圖片本身不是部署證據或 Console review 證據。</li>
+</ul>
+<h2>PoC 判斷</h2>
+<h3>1. Amazon WorkSpaces Now Lets AI Agents Operate Desktop Applications | Desktop and Application Streaming</h3>
+<ul>
+<li>Candidate ID：S1-791440D21925</li>
+<li>Skill 3 分數：2.65 / 5</li>
+<li>分數是否達標：否</li>
+<li>報價狀態：已完成估算</li>
+<li>預期成本 USD：0.1</li>
+<li>低/預期/高 USD：0.05 / 0.1 / 0.4</li>
+<li>建議核准上限 USD：0.5</li>
+<li>可部署 recipe：有，workspaces_ai_agent_access_cdk</li>
+<li>PoC blocker：compliance_review_required</li>
+<li>Review notes：target_region_support_not_verified</li>
+<li>是否值得交給 Cleo 決定進入 Skill 4：否</li>
+<li>目前可否進入 Skill 4：不可以，分數或 blocker 未達標</li>
+</ul>
+<p>#### 評分細項</p>
+<ul>
+<li>技術能力：4 / 5，權重 0.30，加權 1.2。原文明述桌面代理操作、工具轉發、人類觀察/停止等質性改善，機制清楚，但沒有量化改善數據。</li>
+<li>證據可驗證性：3 / 5，權重 0.20，加權 0.6。目前 recipe 只能驗證 fleet/stack/AgentAccessConfig/短效 URL，不能證明 AI 真的操作桌面完成任務。</li>
+<li>導入前置條件：2 / 5，權重 0.20，加權 0.4。需要 AppStream/WorkSpaces Applications 能用、可串流 Windows 映像、授權模式確認與目標區域支援確認，前置條件多且部分需審查。</li>
+<li>可控制性與停止機制：2 / 5，權重 0.15，加權 0.3。存在桌面代理操作與可能觸發月費的行為；停止條件雖有定義，但部分成本/行為無法在執行中完全撤回。</li>
+<li>可逆性與終止：1 / 5，權重 0.15，加權 0.15。存在 cleanup 不能退款或完全回復的成本/狀態，例如 Windows 使用者月費或已消耗的 agent session。</li>
+</ul>
+<ul>
+<li>WorkSpaces 成本邊界：本次只核准第一段基礎設施驗證；不開啟 URL、不連線 AI agent、不觸發實際 Windows 桌面串流。</li>
+<li>完整桌面操作是第二段，必須另行核准；一旦 Windows 使用者啟動串流，月費整月收取，cleanup 不能退款。</li>
+<li>第二段完整桌面連線估算 USD：6.47 / 6.5325 / 6.87；若可能出現第二個 unique user，建議核准上限至少 USD 14.0。</li>
+</ul>
+<h2>Cleo 需要回覆</h2>
+<ul>
+<li>目前不建議進 Skill 4：本輪沒有任何候選同時通過分數門檻、PoC blocker、報價與可部署 recipe 條件。</li>
+<li>下一步是先修正分數或 blocker 的根因；如果是缺 recipe 才補 recipe，如果是分數不足就不要建立 AWS 資源。</li>
+<li>Cleo 仍可要求重評，但不應把「有 recipe」解讀成「可以部署」。</li>
+</ul>
+</body>
+</html>

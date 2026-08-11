@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#f4fbf6"/>
+  <text x="90" y="115" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="54" font-weight="700" fill="#17351f">Skill 4 Validate</text>
+  <text x="90" y="168" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#4e6b55">具名核准後，才建立受控 AWS PoC</text>
+  <rect x="85" y="250" width="300" height="325" rx="18" fill="#ffffff" stroke="#b7d9c0" stroke-width="3"/>
+  <text x="125" y="330" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="32" font-weight="700" fill="#17351f">部署前檢查</text>
+  <text x="125" y="390" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="26" fill="#36543d">具名核准</text>
+  <text x="125" y="430" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="26" fill="#36543d">成本上限</text>
+  <text x="125" y="470" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="26" fill="#36543d">已登錄 recipe</text>
+  <path d="M415 410 H530" stroke="#15803d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M510 385 L555 410 L510 435 Z" fill="#15803d"/>
+  <rect x="590" y="205" width="500" height="410" rx="18" fill="#dcfce7" stroke="#15803d" stroke-width="3"/>
+  <text x="645" y="285" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="34" font-weight="700" fill="#14532d">受控 PoC</text>
+  <text x="645" y="350" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">CloudFormation / CDK</text>
+  <text x="645" y="395" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">runtime 驗證</text>
+  <text x="645" y="440" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">資源盤點</text>
+  <text x="645" y="485" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">run-scoped cleanup</text>
+  <text x="645" y="548" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="25" fill="#2f7b48">建立資源不是自動開始，必須通過 gate</text>
+  <path d="M1125 410 H1220" stroke="#15803d" stroke-width="8" stroke-linecap="round"/>
+  <path d="M1200 385 L1245 410 L1200 435 Z" fill="#15803d"/>
+  <rect x="1280" y="250" width="250" height="325" rx="18" fill="#17351f"/>
+  <text x="1315" y="350" font-family="Consolas, monospace" font-size="32" font-weight="700" fill="#ffffff">runtime</text>
+  <text x="1315" y="405" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#dcfce7">部署證據</text>
+  <text x="1315" y="445" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#dcfce7">盤點證據</text>
+  <text x="1315" y="485" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#dcfce7">cleanup 回查</text>
+  <text x="90" y="785" font-family="Consolas, Microsoft JhengHei, monospace" font-size="24" fill="#4e6b55">radar-redesign/skills/validate-cloud-poc/SKILL.md</text>
+</svg>

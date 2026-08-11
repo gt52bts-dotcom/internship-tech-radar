@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#f7f7f8"/>
+  <text x="90" y="115" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="54" font-weight="700" fill="#26272b">Skill 5 Report</text>
+  <text x="90" y="168" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#5d6068">只報告已記錄證據，不新增推論</text>
+  <rect x="90" y="240" width="330" height="350" rx="18" fill="#ffffff" stroke="#cbcdd3" stroke-width="3"/>
+  <text x="135" y="320" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="32" font-weight="700" fill="#26272b">輸入證據</text>
+  <text x="135" y="380" font-family="Consolas, monospace" font-size="26" fill="#3f424a">s1 / s2 / s3</text>
+  <text x="135" y="425" font-family="Consolas, monospace" font-size="26" fill="#3f424a">s4 runtime</text>
+  <text x="135" y="470" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="26" fill="#3f424a">報價與資源盤點</text>
+  <path d="M450 415 H560" stroke="#475569" stroke-width="8" stroke-linecap="round"/>
+  <path d="M540 390 L585 415 L540 440 Z" fill="#475569"/>
+  <rect x="620" y="205" width="470" height="420" rx="18" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>
+  <text x="675" y="285" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="34" font-weight="700" fill="#263241">報告規則</text>
+  <text x="675" y="350" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#263241">不重新評分</text>
+  <text x="675" y="395" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#263241">不補未知事實</text>
+  <text x="675" y="440" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#263241">不做帳單對帳</text>
+  <text x="675" y="485" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#263241">明列 future work</text>
+  <text x="675" y="548" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="25" fill="#526070">讓主管看到證據鏈與限制</text>
+  <path d="M1120 415 H1220" stroke="#475569" stroke-width="8" stroke-linecap="round"/>
+  <path d="M1200 390 L1245 415 L1200 440 Z" fill="#475569"/>
+  <rect x="1280" y="240" width="250" height="350" rx="18" fill="#26272b"/>
+  <text x="1320" y="350" font-family="Consolas, monospace" font-size="32" font-weight="700" fill="#ffffff">s5 report</text>
+  <text x="1320" y="410" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#e2e8f0">JSON</text>
+  <text x="1320" y="450" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#e2e8f0">Markdown</text>
+  <text x="1320" y="490" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#e2e8f0">GUI model</text>
+  <text x="90" y="785" font-family="Consolas, Microsoft JhengHei, monospace" font-size="24" fill="#5d6068">radar-redesign/skills/report-cloud-evidence/SKILL.md</text>
+</svg>

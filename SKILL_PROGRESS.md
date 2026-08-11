@@ -38,9 +38,9 @@
 | 2026-08-03 | 2 | 1 | 2 | 3 | 2 | 10 | direct |
 | 2026-08-04 | 2 | 2 | 2 | 0 | 2 | 8 | direct |
 | 2026-08-05 | 0 | 0 | 4 | 2 | 2 | 8 | direct |
-| 2026-08-10 | 1 | 2 | 3 | 2 | 2 | 10 | direct |
-| 2026-08-11 | 2 | 2 | 1 | 2 | 2 | 9 | direct |
-| **2026-08-11 累積** | **26** | **24** | **34** | **46** | **32** | **162** |  |
+| 2026-08-10 | 1 | 1 | 2 | 1 | 1 | 6 | direct |
+| 2026-08-11 | 1 | 1 | 1 | 0 | 2 | 5 | direct |
+| **2026-08-11 累積** | **25** | **22** | **33** | **43** | **31** | **154** |  |
 
 ## 2026-07-21 評分理由
 
@@ -52,7 +52,7 @@
 
 ## 當前狀態
 
-截至 2026-08-11，累積總分為 162。8/11 補跑三案 Skill 1 以取得精準時間、回查並校正 S3 Files PoC 時間口徑，且完成四案例的關聯圖、協理報告詳細稿、HTML 索引與停止案例素材；沒有新增 AWS 資源。S1-S5 已整理為五個正式 Skill；WorkSpaces AI Agents 已改用通用五構面 rubric 重評為 2.35 / 5，因桌面畫面代理觀看的合規覆核、停止風險與可逆性不足而不建議進入 Skill 4。雖已補齊第一段基礎設施 recipe 與成本模型，但未建立 AWS 資源。
+截至 2026-08-11，累積總分為 154。2026-08-11 依 Cleo 回饋重新收緊 8/10 與 8/11 評分：素材整理、時間回查與簡報草稿不得重複灌入多個 Skill；沒有 live PoC、AWS 資源建立或新測試時，Validate 不給高分。S1-S5 已整理為五個正式 Skill；WorkSpaces AI Agents 已改用通用五構面 rubric 重評為 2.35 / 5，因桌面畫面代理觀看的合規覆核、停止風險與可逆性不足而不建議進入 Skill 4。雖已補齊第一段基礎設施 recipe 與成本模型，但未建立 AWS 資源。
 
 ## 2026-07-24 評分理由
 
@@ -145,17 +145,17 @@
 ## 2026-08-10 評分理由
 
 - Scan +1：使用 AWS 官方 Quick Suite 新聞建立可追溯案例，辨識官方宣傳型內容缺少實作細節的限制；屬單一來源掃描，不給高分。
-- Compare +2：整理 Lambda、S3 Files、WorkSpaces AI Agents 與 Quick Suite 四案例的 Skill 階段時間，分開純系統執行、人工核准與等待時間，供 8/14 報告比較。
-- Evaluate +3：Quick Suite 經 Skill 3 評估為 3.7 / 5，因實作細節不足與缺少可部署 recipe，不建議進入 Skill 4；此成果直接補強流程的停止判斷。
-- Validate +2：完成針對停止 gate、HTML 報告與 JSON artifact 的本機測試與解析確認；本日沒有建立 AWS 資源，因此不列為 live PoC 驗證。
-- Report +2：產出 Quick Suite 主管版停止案例、8/14 協理成果報告主軸、雙周誌草稿與四案例時間比較；活動心得僅作組織融入素材，不列入技術 Skill 分數。
+- Compare +1：整理 Lambda、S3 Files、WorkSpaces AI Agents 與 Quick Suite 四案例的 Skill 階段時間，分開純系統執行、人工核准與等待時間；屬既有案例整理，不給高分。
+- Evaluate +2：Quick Suite 經 Skill 3 評估為 3.7 / 5，因實作細節不足與缺少可部署 recipe，不建議進入 Skill 4；有決策價值但未進 PoC。
+- Validate +1：完成針對停止 gate、HTML 報告與 JSON artifact 的本機測試與解析確認；本日沒有建立 AWS 資源，因此只算局部驗證。
+- Report +1：產出 Quick Suite 主管版停止案例、8/14 協理成果報告主軸、雙周誌草稿與四案例時間比較；多屬素材整理，不與 Evaluate / Compare 重複加分。
 
 ## 2026-08-11 評分理由
 
-- Scan +2：重跑三個既有 AWS 官方 URL 的 Skill 1，補齊 S3 Files、Lambda 與 WorkSpaces 的精準掃描時間與 artifacts；未宣稱新增候選或 AWS 操作。
-- Compare +2：重新拆解四案例時間，將 AI 純執行、人工關卡與等待分開，並校正 S3 Files PoC 部署驗證本體為約 8 分 26 秒。
+- Scan +1：重跑三個既有 AWS 官方 URL 的 Skill 1，補齊 S3 Files、Lambda 與 WorkSpaces 的精準掃描時間與 artifacts；沒有新增候選或擴大來源範圍。
+- Compare +1：重新拆解四案例時間，將 AI 純執行、人工關卡與等待分開，並校正 S3 Files PoC 部署驗證本體為約 8 分 26 秒；屬既有 artifacts 回查。
 - Evaluate +1：把「硬做」定義寫入停止案例，明確指出缺部署前提、成本不可逆、實作細節或 recipe 時不應為展示強行建置。
-- Validate +2：以補跑輸出和既有 S3 Files runtime artifacts 複核時間；沒有 live PoC、AWS 資源建立或效能／帳務驗證。
+- Validate +0：僅以補跑輸出和既有 S3 Files runtime artifacts 複核時間；沒有 live PoC、AWS 資源建立、效能驗證或帳務驗證。
 - Report +2：完成雲端工作關聯圖、22 頁協理投影片詳細內容、四案 Skill 3 HTML 集中索引與 Skill GitHub 交接位置素材。
 
 ## 2026-07-29 評分理由
