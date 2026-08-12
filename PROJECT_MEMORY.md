@@ -459,3 +459,4 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - Cleo rejected overly simple five-Skill icon cards for the 2026-08-14 final proposal. Skill visuals should look like the clearer Skill 3 report diagrams: detailed Traditional Chinese process / decision diagrams showing purpose, input, AI processing, human gate, evidence artifacts, stop / go boundaries, and what the Skill deliberately does not do.
 - For supervisor-facing visuals, especially Skill 4, budget expectation and explicit human approval must appear before PoC deployment. Do not draw or describe the expected budget as something discovered only after PoC completion.
+- If the five Skills are explained as text, prefer five focused Markdown files over one generic table. Each file should be concise but specific: one-sentence positioning, what the Skill actually does, concrete highlights, what it deliberately does not do, case-specific talking points, outputs, and GitHub file locations.

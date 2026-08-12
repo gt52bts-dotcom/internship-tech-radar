@@ -1263,3 +1263,10 @@
 - 已重做 `final-proposal/skill-visuals-20260814/` 內五張 SVG：Skill 1 到 Skill 5 都改成「流程圖 + 決策關卡 + 證據產物 + 邊界」的版型，而不是只有輸入、處理、輸出的 icon 摘要。
 - Skill 1 補上 AWS 官方來源去廣告化、架構推論與證據缺口；Skill 2 補上比較矩陣、人類挑核心與不硬做條件；Skill 3 強化 PoC 前決策報告、放行與擋下條件；Skill 4 明確把預算上限、具名核准與 recipe 放在部署前；Skill 5 補上證據帳本、可信狀態標籤與主管報告輸出。
 - 已把這個視覺偏好寫入 `PROJECT_MEMORY.md`，作為後續 8/14 簡報素材的長期口徑。不做 Notion，同步以 Git/GitHub 為主。
+
+## 2026-08-12 - 五個 Skill Markdown 說明稿
+
+- Cleo 指出目前介紹 Skill 的內容仍太籠統，看不到亮點，要求改成五份 Markdown 即可，精簡但細緻，讓人類能看懂。
+- 已新增 `final-proposal/skill-markdown-20260814/`，內含五份 Skill 說明稿：Scan、Compare、Evaluate、Validate、Report 各自一份。
+- 每份 Markdown 皆包含一句話定位、人類理解版本、實際工作、亮點、不做事項、四案例可講法、交付物、GitHub 位置與 20 秒講稿；內容特別強化 Skill 3 擋硬做、Skill 4 部署前核准與成本、Skill 5 不過度宣稱的亮點。
+- 已更新 `PROJECT_MEMORY.md`：後續文字版 Skill 說明應採五份 focused Markdown，不要只用一張泛泛摘要表。
