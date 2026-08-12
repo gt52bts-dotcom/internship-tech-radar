@@ -28,15 +28,6 @@ Skill 4 的價值不是「AI 會開資源」。真正有價值的是：它只在
 - **run-scoped cleanup**：只清這次 run 建立的資源，不做大範圍刪除。
 - **把成功定義成證據**：部署完成、runtime 通過、權限面可查、cleanup 可回查，才算有決策價值。
 
-## 這關不做什麼
-
-- 不自動開始。
-- 不為了展示臨時補架構。
-- 不用草案 recipe 建立資源。
-- 不跨 run 清資源。
-- 不把 runtime snapshot 當成 AWS 帳單。
-- 不把簡略版 demo 包裝成完整產品驗證。
-
 ## 案例中可以怎麼講
 
 - Lambda：驗證 CloudFormation 能建立 Amazon S3 reference code storage，Lambda invoke 成功。
