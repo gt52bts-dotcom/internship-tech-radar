@@ -1256,3 +1256,10 @@
 - 8/10 從 Scan +1、Compare +2、Evaluate +3、Validate +2、Report +2，總分 +10，下修為 Scan +1、Compare +1、Evaluate +2、Validate +1、Report +1，總分 +6。理由：Quick Suite 停止案例有評估價值，但沒有 Skill 4 / AWS 實機驗證；報告草稿與時間整理不可重複灌分。
 - 8/11 從 Scan +2、Compare +2、Evaluate +1、Validate +2、Report +2，總分 +9，下修為 Scan +1、Compare +1、Evaluate +1、Validate +0、Report +2，總分 +5。理由：主要是補測、時間口徑校正與簡報素材；回查既有 artifacts 不算新的 Validate。
 - 已同步修改 `logs/daily/work-log-2026-08-10.md`、`logs/daily/work-log-2026-08-11.md`、`SKILL_PROGRESS.md`、`dashboard/skill-score-data.json`、`dashboard/README.md`、`dashboard/notion-skill-dashboard.html`、`README.md` 與 `PROJECT_MEMORY.md`；累積總分改為 154。
+
+## 2026-08-12 - 五個 Skill 圖像化解釋細緻化
+
+- Cleo 指出五張 Skill 圖像式檔案太簡略，要求改成接近 Skill 3 主管報告中那種清楚的圖像化解釋。
+- 已重做 `final-proposal/skill-visuals-20260814/` 內五張 SVG：Skill 1 到 Skill 5 都改成「流程圖 + 決策關卡 + 證據產物 + 邊界」的版型，而不是只有輸入、處理、輸出的 icon 摘要。
+- Skill 1 補上 AWS 官方來源去廣告化、架構推論與證據缺口；Skill 2 補上比較矩陣、人類挑核心與不硬做條件；Skill 3 強化 PoC 前決策報告、放行與擋下條件；Skill 4 明確把預算上限、具名核准與 recipe 放在部署前；Skill 5 補上證據帳本、可信狀態標籤與主管報告輸出。
+- 已把這個視覺偏好寫入 `PROJECT_MEMORY.md`，作為後續 8/14 簡報素材的長期口徑。不做 Notion，同步以 Git/GitHub 為主。

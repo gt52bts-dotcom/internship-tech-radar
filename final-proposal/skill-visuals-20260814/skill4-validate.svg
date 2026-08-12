@@ -1,27 +1,102 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+      <path d="M1,1 L13,7 L1,13 Z" fill="#15803d"/>
+    </marker>
+    <style>
+      .font { font-family: "Microsoft JhengHei", "Noto Sans CJK TC", Arial, sans-serif; }
+      .mono { font-family: Consolas, "Microsoft JhengHei", monospace; }
+      .title { font-size: 48px; font-weight: 700; fill: #17351f; }
+      .subtitle { font-size: 24px; fill: #4e6b55; }
+      .lane { font-size: 19px; font-weight: 700; fill: #5d7a64; }
+      .h { font-size: 25px; font-weight: 700; fill: #17351f; }
+      .body { font-size: 19px; fill: #36543d; }
+      .small { font-size: 16px; fill: #4e6b55; }
+      .tiny { font-size: 14px; fill: #66856d; }
+      .card { fill: #ffffff; stroke: #bddfc6; stroke-width: 2; rx: 8; }
+      .accent { fill: #e7f8ec; stroke: #15803d; stroke-width: 2; rx: 8; }
+      .warn { fill: #fff7ed; stroke: #d97706; stroke-width: 2; rx: 8; }
+      .dark { fill: #17351f; rx: 8; }
+      .arrow { stroke: #15803d; stroke-width: 4; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
   <rect width="1600" height="900" fill="#f4fbf6"/>
-  <text x="90" y="115" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="54" font-weight="700" fill="#17351f">Skill 4 Validate</text>
-  <text x="90" y="168" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#4e6b55">具名核准後，才建立受控 AWS PoC</text>
-  <rect x="85" y="250" width="300" height="325" rx="18" fill="#ffffff" stroke="#b7d9c0" stroke-width="3"/>
-  <text x="125" y="330" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="32" font-weight="700" fill="#17351f">部署前檢查</text>
-  <text x="125" y="390" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="26" fill="#36543d">具名核准</text>
-  <text x="125" y="430" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="26" fill="#36543d">成本上限</text>
-  <text x="125" y="470" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="26" fill="#36543d">已登錄 recipe</text>
-  <path d="M415 410 H530" stroke="#15803d" stroke-width="8" stroke-linecap="round"/>
-  <path d="M510 385 L555 410 L510 435 Z" fill="#15803d"/>
-  <rect x="590" y="205" width="500" height="410" rx="18" fill="#dcfce7" stroke="#15803d" stroke-width="3"/>
-  <text x="645" y="285" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="34" font-weight="700" fill="#14532d">受控 PoC</text>
-  <text x="645" y="350" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">CloudFormation / CDK</text>
-  <text x="645" y="395" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">runtime 驗證</text>
-  <text x="645" y="440" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">資源盤點</text>
-  <text x="645" y="485" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="28" fill="#14532d">run-scoped cleanup</text>
-  <text x="645" y="548" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="25" fill="#2f7b48">建立資源不是自動開始，必須通過 gate</text>
-  <path d="M1125 410 H1220" stroke="#15803d" stroke-width="8" stroke-linecap="round"/>
-  <path d="M1200 385 L1245 410 L1200 435 Z" fill="#15803d"/>
-  <rect x="1280" y="250" width="250" height="325" rx="18" fill="#17351f"/>
-  <text x="1315" y="350" font-family="Consolas, monospace" font-size="32" font-weight="700" fill="#ffffff">runtime</text>
-  <text x="1315" y="405" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#dcfce7">部署證據</text>
-  <text x="1315" y="445" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#dcfce7">盤點證據</text>
-  <text x="1315" y="485" font-family="Microsoft JhengHei, Noto Sans CJK TC, Arial" font-size="24" fill="#dcfce7">cleanup 回查</text>
-  <text x="90" y="785" font-family="Consolas, Microsoft JhengHei, monospace" font-size="24" fill="#4e6b55">radar-redesign/skills/validate-cloud-poc/SKILL.md</text>
+  <rect x="48" y="36" width="1504" height="96" rx="8" fill="#ffffff" stroke="#cfe6d4"/>
+  <text x="82" y="91" class="font title">Skill 4 Validate：具名核准後才進行受控 PoC</text>
+  <text x="84" y="123" class="font subtitle">這一關才會碰到 AWS 資源；目的不是做產品，而是用最小成本證明部署、權限、行為與 cleanup 是否可行。</text>
+
+  <text x="82" y="178" class="font lane">Skill 3 放行</text>
+  <text x="360" y="178" class="font lane">執行前安全閘門</text>
+  <text x="738" y="178" class="font lane">受控部署</text>
+  <text x="1058" y="178" class="font lane">驗證與紀錄</text>
+  <text x="1360" y="178" class="font lane">清除與交付 S5</text>
+
+  <rect x="70" y="205" width="235" height="225" class="card"/>
+  <text x="98" y="248" class="font h">前提</text>
+  <text x="98" y="292" class="font body">Skill 3 建議進 PoC</text>
+  <text x="98" y="326" class="font body">人類具名核准</text>
+  <text x="98" y="360" class="font body">PoC 問題已定義</text>
+  <text x="98" y="396" class="font small">未通過就不部署。</text>
+
+  <path d="M316 318 H374" class="arrow"/>
+
+  <rect x="400" y="188" width="292" height="260" class="warn"/>
+  <text x="428" y="230" class="font h">執行前檢查</text>
+  <text x="428" y="274" class="font body">cost_ceiling：預算上限</text>
+  <text x="428" y="308" class="font body">region：可用區域</text>
+  <text x="428" y="342" class="font body">recipe_id：登錄方法</text>
+  <text x="428" y="376" class="font body">--execute：明確執行旗標</text>
+  <text x="428" y="414" class="font small">避免手滑開資源或超出範圍。</text>
+
+  <path d="M704 318 H760" class="arrow"/>
+
+  <rect x="786" y="188" width="252" height="260" class="accent"/>
+  <text x="814" y="230" class="font h">最小 PoC 部署</text>
+  <text x="814" y="274" class="font body">CloudFormation / CDK</text>
+  <text x="814" y="308" class="font body">IAM 與必要服務</text>
+  <text x="814" y="342" class="font body">sample input / runtime</text>
+  <text x="814" y="376" class="font body">resource tags / run id</text>
+  <text x="814" y="414" class="font small">只開證明問題所需資源。</text>
+
+  <path d="M1050 318 H1092" class="arrow"/>
+
+  <rect x="1118" y="188" width="240" height="260" class="accent"/>
+  <text x="1146" y="230" class="font h">驗證證據</text>
+  <text x="1146" y="274" class="font body">部署完成截圖 / logs</text>
+  <text x="1146" y="308" class="font body">功能輸入輸出結果</text>
+  <text x="1146" y="342" class="font body">資源盤點與預估成本</text>
+  <text x="1146" y="376" class="font body">失敗原因或限制</text>
+  <text x="1146" y="414" class="font small">證據要能放進 Skill 5。</text>
+
+  <path d="M1370 318 H1434" class="arrow"/>
+
+  <rect x="1452" y="218" width="90" height="200" rx="8" fill="#15803d"/>
+  <text x="1497" y="283" class="font" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle">cleanup</text>
+  <text x="1497" y="318" class="font tiny" fill="#e7f8ec" text-anchor="middle">回查</text>
+  <text x="1497" y="354" class="font tiny" fill="#e7f8ec" text-anchor="middle">S5</text>
+
+  <rect x="70" y="496" width="348" height="155" class="card"/>
+  <text x="98" y="538" class="font h">成功案例怎麼講</text>
+  <text x="98" y="580" class="font body">Lambda / S3 能快速完成，</text>
+  <text x="98" y="614" class="font body">是因為 Skill 3 已先定義清楚驗證範圍。</text>
+
+  <rect x="448" y="496" width="348" height="155" class="card"/>
+  <text x="476" y="538" class="font h">失敗案例怎麼講</text>
+  <text x="476" y="580" class="font body">若 Skill 3 判斷不值得，</text>
+  <text x="476" y="614" class="font body">Skill 4 不硬做簡略版，也不硬開資源。</text>
+
+  <rect x="826" y="496" width="348" height="155" class="card"/>
+  <text x="854" y="538" class="font h">風險控制</text>
+  <text x="854" y="580" class="font body">具名核准、成本上限、run-scoped cleanup。</text>
+  <text x="854" y="614" class="font body">預算在 PoC 前就要知道，不是事後才回報。</text>
+
+  <rect x="1204" y="496" width="338" height="155" class="dark"/>
+  <text x="1232" y="538" class="font h" fill="#ffffff">交付內容</text>
+  <text x="1232" y="580" class="font body" fill="#dcfce7">runtime 證據、資源盤點、</text>
+  <text x="1232" y="614" class="font body" fill="#dcfce7">清除結果與限制，交給 Skill 5。</text>
+
+  <path d="M80 712 H1516" stroke="#cfe6d4" stroke-width="2"/>
+  <text x="84" y="752" class="mono small">GitHub 檔名：radar-redesign/skills/validate-cloud-poc/SKILL.md</text>
+  <text x="84" y="784" class="font small">一句話：在明確核准和成本上限內，用最小 AWS PoC 驗證部署可行性，並留下可回查的 runtime 與 cleanup 證據。</text>
+  <text x="84" y="816" class="font tiny">這張圖用來說明「快」不是亂做，而是前一關已經把範圍切好。</text>
 </svg>
