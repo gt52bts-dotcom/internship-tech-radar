@@ -1268,6 +1268,8 @@
 
 - Cleo 指出目前介紹 Skill 的內容仍太籠統，看不到亮點，要求改成五份 Markdown 即可，精簡但細緻，讓人類能看懂。
 - 已新增 `final-proposal/skill-markdown-20260814/`，內含五份 Skill 說明稿：Scan、Compare、Evaluate、Validate、Report 各自一份。
-- 每份 Markdown 皆包含一句話定位、人類理解版本、實際工作、亮點、四案例可講法、交付物、GitHub 位置與 20 秒講稿；內容特別強化 Skill 3 擋硬做、Skill 4 部署前核准與成本、Skill 5 不過度宣稱的亮點。
+- 每份 Markdown 原先包含一句話定位、人類理解版本、實際工作、亮點、四案例可講法、交付物、GitHub 位置與 20 秒講稿；內容特別強化 Skill 3 擋硬做、Skill 4 部署前核准與成本、Skill 5 不過度宣稱的亮點。
 - 已更新 `PROJECT_MEMORY.md`：後續文字版 Skill 說明應採五份 focused Markdown，不要只用一張泛泛摘要表。
 - Cleo 進一步指出「不做什麼」區塊對簡報沒有意義；已從五份 Markdown 移除該段，並把專案記憶改為：文字版 Skill 說明不再單獨列「不做什麼」，必要邊界只在亮點或案例說法中自然帶出。
+- Cleo 再指出前版是假裝細緻，缺少真正可展示的成本公式、評分準則與依據；已重寫 Skill 3 Markdown，加入 Lambda 成本報表展法、AWS Lambda / Amazon S3 官方 pricing 來源、評分五構面權重與依據說法。
+- Cleo 要求刪除講稿、GitHub 位置與交付物區塊；已從五份 Skill Markdown 移除，並更新專案記憶，後續除非是交接文件，不再把這三段放進 final-proposal Skill 說明稿。
