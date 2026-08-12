@@ -1,34 +1,58 @@
-# Skill 5 Report｜把前四關證據整理成主管可看的報告
+# Skill 5 Report｜把 PoC 結果整理成主管能判斷的證據報告
 
 ## 一句話定位
 
-Skill 5 不重新發明結論。它只讀 Skill 1 到 Skill 4 已留下的 artifact，把來源、比較、評分、報價、runtime、resource inventory、cleanup 和限制整理成可交付的技術報告。
+Skill 5 是「證據結案報告」。它把 Skill 1 到 Skill 4 的來源、評分、成本、PoC runtime、資源盤點、cleanup 和限制整理成一份可交給主管看的技術決策報告。
 
-## 人類應該怎麼理解
+## 報告畫面應該展出什麼
 
-PoC 最怕的是「做完了，但沒人知道到底證明了什麼」。Skill 5 的任務是把整條證據鏈說清楚：這個技術從哪篇文章來，前面怎麼判斷，為什麼進或不進 PoC，實作後驗證了什麼，還有哪些不能宣稱。
+| 報告區塊 | 主管看到的內容 | 作用 |
+|---|---|---|
+| 結論摘要 | 這案是 validated and cleaned、blocked before PoC，或 awaiting company validation。 | 先講決策狀態，不讓主管在細節裡找答案。 |
+| 來源與技術意義 | AWS 新聞到底提供什麼新能力，對公司可能有什麼價值。 | 連回原始需求，避免 PoC 變成孤立實驗。 |
+| Skill 3 評估 | 分數、權重、成本預估、推薦或停止原因。 | 說明為什麼當初進或不進 Skill 4。 |
+| Skill 4 驗證 | 部署方式、成功條件、runtime evidence、人工 review、cleanup。 | 用實際證據支撐「成功」兩個字。 |
+| 資源與權限盤點 | 建了哪些 AWS resource、碰了哪些 IAM / API action、是否符合報價預期。 | 讓成本、治理與安全邊界可檢查。 |
+| 未驗證事項 | 例如正式帳務、公司 production 環境、長時間效能、主管最終採納。 | 防止過度宣稱。 |
 
-它讓成果不是一次 demo，而是一份能被主管、mentor 或下一位接手者追問的報告。
+## Lambda 報告可以怎麼展示
 
-## 它實際做什麼
+| 項目 | Lambda 案例內容 |
+|---|---|
+| 技術命題 | Lambda 能否直接 reference 自管 S3 code package。 |
+| Skill 3 成本口徑 | 依 AWS 官方 Lambda request、duration / GB-second 與 S3 storage / request 計價公式估算。 |
+| 預估成本 | expected 約 USD 0.000749，high 約 USD 0.003387，建議核准上限 USD 0.05。 |
+| PoC 結果 | CloudFormation 建立成功，Lambda 保留 REFERENCE 設定，invoke 成功。 |
+| 報告結論 | 技術可行並完成 cleanup，但 production 採用仍需看公司部署流程與治理規則。 |
 
-- 檢查 Skill 1 到 Skill 4 artifact 的 `run_id` 和 lineage 是否一致。
-- 不重新評分，只呈現 Skill 3 的 score breakdown 和理由。
-- 不重新報價，只呈現 Skill 3 的 low / expected / high、公式、來源與成本型態。
-- 如果有 Skill 4 runtime，就整理部署狀態、runtime check、resource inventory、權限面、cleanup 結果。
-- 把已驗證、已實作但待公司環境驗證、估算或未知限制分開標示。
-- 產出 JSON、Markdown 和 GUI model；可作為簡報與交接素材。
+這種寫法的亮點是：主管不需要相信 AI 的口頭保證，只要看報告就知道「來源說了什麼、成本怎麼估、實際驗了什麼、還有哪些沒有驗」。
 
-## 亮點
+## S3 Files 報告可以怎麼展示
 
-- **證據鏈可追溯**：每個結論都能回到 Skill 1 到 Skill 4 的某個 artifact。
-- **不過度宣稱**：公開牌價估算不是 AWS 帳單；sandbox PoC 不是公司 production 驗證。
-- **成功和停止都能報告**：成功案例走到 final；停止案例也能用 Skill 3 報告說明為何不該硬做。
-- **可回答主管追問**：不只寫「成功」，還寫成功證明了什麼、仍不知道什麼、下一步是什麼。
-- **保留交接價值**：下一個人不需要翻聊天紀錄，也能從報告知道流程與證據。
+| 項目 | S3 Files 案例內容 |
+|---|---|
+| 技術命題 | S3 bucket 是否能以 file system 型態被 EC2 mount 使用。 |
+| PoC 資源 | 19 個 CloudFormation resources，包含 S3 Files、S3、EC2、VPC、Security Group、IAM。 |
+| 驗證結果 | S3 到 mount、mount 到 S3 兩個方向都完成資料讀寫驗證。 |
+| 權限盤點 | 29 個 action，涵蓋 CloudFormation、EC2、IAM、S3、S3 Files、SSM。 |
+| 報價對帳 | 實際部署資源與報價預期一致，沒有漏列實際會建立的資源。 |
+| 報告結論 | validated and cleaned，可作為完整成功案例展示。 |
 
-## 案例中可以怎麼講
+S3 Files 報告特別適合拿來說明 Skill 5 的價值，因為它不只說「PoC 有過」，還能展出資源、權限、資料流與 cleanup 的完整證據鏈。
 
-- Lambda 和 S3 Files 走到 Skill 5 final，所以能展示完整證據鏈：來源、評估、報價、部署、驗證、cleanup、限制。
-- WorkSpaces 和 Quick Suite 沒有進 Skill 4，但仍有 Skill 3 決策報告；它們證明這套流程不只會做 demo，也會保留停止理由。
-- S3 Files 的 Skill 5 特別能展示 resource inventory 和 cleanup 價值，因為它不是一張截圖，而是可回查的資源與權限證據。
+## 停止案例報告怎麼寫
+
+| 案例 | Skill 5 應呈現的結論 |
+|---|---|
+| WorkSpaces AI Agents | 停在 Skill 3；原因是完整 agent session 的成本與合規邊界較重，phase 1 infrastructure 能證明的決策增量有限。 |
+| Quick Suite | 停在 Skill 3；原因是官方新聞多為產品宣稱，缺少足夠的最小實作做法與 deployable recipe。 |
+
+停止案例的報告會寫清楚「不建議進 PoC 的原因」。這讓主管看到 AI 雷達能找新技術，也能節省不值得投入的測試時間與雲端成本。
+
+## 投影片可放的重點
+
+| 主管會關心的問題 | Skill 5 給的答案 |
+|---|---|
+| 這個專案最後留下什麼？ | 每個案例都有可追溯的來源、評估、成本、驗證與結案狀態。 |
+| 成功案例怎麼證明成功？ | 用 runtime evidence、資源盤點、權限盤點與 cleanup 回查，不只用文字描述。 |
+| 停止案例有沒有價值？ | 有。它們證明流程能擋下不值得硬做的 PoC，節省時間和成本。 |

@@ -1,5 +1,12 @@
 # AI PM 當日進度暫存
 
+## 2026-08-12 - 五個 Skill Markdown 具體化修正
+
+- Cleo 指出前一版 Skill 介紹「假裝細緻」，需要用實際報告畫面、案例、公式、評分依據與權重說明支撐，而不是寫很多泛用敘述；同時要求刪除講稿、GitHub 位置與交付物區塊。
+- 已先重寫 Skill 3：補上 Lambda 成本報表示例、AWS Lambda / S3 官方計價依據、目前五構面評分權重與 Well-Architected / Cost Optimization / ISO 19086 依據。
+- 已接著重寫 Skill 1、Skill 2、Skill 4、Skill 5 四份 Markdown：加入 Skill 1 來源證據表、Skill 2 四案例比較矩陣、Skill 4 核准欄位與 Lambda / S3 Files PoC 證據、Skill 5 成功與停止案例報告畫面。
+- 所有五份 Skill Markdown 已移除單獨的「交付物」、「GitHub 位置」與「20 秒講稿」區塊；此輪沒有執行 live PoC、建立 AWS 資源、帳務查詢或 Notion 同步。
+
 ## 2026-08-11 17:00 - 正式日誌統整狀態
 
 - 已將 8/11 暫存證據統整至正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡。原先今日為 Scan +2、Compare +2、Evaluate +1、Validate +2、Report +2，總分 9，累積 162；2026-08-11 晚間依 Cleo 回饋下修為 Scan +1、Compare +1、Evaluate +1、Validate +0、Report +2，總分 5，累積 154，目標對齊 direct。

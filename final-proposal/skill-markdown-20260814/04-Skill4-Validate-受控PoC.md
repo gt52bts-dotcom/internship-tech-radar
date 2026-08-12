@@ -1,36 +1,56 @@
-# Skill 4 Validate｜只在核准後建立受控 AWS PoC
+# Skill 4 Validate｜在核准範圍內做最小 AWS PoC
 
 ## 一句話定位
 
-Skill 4 是唯一會建立 AWS 資源、可能產生成本的階段。它不是自動部署展示，而是在 Skill 3 放行、具名核准和成本上限成立後，用最小 PoC 補上決策證據。
+Skill 4 是「受控驗證」。只有 Skill 3 已經說清楚要驗證什麼、預估成本多少、成功條件是什麼，並取得人工核准後，才會真的建立 AWS 資源。
 
-## 人類應該怎麼理解
+## 進 Skill 4 前一定要先看到的核准欄位
 
-Skill 4 的價值不是「AI 會開資源」。真正有價值的是：它只在該做的時候開資源，只開證明問題需要的資源，驗證完留下 runtime、資源盤點、權限面和 cleanup 回查。
+| 核准欄位 | Lambda 案例寫法 | 用意 |
+|---|---|---|
+| PoC 要證明什麼 | Lambda 函數能否用 S3 bucket 作為 self-managed code storage，且 CloudFormation 仍保留 `REFERENCE` 設定。 | 防止 PoC 變成隨便做一個 demo。 |
+| 成本上限 | Skill 3 先列低/中/高情境，Lambda 例子的建議核准上限為 USD 0.05。 | 預算要在部署前知道，不是部署後才回頭補。 |
+| 成功條件 | CloudFormation `CREATE_COMPLETE`、Lambda 設定為 `S3ObjectStorageMode=REFERENCE`、invoke 成功。 | 驗證結果可明確判定通過或不通過。 |
+| 會建立的資源 | versioned S3 bucket、Lambda function、IAM role、bucket policy、CloudWatch Logs。 | 人工核准時先看資源範圍。 |
+| 清除方式 | 以同一個 run scope 刪除 CloudFormation stack，並回查資源不存在。 | 避免留下持續計費或權限殘留。 |
 
-也就是說，Skill 4 不追求把 demo 做漂亮，而是回答 Skill 3 無法完全回答的問題：在這個帳號和 Region 裡，真的部署得起來嗎？服務之間接得起來嗎？驗證通得過嗎？最後收得乾淨嗎？
+## Lambda 成功案例：PoC 驗證畫面
 
-## 它實際做什麼
+| 驗證點 | 實際證據 |
+|---|---|
+| 部署方式 | CDK synth 後由 CloudFormation create-stack 建立。 |
+| Stack 狀態 | `CREATE_COMPLETE`。 |
+| 核心設定 | Lambda function 使用 `S3ObjectStorageMode=REFERENCE`。 |
+| Runtime 結果 | Lambda invoke 通過，回傳符合測試 contract。 |
+| 後續狀態 | 完成 Console / resource review 後，cleanup 回查已完成。 |
 
-- 先產出 approval gate；沒有核准時只會停在等待，不會偷偷部署。
-- 檢查 Skill 3 是否建議 PoC、是否有完整報價、是否有可部署 recipe。
-- 要求人類具名核准、核准成本上限、`deployment_authorized=true` 和明確 `--execute`。
-- 使用已登錄 recipe 建立受控 AWS sandbox 資源。
-- 驗證 runtime 行為，例如 Lambda invoke、S3 Files 雙向同步。
-- 產出 resource inventory，列出實際資源、報價是否涵蓋、IAM 權限面與 resource status。
-- cleanup 前留下即時用量快照，cleanup 後回查資源是否已清除。
+這個 PoC 的價值在於證明官方文件中的新 storage mode 可以在實際帳號中被 CloudFormation 建立、保留設定，並正常執行。
 
-## 亮點
+## S3 Files 成功案例：PoC 驗證畫面
 
-- **預算在前，部署在後**：成本上限和人類核准必須先成立，不是 PoC 完成後才進報告。
-- **recipe registry 防止臨場硬做**：沒有可部署 recipe，就算技術值得看，也不能直接建 AWS 資源。
-- **resource inventory 取代只看截圖**：截圖可以輔助，但真正可審查的是結構化資源盤點。
-- **run-scoped cleanup**：只清這次 run 建立的資源，不做大範圍刪除。
-- **把成功定義成證據**：部署完成、runtime 通過、權限面可查、cleanup 可回查，才算有決策價值。
+| 驗證點 | 實際證據 |
+|---|---|
+| 部署資源 | CloudFormation 建立 19 個資源，包含 S3 Files file system、mount target、access point、S3 bucket、EC2、VPC、Security Group、IAM role。 |
+| 資料面驗證 | S3 API 寫入的 object 可從 EC2 mount 讀取；mount 寫入的檔案可由 S3 API 讀回。 |
+| 權限盤點 | 實際觸發 29 個 action，涵蓋 CloudFormation、EC2、IAM、S3、S3 Files、SSM。 |
+| 報價對帳 | 實際部署資源與 Skill 3 報價列出的資源一致，沒有 deployed-not-quoted。 |
+| 清除結果 | cleanup 回查完成，報告結論為 validated and cleaned。 |
 
-## 案例中可以怎麼講
+這個 PoC 的價值是把「S3 bucket 可被當作 file system」從產品敘述變成可觀察證據：資源真的建立、mount 真的可用、雙向資料流真的通。
 
-- Lambda：驗證 CloudFormation 能建立 Amazon S3 reference code storage，Lambda invoke 成功。
-- S3 Files：驗證 S3 Files、VPC、EC2、mount、SSM、IAM 等資源能串起來，且能做 Amazon S3 到 mount、mount 到 Amazon S3 的雙向驗證。
-- WorkSpaces：即使有 phase-1 recipe，也因完整桌面 session 有月費與合規風險，目前不應硬進 live Skill 4。
-- Quick Suite：缺少可部署 recipe 與實作細節，因此沒有建立 AWS 資源。
+## 失敗案例裡的「硬做」定義
+
+硬做不是指技術上完全不能建任何東西，而是「PoC 證明不了原本要判斷的問題，卻為了展示而硬套一個簡化 demo」。
+
+| 案例 | 如果硬做會變成什麼 | 為什麼不應該做 |
+|---|---|---|
+| WorkSpaces AI Agents | 只建立 phase 1 infrastructure，甚至開完整 session 來假裝驗證 agent workflow。 | 完整 session 可能產生月費型成本，且不一定能證明公司場景的 AI desktop workflow。 |
+| Quick Suite | 找一個相似 AI 工具或簡略 API demo，當成 Quick Suite PoC。 | 官方新聞沒有提供足夠最小架構，demo 會偏離原題，不能代表服務可落地。 |
+
+## 投影片可放的重點
+
+| 主管會關心的問題 | Skill 4 給的答案 |
+|---|---|
+| AI 會不會亂開雲端資源？ | 不會。Skill 4 需要人工核准、成本上限、成功條件和 cleanup 範圍。 |
+| PoC 成功代表什麼？ | 代表一個具體技術命題在 sandbox 被驗證，不代表已可直接上 production。 |
+| 為什麼失敗案例不進 PoC？ | 因為 PoC 要能增加決策資訊；如果只是硬湊 demo，反而會誤導主管。 |
