@@ -141,7 +141,7 @@ class Skill5Tests(unittest.TestCase):
 
         self.assertEqual(report["pre_cleanup_usage_snapshot"]["status"], "captured")
         self.assertEqual(report["gui_model"]["pre_cleanup_usage_snapshot"]["status_label"], "已擷取")
-        self.assertIn("cleanup 前即時用量快照", report["markdown"])
+        self.assertIn("清除狀態：已清除", report["markdown"])
         self.assertIn("不是 AWS 帳單", report["markdown"])
 
     def test_v3_cleanup_verified_without_screenshot_is_not_final(self):
@@ -214,23 +214,59 @@ class Skill5Tests(unittest.TestCase):
 
         report = build_report(s1, s2, s3)
 
-        self.assertIn("## PoC 成本估算報價單", report["markdown"])
-        self.assertIn("本流程不進行預估與實際帳務成本比對", report["markdown"])
-        self.assertIn("## 新聞摘要：應用面優勢", report["markdown"])
-        self.assertIn("## Future work", report["markdown"])
-        self.assertIn("## Reviewer questions", report["markdown"])
-        self.assertIn("## S1-S5 階段證據", report["markdown"])
-        self.assertIn("Skill 3 加權分（滿分 5）", report["markdown"])
+        self.assertIn("## 一眼看重點", report["markdown"])
+        self.assertIn("## 帳號、地區、權限能不能用", report["markdown"])
+        self.assertIn("## 我實際做完了什麼", report["markdown"])
         self.assertIn("4.4 / 5", report["markdown"])
-        self.assertIn("主要成本驅動", report["markdown"])
-        self.assertIn("人工需確認的 PoC 資源", report["markdown"])
+        self.assertIn("預估成本", report["markdown"])
+        self.assertIn("AWS 官方公開定價頁", report["markdown"])
         self.assertNotIn("| pending |", report["markdown"])
         self.assertNotIn("## 一句結論", report["markdown"])
         self.assertNotIn("信心", report["markdown"])
         self.assertNotIn("### 報價假設與限制", report["markdown"])
         self.assertNotIn("## 後續提醒", report["markdown"])
-        self.assertIn("預期總額", report["markdown"])
+        self.assertNotIn("Quote ID", report["markdown"])
+        self.assertNotIn("Run ID", report["markdown"])
+        self.assertNotIn("## S1-S5 階段證據", report["markdown"])
+        self.assertNotIn("artifact", report["markdown"])
         self.assertEqual(report["cost_quote"]["expected_total_usd"], 0.04719)
         self.assertEqual(report["gui_model"]["cost_quote"]["recommended_approval_ceiling_usd"], 0.2)
         self.assertEqual(report["gui_model"]["cost_quote"]["status_label"], "已完成估算")
         self.assertGreaterEqual(len(report["gui_model"]["stage_evidence"]), 6)
+
+    def test_future_work_is_external_search_oriented_and_case_specific(self):
+        candidate = {
+            "candidate_id": "C9",
+            "title": "Launching S3 Files, making S3 buckets accessible as file systems",
+            "source_url": "https://aws.amazon.com/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+            "weighted_score": 4.4,
+            "recommend_poc": True,
+            "related_aws_services": ["S3 Files", "EC2", "S3"],
+            "cost_estimate": {
+                "status": "estimated",
+                "quote": {
+                    "status": "estimated",
+                    "recipe": "s3_files_cdk",
+                    "expected_total_usd": 0.04719,
+                    "scenarios": {"expected": {"line_items": []}},
+                },
+            },
+        }
+        s1 = {"stage": "S1", "run_id": "run-research", "candidates": [candidate]}
+        s2 = {"stage": "S2", "run_id": "run-research", "candidates": [candidate]}
+        s3 = {"stage": "S3", "run_id": "run-research", "evaluated_candidates": [candidate]}
+
+        report = build_report(s1, s2, s3)
+
+        future_work = " ".join(report["future_work"])
+        self.assertIn("外部搜尋", future_work)
+        self.assertIn("S3 Files", future_work)
+        self.assertIn("不只是證明 EC2 可以 mount", future_work)
+        self.assertEqual(report["external_research"]["status"], "search_required")
+        queries = " ".join(item["query"] for item in report["external_research"]["directions"])
+        self.assertIn("S3 Files EC2 mount", queries)
+        self.assertIn("IAM access point", queries)
+        self.assertIn("troubleshooting", queries)
+        self.assertIn("## 下一步要補的決策證據", report["markdown"])
+        self.assertIn("只挑一個會改變導入判斷的問題", report["markdown"])
+        self.assertNotIn("Future work", report["related_topics"])

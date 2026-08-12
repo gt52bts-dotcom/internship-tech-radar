@@ -105,7 +105,7 @@
 
 ## Presentation Schedule
 
-- The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the 2026-08-11, 15:30 team meeting.
+- The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the afternoon of 2026-08-19. Do not keep or recreate the obsolete 2026-08-11 15:30 AI PM report task in README.
 - The final cloud technology radar internship presentation date is changed from 2026-08-17 to 2026-08-14. Current title: `《預言者雷達：看見技術的下一步》`. The talk should be planned as a 30-minute presentation excluding Q&A, using the elevator-pitch structure: one clear core claim, then layered evidence, process, deliverables, validation, constraints, and next steps.
 - 2026-08-11 update: Cleo reported that the initial 2026-08-14 final presentation deck has been produced. Treat it as draft-complete and awaiting review/polish; do not claim AI has inspected the actual deck file until the file is provided or explicitly located and reviewed.
 - 2026-08-05 correction: a Claude-produced AI PM deck is draft material only, not a completed deliverable or verified presentation result. Cleo will substantially revise it; do not state that the AI PM presentation, its slide count, speaker notes, or final narrative is complete until Cleo explicitly confirms completion.
@@ -140,11 +140,11 @@
 - Final proposal 後續需思考如何呈現「AI 使用軌跡」：不要做成聊天紀錄流水帳，而要呈現 Cleo 如何逐步把 AI 從問答工具用成 AI PM／工程協作者。可用軌跡圖或案例組呈現：原始白話指令、AI 轉譯成可執行工作、Cleo 修正 AI 的判斷、規則被寫入記憶、下一次工作方式因此改變，以及哪些輸出最後成為日誌、程式、簡報或驗證證據。
 - 「目前專案框架圖」與「執行軌跡圖」必須分開：框架圖呈現現有系統模組、資料流與目前進度；軌跡圖只呈現專案如何一路演進，可在簡報中並排作為輔助。
 - 「公司如何幫助我成長」是 final proposal 的必要一頁，但不是整份簡報主軸；需用具體前後差異與證據支撐。
-- 2026-08-11 15:30 有 10 分鐘科會報告，主題為 AI PM 作為同事的實際協作成果。內容需展示：使用者 input 指令與 AI output 的差異（含過去紀錄白話化）、跨事件記憶／串聯、AI 對人類工作的實際幫助、7/23 國泰人壽總公司共融活動作為組織融入素材、主動反問與待辦機制，以及 spec-driven 邊界設定。不能只展示功能，要有實際前後差異和限制。
+- 2026-08-19 下午有 10 分鐘科會報告，主題為 AI PM 作為同事的實際協作成果。內容需展示：使用者 input 指令與 AI output 的差異（含過去紀錄白話化）、跨事件記憶／串聯、AI 對人類工作的實際幫助、7/23 國泰人壽總公司共融活動作為組織融入素材、主動反問與待辦機制，以及 spec-driven 邊界設定。不能只展示功能，要有實際前後差異和限制；不要直接沿用舊版草稿。
 - 此 AI PM 科會簡報可參考既有國泰實習匯報的企業感、高留白、卡片與流程視覺節奏，但必須重新設計內容與封面；封面不放使用者照片，不把原本的 AI 雲端技術雷達簡報直接改題使用。
 - 2026-07-24 Mentor 討論後修正 AI PM README 管理規則：待辦事項只放需要被解決且有時間要求的事情，依截止日排列，需寫出對應目標、完成條件與狀態；完成後移除或歸檔，不能長期掛著。無明確期限的想法放入研究文件或 inbox，不放在主 README 待辦。
 - 主 README 的「重要交付物」只放真正要提交、展示、匯出或供主管評核使用的成果；AI 執行軌跡、一般 README、內部流程文件、草稿素材不放在第一層重要交付物，除非當下正要交給主管或作為正式附件。
-- 近期固定時程：2026-08-03 10:30 部會出席聆聽，不需報告；2026-08-11 15:30 科會報告 AI PM；2026-07-30（四）上午人壽高管交流活動（總公司）；2026-08-06 至 2026-08-07 到信義區參加集團 AI 競賽，當日不進內湖辦公室；2026-08-10（一）人壽 1st 共融活動（六度空間）；2026-08-14（五）部會展示最終實習成果報告《預言者雷達：看見技術的下一步》；2026-08-20（四）人壽 2nd 共融活動（總公司）；2026-08-28（五）13:30 國立臺灣海洋大學教授到公司訪視評分；2026-08-31（一）集團結訓典禮（國泰金融會議中心）。已過日期不可留在 README 待辦，活動後再補進當日 inbox / 正式日誌。
+- 近期固定時程：2026-08-03 10:30 部會出席聆聽，不需報告；2026-07-30（四）上午人壽高管交流活動（總公司）；2026-08-06 至 2026-08-07 到信義區參加集團 AI 競賽，當日不進內湖辦公室；2026-08-10（一）人壽 1st 共融活動（六度空間）；2026-08-14（五）部會展示最終實習成果報告《預言者雷達：看見技術的下一步》；2026-08-19（三）下午科會報告 AI PM；2026-08-20（四）人壽 2nd 共融活動（總公司）；2026-08-28（五）13:30 國立臺灣海洋大學教授到公司訪視評分；2026-08-31（一）集團結訓典禮（國泰金融會議中心）。已過日期不可留在 README 待辦，活動後再補進當日 inbox / 正式日誌。
 - 實習文件固定期限：CIP 雙週工作進度（7/20-7/31）於 2026-07-31 整理 / 匯出；CIP 雙週工作進度（8/3-8/14）於 2026-08-14 整理 / 匯出；CIP 雙週工作進度（8/17-8/28）於 2026-08-28 整理 / 匯出。國泰主管評分表期限為 2026-08-24，學校評分表期限為 2026-08-27。
 - 2026-07-28 使用者新增學校端正式訪視時程：2026-08-28（五）13:30 海大教授到公司訪視評分。使用者修正：訪視時不另外準備專案簡報重點或成果證據包，直接拿 2026-08-14 部會成果簡報／剪報給教授看；此日期同時也是 8/17-8/28 CIP 雙週工作進度整理日，需提前安排避免撞期。
 - 2026-07-27 使用者新增硬截止：本週五 2026-07-31 要完成專案第一版完整交付，重點不是只整理雙週進度，而是要交出可給 Mentor 確認的完整 Skills 版本。完成條件包含：S1-S5 五個 Skill 的 `SKILL.md` 或等價規格文件完整、S0 需求輸入層可銜接流程、至少一條新聞 / 需求案例可完整跑過 S0-S5、本機檢測與輸出證據可重現、限制與未完成項目清楚標示，並整理 Mentor review package。
@@ -461,3 +461,15 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - For supervisor-facing visuals, especially Skill 4, budget expectation and explicit human approval must appear before PoC deployment. Do not draw or describe the expected budget as something discovered only after PoC completion.
 - If the five Skills are explained as text, prefer five focused Markdown files over one generic table. Each file should be concise but specific and should use concrete mechanics, examples, formulas, scoring dimensions, or case evidence instead of generic descriptions. Do not include separate "delivery artifact", "GitHub location", or "20-second script" sections in the final-proposal Skill Markdown; those are too much slide clutter unless Cleo explicitly asks for handoff material.
 - After Cleo's 2026-08-12 critique, Skill explanations should prove precision through concrete display examples: actual report table shape, Lambda or S3 Files case evidence, official pricing/formula basis, scoring or gate criteria, resource inventory numbers, and "hard-doing PoC" definitions. Avoid padding with broad claims; supervisor-facing text should be concise, Traditional Chinese, and directly explain how a human would judge the evidence.
+
+## 2026-08-12 Skill 5 Future Work Quality Rule
+
+- Cleo rejected generic Skill 5 `Future work` and related-reading output as not useful to real users. Skill 5 must make future work case-specific and decision-oriented: what to search externally, why that source would matter, what evidence would count, and how it would change the next PoC or stop decision.
+- Related reading must be phrased as external research directions or exact search queries, not loose keywords such as `Future work`, `CloudFormation`, or `PoC cleanup` unless tied to the candidate's concrete architecture, cost, permission, failure-mode, or cleanup question.
+- S5 must preserve evidence boundaries: generated external-search directions are recommendations for the next research step, not claims that the external content has already been verified. Any actual searched evidence must be fed back into S1/S2/S3 artifacts before being treated as report evidence.
+
+## 2026-08-12 Skill 5 Human Report Readability Rule
+
+- Cleo rejected Skill 5 reports that read like long status ledgers. Supervisor-facing S5 Markdown must begin with human conclusions: what the PoC discovered, whether this AWS account / target Region / tested permission path worked, what was actually completed, why it matters, what cannot be claimed, and what decision evidence should be added next.
+- Do not expose internal file names, raw artifact wording, run IDs, quote IDs, raw status codes, internal recipe identifiers, or English-only success criteria in supervisor-facing S5 Markdown. Keep those details in JSON/GUI audit data.
+- Human-facing S5 cost content should summarize expected estimate, approval ceiling, public-price nature, not-AWS-billing limitation, and cleanup status. Long line-item tables belong only in JSON/GUI or an explicitly requested appendix.

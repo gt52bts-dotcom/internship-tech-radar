@@ -78,13 +78,15 @@ def build_report(
         ),
         "verified_facts": _verified_facts(scan, compare, selected, runtime),
         "unknown_or_not_verified": _unknowns(compare, selected, validation, runtime),
-        "future_work": _future_work(selected, runtime),
+        "future_work": _future_work(report_candidate, selected, runtime),
         "reviewer_questions": _reviewer_questions(selected, runtime),
+        "external_research": _external_research_directions(report_candidate, compare, selected, runtime),
         "related_topics": _related_topics(report_candidate, compare, selected),
         "stage_evidence": _stage_evidence(scan, compare, evaluate, validate, runtime, selected, status),
         "funnel": _funnel(scan, compare, evaluate, validate),
         "evidence_ledger": _evidence_ledger(scan, compare, selected, runtime),
     }
+    report["human_summary"] = _human_summary(report, runtime)
     report["markdown"] = render_markdown(report)
     report["gui_model"] = build_gui_model(report)
     return report
@@ -127,6 +129,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(_render_stage_timings(report["stage_timings"]))
     lines.extend(["", "## Future work", ""])
     lines.extend(f"- {item}" for item in report["future_work"] or ["尚無額外 Future work。"])
+    lines.extend(_render_external_research(report["external_research"]))
     lines.extend(["", "## Reviewer questions", ""])
     lines.extend(f"- {item}" for item in report["reviewer_questions"] or ["尚無額外 reviewer question。"])
     lines.extend(["", "## 延伸閱讀關鍵字", ""])
@@ -137,6 +140,55 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(["", "## 證據來源表", "", "| 敘述 | 類型 | 狀態 | 證據 |", "| --- | --- | --- | --- |"])
     for entry in report["evidence_ledger"]:
         lines.append(f"| {entry['claim']} | {entry['type']} | {_display_status(entry['status'])} | {entry['source']} |")
+    return "\n".join(lines) + "\n"
+
+
+def render_markdown(report: dict[str, Any]) -> str:
+    """Render the supervisor-facing report as a concise human summary."""
+
+    candidate = report["candidate"]
+    summary = report["human_summary"]
+    quote = report["cost_quote"]
+    lines = [
+        f"# Skill 5 PoC 結案報告：{candidate['title'] or '未命名候選'}",
+        "",
+        "## 一眼看重點",
+        "",
+        f"- 結論：{summary['headline']}",
+        f"- 做完發現：{summary['main_discovery']}",
+        f"- 對公司的意義：{summary['business_meaning']}",
+        f"- 現在不能宣稱：{summary['main_limit']}",
+        "",
+        "## 帳號、地區、權限能不能用",
+        "",
+        "| 問題 | 結論 | 證據 |",
+        "| --- | --- | --- |",
+    ]
+    for row in summary["readiness_rows"]:
+        lines.append(f"| {row['question']} | {row['answer']} | {row['evidence']} |")
+
+    lines.extend(["", "## 我實際做完了什麼", ""])
+    lines.extend(f"- {item}" for item in summary["completed_work"])
+
+    if summary["poc_findings"]:
+        lines.extend(["", "## 這次 PoC 證明了什麼", ""])
+        lines.extend(f"- {item}" for item in summary["poc_findings"])
+
+    lines.extend(["", "## 成本與清除狀態", ""])
+    lines.append(f"- 預估成本：{summary['cost_summary']}")
+    lines.append("- 成本性質：這是部署前用公開價格估算，不是 AWS 帳單。")
+    lines.append(f"- 清除狀態：{summary['cleanup_summary']}")
+    if quote.get("sources"):
+        lines.append("- 價格來源：AWS 官方公開定價頁。")
+
+    lines.extend(["", "## 還不能拿來宣稱的事", ""])
+    lines.extend(f"- {item}" for item in summary["limits"])
+
+    lines.extend(["", "## 下一步要補的決策證據", ""])
+    lines.extend(f"- {item}" for item in summary["next_steps"])
+
+    if candidate.get("source_url") and candidate.get("source_url") != "unknown":
+        lines.extend(["", "## 官方來源", "", f"- {candidate['source_url']}"])
     return "\n".join(lines) + "\n"
 
 
@@ -153,6 +205,7 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
             "report_type_label": _display_status(report["report_type"]),
             "conclusion": report["conclusion"],
             "news_summary": report["news_summary"],
+            "human_summary": report["human_summary"],
         },
         "score": {
             "weighted_score": report["evaluation"].get("weighted_score"),
@@ -173,6 +226,7 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
         "unknown_or_not_verified": report["unknown_or_not_verified"],
         "future_work": report["future_work"],
         "reviewer_questions": report["reviewer_questions"],
+        "external_research": report["external_research"],
         "related_topics": report["related_topics"],
         "stage_evidence": report["stage_evidence"],
         "evidence_ledger": report["evidence_ledger"],
@@ -200,6 +254,221 @@ def _gui_console_review(report: dict[str, Any]) -> dict[str, Any]:
         "evidence_recorded": evidence_entry is not None,
         "privacy": "Render review evidence only through an authenticated GUI or the active conversation; Git artifacts retain metadata only.",
     }
+
+
+def _human_summary(report: dict[str, Any], runtime: dict[str, Any] | None) -> dict[str, Any]:
+    candidate = report["candidate"]
+    profile = _case_profile(candidate, candidate)
+    deployment = (runtime or {}).get("deployment") or {}
+    verification = (runtime or {}).get("verification") or {}
+    cleanup = (runtime or {}).get("cleanup") or {}
+    quote = report["cost_quote"]
+    region = deployment.get("target_region") or quote.get("target_region") or report["evaluation"].get("target_region")
+    deployed = deployment.get("stack_status") == "CREATE_COMPLETE"
+    cleaned = cleanup.get("status") == "verified"
+    completed_runtime = deployed or (runtime or {}).get("status") == "cleanup_verified"
+    checks = _human_verification_findings(profile, verification)
+    score = report["evaluation"].get("weighted_score")
+    score_text = f"{score} / 5" if score is not None else "未記錄"
+    expected_cost = quote.get("expected_total_usd")
+    ceiling = quote.get("recommended_approval_ceiling_usd")
+    cost_summary = (
+        f"預期約 USD {_format_money(expected_cost)}，核准上限 USD {_format_money(ceiling)}"
+        if expected_cost is not None or ceiling is not None
+        else "未形成可用估算"
+    )
+    if completed_runtime and cleaned:
+        headline = "本次受控 PoC 已完成、已人工確認，並已清除資源。"
+    elif completed_runtime:
+        headline = "本次 PoC 已能部署並通過核心檢查，但還沒有完整收尾。"
+    elif _recommend_poc_from_report(report):
+        headline = "已完成進 PoC 前評估，但尚未建立雲端資源。"
+    else:
+        headline = "本案例目前不建議硬做 PoC，重點是把停止原因講清楚。"
+
+    readiness_rows = [
+        {
+            "question": "我們的 AWS 帳號可以建立這個 PoC 嗎？",
+            "answer": "可以，已成功建立本次 PoC 所需資源。" if completed_runtime else "尚未證明，因為這份報告沒有成功部署紀錄。",
+            "evidence": "CloudFormation 建立完成。" if deployed else "runtime 顯示 PoC 已完成清除。" if completed_runtime else "沒有成功建立資源的紀錄。",
+        },
+        {
+            "question": "指定地區可以使用嗎？",
+            "answer": f"可以，本次使用 {region}。" if completed_runtime and region else _region_answer(report, region),
+            "evidence": "同一地區完成部署與驗證。" if completed_runtime and region else "目前只有評估紀錄，尚未用實際部署證明。",
+        },
+        {
+            "question": "權限夠不夠？",
+            "answer": "夠，至少足以完成本次最小 PoC。" if completed_runtime and checks else "尚未完整證明。",
+            "evidence": _permission_evidence(checks, completed_runtime),
+        },
+        {
+            "question": "資源有沒有收乾淨？",
+            "answer": "已清除並回查。" if cleaned else "尚未清除或沒有清除證據。",
+            "evidence": _cleanup_evidence(cleanup, cleaned),
+        },
+    ]
+
+    completed_work = [
+        "整理官方來源，確認這個功能想解決的技術問題。",
+        f"用固定評分準則完成 Skill 3 評估，分數為 {score_text}。",
+        f"用公開價格建立小型 PoC 成本估算：{cost_summary}。",
+    ]
+    if completed_runtime and region:
+        completed_work.append(f"在 {region or '指定地區'} 建立受控 PoC 環境。")
+    if checks:
+        completed_work.append("跑完核心驗證：" + "；".join(checks) + "。")
+    if (runtime or {}).get("console_review", {}).get("status") == "confirmed":
+        completed_work.append("完成 AWS Console 人工確認。")
+    if cleaned:
+        completed_work.append("完成受控清除，避免測試資源繼續產生成本。")
+
+    limits = _human_limits(profile, completed_runtime, cleaned)
+    next_steps = _human_next_steps(profile, runtime)
+    return {
+        "headline": headline,
+        "main_discovery": _main_discovery(profile, checks, completed_runtime),
+        "business_meaning": _business_meaning(profile),
+        "main_limit": limits[0],
+        "readiness_rows": readiness_rows,
+        "completed_work": completed_work,
+        "poc_findings": checks,
+        "cost_summary": cost_summary,
+        "cleanup_summary": "已清除並回查。" if cleaned else "尚未完成清除回查。",
+        "limits": limits,
+        "next_steps": next_steps,
+    }
+
+
+def _region_from_evaluation(report: dict[str, Any]) -> str | None:
+    for label, value in report["evaluation"].get("rows") or []:
+        if "Region" in str(label) or "區域" in str(label) or "地區" in str(label):
+            return str(value)
+    return None
+
+
+def _recommend_poc_from_report(report: dict[str, Any]) -> bool:
+    for label, value in report["evaluation"].get("rows") or []:
+        if "PoC" in str(label) and str(value).strip() in {"是", "true", "True", "yes"}:
+            return True
+    return report["conclusion"].get("status") == "poc_recommended_awaiting_approval"
+
+
+def _region_answer(report: dict[str, Any], region: str | None) -> str:
+    region_status = str(report["evaluation"].get("region_status") or "")
+    if region_status == "available_ap_southeast_1":
+        return f"Skill 3 評估顯示 {region or 'ap-southeast-1'} 可用，但還沒有部署證據。"
+    if region and "available" in region:
+        return "評估顯示可用，但還沒有部署證據。"
+    if region:
+        return f"目前紀錄為 {region}，需要人工確認。"
+    return "未記錄可判讀的地區結論。"
+
+
+def _permission_evidence(checks: list[str], deployed: bool) -> str:
+    if deployed and checks:
+        return "資源建立成功，且核心驗證通過。"
+    if deployed:
+        return "資源建立成功，但驗證項目不足。"
+    return "沒有可用的部署與驗證紀錄。"
+
+
+def _cleanup_evidence(cleanup: dict[str, Any], cleaned: bool) -> str:
+    if not cleaned:
+        return "沒有 cleanup verified 紀錄。"
+    checks = cleanup.get("checks") or {}
+    if not checks:
+        return "cleanup 狀態已驗證。"
+    readable = []
+    if checks.get("cloudformation_stack") == "deleted":
+        readable.append("CloudFormation stack 已刪除")
+    if checks.get("versioned_test_bucket") == "emptied_before_stack_delete":
+        readable.append("測試 bucket 已先清空")
+    if checks.get("run_derived_resource_prefix") == "matched":
+        readable.append("清除範圍符合本次測試前綴")
+    return "；".join(readable) + "。" if readable else "cleanup 狀態已驗證。"
+
+
+def _human_verification_findings(profile: dict[str, str], verification: dict[str, Any]) -> list[str]:
+    if not verification:
+        return []
+    title = profile.get("display_name", "")
+    findings: list[str] = []
+    if "S3 Files" in title:
+        if verification.get("source_to_mount") == "verified":
+            findings.append("S3 內的物件可以從 EC2 掛載點讀到")
+        if verification.get("mount_to_s3") == "verified":
+            findings.append("從掛載點寫入的檔案可以回到 S3")
+        if verification.get("ssm_status") == "Success":
+            findings.append("EC2 測試指令可以透過受控方式執行成功")
+    elif "Lambda" in title:
+        if verification.get("cloudformation_reference_mode") == "verified":
+            findings.append("CloudFormation 可以建立使用 REFERENCE 模式的 Lambda")
+        if verification.get("lambda_invoke") == "verified":
+            findings.append("Lambda 建立後可以成功 invoke")
+    if findings:
+        return findings[:5]
+    for item in verification.get("success_criteria") or []:
+        clean = str(item).strip().rstrip(".")
+        if clean and clean not in findings:
+            findings.append(clean)
+    return findings[:5]
+
+
+def _main_discovery(profile: dict[str, str], checks: list[str], deployed: bool) -> str:
+    if not deployed:
+        return "目前還停在評估階段，沒有實際部署後的發現。"
+    if "S3 Files" in profile.get("display_name", ""):
+        return "S3 Files 在本次帳號與地區中可以被建立，且 EC2 掛載點和 S3 bucket 之間能做最小讀寫驗證。"
+    if "Lambda" in profile.get("display_name", ""):
+        return "Lambda 可以直接參照自管 S3 code package，且建立後仍可正常執行。"
+    return "本次最小 PoC 可以完成部署、核心驗證與清除。"
+
+
+def _business_meaning(profile: dict[str, str]) -> str:
+    if "S3 Files" in profile.get("display_name", ""):
+        return "這代表它不只是新聞功能，而是有機會讓需要檔案介面的工作負載共用 S3 資料；下一步要判斷它是否撐得住真實檔案型工作負載。"
+    if "Lambda" in profile.get("display_name", ""):
+        return "這代表大量 Lambda 部署包可以改由自管 S3 bucket 當來源，可能改善部署與儲存治理；下一步要看 rollback、權限和生命週期管理是否可靠。"
+    if "WorkSpaces" in profile.get("display_name", ""):
+        return "重點不是先做 demo，而是確認桌面 agent 的成本、合規與人工停止機制是否值得進第二階段。"
+    if "Quick" in profile.get("display_name", ""):
+        return "重點是把產品宣稱轉成可部署流程；如果沒有 connector、權限與執行紀錄，就不應硬做 PoC。"
+    return "這份報告把新聞宣稱轉成可檢查的技術決策，不只說看起來有用。"
+
+
+def _human_limits(profile: dict[str, str], deployed: bool, cleaned: bool) -> list[str]:
+    limits = ["這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。"]
+    if deployed:
+        limits.append("這次只證明最小 PoC 路徑可行，尚未測效能、可靠性、長時間運作或多人使用。")
+    else:
+        limits.append("這次沒有建立雲端資源，所以不能宣稱帳號權限、地區與實際部署都可用。")
+    if not cleaned:
+        limits.append("cleanup 沒有完整回查前，不能把報告當成 final 成功案例。")
+    if "S3 Files" in profile.get("display_name", ""):
+        limits.append("尚未證明同步延遲、POSIX 權限、一致性與錯誤復原是否符合真實工作負載。")
+    if "Lambda" in profile.get("display_name", ""):
+        limits.append("尚未證明 S3 object version rollback、source object 被刪除或撤權時的失敗行為。")
+    limits.append("預估成本不是 AWS 帳單，不能拿來宣稱實際花費。")
+    return limits
+
+
+def _human_next_steps(profile: dict[str, str], runtime: dict[str, Any] | None) -> list[str]:
+    if runtime and runtime.get("status") == "cleanup_verified":
+        if "S3 Files" in profile.get("display_name", ""):
+            return [
+                "補一個小型真實工作負載測試：多檔案讀寫、同步延遲、權限錯誤與掛載失敗復原。",
+                "外部查 S3 Files 的限制、定價與 troubleshooting，判斷它適合檔案共享、資料湖前處理，還是只適合展示型 PoC。",
+            ]
+        if "Lambda" in profile.get("display_name", ""):
+            return [
+                "補 rollback 測試：同一個 Lambda 從不同 S3 object version 切回舊部署包。",
+                "外部查 REFERENCE 模式下的 bucket policy、code signing、生命週期刪除與 CI/CD 更新模式。",
+            ]
+    return [
+        "先把尚未驗證的部署、地區、權限、成本或 cleanup 補成可檢查證據。",
+        "只挑一個會改變導入判斷的問題做下一輪 PoC，不要為了展示而擴大範圍。",
+    ]
 
 
 def _input_issues(inputs: dict[str, dict[str, Any] | None]) -> list[str]:
@@ -595,6 +864,8 @@ def _evaluation_summary(candidate: dict[str, Any] | None) -> dict[str, Any]:
     return {
         "weighted_score": candidate.get("weighted_score"),
         "dimensions": dimensions,
+        "region_status": region.get("status"),
+        "target_region": region.get("target_region"),
         "rows": [
             ("Skill 3 加權分（滿分 5）", score_text),
             ("區域狀態", _display_status(region.get("status") or "unknown")),
@@ -976,6 +1247,205 @@ def _related_topics(
     topics.extend(str(item) for item in scope.get("services_detected") or [])
     topics.extend(["AWS Pricing Calculator", "CloudFormation", "PoC cleanup", "Future work"])
     return _dedupe([_topic_label(item) for item in topics if item])
+
+
+def _future_work(
+    report_candidate: dict[str, Any] | None,
+    candidate: dict[str, Any] | None,
+    runtime: dict[str, Any] | None,
+) -> list[str]:
+    """Produce decision-oriented next work, not generic closing homework."""
+
+    profile = _case_profile(report_candidate, candidate)
+    items: list[str] = []
+    if runtime and runtime.get("status") == "cleanup_verified":
+        items.append(
+            f"把下一輪 PoC 從「資源能建立」推進到「{profile['decision_question']}」；先外部搜尋 {profile['search_anchor']} 的實務限制，再只挑一個會改變導入判斷的情境重跑。"
+        )
+        items.append(
+            f"補一個邊界測試：{profile['boundary_test']}。成功標準要能被 log、resource inventory 或應用輸出證明，不要只看 Console 畫面。"
+        )
+    elif runtime and runtime.get("status") == "awaiting_console_review":
+        items.append(
+            "先完成 Console/resource inventory 人工確認與 cleanup，再討論下一輪；未收尾的 runtime 不能拿來延伸成新 PoC。"
+        )
+        items.append(
+            f"收尾後再搜尋 {profile['search_anchor']} 的常見失敗模式，決定下一輪是否要測 {profile['boundary_test']}。"
+        )
+    elif _recommend_poc(candidate or {}):
+        items.append(
+            f"進 Skill 4 前先外部搜尋 {profile['search_anchor']} 的部署限制、權限邊界、計價陷阱與 rollback 做法，確認 PoC 問題不是只在重複官方範例。"
+        )
+        items.append(
+            f"把 PoC 問題改寫成一句可驗收的決策問題：{profile['decision_question']}。回答不出來就不要開資源。"
+        )
+    else:
+        blockers = ", ".join(_poc_blockers(candidate)) or "目前證據不足"
+        items.append(
+            f"不要硬做 PoC；先針對停止原因「{blockers}」外部搜尋官方開發文件、管理指南、定價、quota、權限與範例架構。"
+        )
+        items.append(
+            f"只有找到可部署資源清單、成功條件與 cleanup 路徑後，才回來寫 Skill 4 recipe；優先驗證 {profile['decision_question']}。"
+        )
+    items.append(
+        "把搜尋結果整理成一張「值得做 / 不值得做」判斷卡：新找到的證據、它改變哪個假設、下一輪最小 PoC 要測什麼、仍不能宣稱什麼。"
+    )
+    return _dedupe(items)
+
+
+def _external_research_directions(
+    report_candidate: dict[str, Any] | None,
+    compare: dict[str, Any] | None,
+    selected: dict[str, Any] | None,
+    runtime: dict[str, Any] | None,
+) -> dict[str, Any]:
+    profile = _case_profile(report_candidate, selected)
+    return {
+        "status": "search_required",
+        "claim_boundary": "以下是建議外部搜尋方向，不是已驗證結論；採用前必須把找到的來源補回 S1/S2/S3 artifacts。",
+        "directions": [
+            {
+                "direction": "找出真正值得測的使用情境",
+                "query": profile["scenario_query"],
+                "why": "避免下一輪只是重跑官方 demo；要找到一個貼近使用者流程、資料型態或治理限制的場景。",
+                "useful_evidence": "官方範例、架構圖、限制說明、customer story 或 workshop，能指出資料流、使用者、成功標準與限制。",
+            },
+            {
+                "direction": "查部署與權限邊界",
+                "query": profile["governance_query"],
+                "why": "Skill 4 真正有價值的是證明帳號、Region、IAM、網路與 cleanup 邊界可控。",
+                "useful_evidence": "明確列出 IAM action、resource policy、network path、Region 支援、quota 或 rollback/cleanup 方法的文件。",
+            },
+            {
+                "direction": "查成本和失敗模式",
+                "query": profile["cost_risk_query"],
+                "why": "下一輪 PoC 應該測最可能讓決策翻盤的成本或可靠性風險。",
+                "useful_evidence": "定價頁、pricing example、troubleshooting guide、service quota、known limitation 或監控指標。",
+            },
+        ],
+        "after_search_action": (
+            "把搜尋結果拆成三類：可直接補強 Skill 4 recipe、只適合列為 reviewer question、"
+            "以及會讓本候選暫停的 blocker。"
+        ),
+    }
+
+
+def _render_external_research(section: dict[str, Any]) -> list[str]:
+    lines = ["", "## 外部搜尋與延伸閱讀方向", ""]
+    lines.append(f"- 證據邊界：{section.get('claim_boundary')}")
+    for item in section.get("directions") or []:
+        lines.extend(
+            [
+                f"- {item['direction']}：搜尋 `{item['query']}`",
+                f"  - 為什麼：{item['why']}",
+                f"  - 有用證據長相：{item['useful_evidence']}",
+            ]
+        )
+    if section.get("after_search_action"):
+        lines.append(f"- 搜完後動作：{section['after_search_action']}")
+    return lines
+
+
+def _related_topics(
+    report_candidate: dict[str, Any] | None,
+    compare: dict[str, Any] | None,
+    selected: dict[str, Any] | None,
+) -> list[str]:
+    profile = _case_profile(report_candidate, selected)
+    services = _services_for_candidate(report_candidate, selected)
+    topics = [
+        f"{profile['display_name']} 官方 developer guide / administration guide",
+        f"{profile['display_name']} pricing、quota、Region support",
+        f"{profile['display_name']} IAM/resource policy/security best practices",
+        f"{profile['display_name']} troubleshooting、known limitations、rollback/cleanup",
+    ]
+    topics.extend(f"{service} 與本 PoC 的整合模式" for service in services[:4])
+    return _dedupe(topics)
+
+
+def _case_profile(report_candidate: dict[str, Any] | None, selected: dict[str, Any] | None) -> dict[str, str]:
+    candidate = {**(report_candidate or {}), **(selected or {})}
+    title = str(candidate.get("title") or "this AWS candidate")
+    recipe = str((((candidate.get("cost_estimate") or {}).get("quote") or {}).get("recipe")) or "")
+    services = " ".join(_services_for_candidate(report_candidate, selected)).lower()
+    text = " ".join([title, recipe, services]).lower()
+
+    if "s3_files" in recipe or "s3 files" in text:
+        return {
+            "display_name": "S3 Files",
+            "search_anchor": "S3 Files + EC2 mount + S3 bucket synchronization",
+            "decision_question": "S3 Files 是否能支撐真實檔案型工作負載，而不只是證明 EC2 可以 mount",
+            "boundary_test": "測同步延遲、POSIX 權限、mount target/AZ 配置錯誤、以及 S3 API 與檔案操作交錯時的一致性",
+            "scenario_query": "S3 Files EC2 mount workload migration NFS S3 bucket architecture",
+            "governance_query": "S3 Files IAM access point mount target VPC security group permissions",
+            "cost_risk_query": "S3 Files pricing troubleshooting consistency latency mount failure",
+        }
+    if "lambda_self_managed" in recipe or ("lambda" in text and "s3" in text and "code" in text):
+        return {
+            "display_name": "Lambda self-managed S3 code storage",
+            "search_anchor": "Lambda self-managed S3 code storage + deployment artifact governance",
+            "decision_question": "REFERENCE 模式是否改善大型部署包/多函數 artifact 管理，同時仍保留 rollback、安全與生命週期控管",
+            "boundary_test": "測 S3 object version rollback、bucket policy 最小權限、source object 被刪除或撤權時的失敗行為、以及 CI/CD 更新流程",
+            "scenario_query": "Lambda self-managed S3 code storage deployment artifact rollback versioning",
+            "governance_query": "Lambda S3ObjectStorageMode REFERENCE bucket policy GetObjectVersion code signing",
+            "cost_risk_query": "Lambda self-managed S3 code storage lifecycle quota cold start troubleshooting",
+        }
+    if "workspaces" in text or "appstream" in text:
+        return {
+            "display_name": "WorkSpaces Applications agent access",
+            "search_anchor": "WorkSpaces Applications agent access + MCP + human stop controls",
+            "decision_question": "桌面代理是否能在可觀察、可停止、可稽核的條件下完成一個真實桌面任務",
+            "boundary_test": "測 MCP session、human observe/stop、CloudTrail/CloudWatch 可觀測性、Windows user fee 觸發條件與 cleanup 不可回復成本",
+            "scenario_query": "WorkSpaces Applications AI agents MCP desktop workflow governance",
+            "governance_query": "WorkSpaces Applications AgentAccessConfig IAM CloudTrail CloudWatch human stop",
+            "cost_risk_query": "WorkSpaces Applications AI agents pricing MCP session Windows user fee",
+        }
+    if "quick" in text:
+        return {
+            "display_name": "Amazon Quick Suite",
+            "search_anchor": "Amazon Quick integrations + action connectors + governance",
+            "decision_question": "Quick Suite 是否有足夠可配置的 connector、資料邊界與治理控制，能把一個業務流程變成可驗證 PoC",
+            "boundary_test": "找出一個最小流程，要求明確資料來源、action connector、權限、執行紀錄、usage metrics 與清除方式",
+            "scenario_query": "Amazon Quick Suite Quick Automate action connectors knowledge base workflow example",
+            "governance_query": "Amazon Quick integrations custom permissions governance action connector APIs",
+            "cost_risk_query": "Amazon Quick Suite pricing usage metrics quotas Quick Automate Quick Research",
+        }
+    return {
+        "display_name": title,
+        "search_anchor": f"{title} implementation architecture pricing security",
+        "decision_question": "這項技術是否能用一個小型、可清除、可驗收的 PoC 改變導入判斷",
+        "boundary_test": "測最小部署、最小權限、失敗回復、成本驅動與 cleanup 可重現性",
+        "scenario_query": f"{title} reference architecture customer use case workshop",
+        "governance_query": f"{title} IAM permissions security region quota deployment guide",
+        "cost_risk_query": f"{title} pricing troubleshooting limitations cleanup",
+    }
+
+
+def _services_for_candidate(
+    report_candidate: dict[str, Any] | None,
+    selected: dict[str, Any] | None,
+) -> list[str]:
+    services: list[str] = []
+    for source in (report_candidate or {}, selected or {}):
+        services.extend(str(item) for item in source.get("related_aws_services") or [])
+        scope = ((source.get("comparison_dimensions") or {}).get("technology_scope") or {})
+        services.extend(str(item) for item in scope.get("services_detected") or [])
+        quote = ((source.get("cost_estimate") or {}).get("quote") or {})
+        services.extend(str(item) for item in quote.get("detected_services") or [])
+    return _dedupe([_topic_label(item) for item in services if item])
+
+
+def _poc_blockers(candidate: dict[str, Any] | None) -> list[str]:
+    blockers: list[str] = []
+    blockers.extend(str(item) for item in (candidate or {}).get("blockers") or [])
+    blockers.extend(str(item) for item in (candidate or {}).get("governance_flags") or [])
+    readiness = (candidate or {}).get("s4_readiness") or {}
+    if readiness.get("can_enter_skill4") is False and readiness.get("readiness_status"):
+        blockers.append(str(readiness["readiness_status"]))
+    recipe = (candidate or {}).get("poc_recipe") or {}
+    if recipe.get("deployable_recipe_registered") is False:
+        blockers.append("no_deployable_recipe")
+    return _dedupe(blockers)
 
 
 def _stage_evidence(

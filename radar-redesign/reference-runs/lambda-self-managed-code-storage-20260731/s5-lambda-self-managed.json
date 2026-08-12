@@ -2,7 +2,7 @@
   "schema_version": "s5.report.v1",
   "stage": "S5",
   "run_id": "direct-url-20260731-ae6e8775",
-  "reported_at": "2026-08-03T00:02:42.199018+00:00",
+  "reported_at": "2026-08-12T03:34:47.362807+00:00",
   "status": "final",
   "report_type": "final",
   "input_contract": {
@@ -29,15 +29,20 @@
     "status": "source_backed",
     "text": "新聞指出：AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。 AWS Lambda 是一項無伺服器運算服務，可執行您的程式碼，無需您管理伺服器。部署許多函數及作為 Lambda 層的額外程式碼的客戶，每個區域通常需要超過 75GB 的程式碼儲存空間，因此必須提交支援工單以提高此配額。…"
   },
+  "architecture_and_significance": {
+    "status": "not_recorded",
+    "note": "此 run 的 S1 artifact 沒有 explanation 區塊。"
+  },
   "evaluation": {
     "weighted_score": 4.15,
-    "confidence": "medium",
     "dimensions": {
       "technical_value": 4,
       "adoption_prerequisites": 3,
       "verifiability": 5,
       "risk_and_stop_conditions": 5
     },
+    "region_status": "available_ap_southeast_1",
+    "target_region": "ap-southeast-1",
     "rows": [
       [
         "Skill 3 加權分（滿分 5）",
@@ -360,39 +365,13 @@
       }
     ]
   },
-  "cost_reconciliation": {
-    "schema_version": "poc.cost-reconciliation.v1",
-    "status": "pending_actual_cost",
-    "estimated": {
-      "status": "estimated",
-      "quote_id": "POC-QUOTE-D3255FE85969",
-      "expected_total_usd": 0.000249,
-      "range_usd": {
-        "low": 7.2e-05,
-        "expected": 0.000249,
-        "high": 0.000886
-      },
-      "currency": "USD",
-      "source": "Skill 3 public list-price quote"
-    },
-    "actual": {
-      "status": "pending",
-      "amount_usd": null,
-      "currency": "USD",
-      "source_type": "not_available",
-      "source_artifact": null,
-      "reason": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
-    },
-    "delta_usd": null,
-    "rule": "Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost."
-  },
   "pre_cleanup_usage_snapshot": {
     "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
     "status": "not_recorded",
     "billing_evidence": false,
     "actual_cost_status": "not_billing_evidence",
     "sections": {},
-    "rule": "cleanup 前未提供即時用量快照；實際成本仍只能由 Billing、Cost Explorer 或 CUR artifact 證明。"
+    "rule": "cleanup 前未提供即時用量快照；新版 Skill 5 不把 runtime facts 轉成實際 AWS 成本。"
   },
   "validation": {
     "rows": [
@@ -413,7 +392,7 @@
         "已確認"
       ],
       [
-        "Console 截圖證據",
+        "Console / 資源盤點證據",
         "已截圖並經人類確認（1 張）"
       ],
       [
@@ -421,6 +400,46 @@
         "已驗證"
       ]
     ]
+  },
+  "resource_inventory": {
+    "status": "not_recorded",
+    "note": "此 run 沒有記錄 CloudFormation 資源盤點。"
+  },
+  "permission_surface": {
+    "status": "not_recorded",
+    "note": "此 run 未記錄實際使用的 IAM action。"
+  },
+  "stage_timings": {
+    "schema_version": "pipeline.timings.v1",
+    "rows": [
+      {
+        "stage": "S1",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S2",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S3",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S4",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S5",
+        "status": "not_recorded"
+      }
+    ],
+    "machine_seconds_total": 0.0,
+    "human_wait_seconds_total": 0.0,
+    "human_share": null,
+    "time_to_first_success_seconds": null,
+    "cross_host_stages": [],
+    "measurement_note": "",
+    "reading_note": "machine 是程式耗時，human 是卡在人工關卡的等待。兩者分開呈現：若 human 遠大於 machine，瓶頸在決策流程而不在工具。"
   },
   "verified_facts": [
     "官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/",
@@ -433,14 +452,13 @@
   ],
   "unknown_or_not_verified": [
     "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
-    "可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。",
+    "報價單是依公開牌價與明列用量假設產生的預估；本流程不進行預估與實際帳務成本比對，金額未經任何 AWS 帳務資料驗證。",
     "Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。"
   ],
   "future_work": [
-    "補上可歸因的 Cost Explorer、Billing 或 CUR artifact，讓 Skill 5 能比較預估成本與實際帳務成本。",
-    "用同一篇新聞的應用面優勢設計第二輪 PoC 問題，例如增加資料量、併發、錯誤情境或觀測指標，而不是只證明資源能建立。",
-    "把這個候選對應到一個明確的人類工作場景，補上目前做法、痛點、量測指標與導入後預期改善。",
-    "整理成 final proposal / 論文可引用的案例：問題、方法、證據鏈、限制、價值與下一步。"
+    "把下一輪 PoC 從「資源能建立」推進到「REFERENCE 模式是否改善大型部署包/多函數 artifact 管理，同時仍保留 rollback、安全與生命週期控管」；先外部搜尋 Lambda self-managed S3 code storage + deployment artifact governance 的實務限制，再只挑一個會改變導入判斷的情境重跑。",
+    "補一個邊界測試：測 S3 object version rollback、bucket policy 最小權限、source object 被刪除或撤權時的失敗行為、以及 CI/CD 更新流程。成功標準要能被 log、resource inventory 或應用輸出證明，不要只看 Console 畫面。",
+    "把搜尋結果整理成一張「值得做 / 不值得做」判斷卡：新找到的證據、它改變哪個假設、下一輪最小 PoC 要測什麼、仍不能宣稱什麼。"
   ],
   "reviewer_questions": [
     "這篇新聞提到的新功能，最適合改善哪一個真實使用者流程？現有流程的 baseline 是什麼？",
@@ -448,19 +466,41 @@
     "報價單中哪一項最貴？預期情境中最高的是 S3 PUT/COPY/POST/LIST requests（USD 0.00015）；當 PUT/COPY/POST/LIST count x USD/request 增加時，這項費用會上升；什麼實際使用情境會讓它增加？",
     "PoC 會建立哪些 AWS 資源？人類是否已確認這些資源、Region、成本上限與 cleanup 範圍？",
     "這次 PoC 只驗證功能可行，還是也驗證效能、可靠性、權限治理與可維運性？",
-    "實際成本何時能用 Cost Explorer、Billing 或 CUR 歸因到這個 run？若不能歸因，報告要如何標示限制？"
+    "報價單的計費方式與公式是否正確反映這個 recipe 會建立的每一項資源？有沒有漏算的常駐或用量型費用？"
   ],
+  "external_research": {
+    "status": "search_required",
+    "claim_boundary": "以下是建議外部搜尋方向，不是已驗證結論；採用前必須把找到的來源補回 S1/S2/S3 artifacts。",
+    "directions": [
+      {
+        "direction": "找出真正值得測的使用情境",
+        "query": "Lambda self-managed S3 code storage deployment artifact rollback versioning",
+        "why": "避免下一輪只是重跑官方 demo；要找到一個貼近使用者流程、資料型態或治理限制的場景。",
+        "useful_evidence": "官方範例、架構圖、限制說明、customer story 或 workshop，能指出資料流、使用者、成功標準與限制。"
+      },
+      {
+        "direction": "查部署與權限邊界",
+        "query": "Lambda S3ObjectStorageMode REFERENCE bucket policy GetObjectVersion code signing",
+        "why": "Skill 4 真正有價值的是證明帳號、Region、IAM、網路與 cleanup 邊界可控。",
+        "useful_evidence": "明確列出 IAM action、resource policy、network path、Region 支援、quota 或 rollback/cleanup 方法的文件。"
+      },
+      {
+        "direction": "查成本和失敗模式",
+        "query": "Lambda self-managed S3 code storage lifecycle quota cold start troubleshooting",
+        "why": "下一輪 PoC 應該測最可能讓決策翻盤的成本或可靠性風險。",
+        "useful_evidence": "定價頁、pricing example、troubleshooting guide、service quota、known limitation 或監控指標。"
+      }
+    ],
+    "after_search_action": "把搜尋結果拆成三類：可直接補強 Skill 4 recipe、只適合列為 reviewer question、以及會讓本候選暫停的 blocker。"
+  },
   "related_topics": [
-    "Lambda",
-    "S3",
-    "CloudFormation",
-    "storage",
-    "serverless",
-    "infrastructure",
-    "AWS Pricing Calculator",
-    "Cost Explorer",
-    "PoC cleanup",
-    "Future work"
+    "Lambda self-managed S3 code storage 官方 developer guide / administration guide",
+    "Lambda self-managed S3 code storage pricing、quota、Region support",
+    "Lambda self-managed S3 code storage IAM/resource policy/security best practices",
+    "Lambda self-managed S3 code storage troubleshooting、known limitations、rollback/cleanup",
+    "Lambda 與本 PoC 的整合模式",
+    "S3 與本 PoC 的整合模式",
+    "CloudFormation 與本 PoC 的整合模式"
   ],
   "stage_evidence": [
     {
@@ -491,7 +531,7 @@
     {
       "stage": "S5 Report",
       "status": "final",
-      "evidence": "report_type=最終報告；actual_cost=待補實際帳務證據"
+      "evidence": "report_type=最終報告；cost_basis=公開牌價預估（未與帳務比對）"
     }
   ],
   "funnel": {
@@ -539,7 +579,60 @@
       "source": "POC-QUOTE-D3255FE85969"
     }
   ],
-  "markdown": "# 技術驗證報告｜AWS Lambda 宣布自主管理程式碼儲存空間 - AWS\n\n- 報告狀態：最終報告\n- Run ID：direct-url-20260731-ae6e8775\n- 來源：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/\n\n## 新聞摘要：應用面優勢\n\n> 新聞指出：AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。 AWS Lambda 是一項無伺服器運算服務，可執行您的程式碼，無需您管理伺服器。部署許多函數及作為 Lambda 層的額外程式碼的客戶，每個區域通常需要超過 75GB 的程式碼儲存空間，因此必須提交支援工單以提高此配額。…\n\n## 評估摘要\n\n| 指標 | 結果 |\n| --- | --- |\n| Skill 3 加權分（滿分 5） | 4.15 / 5 |\n| 區域狀態 | 新加坡區域可用 |\n| 建議進入實際 Skill 4 PoC | 是 |\n| 成本 | 已完成估算 |\n\n## PoC 成本估算報價單\n\n- Quote ID：POC-QUOTE-D3255FE85969\n- 區域：ap-southeast-1\n- 幣別：USD\n- 價格快照：2026-07-31\n- 有效期限：2026-08-07\n- 情境總額：低 **$0.000072**／預期 **$0.000249**／高 **$0.000886**\n- 建議核准上限：**$0.05**\n- 報價性質：非正式公開牌價估算；即時 Pricing API：否\n- 計價口徑：月費型資源以每月價格為基礎，再依 PoC 使用時數折算；Lambda 只有被呼叫時才計請求數與執行時間/記憶體用量；請求型項目依實際請求量增加\n- 預期情境假設：1 小時、0.02 GB artifact、15 次 Lambda request、5 GB-seconds。\n- 人工需確認的 PoC 資源：Lambda requests、Lambda x86 duration、S3 Standard storage、S3 PUT/COPY/POST/LIST requests、S3 GET requests。\n- 主要成本驅動：預期情境中最高的是 S3 PUT/COPY/POST/LIST requests（USD 0.00015）；當 PUT/COPY/POST/LIST count x USD/request 增加時，這項費用會上升。\n\n### 預期情境明細\n\n| 項目 | 費率 | 用量 | 小計 USD |\n| --- | ---: | ---: | ---: |\n| Lambda requests | 0.0000002 USD/request | 15 requests | 0.000003 |\n| Lambda x86 duration | 0.000016667 USD/GB-second | 5 GB-seconds | 0.000083 |\n| S3 Standard storage | 0.025 USD/GB-month | 0.000027397 GB-month | 0.000001 |\n| S3 PUT/COPY/POST/LIST requests | 0.000005 USD/request | 30 requests | 0.00015 |\n| S3 GET requests | 0.0000004 USD/request | 30 requests | 0.000012 |\n| **預期總額** |  |  | **0.000249** |\n\n### 官方價格來源\n\n- [AWS Lambda public request price](https://aws.amazon.com/lambda/pricing/)\n- [AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)](https://aws.amazon.com/s3/pricing/)\n- [AWS Price List files/rate card interpretation](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html)\n\n## 預估成本 vs 可歸因實際帳務成本\n\n| 項目 | 狀態 | 金額 USD | 證據 |\n| --- | --- | ---: | --- |\n| Skill 3 公開牌價估算 | 已完成估算 | 0.000249 | POC-QUOTE-D3255FE85969 |\n| 可歸因實際帳務成本 | 待補實際帳務證據 | 未記錄 | 無可用資料 |\n| 差異（實際 - 預估） | 待補實際成本 | 未記錄 | Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost. |\n\n- 實際成本狀態：待補實際帳務證據。No attributable AWS Billing, Cost Explorer, or CUR artifact was provided.\n- 不以 EC2 執行時間、CloudFormation 狀態或 runtime artifact 推算實際 AWS 帳務成本。\n\n## cleanup 前即時用量快照\n\n- 狀態：未記錄。\n- 說明：這不影響 cleanup 結論，但 Skill 5 無法列出刪除前的即時用量證據。\n\n## 技術驗證\n\n| 檢查 | 狀態 |\n| --- | --- |\n| Skill 4 validation | PoC 可由人類授權啟動 |\n| CloudFormation | CloudFormation 建立完成 |\n| 自動化驗證 | 已驗證 |\n| AWS Console review | 已確認 |\n| Console 截圖證據 | 已截圖並經人類確認（1 張） |\n| cleanup | 已驗證 |\n\n### 技術驗證狀態\n\n- 官方來源已記錄：https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/\n- Skill 3 加權分已依固定 rubric 計算：4.15\n- PoC 成本估算報價單已建立：POC-QUOTE-D3255FE85969，預期 USD 0.000249。\n- CloudFormation stack 已達 CREATE_COMPLETE。\n- AWS Console review 已以 1 張截圖透過 GUI 或對話交由具名人員確認。\n- Skill 4 自動化驗證已通過：cloudformation_reference_mode。\n- Skill 4 自動化驗證已通過：lambda_invoke。\n\n## 尚未驗證或證據不足\n\n- No candidate-relevant official AWS pricing page was fetched in this S2 run.\n- 可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。\n- Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。\n\n## Future work\n\n- 補上可歸因的 Cost Explorer、Billing 或 CUR artifact，讓 Skill 5 能比較預估成本與實際帳務成本。\n- 用同一篇新聞的應用面優勢設計第二輪 PoC 問題，例如增加資料量、併發、錯誤情境或觀測指標，而不是只證明資源能建立。\n- 把這個候選對應到一個明確的人類工作場景，補上目前做法、痛點、量測指標與導入後預期改善。\n- 整理成 final proposal / 論文可引用的案例：問題、方法、證據鏈、限制、價值與下一步。\n\n## Reviewer questions\n\n- 這篇新聞提到的新功能，最適合改善哪一個真實使用者流程？現有流程的 baseline 是什麼？\n- Skill 1 到 Skill 5 的每個結論分別由哪個 artifact 支撐？哪些只是推論或待驗證？\n- 報價單中哪一項最貴？預期情境中最高的是 S3 PUT/COPY/POST/LIST requests（USD 0.00015）；當 PUT/COPY/POST/LIST count x USD/request 增加時，這項費用會上升；什麼實際使用情境會讓它增加？\n- PoC 會建立哪些 AWS 資源？人類是否已確認這些資源、Region、成本上限與 cleanup 範圍？\n- 這次 PoC 只驗證功能可行，還是也驗證效能、可靠性、權限治理與可維運性？\n- 實際成本何時能用 Cost Explorer、Billing 或 CUR 歸因到這個 run？若不能歸因，報告要如何標示限制？\n\n## 延伸閱讀關鍵字\n\n- Lambda\n- S3\n- CloudFormation\n- storage\n- serverless\n- infrastructure\n- AWS Pricing Calculator\n- Cost Explorer\n- PoC cleanup\n- Future work\n\n## S1-S5 階段證據\n\n| 階段 | 狀態 | 證據 |\n| --- | --- | --- |\n| S1 Scan | scanned_with_gaps | candidate_count=1；external_fetch=是；source=https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/ |\n| S2 Compare | ready_for_human_shortlist | candidate_count=1；linked_evidence=1；region=新加坡區域可用 |\n| S3 Evaluate | evaluated | score=4.15 / 5；quote=POC-QUOTE-D3255FE85969；recommend_poc=是 |\n| S4 Validate | PoC 可由人類授權啟動 | runtime=清除已驗證；cloudformation=CloudFormation 建立完成；checks=已驗證 |\n| S4 Cleanup | 已驗證 | cleanup=已驗證；usage_snapshot=未記錄 |\n| S5 Report | 最終報告 | report_type=最終報告；actual_cost=待補實際帳務證據 |\n\n## 證據來源表\n\n| 敘述 | 類型 | 狀態 | 證據 |\n| --- | --- | --- | --- |\n| 候選技術的公開來源 | source-backed fact | recorded | https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/ |\n| recipe | runtime evidence | lambda_self_managed_s3_code_storage_cdk | S4 runtime artifact |\n| cloudformation_reference_mode | runtime evidence | 已驗證 | S4 runtime artifact |\n| lambda_invoke | runtime evidence | 已驗證 | S4 runtime artifact |\n| Infrastructure Composer Console review | human-reviewed screenshot evidence | 已確認 | S4 Console review evidence (1 screenshot metadata records) |\n| PoC 成本估算 | public list-price estimate | 已完成估算 | POC-QUOTE-D3255FE85969 |\n",
+  "human_summary": {
+    "headline": "本次受控 PoC 已完成、已人工確認，並已清除資源。",
+    "main_discovery": "Lambda 可以直接參照自管 S3 code package，且建立後仍可正常執行。",
+    "business_meaning": "這代表大量 Lambda 部署包可以改由自管 S3 bucket 當來源，可能改善部署與儲存治理；下一步要看 rollback、權限和生命週期管理是否可靠。",
+    "main_limit": "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+    "readiness_rows": [
+      {
+        "question": "我們的 AWS 帳號可以建立這個 PoC 嗎？",
+        "answer": "可以，已成功建立本次 PoC 所需資源。",
+        "evidence": "CloudFormation 建立完成。"
+      },
+      {
+        "question": "指定地區可以使用嗎？",
+        "answer": "可以，本次使用 ap-southeast-1。",
+        "evidence": "同一地區完成部署與驗證。"
+      },
+      {
+        "question": "權限夠不夠？",
+        "answer": "夠，至少足以完成本次最小 PoC。",
+        "evidence": "資源建立成功，且核心驗證通過。"
+      },
+      {
+        "question": "資源有沒有收乾淨？",
+        "answer": "已清除並回查。",
+        "evidence": "CloudFormation stack 已刪除；測試 bucket 已先清空；清除範圍符合本次測試前綴。"
+      }
+    ],
+    "completed_work": [
+      "整理官方來源，確認這個功能想解決的技術問題。",
+      "用固定評分準則完成 Skill 3 評估，分數為 4.15 / 5。",
+      "用公開價格建立小型 PoC 成本估算：預期約 USD 0.000249，核准上限 USD 0.05。",
+      "在 ap-southeast-1 建立受控 PoC 環境。",
+      "跑完核心驗證：CloudFormation 可以建立使用 REFERENCE 模式的 Lambda；Lambda 建立後可以成功 invoke。",
+      "完成 AWS Console 人工確認。",
+      "完成受控清除，避免測試資源繼續產生成本。"
+    ],
+    "poc_findings": [
+      "CloudFormation 可以建立使用 REFERENCE 模式的 Lambda",
+      "Lambda 建立後可以成功 invoke"
+    ],
+    "cost_summary": "預期約 USD 0.000249，核准上限 USD 0.05",
+    "cleanup_summary": "已清除並回查。",
+    "limits": [
+      "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+      "這次只證明最小 PoC 路徑可行，尚未測效能、可靠性、長時間運作或多人使用。",
+      "尚未證明 S3 object version rollback、source object 被刪除或撤權時的失敗行為。",
+      "預估成本不是 AWS 帳單，不能拿來宣稱實際花費。"
+    ],
+    "next_steps": [
+      "補 rollback 測試：同一個 Lambda 從不同 S3 object version 切回舊部署包。",
+      "外部查 REFERENCE 模式下的 bucket policy、code signing、生命週期刪除與 CI/CD 更新模式。"
+    ]
+  },
+  "markdown": "# Skill 5 PoC 結案報告：AWS Lambda 宣布自主管理程式碼儲存空間 - AWS\n\n## 一眼看重點\n\n- 結論：本次受控 PoC 已完成、已人工確認，並已清除資源。\n- 做完發現：Lambda 可以直接參照自管 S3 code package，且建立後仍可正常執行。\n- 對公司的意義：這代表大量 Lambda 部署包可以改由自管 S3 bucket 當來源，可能改善部署與儲存治理；下一步要看 rollback、權限和生命週期管理是否可靠。\n- 現在不能宣稱：這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。\n\n## 帳號、地區、權限能不能用\n\n| 問題 | 結論 | 證據 |\n| --- | --- | --- |\n| 我們的 AWS 帳號可以建立這個 PoC 嗎？ | 可以，已成功建立本次 PoC 所需資源。 | CloudFormation 建立完成。 |\n| 指定地區可以使用嗎？ | 可以，本次使用 ap-southeast-1。 | 同一地區完成部署與驗證。 |\n| 權限夠不夠？ | 夠，至少足以完成本次最小 PoC。 | 資源建立成功，且核心驗證通過。 |\n| 資源有沒有收乾淨？ | 已清除並回查。 | CloudFormation stack 已刪除；測試 bucket 已先清空；清除範圍符合本次測試前綴。 |\n\n## 我實際做完了什麼\n\n- 整理官方來源，確認這個功能想解決的技術問題。\n- 用固定評分準則完成 Skill 3 評估，分數為 4.15 / 5。\n- 用公開價格建立小型 PoC 成本估算：預期約 USD 0.000249，核准上限 USD 0.05。\n- 在 ap-southeast-1 建立受控 PoC 環境。\n- 跑完核心驗證：CloudFormation 可以建立使用 REFERENCE 模式的 Lambda；Lambda 建立後可以成功 invoke。\n- 完成 AWS Console 人工確認。\n- 完成受控清除，避免測試資源繼續產生成本。\n\n## 這次 PoC 證明了什麼\n\n- CloudFormation 可以建立使用 REFERENCE 模式的 Lambda\n- Lambda 建立後可以成功 invoke\n\n## 成本與清除狀態\n\n- 預估成本：預期約 USD 0.000249，核准上限 USD 0.05\n- 成本性質：這是部署前用公開價格估算，不是 AWS 帳單。\n- 清除狀態：已清除並回查。\n- 價格來源：AWS 官方公開定價頁。\n\n## 還不能拿來宣稱的事\n\n- 這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。\n- 這次只證明最小 PoC 路徑可行，尚未測效能、可靠性、長時間運作或多人使用。\n- 尚未證明 S3 object version rollback、source object 被刪除或撤權時的失敗行為。\n- 預估成本不是 AWS 帳單，不能拿來宣稱實際花費。\n\n## 下一步要補的決策證據\n\n- 補 rollback 測試：同一個 Lambda 從不同 S3 object version 切回舊部署包。\n- 外部查 REFERENCE 模式下的 bucket policy、code signing、生命週期刪除與 CI/CD 更新模式。\n\n## 官方來源\n\n- https://aws.amazon.com/tw/about-aws/whats-new/2026/07/lambda-self-managed-code-storage/\n",
   "gui_model": {
     "header": {
       "title": "AWS Lambda 宣布自主管理程式碼儲存空間 - AWS",
@@ -553,17 +646,73 @@
       "news_summary": {
         "status": "source_backed",
         "text": "新聞指出：AWS Lambda 宣布自主管理程式碼儲存空間 現在支援用於程式碼儲存的自主管理 Amazon S3 儲存貯體，讓您可直接從自己的 S3 儲存貯體參照來源程式碼，無需由 Lambda 建立中繼副本。這項功能可藉由移除複製步驟，消除程式碼儲存空間限制，並縮短函數建立與更新後的啟動時間。 AWS Lambda 是一項無伺服器運算服務，可執行您的程式碼，無需您管理伺服器。部署許多函數及作為 Lambda 層的額外程式碼的客戶，每個區域通常需要超過 75GB 的程式碼儲存空間，因此必須提交支援工單以提高此配額。…"
+      },
+      "human_summary": {
+        "headline": "本次受控 PoC 已完成、已人工確認，並已清除資源。",
+        "main_discovery": "Lambda 可以直接參照自管 S3 code package，且建立後仍可正常執行。",
+        "business_meaning": "這代表大量 Lambda 部署包可以改由自管 S3 bucket 當來源，可能改善部署與儲存治理；下一步要看 rollback、權限和生命週期管理是否可靠。",
+        "main_limit": "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+        "readiness_rows": [
+          {
+            "question": "我們的 AWS 帳號可以建立這個 PoC 嗎？",
+            "answer": "可以，已成功建立本次 PoC 所需資源。",
+            "evidence": "CloudFormation 建立完成。"
+          },
+          {
+            "question": "指定地區可以使用嗎？",
+            "answer": "可以，本次使用 ap-southeast-1。",
+            "evidence": "同一地區完成部署與驗證。"
+          },
+          {
+            "question": "權限夠不夠？",
+            "answer": "夠，至少足以完成本次最小 PoC。",
+            "evidence": "資源建立成功，且核心驗證通過。"
+          },
+          {
+            "question": "資源有沒有收乾淨？",
+            "answer": "已清除並回查。",
+            "evidence": "CloudFormation stack 已刪除；測試 bucket 已先清空；清除範圍符合本次測試前綴。"
+          }
+        ],
+        "completed_work": [
+          "整理官方來源，確認這個功能想解決的技術問題。",
+          "用固定評分準則完成 Skill 3 評估，分數為 4.15 / 5。",
+          "用公開價格建立小型 PoC 成本估算：預期約 USD 0.000249，核准上限 USD 0.05。",
+          "在 ap-southeast-1 建立受控 PoC 環境。",
+          "跑完核心驗證：CloudFormation 可以建立使用 REFERENCE 模式的 Lambda；Lambda 建立後可以成功 invoke。",
+          "完成 AWS Console 人工確認。",
+          "完成受控清除，避免測試資源繼續產生成本。"
+        ],
+        "poc_findings": [
+          "CloudFormation 可以建立使用 REFERENCE 模式的 Lambda",
+          "Lambda 建立後可以成功 invoke"
+        ],
+        "cost_summary": "預期約 USD 0.000249，核准上限 USD 0.05",
+        "cleanup_summary": "已清除並回查。",
+        "limits": [
+          "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+          "這次只證明最小 PoC 路徑可行，尚未測效能、可靠性、長時間運作或多人使用。",
+          "尚未證明 S3 object version rollback、source object 被刪除或撤權時的失敗行為。",
+          "預估成本不是 AWS 帳單，不能拿來宣稱實際花費。"
+        ],
+        "next_steps": [
+          "補 rollback 測試：同一個 Lambda 從不同 S3 object version 切回舊部署包。",
+          "外部查 REFERENCE 模式下的 bucket policy、code signing、生命週期刪除與 CI/CD 更新模式。"
+        ]
       }
     },
     "score": {
       "weighted_score": 4.15,
-      "confidence": "medium",
       "dimensions": {
         "technical_value": 4,
         "adoption_prerequisites": 3,
         "verifiability": 5,
         "risk_and_stop_conditions": 5
       }
+    },
+    "architecture_and_significance": {
+      "status": "not_recorded",
+      "note": "此 run 的 S1 artifact 沒有 explanation 區塊。"
     },
     "cost_quote": {
       "schema_version": "poc.cost-quote.v2",
@@ -869,47 +1018,61 @@
       ],
       "status_label": "已完成估算"
     },
-    "cost_reconciliation": {
-      "schema_version": "poc.cost-reconciliation.v1",
-      "status": "pending_actual_cost",
-      "estimated": {
-        "status": "estimated",
-        "quote_id": "POC-QUOTE-D3255FE85969",
-        "expected_total_usd": 0.000249,
-        "range_usd": {
-          "low": 7.2e-05,
-          "expected": 0.000249,
-          "high": 0.000886
-        },
-        "currency": "USD",
-        "source": "Skill 3 public list-price quote"
-      },
-      "actual": {
-        "status": "pending",
-        "amount_usd": null,
-        "currency": "USD",
-        "source_type": "not_available",
-        "source_artifact": null,
-        "reason": "No attributable AWS Billing, Cost Explorer, or CUR artifact was provided."
-      },
-      "delta_usd": null,
-      "rule": "Actual cost is shown only when an attributable AWS Billing, Cost Explorer, or CUR artifact records it; runtime duration is not converted into actual cost.",
-      "status_label": "待補實際成本"
-    },
     "pre_cleanup_usage_snapshot": {
       "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
       "status": "not_recorded",
       "billing_evidence": false,
       "actual_cost_status": "not_billing_evidence",
       "sections": {},
-      "rule": "cleanup 前未提供即時用量快照；實際成本仍只能由 Billing、Cost Explorer 或 CUR artifact 證明。",
+      "rule": "cleanup 前未提供即時用量快照；新版 Skill 5 不把 runtime facts 轉成實際 AWS 成本。",
       "status_label": "未記錄"
+    },
+    "resource_inventory": {
+      "status": "not_recorded",
+      "note": "此 run 沒有記錄 CloudFormation 資源盤點。"
+    },
+    "permission_surface": {
+      "status": "not_recorded",
+      "note": "此 run 未記錄實際使用的 IAM action。"
+    },
+    "stage_timings": {
+      "schema_version": "pipeline.timings.v1",
+      "rows": [
+        {
+          "stage": "S1",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S2",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S3",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S4",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S5",
+          "status": "not_recorded"
+        }
+      ],
+      "machine_seconds_total": 0.0,
+      "human_wait_seconds_total": 0.0,
+      "human_share": null,
+      "time_to_first_success_seconds": null,
+      "cross_host_stages": [],
+      "measurement_note": "",
+      "reading_note": "machine 是程式耗時，human 是卡在人工關卡的等待。兩者分開呈現：若 human 遠大於 machine，瓶頸在決策流程而不在工具。"
     },
     "console_review": {
       "status": "已確認",
       "screenshot_status": "已截圖並經人類確認（1 張）",
+      "review_evidence_status": "已截圖並經人類確認（1 張）",
       "evidence_recorded": true,
-      "privacy": "Render screenshot files only through an authenticated GUI or the active conversation; Git artifacts retain metadata only."
+      "privacy": "Render review evidence only through an authenticated GUI or the active conversation; Git artifacts retain metadata only."
     },
     "validation_checks": [
       {
@@ -929,7 +1092,7 @@
         "status": "已確認"
       },
       {
-        "label": "Console 截圖證據",
+        "label": "Console / 資源盤點證據",
         "status": "已截圖並經人類確認（1 張）"
       },
       {
@@ -948,14 +1111,13 @@
     ],
     "unknown_or_not_verified": [
       "No candidate-relevant official AWS pricing page was fetched in this S2 run.",
-      "可歸因實際帳務成本尚未由 Cost Explorer、Billing 或 CUR artifact 證實；不得以 runtime 估算代替。",
+      "報價單是依公開牌價與明列用量假設產生的預估；本流程不進行預估與實際帳務成本比對，金額未經任何 AWS 帳務資料驗證。",
       "Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。"
     ],
     "future_work": [
-      "補上可歸因的 Cost Explorer、Billing 或 CUR artifact，讓 Skill 5 能比較預估成本與實際帳務成本。",
-      "用同一篇新聞的應用面優勢設計第二輪 PoC 問題，例如增加資料量、併發、錯誤情境或觀測指標，而不是只證明資源能建立。",
-      "把這個候選對應到一個明確的人類工作場景，補上目前做法、痛點、量測指標與導入後預期改善。",
-      "整理成 final proposal / 論文可引用的案例：問題、方法、證據鏈、限制、價值與下一步。"
+      "把下一輪 PoC 從「資源能建立」推進到「REFERENCE 模式是否改善大型部署包/多函數 artifact 管理，同時仍保留 rollback、安全與生命週期控管」；先外部搜尋 Lambda self-managed S3 code storage + deployment artifact governance 的實務限制，再只挑一個會改變導入判斷的情境重跑。",
+      "補一個邊界測試：測 S3 object version rollback、bucket policy 最小權限、source object 被刪除或撤權時的失敗行為、以及 CI/CD 更新流程。成功標準要能被 log、resource inventory 或應用輸出證明，不要只看 Console 畫面。",
+      "把搜尋結果整理成一張「值得做 / 不值得做」判斷卡：新找到的證據、它改變哪個假設、下一輪最小 PoC 要測什麼、仍不能宣稱什麼。"
     ],
     "reviewer_questions": [
       "這篇新聞提到的新功能，最適合改善哪一個真實使用者流程？現有流程的 baseline 是什麼？",
@@ -963,19 +1125,41 @@
       "報價單中哪一項最貴？預期情境中最高的是 S3 PUT/COPY/POST/LIST requests（USD 0.00015）；當 PUT/COPY/POST/LIST count x USD/request 增加時，這項費用會上升；什麼實際使用情境會讓它增加？",
       "PoC 會建立哪些 AWS 資源？人類是否已確認這些資源、Region、成本上限與 cleanup 範圍？",
       "這次 PoC 只驗證功能可行，還是也驗證效能、可靠性、權限治理與可維運性？",
-      "實際成本何時能用 Cost Explorer、Billing 或 CUR 歸因到這個 run？若不能歸因，報告要如何標示限制？"
+      "報價單的計費方式與公式是否正確反映這個 recipe 會建立的每一項資源？有沒有漏算的常駐或用量型費用？"
     ],
+    "external_research": {
+      "status": "search_required",
+      "claim_boundary": "以下是建議外部搜尋方向，不是已驗證結論；採用前必須把找到的來源補回 S1/S2/S3 artifacts。",
+      "directions": [
+        {
+          "direction": "找出真正值得測的使用情境",
+          "query": "Lambda self-managed S3 code storage deployment artifact rollback versioning",
+          "why": "避免下一輪只是重跑官方 demo；要找到一個貼近使用者流程、資料型態或治理限制的場景。",
+          "useful_evidence": "官方範例、架構圖、限制說明、customer story 或 workshop，能指出資料流、使用者、成功標準與限制。"
+        },
+        {
+          "direction": "查部署與權限邊界",
+          "query": "Lambda S3ObjectStorageMode REFERENCE bucket policy GetObjectVersion code signing",
+          "why": "Skill 4 真正有價值的是證明帳號、Region、IAM、網路與 cleanup 邊界可控。",
+          "useful_evidence": "明確列出 IAM action、resource policy、network path、Region 支援、quota 或 rollback/cleanup 方法的文件。"
+        },
+        {
+          "direction": "查成本和失敗模式",
+          "query": "Lambda self-managed S3 code storage lifecycle quota cold start troubleshooting",
+          "why": "下一輪 PoC 應該測最可能讓決策翻盤的成本或可靠性風險。",
+          "useful_evidence": "定價頁、pricing example、troubleshooting guide、service quota、known limitation 或監控指標。"
+        }
+      ],
+      "after_search_action": "把搜尋結果拆成三類：可直接補強 Skill 4 recipe、只適合列為 reviewer question、以及會讓本候選暫停的 blocker。"
+    },
     "related_topics": [
-      "Lambda",
-      "S3",
-      "CloudFormation",
-      "storage",
-      "serverless",
-      "infrastructure",
-      "AWS Pricing Calculator",
-      "Cost Explorer",
-      "PoC cleanup",
-      "Future work"
+      "Lambda self-managed S3 code storage 官方 developer guide / administration guide",
+      "Lambda self-managed S3 code storage pricing、quota、Region support",
+      "Lambda self-managed S3 code storage IAM/resource policy/security best practices",
+      "Lambda self-managed S3 code storage troubleshooting、known limitations、rollback/cleanup",
+      "Lambda 與本 PoC 的整合模式",
+      "S3 與本 PoC 的整合模式",
+      "CloudFormation 與本 PoC 的整合模式"
     ],
     "stage_evidence": [
       {
@@ -1006,7 +1190,7 @@
       {
         "stage": "S5 Report",
         "status": "final",
-        "evidence": "report_type=最終報告；actual_cost=待補實際帳務證據"
+        "evidence": "report_type=最終報告；cost_basis=公開牌價預估（未與帳務比對）"
       }
     ],
     "evidence_ledger": [
