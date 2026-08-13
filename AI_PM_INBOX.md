@@ -1,5 +1,12 @@
 # AI PM 當日進度暫存
 
+## 2026-08-13 替換總表投影片：五個 Skill 的證據鏈
+
+- 依 Cleo 要求，重新設計原本「專案樹狀圖：五個 Skill 與它們的產出」投影片，改成一張可直接取代舊頁的單頁 PPTX。
+- 內容根據 `radar-redesign` 真實檔案結構整理：核心流程在 `agentic_cloud_radar/`，五個 Skill 規則在 `skills/*/SKILL.md` 與 `agents/openai.yaml`，S3 Files 成功案例在 `reference-runs/s3-files-20260731-manual-console/`，可重跑檢查在 `tests/`。
+- 新投影片的主軸不是列出資料夾，而是說明五個 Skill 如何形成「可交接、可追責、可重跑」的證據鏈；並把人類介入點明確放在「選定唯一候選」與「具名核准加成本上限」。
+- 產出檔案：`final-proposal/replacement-slides/skill-artifact-chain-replacement-20260813.pptx`。已用簡報檢查工具確認沒有文字溢位，並用 PNG 預覽人工檢查沒有明顯重疊。
+
 ## 2026-08-13 重新產出 S3 Files + EC2 mount Skill 5 報告
 
 - 依 Cleo 要求，用新版 Skill 5 重新產出 EC2 掛載 S3 Files 的成功案例報告，沒有重跑 AWS，只使用既有 reference run 的 S1-S4 與 cleanup 後 runtime 證據。
