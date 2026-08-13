@@ -81,6 +81,7 @@ def build_report(
         "future_work": _future_work(report_candidate, selected, runtime),
         "reviewer_questions": _reviewer_questions(selected, runtime),
         "external_research": _external_research_directions(report_candidate, compare, selected, runtime),
+        "related_articles_and_examples": _related_articles_and_application_examples(report_candidate, compare, selected),
         "related_topics": _related_topics(report_candidate, compare, selected),
         "stage_evidence": _stage_evidence(scan, compare, evaluate, validate, runtime, selected, status),
         "funnel": _funnel(scan, compare, evaluate, validate),
@@ -130,6 +131,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(["", "## Future work", ""])
     lines.extend(f"- {item}" for item in report["future_work"] or ["尚無額外 Future work。"])
     lines.extend(_render_external_research(report["external_research"]))
+    lines.extend(_render_related_articles_and_examples(report["related_articles_and_examples"]))
     lines.extend(["", "## Reviewer questions", ""])
     lines.extend(f"- {item}" for item in report["reviewer_questions"] or ["尚無額外 reviewer question。"])
     lines.extend(["", "## 延伸閱讀關鍵字", ""])
@@ -187,6 +189,8 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(["", "## 下一步要補的決策證據", ""])
     lines.extend(f"- {item}" for item in summary["next_steps"])
 
+    lines.extend(_render_related_articles_and_examples(report["related_articles_and_examples"]))
+
     if candidate.get("source_url") and candidate.get("source_url") != "unknown":
         lines.extend(["", "## 官方來源", "", f"- {candidate['source_url']}"])
     return "\n".join(lines) + "\n"
@@ -227,6 +231,7 @@ def build_gui_model(report: dict[str, Any]) -> dict[str, Any]:
         "future_work": report["future_work"],
         "reviewer_questions": report["reviewer_questions"],
         "external_research": report["external_research"],
+        "related_articles_and_examples": report["related_articles_and_examples"],
         "related_topics": report["related_topics"],
         "stage_evidence": report["stage_evidence"],
         "evidence_ledger": report["evidence_ledger"],
@@ -1343,6 +1348,137 @@ def _render_external_research(section: dict[str, Any]) -> list[str]:
         )
     if section.get("after_search_action"):
         lines.append(f"- 搜完後動作：{section['after_search_action']}")
+    return lines
+
+
+def _related_articles_and_application_examples(
+    report_candidate: dict[str, Any] | None,
+    compare: dict[str, Any] | None,
+    selected: dict[str, Any] | None,
+) -> dict[str, Any]:
+    profile = _case_profile(report_candidate, selected)
+    title = str((report_candidate or selected or {}).get("title") or "unknown")
+    source_url = (
+        (report_candidate or {}).get("source_url")
+        or (selected or {}).get("source_url")
+        or ""
+    )
+    articles: list[dict[str, str]] = []
+    if source_url:
+        articles.append(
+            {
+                "title": f"{title} 原始來源文章",
+                "url": source_url,
+                "type": "已取得來源",
+                "why_it_matters": "這是本次 S1-S5 證據鏈的起點，只能支持原文已明確寫出的主張。",
+                "next_role": "預言者雷達",
+            }
+        )
+    articles.extend(
+        [
+            {
+                "title": f"{profile['display_name']} 官方實作文件或 workshop",
+                "url": "",
+                "query": profile["scenario_query"],
+                "type": "待外部搜尋",
+                "why_it_matters": "補足原始新聞沒有講清楚的部署步驟、架構限制與操作條件。",
+                "next_role": "架構師 / 驗證者",
+            },
+            {
+                "title": f"{profile['display_name']} 權限、治理與 rollback 案例",
+                "url": "",
+                "query": profile["governance_query"],
+                "type": "待外部搜尋",
+                "why_it_matters": "判斷它能不能從展示型 PoC 進到受控導入，尤其是 IAM、Region、cleanup 與回復策略。",
+                "next_role": "治理者 / 驗證者",
+            },
+        ]
+    )
+    return {
+        "status": "articles_and_examples_required",
+        "claim_boundary": (
+            "此節把已取得來源與待外搜文章分開；待外搜項目不是已驗證結論，找到來源後必須回填到 S1/S2/S3 才能升級為證據。"
+        ),
+        "articles": articles,
+        "application_examples": _application_examples_for_profile(profile),
+    }
+
+
+def _application_examples_for_profile(profile: dict[str, str]) -> list[dict[str, str]]:
+    name = profile["display_name"]
+    if name == "S3 Files":
+        return [
+            {
+                "scenario": "把既有 EC2 檔案讀寫工作負載接到 S3 bucket",
+                "how_it_uses_candidate": "用 S3 Files mount 方式讓應用程式先維持檔案系統介面，再觀察同步、延遲與一致性限制。",
+                "decision_it_changes": "決定下一輪要測真實檔案操作情境，不只是證明 EC2 可以 mount。",
+                "next_role": "驗證者",
+            },
+            {
+                "scenario": "資料湖前處理或批次匯入暫存區",
+                "how_it_uses_candidate": "讓工具用檔案介面寫入資料，再回到 S3 bucket 做後續分析或治理。",
+                "decision_it_changes": "判斷 S3 Files 適合過渡型整合，還是應直接改寫成原生 S3 API。",
+                "next_role": "架構師",
+            },
+        ]
+    if name == "Lambda self-managed S3 code storage":
+        return [
+            {
+                "scenario": "大型 Lambda deployment package 的版本治理",
+                "how_it_uses_candidate": "把函式程式碼保留在 S3 object，讓版本、生命週期、bucket policy 與 rollback 變成可審核對象。",
+                "decision_it_changes": "決定下一輪要測 S3 object version rollback、bucket policy 與 CI/CD 更新流程。",
+                "next_role": "治理者 / 落地者",
+            },
+            {
+                "scenario": "跨團隊共用部署 artifact 的控管流程",
+                "how_it_uses_candidate": "把部署包來源與存取權限獨立出來，讓平台團隊可以檢查誰能更新、誰能讀取、何時清除。",
+                "decision_it_changes": "判斷它是單純便利功能，還是能支撐正式部署治理。",
+                "next_role": "平台架構師",
+            },
+        ]
+    if name == "WorkSpaces Applications agent access":
+        return [
+            {
+                "scenario": "AI agent 操作受控桌面應用程式",
+                "how_it_uses_candidate": "先驗證 AgentAccessConfig 與人類可觀察 / 可停止邊界，再決定是否進入完整桌面工作流。",
+                "decision_it_changes": "決定是否值得付出 full session 成本與更高治理成本。",
+                "next_role": "治理者 / 產品負責人",
+            }
+        ]
+    if name == "Amazon Quick Suite":
+        return [
+            {
+                "scenario": "企業知識問答與 action connector 工作流",
+                "how_it_uses_candidate": "需要找到可部署 API、connector、權限與 usage metric 後，才可能變成可驗證 PoC。",
+                "decision_it_changes": "若只找到產品宣傳，維持 stop；若找到可重現 recipe，才回到 Skill 3 重評。",
+                "next_role": "評估者 / 治理者",
+            }
+        ]
+    return [
+        {
+            "scenario": f"{name} 的目標工作負載導入情境",
+            "how_it_uses_candidate": "用外部文章或案例補足原始來源未說明的架構、限制、成本與權限條件。",
+            "decision_it_changes": "決定下一輪是補 Skill 3 證據、建立 Skill 4 recipe，還是維持 stop decision。",
+            "next_role": "評估者 / 架構師",
+        }
+    ]
+
+
+def _render_related_articles_and_examples(section: dict[str, Any]) -> list[str]:
+    lines = ["", "## 相關文章與應用實例", ""]
+    lines.append(f"- 證據邊界：{section.get('claim_boundary')}")
+    lines.extend(["", "### 相關文章", ""])
+    for item in section.get("articles") or []:
+        target = item.get("url") or f"搜尋：`{item.get('query', '')}`"
+        lines.append(f"- {item['title']}（{item['type']}）：{target}")
+        lines.append(f"  - 為什麼要看：{item['why_it_matters']}")
+        lines.append(f"  - 會交給誰用：{item['next_role']}")
+    lines.extend(["", "### 應用實例", ""])
+    for item in section.get("application_examples") or []:
+        lines.append(f"- {item['scenario']}")
+        lines.append(f"  - 怎麼用在本案例：{item['how_it_uses_candidate']}")
+        lines.append(f"  - 會改變的判斷：{item['decision_it_changes']}")
+        lines.append(f"  - 下一個角色：{item['next_role']}")
     return lines
 
 

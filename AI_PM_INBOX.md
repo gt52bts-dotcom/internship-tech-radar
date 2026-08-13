@@ -1,11 +1,18 @@
 # AI PM 當日進度暫存
 
+## 2026-08-12 17:00 - 正式日誌統整狀態
+
+- 已將本日五個 Skill 證據化改寫與 8/14 CIP 成果報告初版審閱建議統整至 Git 正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡；積分為 Scan +0、Compare +0、Evaluate +1、Validate +1、Report +2，總分 +4，累積 158，目標對齊 direct。
+- 本日不把既有案例矩陣重複計為 Scan／Compare；Skill 4 僅採計既有 Lambda／S3 Files PoC 證據校正，沒有 live PoC、AWS 資源、帳務、部署、cleanup 或新產品測試。
+- Notion 連線工具在本次執行環境不可用，因此 Notion 日誌頁、五筆 Skill 每日積分與內嵌 dashboard 尚未同步，待可用連線後補做並回讀確認。
+
 ## 2026-08-12 - 五個 Skill Markdown 具體化修正
 
 - Cleo 指出前一版 Skill 介紹「假裝細緻」，需要用實際報告畫面、案例、公式、評分依據與權重說明支撐，而不是寫很多泛用敘述；同時要求刪除講稿、GitHub 位置與交付物區塊。
 - 已先重寫 Skill 3：補上 Lambda 成本報表示例、AWS Lambda / S3 官方計價依據、目前五構面評分權重與 Well-Architected / Cost Optimization / ISO 19086 依據。
 - 已接著重寫 Skill 1、Skill 2、Skill 4、Skill 5 四份 Markdown：加入 Skill 1 來源證據表、Skill 2 四案例比較矩陣、Skill 4 核准欄位與 Lambda / S3 Files PoC 證據、Skill 5 成功與停止案例報告畫面。
 - 所有五份 Skill Markdown 已移除單獨的「交付物」、「GitHub 位置」與「20 秒講稿」區塊；此輪沒有執行 live PoC、建立 AWS 資源、帳務查詢或 Notion 同步。
+- 已檢查 Cleo 下載資料夾中的 8/14 CIP 成果報告 PPT 初版，共 35 頁；本輪僅做審閱建議，未改動 PPT 檔。主要建議為降低第 6-12 頁 Skill 解釋密度、修正時間頁 S3 Files 口徑、讓停止案例更明確區分「停止」而非失敗、收斂交付物頁與結尾問題。
 
 ## 2026-08-11 17:00 - 正式日誌統整狀態
 
@@ -1280,3 +1287,31 @@
 - Cleo 進一步指出「不做什麼」區塊對簡報沒有意義；已從五份 Markdown 移除該段，並把專案記憶改為：文字版 Skill 說明不再單獨列「不做什麼」，必要邊界只在亮點或案例說法中自然帶出。
 - Cleo 再指出前版是假裝細緻，缺少真正可展示的成本公式、評分準則與依據；已重寫 Skill 3 Markdown，加入 Lambda 成本報表展法、AWS Lambda / Amazon S3 官方 pricing 來源、評分五構面權重與依據說法。
 - Cleo 要求刪除講稿、GitHub 位置與交付物區塊；已從五份 Skill Markdown 移除，並更新專案記憶，後續除非是交接文件，不再把這三段放進 final-proposal Skill 說明稿。
+## 2026-08-12 - Skill 5 Future work / 延伸閱讀品質修正
+- Cleo 指出目前 Skill 5 的 `Future work` 與延伸閱讀內容太空泛，對實際使用者沒有幫助；新規則改為輸出「外部搜尋與延伸閱讀方向」，包含精確搜尋 query、搜尋原因、有用證據長相，以及搜尋後如何分類成 recipe 補強、reviewer question 或 blocker。
+- 已更新 `radar-redesign/agentic_cloud_radar/s5.py`：Future work 會依案例類型產生下一輪 PoC 決策問題與邊界測試，例如 S3 Files 會聚焦 EC2 mount 之外的同步延遲、POSIX 權限、AZ/mount target 與一致性；Lambda 會聚焦 S3 object version rollback、bucket policy、source object 刪除/撤權與 CI/CD 更新流程。
+- 已更新 `radar-redesign/skills/report-cloud-evidence/SKILL.md` 與 `PROJECT_MEMORY.md`，明確禁止只輸出 generic keyword 或「整理 final proposal」這類無差別 Future work。外部搜尋方向仍是下一步建議，不得當成已驗證結論；搜尋到的證據必須回填 S1/S2/S3 artifacts 才能進入正式報告證據。
+- 已用新版 S5 產生器重產兩份成功案例 reference report：`radar-redesign/reference-runs/lambda-self-managed-code-storage-20260731/s5-lambda-self-managed.md` 與 `radar-redesign/reference-runs/s3-files-20260731-manual-console/s5-report.md`。驗證：`python -m unittest tests.test_s5 -v` 10 項通過，`python -m compileall agentic_cloud_radar` 通過。
+
+## 2026-08-12 - Skill 5 人類報告可讀性修正
+- Cleo 指出 Skill 5 報告仍像長篇狀態帳本，沒有先回答「PoC 做完發現什麼、帳號/地區/權限能不能用、實際做完什麼、意義是什麼」，且不應在人類版顯示英文檔名、run ID、quote ID、raw artifact / recipe / status code。
+- 已更新 `radar-redesign/agentic_cloud_radar/s5.py`：新增 `human_summary`，Markdown 改為主管摘要格式，開頭固定包含「一眼看重點」、「帳號、地區、權限能不能用」、「我實際做完了什麼」、「這次 PoC 證明了什麼」、「成本與清除狀態」、「還不能拿來宣稱的事」、「下一步要補的決策證據」。完整證據帳本仍保留在 JSON/GUI model，不塞進人類 Markdown。
+- 已重產 Lambda 與 S3 Files 兩份成功案例 S5 報告；內容檢查確認人類版不再出現 `Run ID`、`Quote ID`、`artifact`、內部 recipe 名稱、舊版 `Future work` / `Reviewer questions` / `S1-S5` 長表。驗證：`python -m unittest tests.test_s5 -v` 10 項通過，`python -m compileall agentic_cloud_radar` 通過，`git diff --check` 無 whitespace error（僅 Windows CRLF 提示）。
+
+## 2026-08-12 - 五份 Skill.md 繁中整理
+- Cleo 要求直接把五份 Skill 文件翻成中文並整理好。已重寫 `radar-redesign/skills/scan-cloud-technologies/SKILL.md`、`compare-cloud-candidates/SKILL.md`、`evaluate-cloud-candidate/SKILL.md`、`validate-cloud-poc/SKILL.md`、`report-cloud-evidence/SKILL.md`。
+- 新版 Skill 1 強調「來源掃描與證據拆解」；Skill 2 強調「候選比較與人類選擇準備」，並補上單一新聞模式可壓縮 Skill 2；Skill 3 強調「單一候選評估與 PoC 決策」；Skill 4 強調「受控 AWS PoC 驗證」與 resource inventory gate；Skill 5 強調「證據結案與人類摘要」，避免回到狀態帳本。
+- 檢查結果：五份檔案以 UTF-8 讀取正常，沒有舊亂碼 marker（如 `嚗`、`銝`、`蝯`、`撌`、`瘥`）；`git diff --check` 只有 Windows CRLF 提示，沒有 whitespace error。
+- 已依 Cleo 要求將五份整理好的 Markdown 集中複製到 `final-proposal/五份Skill中文整理-20260812/`，檔名改為 `01-Skill1-...` 到 `05-Skill5-...` 的閱讀版，並新增 `README.md` 作為目錄。來源檔仍保留在 `radar-redesign/skills/*/SKILL.md`。
+- 驗證：`python -m unittest tests.test_s5 -v` 通過 10 項；`python -m compileall agentic_cloud_radar` 通過。
+
+- [2026-08-12 16:01:19 +08:00] 已補上 Skill 3 評分準則中文閱讀版，放入 inal-proposal/五份Skill中文整理-20260812/06-Skill3-評分準則與四案例對照.md，並重寫同資料夾 README，將 Lambda、S3 Files、WorkSpaces、Quick Suite 四案例的通過/停止理由整理成主管可讀版本。
+
+## 2026-08-13 09:36 - Skill 5 相關文章與應用實例規則
+
+- Cleo 指出 Skill 5 不能只有 Future work 或外部搜尋 query，報告本身必須產出「相關文章與應用實例」。
+- 已修改 `radar-redesign/agentic_cloud_radar/s5.py`：新增 `related_articles_and_examples` 結構化欄位，Markdown 固定輸出「相關文章與應用實例」章節，GUI model 也保留同一份資料。
+- 新章節會分開標示已取得的原始來源文章與待外搜的官方文件 / workshop / sample repo / customer story / 實作文章搜尋目標，並說明每篇文章為什麼要看、交給哪個後續角色使用、會改變哪個 PoC / stop / adoption 判斷。
+- 應用實例不再寫成空泛方向，會列出候選技術可用在哪些具體場景，以及下一輪要測什麼。例如 S3 Files 會產出 EC2 檔案工作負載接到 S3 bucket、資料湖前處理或批次匯入暫存區等情境。
+- 已更新 `radar-redesign/skills/report-cloud-evidence/SKILL.md` 與 `PROJECT_MEMORY.md`，把這件事寫成 Skill 5 的硬性輸出規則。
+- 驗證：`python -m unittest tests.test_s5 -v` 通過 10 個測試。

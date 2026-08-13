@@ -123,6 +123,10 @@ Skill 5 可以產出 external research directions，但要清楚標示：
 - 這是下一步搜尋建議，不是已驗證結論。
 - 採用前，搜尋到的證據必須回填 S1/S2/S3 artifact，才能變成 report evidence。
 - 每個方向要包含 query、why、useful evidence shape、after-search action。
+- 報告必須固定產出 `相關文章與應用實例`。這不是可選段落。
+- `相關文章` 至少要包含本次已取得的原始來源文章；若 runtime 無法即時上網，也必須列出待外搜的官方文件、workshop、sample repo、customer story 或實作文章搜尋目標。
+- `應用實例` 至少要列出 1-2 個跟本次候選技術相關的使用情境，並說明它如何使用本技術、會改變哪個 PoC / stop decision、下一個角色是驗證者、架構師、治理者、產品負責人或落地者。
+- 不得只輸出鬆散關鍵字。每篇文章或搜尋目標都要回答：為什麼要看、哪個角色會用、會改變哪個判斷。
 
 例如 Lambda self-managed S3 code storage：
 

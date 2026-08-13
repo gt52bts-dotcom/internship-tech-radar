@@ -473,3 +473,15 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Cleo rejected Skill 5 reports that read like long status ledgers. Supervisor-facing S5 Markdown must begin with human conclusions: what the PoC discovered, whether this AWS account / target Region / tested permission path worked, what was actually completed, why it matters, what cannot be claimed, and what decision evidence should be added next.
 - Do not expose internal file names, raw artifact wording, run IDs, quote IDs, raw status codes, internal recipe identifiers, or English-only success criteria in supervisor-facing S5 Markdown. Keep those details in JSON/GUI audit data.
 - Human-facing S5 cost content should summarize expected estimate, approval ceiling, public-price nature, not-AWS-billing limitation, and cleanup status. Long line-item tables belong only in JSON/GUI or an explicitly requested appendix.
+
+## 2026-08-13 Prophet Role Positioning
+
+- Correction from Cleo: `預言者` means the full five-Skill workflow, not only the first discovery role. Skill 1-5 together form the prophet process: scan signals, compare candidates, evaluate one selected candidate, validate through controlled PoC when allowed, and report the evidence-backed conclusion.
+- The "first step" of the prophet process is signal discovery / radar input, but the prophet role itself includes the complete S1-S5 evidence chain. Do not describe the prophet as merely a handoff before evaluation or validation.
+- Future proposal and Skill 5 next-step language may still mention other downstream roles, but only after clearly stating that `預言者雷達` already covers the five-Skill discovery-to-reporting flow. Downstream roles should be framed as what happens after this evidence package is produced, such as product owner, governance reviewer, production architect, or implementation team.
+
+## 2026-08-13 Skill 5 Related Articles and Application Examples Rule
+
+- Cleo clarified that Skill 5 must produce `相關文章與應用實例`, not only future-work search directions. The report must include related articles / source targets and concrete application examples tied to the candidate technology.
+- At minimum, S5 should separate already-known source articles from still-needed external searches, then explain why each article matters, which downstream role would use it, and which PoC / stop / adoption decision it could change.
+- Application examples should be concrete use cases, not generic possibilities. Each example should say how the technology would be used, what next test or decision it implies, and whether the next owner is verifier, architect, governance reviewer, product owner, or implementation team.
