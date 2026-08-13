@@ -454,6 +454,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - This case is intended for the 2026-08-14 presentation as a distinct stop example from WorkSpaces: WorkSpaces demonstrates cost/compliance/decision-increment risk, while Quick Suite demonstrates that official promotional claims are not enough for Skill 4 PoC.
 - Correction after Cleo's reminder: the Quick Suite Skill 3 report must follow the redesigned HTML-first human report format, not the old plain Markdown-to-HTML output. For blocked / ad-claim cases, the architecture section should show a clear blocked architecture card instead of a "please generate image" placeholder, render tables as real HTML tables, and display blockers/review notes in Chinese rather than raw machine codes.
 - Stronger report-language rule after Cleo's correction: supervisor-facing Skill 3 reports must read like a human technical decision report in Traditional Chinese. They should start with a supervisor summary, explain what the article says, why a PoC would or would not be valuable, what minimum architecture is or is not available, then show the score and gate result. Do not expose mojibake, raw blocker codes, raw status codes, or JSON-shaped field names in the human-facing HTML/Markdown report.
+- 2026-08-13 correction after Cleo's review: Quick Suite verifiability was previously too high at `4 / 5` because the generic validation design was treated as if it were source-backed. The corrected rerun under `radar-redesign/out/quick-suite-rerun-20260813-verifiability/` scores Quick Suite `3.1 / 5`, with verifiability `1 / 5`, blockers `implementation_detail_insufficient`, `veto_verifiability`, and `no_deployable_recipe`. For official product/news articles that lack implementation details, resource list, IAM/data flow, success criteria, or cleanup scope, the validation design must not raise verifiability above low score merely because AI can imagine a before/after test.
 
 ## 2026-08-12 Final Proposal Skill Visual Style Rule
 
@@ -480,8 +481,43 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - The "first step" of the prophet process is signal discovery / radar input, but the prophet role itself includes the complete S1-S5 evidence chain. Do not describe the prophet as merely a handoff before evaluation or validation.
 - Future proposal and Skill 5 next-step language may still mention other downstream roles, but only after clearly stating that `預言者雷達` already covers the five-Skill discovery-to-reporting flow. Downstream roles should be framed as what happens after this evidence package is produced, such as product owner, governance reviewer, production architect, or implementation team.
 
+## 2026-08-13 Career Positioning Preference
+
+- Cleo explicitly stated that she does not feel suited to PM. Future career-positioning advice should not frame pure PM as the primary fit.
+- When analyzing career direction from work records, prioritize technical/architecture/research-validation roles such as cloud solution architect, AI/cloud engineer, platform/DevOps engineer, solution engineer, technical consultant, or technology researcher. AI PM may still describe the collaboration workflow, but not Cleo's main career identity unless she reopens that direction.
+- Cleo is a communications engineering student about to enter junior year. Career advice should treat her as still exploring, with room to build fundamentals and sample multiple technical directions before locking into a title.
+
 ## 2026-08-13 Skill 5 Related Articles and Application Examples Rule
 
 - Cleo clarified that Skill 5 must produce `相關文章與應用實例`, not only future-work search directions. The report must include related articles / source targets and concrete application examples tied to the candidate technology.
 - At minimum, S5 should separate already-known source articles from still-needed external searches, then explain why each article matters, which downstream role would use it, and which PoC / stop / adoption decision it could change.
 - Application examples should be concrete use cases, not generic possibilities. Each example should say how the technology would be used, what next test or decision it implies, and whether the next owner is verifier, architect, governance reviewer, product owner, or implementation team.
+
+## 2026-08-13 Skill 3 Deployment Decision Pause Rule
+
+- Correction after Cleo's process review: even if Cleo asks to run the full Skill 1-5 prophet flow, Codex must pause after Skill 3 before any Skill 4 live AWS deployment.
+- Before deployment, Codex must show the Skill 3 human decision report, including the flow / architecture diagram if available, score, PoC proof question, expected/high cost estimate, recommended approval ceiling, planned recipe/resources, success criteria, limits, and cleanup scope.
+- Only after Cleo explicitly confirms deployment approval for Skill 4 may Codex create AWS resources. Do not treat "run the full flow" or "run S1-S5" as implicit approval to skip the Skill 3 decision gate.
+
+## 2026-08-13 Controllability Rubric Clarification
+
+- Cleo clarified that `可控制性與停止機制` should primarily mean whether AI / the workflow can recognize that a PoC is going wrong, admit the prior judgment is unsupported or mistaken, pause further action, and wait for human decision.
+- This is distinct from `可逆性與終止`: controllability is about stopping or pausing while the action is unfolding; reversibility is about whether resources, costs, and evidence can be cleaned up or recovered after stopping.
+- Do not let non-refundable cost or cleanup details dominate controllability scoring; those belong mainly to reversibility. Controllability scoring should emphasize blocker recognition, abort / awaiting-human gates, and whether unknowns are treated as reasons to pause instead of reasons to continue.
+
+## 2026-08-13 Skill 3 Rubric Summary Display Rule
+
+- Cleo prefers the current Skill 3 scoring-criteria document format; do not replace it with a different Skill 3 report-style layout unless explicitly requested.
+- The rubric summary must still show the current weights and explain that Skill 3 report weighted points are calculated as `dimension score × dimension weight`, with total score equal to the weighted-point sum out of 5.
+- If `SMI` appears in human-facing rubric documentation, explain that it is a Service Measurement Index reference label only. It does not add points and is not a separate decision gate.
+
+## 2026-08-13 Four Case Current Skill 3 Scores
+
+- Cleo requested a detailed re-evaluation of the four final-proposal cases using the current 2026-08-13 Skill 3 rubric and weights.
+- Current detailed score reference: `final-proposal/四案例新版Skill3細節評分-20260813.md`.
+- Recomputed results: Lambda self-managed code storage `4.35 / 5` success; S3 Files `4.15 / 5` success; WorkSpaces AI Agents `2.60 / 5` stop; Amazon Quick Suite `3.10 / 5` stop.
+- The two stop cases are intentionally different: WorkSpaces stops mainly on reversibility / licensing / compliance and incomplete decision evidence; Quick Suite stops mainly on verifiability because the official article lacks implementation details and no deployable recipe exists.
+## 2026-08-13 Daily Log README Sync Rule
+
+- After a formal daily log is completed, always update the root `README.md` in the same task so the project homepage reflects the newest daily outcome, Skill scores, cumulative total, current status, and any important pending boundary.
+- Treat the README update as part of the daily-log completion checklist, not as an optional follow-up.

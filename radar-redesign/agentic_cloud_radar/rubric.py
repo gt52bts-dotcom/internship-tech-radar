@@ -81,18 +81,18 @@ RUBRIC_CRITERIA: dict[str, dict[str, Any]] = {
             {"score": 5, "condition": "核心主張可由明確的通過／失敗條件驗證，且條件已寫入可部署 recipe",
              "evidence": "recipe 已登錄，且驗證設計含成功證據與前後量測",
              "why": "寫進 recipe 才代表驗證會真的執行，而非停留在設計"},
-            {"score": 4, "condition": "可驗證且已有成功證據與前後量測，但尚未寫入 recipe",
-             "evidence": "驗證設計完整，recipe 未登錄或未涵蓋",
-             "why": "設計已可否證，只差落實"},
+            {"score": 4, "condition": "來源已提供足夠實作線索，且已有成功證據與前後量測，但尚未寫入 recipe",
+             "evidence": "驗證設計完整，且 S1/S2 至少能支撐最小架構與多個原文明述元件",
+             "why": "設計必須被來源實作線索支撐，否則只是 AI 推導的測試想像"},
             {"score": 3, "condition": "只能驗證部分主張，核心能力未納入成功條件",
              "evidence": "recipe 已登錄但成功條件未涵蓋核心主張；或缺前後量測",
              "why": "能證明建得起來，不等於證明新聞說的效果"},
             {"score": 2, "condition": "只能驗證周邊事實，核心主張無法檢驗",
              "evidence": "僅有成功證據或僅有前後量測其一",
              "why": "周邊事實不構成對主張的檢驗"},
-            {"score": 1, "condition": "主張本身無法設計出可否證的實驗",
-             "evidence": "無驗證設計且無 recipe 成功條件",
-             "why": "不可否證的主張無法藉 PoC 增加資訊"},
+            {"score": 1, "condition": "來源缺少實作細節，無法定義來源支撐的可否證實驗",
+             "evidence": "無 recipe 成功條件，且最小架構主要是 inferred/drafted 或只有一個原文明述元件",
+             "why": "沒有資源清單、資料流、權限、成功條件或部署步驟時，PoC 設計只是推測，不能提高可驗證性"},
             {"score": 0, "condition": "無任何可驗證內容",
              "evidence": "無主張亦無驗證設計",
              "why": "無可檢驗對象"},
@@ -142,29 +142,29 @@ RUBRIC_CRITERIA: dict[str, dict[str, Any]] = {
         "label": "可控制性與停止機制",
         "weight": 0.15,
         "veto_at_or_below": 2,
-        "question": "執行中能否即時停止？（不評發生機率——公開公告推導不出機率）",
+        "question": "PoC 證據不支持原判斷、部署異常或前提不明時，AI/流程能否承認問題並暫停行動？",
         "smi": "SMI Assurance（風險可停止性）",
         "inputs": [
-            {"field": "proposal_card.validation_design.stop_conditions", "stage": STAGE_S2, "note": "停止條件"},
-            {"field": "comparison_dimensions.unknowns", "stage": STAGE_S2, "note": "未知項目"},
-            {"field": "cost_estimate.quote.cost_containment_model", "stage": STAGE_S3, "note": "清除能否止血"},
+            {"field": "proposal_card.validation_design.stop_conditions", "stage": STAGE_S2, "note": "AI/流程何時必須停止或改成人工判斷"},
+            {"field": "comparison_dimensions.unknowns", "stage": STAGE_S2, "note": "未知項目是否多到必須承認證據不足"},
+            {"field": "poc_blockers / veto_violations", "stage": STAGE_S3, "note": "是否能把 blocker 視為暫停訊號，而不是硬做 PoC"},
         ],
         "levels": [
-            {"score": 5, "condition": "停止條件已定義且可自動觸發，具明確中止指令",
-             "evidence": "停止條件存在，未知項少於四項，且無不可退款成本",
-             "why": "不依賴人在場，出事即可停"},
-            {"score": 4, "condition": "停止條件已定義，但觸發時機需人工判斷",
+            {"score": 5, "condition": "停止條件已定義且可自動觸發，AI 能在證據不支持時停止下一步",
+             "evidence": "停止條件存在，未知項少於四項，且有明確 abort / awaiting human gate 訊號",
+             "why": "重點不是把流程跑完，而是能在判斷錯誤或證據不足時先停住"},
+            {"score": 4, "condition": "停止條件已定義，AI 能標出風險並等待人工判斷",
              "evidence": "停止條件存在，未知項少於四項",
-             "why": "可停，但反應速度取決於人"},
-            {"score": 3, "condition": "有停止條件但涵蓋不全",
+             "why": "流程知道不能硬做，但暫停時機仍依賴人類確認"},
+            {"score": 3, "condition": "有停止條件但涵蓋不全，AI 可能太晚承認證據不足",
              "evidence": "停止條件存在，未知項四項以上",
-             "why": "未知項過多代表可能出現未預期的停止時機"},
-            {"score": 2, "condition": "存在無法於執行中停止的支出或行為",
-             "evidence": "報價載明有無法由清除退款的成本項",
-             "why": "停止機制對該部分無效，等同失效"},
-            {"score": 1, "condition": "未定義停止條件",
+             "why": "未知項太多時，AI 可能仍能停，但容易誤判何時該停"},
+            {"score": 2, "condition": "停止條件模糊，AI 只能事後標記風險，無法在行動前暫停",
+             "evidence": "只有泛用風險提示，沒有明確 blocker、abort path 或人工 gate",
+             "why": "看得出有風險，但不足以阻止錯誤行動繼續發生"},
+            {"score": 1, "condition": "未定義停止條件，AI 無法知道何時該承認錯誤並暫停",
              "evidence": "無停止條件",
-             "why": "沒有事先定義，事發時只能臨場判斷"},
+             "why": "沒有事先定義，模型容易把不確定當成可繼續推進"},
             {"score": 0, "condition": "無任何中止途徑",
              "evidence": "無停止條件且無清除策略",
              "why": "無法停止"},
@@ -255,6 +255,17 @@ def score_verifiability(
     recipe = recipe_decision.get("recipe") or {}
     registered = bool(recipe_decision.get("deployable_recipe_registered"))
     criteria = [str(item) for item in recipe.get("success_criteria") or []]
+    architecture = explanation.get("implementation_architecture") or {}
+    architecture_status = str(architecture.get("status") or "")
+    stated_components = [
+        item for item in architecture.get("core_components") or []
+        if item.get("stated_in_source")
+    ]
+    lacks_source_backed_implementation = (
+        not registered
+        and architecture_status in {"needs_service_evidence", "drafted"}
+        and len(stated_components) <= 1
+    )
 
     # 核心主張是否被 recipe 的成功條件涵蓋：以 significance 的關鍵動詞比對。
     significance = explanation.get("significance") or {}
@@ -267,6 +278,8 @@ def score_verifiability(
         return 5, "核心主張可由明確通過／失敗條件驗證，且已寫入可部署 recipe。"
     if registered and not covered:
         return 3, "recipe 的成功條件未涵蓋核心主張，只能驗證周邊事實。"
+    if lacks_source_backed_implementation:
+        return 1, "來源缺少可部署實作細節；目前的驗證設計主要是 AI 推導，無法支撐可否證 PoC。"
     if has_success_evidence and has_before_after:
         return 4, "驗證設計完整，但尚未寫入可部署 recipe 的成功條件。"
     if has_success_evidence or has_before_after:
@@ -313,16 +326,13 @@ def score_adoption_prerequisites(
 def score_risk_and_stop_conditions(
     stop_conditions: list[str], unknowns: list[str], quote: dict[str, Any]
 ) -> tuple[int, str]:
-    containment = quote.get("cost_containment_model") or {}
-    cannot_refund = containment.get("cleanup_cannot_refund") or []
+    del quote
 
     if not stop_conditions:
-        return 1, "未定義停止條件。"
-    if cannot_refund:
-        return 2, "存在無法由清除退款或回復的成本項，停止機制對該部分無效。"
+        return 1, "未定義停止條件，AI 無法知道何時該承認錯誤並暫停。"
     if len(unknowns) >= 4:
-        return 3, "已定義停止條件，但未知項目較多，涵蓋不完整。"
-    return 4, "停止條件已定義，但觸發時機仍需人工判斷。"
+        return 3, "已定義停止條件，但未知項目較多，AI 可能太晚承認證據不足。"
+    return 4, "停止條件已定義，AI 能標出風險並等待人工判斷。"
 
 
 def score_reversibility(quote: dict[str, Any], recipe_decision: dict[str, Any]) -> tuple[int, str]:
@@ -377,18 +387,28 @@ def render_criteria_markdown() -> str:
         "python -m agentic_cloud_radar.cli rubric --output docs\\評分準則.md",
         "```",
         "",
+        "## SMI 對應",
+        "",
+        "`SMI` 是 Service Measurement Index，這裡只拿來當雲服務評估面向的參考標籤，"
+        "例如 Capability、Assurance、Agility、Accountability。它不另外計分，也不是另一個 gate；"
+        "真正影響 Skill 3 結果的是構面分數、權重、否決門檻與 blocker。",
+        "",
         "## 彙總",
         "",
-        "| 構面 | 權重 | 否決門檻 | SMI 對應 | 評的是什麼 |",
+        "| 構面 | 權重（加權計算） | 否決門檻 | SMI 對應 | 評的是什麼 |",
         "| --- | ---: | :---: | --- | --- |",
     ]
     for name, spec in RUBRIC_CRITERIA.items():
         floor = spec["veto_at_or_below"]
+        weight = float(spec["weight"])
         lines.append(
-            f"| {spec['label']} | {spec['weight']} | "
+            f"| {spec['label']} | {weight:g}（分數 × {weight:g}） | "
             f"{('≤ ' + str(floor)) if floor is not None else '—'} | {spec['smi']} | {spec['question']} |"
         )
     lines.extend([
+        "",
+        "**加權分**：Skill 3 報告中的每一列加權分，都是該構面的 `分數 × 權重`。"
+        "總分是所有構面加權分相加，滿分仍是 5 分。",
         "",
         "**否決門檻**：任一構面分數觸及門檻，該候選一律不得進入 Skill 4，"
         "不論加權總分。加權總和是完全補償性彙總，單一構面的嚴重缺陷會被其他構面抵銷；"
@@ -432,6 +452,5 @@ def render_criteria_markdown() -> str:
         "",
         "**證據不足與表現不佳要分開。** 缺乏證據時給中間值並在理由中標明；"
         "確實表現差才落到否決門檻。把兩者混為一談，會讓「文件寫得少」看起來像「技術不好」。",
-        "",
     ])
     return "\n".join(lines) + "\n"

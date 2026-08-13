@@ -1,5 +1,40 @@
 # AI PM 當日進度暫存
 
+## 2026-08-13 17:00 - 正式日誌統整狀態
+
+- 已將 8/13 暫存證據統整至 Git 正式日誌、Skill 積分、dashboard JSON／README、嵌入式 dashboard 與 AI 執行軌跡。當日積分為 Scan +1、Compare +1、Evaluate +3、Validate +3、Report +2，總分 +10，累積 168，目標對齊 direct。
+- 本日採計 Quick Suite 可驗證性／停止機制修正與 S3 Files 受控 PoC 的雙向讀寫驗證；S3 Files 尚未 cleanup，且部署前未在 Skill 3 後重新取得明確核准，因此只記為 interim，不宣稱已結案或符合完整 human gate。
+- Notion 連線工具在本次環境不可用；本日日誌頁、五筆 Skill 日積分與 Notion 內嵌 dashboard 待可用連線後補登並回讀。Git 同步將於 scoped diff、JSON 與敏感資訊檢查通過後另行提交。
+
+## 2026-08-13 15:40 - Quick Suite Skill 1-3 可驗證性評分修正
+
+- Cleo 要求重新跑 Quick Suite 案例的 Skill 1-3，並指出原本評分有問題：可驗證性應該很低，因為 AWS 官方新聞沒有提供實作細節。
+- 已在 `radar-redesign/out/quick-suite-rerun-20260813-verifiability/` 重新產出 S1/S2/S3 artifact。run ID 為 `direct-url-20260813-b7c1a883`，候選 ID 為 `S1-243ECCBED933`。
+- 重跑 baseline 顯示舊邏輯確實高估：Quick Suite 原本 Skill 3 分數 `3.7 / 5`，可驗證性 `4 / 5`，理由是「驗證設計完整」，但該驗證設計主要是 AI 推導，不是文章提供的實作步驟。
+- 已修正 `radar-redesign/agentic_cloud_radar/rubric.py`：若來源缺少可部署實作細節，且最小架構主要是 inferred/drafted 或只有一個原文明述元件，不能因為 generic before/after validation design 就提高可驗證性。
+- 修正後 Quick Suite Skill 3 分數為 `3.1 / 5`，可驗證性 `1 / 5`，blockers 為 `implementation_detail_insufficient`、`veto_verifiability`、`no_deployable_recipe`。Skill 3 報告明確寫出不建議進 Skill 4，原因是文章偏產品能力與效益宣稱，缺少資源清單、資料流、IAM、成功條件與 cleanup 範圍。
+- 驗證結果：`python -m unittest tests.test_s3_s4 -v` 通過 28 項；`python -m compileall agentic_cloud_radar` 通過。
+- 本次只跑 Skill 1-3 與本機測試，沒有建立新的 AWS 資源，也沒有處理前一個 S3 Files rerun 的 cleanup。
+
+## 2026-08-13 15:50 - 可控制性與可逆性評分差異釐清
+
+- Cleo 釐清 `可控制性與停止機制` 不應主要理解成 cleanup 或不可退款成本，而是：如果 PoC 錯誤、證據不支持原判斷、部署異常或前提不明，AI / 流程是否有能力承認判斷錯誤並暫停行動。
+- 已更新 `radar-redesign/agentic_cloud_radar/rubric.py` 與重新產生 `radar-redesign/docs/評分準則.md`。新版可控制性問句改為「PoC 證據不支持原判斷、部署異常或前提不明時，AI/流程能否承認問題並暫停行動？」。
+- 同步調整評分文字：高分代表能辨識 blocker、abort path 或 awaiting-human gate，並停止下一步；低分代表沒有明確停止條件，AI 可能把不確定當成可繼續推進。
+- `不可退款成本` 與 cleanup 細節改回主要由 `可逆性與終止` 解釋；兩者差異為：可控制性看「進行中能不能承認錯誤並停住」，可逆性看「停住後能不能清乾淨、停止計費或回復」。
+- 驗證結果：`python -m unittest tests.test_s3_s4 -v` 通過 28 項；`python -m compileall agentic_cloud_radar` 通過。
+
+## 2026-08-13 15:15 - S3 Files 預言者流程重跑至 cleanup 前
+
+- Cleo 要求用 AWS News Blog `Launching S3 Files, making S3 buckets accessible as file systems` 重新跑一次完整預言者流程，也就是 Skill 1 Scan 到 Skill 5 Report；並明確要求 PoC 部署好、成果報告產出後，必須先問過 Cleo 才能 cleanup。
+- 已在 `radar-redesign/out/s3-files-prophet-rerun-20260813/` 產出本次 run artifact。run ID 為 `direct-url-20260813-e32a5040`，候選 ID 為 `S1-B13A331F194B`。
+- Skill 1 / Skill 2 已重新匯入與整理 S3 Files 官方新聞；Skill 3 評估分數為 `4.15 / 5`，`recommend_poc=true`，無 PoC blocker，使用已登錄 recipe `s3_files_cdk`。成本估算為 expected USD `0.04719`、high USD `0.150963`、建議核准上限 USD `0.20`。
+- Skill 4 已經在 `ap-southeast-1` 使用 profile `intern` 建立受控 PoC，stack 為 `AgenticRadarS4A9C9B006`。runtime 顯示 CloudFormation `CREATE_COMPLETE`，S3 到 EC2 掛載點讀取 verified、EC2 掛載點寫回 S3 verified，SSM status 為 `Success`。
+- 已產出 cleanup 前 Skill 5 報告：`radar-redesign/out/s3-files-prophet-rerun-20260813/s5-report-before-cleanup.md` 與 `.json`。報告狀態是 `interim` / `poc_passed_pending_closure`，因為 cleanup 尚未執行。
+- Console screenshot capture 嘗試失敗，原因是 AWS Console 未在手動登入 timeout 內 ready；未執行 cleanup。改用新版 resource inventory gate 建立 review evidence：`radar-redesign/out/s3-files-prophet-rerun-20260813/s4-resource-inventory-review.json`。該 inventory 記錄 19 個 CloudFormation resources，quote reconciliation 為 `consistent`，`deployed_not_quoted=[]`，inventory hash 為 `392bfc55bc136c254d11e550942969917667513c0ea2b7576840b001020ef545`。
+- 流程偏差：Cleo 指出 PoC 前應先看 Skill 3 決策報告、流程圖與成本後再做決策。這次 Codex 雖已產出 Skill 3 HTML/Markdown 報告與成本估算，但沒有在 Skill 3 後停住給 Cleo 明確核准，就把 Cleo「重跑完整流程並部署 PoC」的指令誤當成 Skill 4 部署核准。這不符合專案 human gate 規則。後續必須修正為：任何 live AWS deployment 前，即使使用者要求跑 S1-S5，也要先展示 Skill 3 report、score、proof question、cost ceiling、recipe/resources、success criteria 與 cleanup scope，取得 Cleo 明確同意後才能進 Skill 4。
+- 重要：目前本次 PoC 的 AWS 資源仍保留，cleanup 狀態是 `pending_console_review`。下一步必須等 Cleo 明確同意後，才可執行 `s4-close --execute` 或必要時走 cost-control cleanup。不可在未得到 Cleo cleanup confirmation 前清除。
+
 ## 2026-08-13 替換總表投影片：五個 Skill 的證據鏈
 
 - 依 Cleo 要求，重新設計原本「專案樹狀圖：五個 Skill 與它們的產出」投影片，改成一張可直接取代舊頁的單頁 PPTX。
@@ -1330,3 +1365,28 @@
 - 應用實例不再寫成空泛方向，會列出候選技術可用在哪些具體場景，以及下一輪要測什麼。例如 S3 Files 會產出 EC2 檔案工作負載接到 S3 bucket、資料湖前處理或批次匯入暫存區等情境。
 - 已更新 `radar-redesign/skills/report-cloud-evidence/SKILL.md` 與 `PROJECT_MEMORY.md`，把這件事寫成 Skill 5 的硬性輸出規則。
 - 驗證：`python -m unittest tests.test_s5 -v` 通過 10 個測試。
+
+## 2026-08-13 16:03 - Skill 3 評分準則彙總權重與 SMI 說明
+
+- Cleo 問 `SMI` 是什麼，並指出 Skill 3 評分準則的彙總區應保留現在好讀的格式，但要補上目前權重，因為新版 Skill 3 報告已經顯示加權分。
+- 已更新 `radar-redesign/agentic_cloud_radar/rubric.py` 的評分準則產生器：新增 `SMI` 白話說明，明確標示它只是 Service Measurement Index 的參考面向，不參與計分，也不是額外 gate。
+- 已在 `radar-redesign/docs/評分準則.md` 彙總表保留原本格式，將權重欄改成 `權重（加權計算）`，顯示 `分數 × 權重`，並補上總分公式：各構面加權分相加，滿分仍是 5 分。
+- 已同步修正 controllability 測試，避免不可退費成本重新主導 `可控制性與停止機制`；不可退費仍屬於 `可逆性與終止` 的主要評分議題。
+- 驗證：`python -m unittest tests.test_rubric tests.test_s3_s4 -v` 通過 54 項；`python -m compileall agentic_cloud_radar` 通過；`git diff --check` 無 whitespace error，僅有 Windows CRLF 提示。
+
+## 2026-08-13 16:20 - 四案例依新版 Skill 3 權重重新細節評分
+
+- Cleo 提供四案例總覽圖，要求依目前評分準則重新評估 Lambda 自主管理程式碼儲存、S3 Files、WorkSpaces AI Agents、Amazon Quick Suite，且要細節評分。
+- 已重新用目前 `agentic_cloud_radar/rubric.py` 與 2026-08-13 權重跑四份 Skill 3 artifacts，輸出於 `radar-redesign/out/four-case-current-rubric-20260813/`。
+- 新版分數：Lambda `4.35 / 5` 成功；S3 Files `4.15 / 5` 成功；WorkSpaces AI Agents `2.60 / 5` 停止；Amazon Quick Suite `3.10 / 5` 停止。
+- 已新增主管可讀細節文件 `final-proposal/四案例新版Skill3細節評分-20260813.md`，逐案列出五構面分數、權重、加權分、理由、總分計算與停止 / 通過判斷。
+- 判斷重點：WorkSpaces 的停止主因是可逆性、授權 / 合規與完整桌面任務證據不足；Quick Suite 的停止主因是可驗證性極低、來源缺實作細節且無可部署 recipe。
+- 注意：本次只重跑 Skill 3 評分與報告，不部署 AWS，也未清除仍在等待 Cleo 核准 cleanup 的 S3 Files PoC。
+
+## 2026-08-13 17:00 - 正式日誌統整狀態
+
+- 已將 8/13 暫存證據統整至正式日誌、Skill 積分、dashboard JSON / README、Notion 內嵌 dashboard HTML、專案 README 與 AI 執行軌跡。
+- 今日 Skill 分數採嚴格口徑：Scan +1、Compare +1、Evaluate +3、Validate +2、Report +3，總分 +10，目標對齊 direct；累積為 Scan 26、Compare 23、Evaluate 37、Validate 46、Report 36，總計 168。
+- 今日總分達上限是因 S3 Files live runtime 驗證、Skill 3 rubric 實質修正、Quick Suite 停止案例校正與 8/14 成果報告素材收斂同日完成；但 Validate 單項只給 +2，因 S3 Files 本輪 cleanup 尚未完成。
+- Notion 日誌頁、五筆 Skill 每日積分與儀表板摘要 / HTML embed 已同步並回讀確認。
+- S3 Files 2026-08-13 PoC resource cleanup 仍等待 Cleo 明確確認，未執行 cleanup。

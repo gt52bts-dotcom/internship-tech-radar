@@ -41,8 +41,8 @@
 | 2026-08-10 | 1 | 1 | 2 | 1 | 1 | 6 | direct |
 | 2026-08-11 | 1 | 1 | 1 | 0 | 2 | 5 | direct |
 | 2026-08-12 | 0 | 0 | 1 | 1 | 2 | 4 | direct |
-| 2026-08-13 | 1 | 1 | 3 | 3 | 2 | 10 | direct |
-| **2026-08-13 累積** | **26** | **23** | **37** | **47** | **35** | **168** |  |
+| 2026-08-13 | 1 | 1 | 3 | 2 | 3 | 10 | direct |
+| **2026-08-13 累積** | **26** | **23** | **37** | **46** | **36** | **168** |  |
 
 ## 2026-07-21 評分理由
 
@@ -54,7 +54,7 @@
 
 ## 當前狀態
 
-截至 2026-08-13，累積總分為 168。2026-08-11 依 Cleo 回饋重新收緊 8/10 與 8/11 評分：素材整理、時間回查與簡報草稿不得重複灌入多個 Skill；沒有 live PoC、AWS 資源建立或新測試時，Validate 不給高分。8/13 的 S3 Files 受控 PoC 完成雙向讀寫驗證，但因未在 Skill 3 後重新取得明確部署核准，且 cleanup 仍待 Cleo 確認，只給 Validate +3，Skill 5 亦僅為 interim。Quick Suite 的可驗證性規則已修正為來源欠缺可部署細節時不得由通用驗證設計加分。S1-S5 已整理為五個正式 Skill；WorkSpaces AI Agents 已改用通用五構面 rubric 重評為 2.35 / 5，因桌面畫面代理觀看的合規覆核、停止風險與可逆性不足而不建議進入 Skill 4。
+截至 2026-08-13，累積總分為 168。2026-08-11 依 Cleo 回饋重新收緊 8/10 與 8/11 評分：素材整理、時間回查與簡報草稿不得重複灌入多個 Skill；沒有 live PoC、AWS 資源建立或新測試時，Validate 不給高分。8/13 採計 S3 Files 重新跑到 cleanup 前、Quick Suite 可驗證性修正、Skill 3 可控制性與權重說明修正，以及四案例新版細節評分。S3 Files 8/13 PoC runtime 驗證通過但 cleanup 未完成，因此 Validate 單項只給 +2；本日總分達每日上限是因 Evaluate 與 Report 同時有可重跑規則與可交付成果。S1-S5 已整理為五個正式 Skill；WorkSpaces AI Agents 已改用通用五構面 rubric 重評為停止案例，因桌面畫面代理觀看的合規覆核、停止風險與可逆性不足而不建議進入 Skill 4。
 
 ## 2026-07-24 評分理由
 
@@ -173,8 +173,8 @@
 - Scan +1：重新產出 Quick Suite 與 S3 Files 的官方來源 Scan artifact；均屬既有案例重跑，不按新候選給高分。
 - Compare +1：產出兩案的比較整理，並將來源可部署細節不足納入可驗證性取捨。
 - Evaluate +3：修正可驗證性 rubric、釐清可控制性與可逆性，並讓 Quick Suite 以 blocker 停在 Skill 3；S3 Files 保留具 recipe、成本與成功條件的決策證據。
-- Validate +3：S3 Files 完成 CloudFormation、雙向掛載讀寫與 SSM Success 的受控 PoC 驗證；Console capture、cleanup 與部署前重新取得的人類核准均未完成，故不給完整結案分數。
-- Report +2：完成 cleanup 前 interim Skill 5 報告、既有成功案例重生報告與五 Skill 證據鏈替換投影片。
+- Validate +2：S3 Files 完成 CloudFormation、雙向掛載讀寫與 SSM Success 的受控 PoC 驗證；但 Console capture、cleanup 與部署前重新取得的人類核准均未完成，因此只給受控 runtime 驗證分數。
+- Report +3：完成 cleanup 前 interim Skill 5 報告、既有成功案例重生報告、四案例新版細節評分文件與五 Skill 證據鏈替換投影片，直接支援 8/14 成果報告。
 
 ## 2026-07-29 評分理由
 

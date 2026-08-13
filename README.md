@@ -12,7 +12,7 @@
 
 目前主線是以證據為核心的 S1-S5 流程：公開 AWS URL 或官方探索進入 Skill 1，Skill 2 建立來源證據提案卡，Skill 3 對候選產出中文說明、分數、PoC 報價與人工核准區，人類在看完同一份決策報告後才核准是否進入 Skill 4，Skill 5 只依已留下的證據產出可回查報告。
 
-截至 2026-08-05，主線已完成 S1 新聞解釋、Skill 3 合併 PoC 決策報告、網頁架構圖報告、Skill 4 資源盤點、分段計時，以及 Skill 5 的成本邊界。最新案例 WorkSpaces AI Agents 已完成 Skill 1 至 Skill 3 的重新評估：它有第一段基礎設施驗證 recipe，但 Skill 3 為 `2.65 / 5`（低於 `3.75 / 5`），且有 `compliance_review_required` blocker，因此不能進入 Skill 4，沒有建立 AWS 資源。Lambda 自主管理程式碼儲存與 AWS S3 Files 兩個官方文章案例則都已完成實際 PoC、清除前用量快照、受控資源清除與 Skill 5 結案報告；Amazon Connect Customer Data Lake 已跑到階段性報告，因缺可部署方案與測試環境，沒有建立 AWS 資源。
+截至 2026-08-13，主線已完成 S1 新聞解釋、Skill 3 合併 PoC 決策報告、網頁架構圖報告、Skill 4 資源盤點、分段計時，以及 Skill 5 的成本邊界。四個成果報告案例已依新版 Skill 3 權重重評：Lambda 自主管理程式碼儲存 `4.35 / 5`、S3 Files `4.15 / 5`，兩者是成功案例；WorkSpaces AI Agents `2.60 / 5`、Amazon Quick Suite `3.10 / 5`，兩者是停止案例。2026-08-13 重新跑的 S3 Files PoC 已完成 runtime 驗證與 cleanup 前報告，但資源仍等待 Cleo 明確確認後才能清除。
 
 五個階段已整理為專案內的正式 Skill 套件。每個 Skill 都有自己的說明與介面設定，並共用同一套已測試的 S1-S5 核心。
 
@@ -29,6 +29,7 @@ flowchart LR
 
 | 日期 | 今日主軸 |
 |---|---|
+| [8/13](./logs/daily/work-log-2026-08-13.md) | 重跑 S3 Files 預言者流程到 cleanup 前，修正 Skill 3 可驗證性與可控制性準則，依新版權重重評四案例；嚴格評分 10 分。 |
 | [8/12](./logs/daily/work-log-2026-08-12.md) | 修正 Skill 5 報告可讀性與 Future work，整理五份 Skill 中文閱讀版，補上 Skill 3 評分準則與四案例對照；嚴格評分 4 分。 |
 | [8/11](./logs/daily/work-log-2026-08-11.md) | 補測三案 Skill 1 時間、校正 S3 Files PoC 時間口徑，整理 8/14 協理報告素材並依嚴格口徑下修 Skill 分數 |
 | [8/10](./logs/daily/work-log-2026-08-10.md) | 建立 Quick Suite 官方宣傳型新聞停止案例，整理四案例時間統計與 8/14 報告素材，並記錄共融活動學習 |
@@ -64,15 +65,15 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-截至 2026-08-12，改採硬審核口徑後累積分數 158 分。每日五個 Skill 加總最高 10 分；2026-08-12 只採計 Skill 3 評分準則具體化、既有 PoC 證據整理與 Skill 5 報告可讀性改善，不把既有案例矩陣重複灌入 Scan 或 Compare。
+截至 2026-08-13，改採硬審核口徑後累積分數 168 分。每日五個 Skill 加總最高 10 分；2026-08-13 採計 S3 Files 重新跑到 cleanup 前、Quick Suite 可驗證性修正、Skill 3 評分準則更新與四案例新版細節評分。S3 Files 本輪 runtime 驗證已通過，但 cleanup 尚待 Cleo 明確確認，因此 Validate 不拉高。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
-| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 25 |
-| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 22 |
-| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 34 |
-| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 44 |
-| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 33 |
+| Skill 1｜掃描 | 資料來源掃描、候選技術收集、帳號資源盤點 | 26 |
+| Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 23 |
+| Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 37 |
+| Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 46 |
+| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 36 |
 
 ## 最終發表驗證衝刺
 

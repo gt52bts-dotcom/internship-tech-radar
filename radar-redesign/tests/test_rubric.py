@@ -152,13 +152,13 @@ class ControllabilityTests(unittest.TestCase):
 
         self.assertEqual(score, 1)
 
-    def test_unrefundable_cost_is_a_stop_condition_failure(self):
+    def test_unrefundable_cost_does_not_drive_controllability(self):
         quote = {"cost_containment_model": {"cleanup_cannot_refund": ["月費"]}}
 
-        score, _ = score_risk_and_stop_conditions(["逾時即停"], [], quote)
+        score, reason = score_risk_and_stop_conditions(["逾時即停"], [], quote)
 
-        self.assertEqual(score, 2)
-        self.assertLessEqual(score, VETO_THRESHOLDS["risk_and_stop_conditions"])
+        self.assertEqual(score, 4)
+        self.assertIn("等待人工判斷", reason)
 
     def test_defined_stop_conditions_score_four(self):
         score, _ = score_risk_and_stop_conditions(["逾時即停"], [], {})
@@ -204,3 +204,13 @@ class GeneratedDocumentTests(unittest.TestCase):
         self.assertIn("由誰產生", markdown)
         self.assertIn("| S1 |", markdown)
         self.assertIn("| S3 |", markdown)
+
+    def test_summary_explains_smi_and_current_weight_calculation(self):
+        markdown = render_criteria_markdown()
+
+        self.assertIn("Service Measurement Index", markdown)
+        self.assertIn("它不另外計分", markdown)
+        self.assertIn("權重（加權計算）", markdown)
+        self.assertIn("分數 × 0.3", markdown)
+        self.assertIn("分數 × 0.2", markdown)
+        self.assertIn("分數 × 0.15", markdown)

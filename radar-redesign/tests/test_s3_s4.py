@@ -241,6 +241,8 @@ class S3S4Tests(unittest.TestCase):
         self.assertFalse(evaluated["recommend_poc"])
         self.assertIn("implementation_detail_insufficient", evaluated["poc_blockers"])
         self.assertIn("implementation_detail_insufficient", result["poc_decision_gate"]["options"][0]["blockers"])
+        self.assertLessEqual(evaluated["dimension_scores"]["verifiability"], 1)
+        self.assertIn("來源缺少可部署實作細節", evaluated["dimension_details"]["verifiability"]["reason_zh"])
 
     def test_skill3_decision_report_states_poc_threshold_without_confidence(self):
         result = build_evaluate(_deployable_s2()).to_dict()

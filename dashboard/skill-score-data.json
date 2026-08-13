@@ -249,8 +249,8 @@
         "scan": 1,
         "compare": 1,
         "evaluate": 3,
-        "validate": 3,
-        "report": 2
+        "validate": 2,
+        "report": 3
       }
     }
   ]
