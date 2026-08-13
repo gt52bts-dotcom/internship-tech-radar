@@ -1,5 +1,13 @@
 # AI PM 當日進度暫存
 
+## 2026-08-13 重新產出 S3 Files + EC2 mount Skill 5 報告
+
+- 依 Cleo 要求，用新版 Skill 5 重新產出 EC2 掛載 S3 Files 的成功案例報告，沒有重跑 AWS，只使用既有 reference run 的 S1-S4 與 cleanup 後 runtime 證據。
+- 新報告位置：`radar-redesign/reference-runs/s3-files-20260731-manual-console/s5-report-regenerated-20260813.md` 與 `.json`。
+- 驗證結果：JSON 狀態為 `final`，候選為 `Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog`，`related_articles_and_examples` 狀態為 `articles_and_examples_required`。
+- 新版報告已包含「相關文章與應用實例」章節，內容含 3 個相關文章 / 外搜目標與 2 個應用實例；S3 Files 應用實例包含 EC2 檔案工作負載接到 S3 bucket、資料湖前處理或批次匯入暫存區。
+- 這次報告只宣稱已驗證的 PoC 事實：在本次帳號與 `ap-southeast-1` 中可建立 PoC，EC2 掛載點與 S3 bucket 可做最小讀寫驗證，並已完成 cleanup；不外推成正式生產環境可用。
+
 ## 2026-08-12 17:00 - 正式日誌統整狀態
 
 - 已將本日五個 Skill 證據化改寫與 8/14 CIP 成果報告初版審閱建議統整至 Git 正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡；積分為 Scan +0、Compare +0、Evaluate +1、Validate +1、Report +2，總分 +4，累積 158，目標對齊 direct。

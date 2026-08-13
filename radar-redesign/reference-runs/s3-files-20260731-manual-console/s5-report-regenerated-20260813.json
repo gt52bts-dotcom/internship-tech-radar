@@ -1,0 +1,2056 @@
+{
+  "schema_version": "s5.report.v1",
+  "stage": "S5",
+  "run_id": "direct-url-20260731-f1baf62f",
+  "reported_at": "2026-08-13T01:41:02.136380+00:00",
+  "status": "final",
+  "report_type": "final",
+  "input_contract": {
+    "rule": "Only S1, S2, S3, and S4 artifacts may support report claims; missing evidence is unknown.",
+    "stages_received": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S4 runtime"
+    ]
+  },
+  "input_issues": [],
+  "candidate": {
+    "candidate_id": "S1-65801FA11243",
+    "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+    "source_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/"
+  },
+  "conclusion": {
+    "status": "validated_and_cleaned",
+    "text": "實際 PoC 已通過自動化驗證與 Infrastructure Composer 截圖人工確認，cleanup 回查也已完成。"
+  },
+  "news_summary": {
+    "status": "source_backed",
+    "text": "新聞指出：Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies."
+  },
+  "architecture_and_significance": {
+    "status": "not_recorded",
+    "note": "此 run 的 S1 artifact 沒有 explanation 區塊。"
+  },
+  "evaluation": {
+    "weighted_score": 4.4,
+    "dimensions": {
+      "technical_value": 4,
+      "adoption_prerequisites": 4,
+      "verifiability": 5,
+      "risk_and_stop_conditions": 5
+    },
+    "region_status": "available_ap_southeast_1",
+    "target_region": "ap-southeast-1",
+    "rows": [
+      [
+        "Skill 3 加權分（滿分 5）",
+        "4.4 / 5"
+      ],
+      [
+        "區域狀態",
+        "新加坡區域可用"
+      ],
+      [
+        "建議進入實際 Skill 4 PoC",
+        "是"
+      ],
+      [
+        "成本",
+        "已完成估算"
+      ]
+    ]
+  },
+  "cost_quote": {
+    "schema_version": "poc.cost-quote.v2",
+    "quote_id": "POC-QUOTE-C4ECB392A212",
+    "run_id": "direct-url-20260731-f1baf62f",
+    "candidate_id": "S1-65801FA11243",
+    "candidate_title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+    "generated_at": "2026-07-31T07:47:21.951420+00:00",
+    "valid_until": "2026-08-07",
+    "currency": "USD",
+    "target_region": "ap-southeast-1",
+    "quote_kind": "non_binding_public_price_estimate",
+    "estimation_method": "pre_deployment_cost_estimation",
+    "rate_card_source": "static_public_rate_card",
+    "live_pricing_api_used": false,
+    "formal_procurement_quote_ready": false,
+    "disclaimer": "這是 PoC 前的非正式公開牌價估算，用於 Skill 3 審查與 Skill 4 小額上限控管。它不是 AWS 帳單、正式採購報價，也未套用稅務、折扣、credits、Free Tier 或公司私有價格。",
+    "status": "estimated",
+    "confidence": "medium",
+    "pricing_confidence": "high",
+    "pricing_level": "Level A registered recipe",
+    "recipe": "s3_files_cdk",
+    "pricing_basis": "已登錄 S3 Files CDK PoC recipe；用固定低/中/高用量和公開牌價試算。",
+    "price_snapshot_date": "2026-07-30",
+    "scenarios": {
+      "low": {
+        "scenario": "low",
+        "label": "低用量",
+        "assumptions": {
+          "hours": 1,
+          "active_gb": 0.02,
+          "write_gb": 0.02,
+          "export_read_gb": 0.02,
+          "small_read_gb": 0.02,
+          "import_write_gb": 0.02,
+          "tier1_requests": 30,
+          "tier2_requests": 60
+        },
+        "line_items": [
+          {
+            "rate_key": "ec2_t3_micro",
+            "item": "EC2 t3.micro Linux on-demand",
+            "rate_usd": 0.0132,
+            "rate_unit": "USD/instance-hour",
+            "quantity": 1,
+            "quantity_unit": "hours",
+            "formula": "hours x USD/instance-hour",
+            "subtotal_usd": 0.0132,
+            "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+            "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "ebs_gp3",
+            "item": "EBS gp3 storage",
+            "rate_usd": 0.096,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.010958904109589041,
+            "quantity_unit": "GB-month",
+            "formula": "8 GiB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 0.001052,
+            "source_url": "https://aws.amazon.com/ebs/pricing/",
+            "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_files_storage",
+            "item": "S3 Files active storage",
+            "rate_usd": 0.36,
+            "rate_unit": "USD/GB-month",
+            "quantity": 2.7397260273972603e-05,
+            "quantity_unit": "GB-month",
+            "formula": "active GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 1e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_write",
+            "item": "S3 Files write access",
+            "rate_usd": 0.06,
+            "rate_unit": "USD/GB",
+            "quantity": 0.02,
+            "quantity_unit": "GB",
+            "formula": "write GB x USD/GB",
+            "subtotal_usd": 0.0012,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_export_read",
+            "item": "S3 Files export/read access",
+            "rate_usd": 0.03,
+            "rate_unit": "USD/GB",
+            "quantity": 0.02,
+            "quantity_unit": "GB",
+            "formula": "export/read GB x USD/GB",
+            "subtotal_usd": 0.0006,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_small_read",
+            "item": "S3 Files small read access",
+            "rate_usd": 0.03,
+            "rate_unit": "USD/GB",
+            "quantity": 0.02,
+            "quantity_unit": "GB",
+            "formula": "small-read GB x USD/GB",
+            "subtotal_usd": 0.0006,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_import_write",
+            "item": "S3 Files import/write access",
+            "rate_usd": 0.06,
+            "rate_unit": "USD/GB",
+            "quantity": 0.02,
+            "quantity_unit": "GB",
+            "formula": "import/write GB x USD/GB",
+            "subtotal_usd": 0.0012,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_standard_storage",
+            "item": "S3 Standard storage",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 2.7397260273972603e-05,
+            "quantity_unit": "GB-month",
+            "formula": "stored GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 1e-06,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier1_request",
+            "item": "S3 PUT/COPY/POST/LIST requests",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 30,
+            "quantity_unit": "requests",
+            "formula": "request count x USD/request",
+            "subtotal_usd": 0.00015,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier2_request",
+            "item": "S3 GET requests",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 60,
+            "quantity_unit": "requests",
+            "formula": "request count x USD/request",
+            "subtotal_usd": 2.4e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          }
+        ],
+        "total_usd": 0.018037,
+        "display_total_usd": "0.02"
+      },
+      "expected": {
+        "scenario": "expected",
+        "label": "預期用量",
+        "assumptions": {
+          "hours": 2,
+          "active_gb": 0.1,
+          "write_gb": 0.1,
+          "export_read_gb": 0.1,
+          "small_read_gb": 0.1,
+          "import_write_gb": 0.1,
+          "tier1_requests": 100,
+          "tier2_requests": 200
+        },
+        "line_items": [
+          {
+            "rate_key": "ec2_t3_micro",
+            "item": "EC2 t3.micro Linux on-demand",
+            "rate_usd": 0.0132,
+            "rate_unit": "USD/instance-hour",
+            "quantity": 2,
+            "quantity_unit": "hours",
+            "formula": "hours x USD/instance-hour",
+            "subtotal_usd": 0.0264,
+            "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+            "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "ebs_gp3",
+            "item": "EBS gp3 storage",
+            "rate_usd": 0.096,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.021917808219178082,
+            "quantity_unit": "GB-month",
+            "formula": "8 GiB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 0.002104,
+            "source_url": "https://aws.amazon.com/ebs/pricing/",
+            "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_files_storage",
+            "item": "S3 Files active storage",
+            "rate_usd": 0.36,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.000273972602739726,
+            "quantity_unit": "GB-month",
+            "formula": "active GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 9.9e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_write",
+            "item": "S3 Files write access",
+            "rate_usd": 0.06,
+            "rate_unit": "USD/GB",
+            "quantity": 0.1,
+            "quantity_unit": "GB",
+            "formula": "write GB x USD/GB",
+            "subtotal_usd": 0.006,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_export_read",
+            "item": "S3 Files export/read access",
+            "rate_usd": 0.03,
+            "rate_unit": "USD/GB",
+            "quantity": 0.1,
+            "quantity_unit": "GB",
+            "formula": "export/read GB x USD/GB",
+            "subtotal_usd": 0.003,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_small_read",
+            "item": "S3 Files small read access",
+            "rate_usd": 0.03,
+            "rate_unit": "USD/GB",
+            "quantity": 0.1,
+            "quantity_unit": "GB",
+            "formula": "small-read GB x USD/GB",
+            "subtotal_usd": 0.003,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_import_write",
+            "item": "S3 Files import/write access",
+            "rate_usd": 0.06,
+            "rate_unit": "USD/GB",
+            "quantity": 0.1,
+            "quantity_unit": "GB",
+            "formula": "import/write GB x USD/GB",
+            "subtotal_usd": 0.006,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_standard_storage",
+            "item": "S3 Standard storage",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.000273972602739726,
+            "quantity_unit": "GB-month",
+            "formula": "stored GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 7e-06,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier1_request",
+            "item": "S3 PUT/COPY/POST/LIST requests",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 100,
+            "quantity_unit": "requests",
+            "formula": "request count x USD/request",
+            "subtotal_usd": 0.0005,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier2_request",
+            "item": "S3 GET requests",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 200,
+            "quantity_unit": "requests",
+            "formula": "request count x USD/request",
+            "subtotal_usd": 8e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          }
+        ],
+        "total_usd": 0.04719,
+        "display_total_usd": "0.05"
+      },
+      "high": {
+        "scenario": "high",
+        "label": "高用量",
+        "assumptions": {
+          "hours": 4,
+          "active_gb": 0.5,
+          "write_gb": 0.5,
+          "export_read_gb": 0.5,
+          "small_read_gb": 0.5,
+          "import_write_gb": 0.5,
+          "tier1_requests": 500,
+          "tier2_requests": 1000
+        },
+        "line_items": [
+          {
+            "rate_key": "ec2_t3_micro",
+            "item": "EC2 t3.micro Linux on-demand",
+            "rate_usd": 0.0132,
+            "rate_unit": "USD/instance-hour",
+            "quantity": 4,
+            "quantity_unit": "hours",
+            "formula": "hours x USD/instance-hour",
+            "subtotal_usd": 0.0528,
+            "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+            "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "ebs_gp3",
+            "item": "EBS gp3 storage",
+            "rate_usd": 0.096,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.043835616438356165,
+            "quantity_unit": "GB-month",
+            "formula": "8 GiB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 0.004208,
+            "source_url": "https://aws.amazon.com/ebs/pricing/",
+            "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_files_storage",
+            "item": "S3 Files active storage",
+            "rate_usd": 0.36,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.0027397260273972603,
+            "quantity_unit": "GB-month",
+            "formula": "active GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 0.000986,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_write",
+            "item": "S3 Files write access",
+            "rate_usd": 0.06,
+            "rate_unit": "USD/GB",
+            "quantity": 0.5,
+            "quantity_unit": "GB",
+            "formula": "write GB x USD/GB",
+            "subtotal_usd": 0.03,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_export_read",
+            "item": "S3 Files export/read access",
+            "rate_usd": 0.03,
+            "rate_unit": "USD/GB",
+            "quantity": 0.5,
+            "quantity_unit": "GB",
+            "formula": "export/read GB x USD/GB",
+            "subtotal_usd": 0.015,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_small_read",
+            "item": "S3 Files small read access",
+            "rate_usd": 0.03,
+            "rate_unit": "USD/GB",
+            "quantity": 0.5,
+            "quantity_unit": "GB",
+            "formula": "small-read GB x USD/GB",
+            "subtotal_usd": 0.015,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_files_import_write",
+            "item": "S3 Files import/write access",
+            "rate_usd": 0.06,
+            "rate_unit": "USD/GB",
+            "quantity": 0.5,
+            "quantity_unit": "GB",
+            "formula": "import/write GB x USD/GB",
+            "subtotal_usd": 0.03,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS S3 Files public pricing example rate",
+            "effective_date": "2026-07-30"
+          },
+          {
+            "rate_key": "s3_standard_storage",
+            "item": "S3 Standard storage",
+            "rate_usd": 0.025,
+            "rate_unit": "USD/GB-month",
+            "quantity": 0.0027397260273972603,
+            "quantity_unit": "GB-month",
+            "formula": "stored GB x hours / 730 x USD/GB-month",
+            "subtotal_usd": 6.8e-05,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier1_request",
+            "item": "S3 PUT/COPY/POST/LIST requests",
+            "rate_usd": 5e-06,
+            "rate_unit": "USD/request",
+            "quantity": 500,
+            "quantity_unit": "requests",
+            "formula": "request count x USD/request",
+            "subtotal_usd": 0.0025,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          },
+          {
+            "rate_key": "s3_tier2_request",
+            "item": "S3 GET requests",
+            "rate_usd": 4e-07,
+            "rate_unit": "USD/request",
+            "quantity": 1000,
+            "quantity_unit": "requests",
+            "formula": "request count x USD/request",
+            "subtotal_usd": 0.0004,
+            "source_url": "https://aws.amazon.com/s3/pricing/",
+            "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+            "effective_date": "2026-07-01"
+          }
+        ],
+        "total_usd": 0.150962,
+        "display_total_usd": "0.16"
+      }
+    },
+    "expected_total_usd": 0.04719,
+    "estimated_range_usd": {
+      "low": 0.018037,
+      "expected": 0.04719,
+      "high": 0.150962
+    },
+    "recommended_approval_ceiling_usd": 0.2,
+    "approval_ceiling_basis": "高用量情境往上取到下一個 USD 0.05。",
+    "verified_recipe_facts": [
+      "Registered recipe creates one t3.micro test instance when createTestInstance=true.",
+      "Amazon Linux 2023 public AMI root volume is treated as 8 GiB gp3."
+    ],
+    "zero_direct_charge_resources": [
+      "VPC, subnet, route table, internet gateway, security groups, IAM role, and CloudFormation have no separate hourly line item in this recipe."
+    ],
+    "exclusions": [
+      "Tax, private pricing, Savings Plans, credits, enterprise discounts, and Free Tier are excluded.",
+      "This quote must be regenerated if the public pricing page changes or the quote expires.",
+      "Actual billing must be checked separately after Skill 4, using Billing/Cost Explorer/CUR evidence when attributable.",
+      "Unexpected data transfer, retries, log ingestion, and resources outside the registered recipe are excluded."
+    ],
+    "sources": [
+      {
+        "url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+        "purpose": "AWS public EC2 price file, Asia Pacific (Singapore)"
+      },
+      {
+        "url": "https://aws.amazon.com/ebs/pricing/",
+        "purpose": "AWS public EBS pricing, Asia Pacific (Singapore)"
+      },
+      {
+        "url": "https://aws.amazon.com/s3/pricing/",
+        "purpose": "AWS S3 Files public pricing example rate"
+      },
+      {
+        "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html",
+        "purpose": "AWS Price List files/rate card interpretation"
+      }
+    ]
+  },
+  "pre_cleanup_usage_snapshot": {
+    "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+    "status": "captured",
+    "run_id": "direct-url-20260731-f1baf62f",
+    "captured_at": "2026-07-31T08:05:24.920276+00:00",
+    "source_type": "aws_runtime_facts",
+    "billing_evidence": false,
+    "actual_cost_status": "not_billing_evidence",
+    "rule": "This snapshot records immediately available runtime facts before cleanup. Actual AWS cost still requires attributable Billing, Cost Explorer, or CUR evidence.",
+    "deployment": {
+      "recipe": "s3_files_cdk",
+      "stack_name": "AgenticRadarS4AD2B348F",
+      "resource_prefix": "agentic-radar-s4-ad2b348f",
+      "target_region": "ap-southeast-1"
+    },
+    "timeline": {
+      "deployed_at": "2026-07-31T08:01:06.338317+00:00",
+      "captured_at": "2026-07-31T08:05:24.920276+00:00",
+      "elapsed_seconds": 258
+    },
+    "sections": {
+      "cloudformation": {
+        "stack_status": "CREATE_COMPLETE",
+        "creation_time": "2026-07-31T07:53:00.497000+00:00",
+        "last_updated_time": null,
+        "tags": {},
+        "resource_count": 19,
+        "resources": [
+          {
+            "logical_resource_id": "CDKMetadata",
+            "resource_type": "AWS::CDK::Metadata",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "ClientInstanceProfile",
+            "resource_type": "AWS::IAM::InstanceProfile",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "ClientInstanceRole",
+            "resource_type": "AWS::IAM::Role",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "ClientSecurityGroup",
+            "resource_type": "AWS::EC2::SecurityGroup",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "DataBucket",
+            "resource_type": "AWS::S3::Bucket",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "InternetGateway",
+            "resource_type": "AWS::EC2::InternetGateway",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "MountTargetSecurityGroup",
+            "resource_type": "AWS::EC2::SecurityGroup",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicRoute",
+            "resource_type": "AWS::EC2::Route",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicRouteTable",
+            "resource_type": "AWS::EC2::RouteTable",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicSubnet",
+            "resource_type": "AWS::EC2::Subnet",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "PublicSubnetRouteTableAssociation",
+            "resource_type": "AWS::EC2::SubnetRouteTableAssociation",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FileSystem",
+            "resource_type": "AWS::S3Files::FileSystem",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesAccessPoint",
+            "resource_type": "AWS::S3Files::AccessPoint",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesBucketAccessRole",
+            "resource_type": "AWS::IAM::Role",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesFileSystemPolicy",
+            "resource_type": "AWS::S3Files::FileSystemPolicy",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "S3FilesMountTarget",
+            "resource_type": "AWS::S3Files::MountTarget",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "TestInstance",
+            "resource_type": "AWS::EC2::Instance",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "Vpc",
+            "resource_type": "AWS::EC2::VPC",
+            "resource_status": "CREATE_COMPLETE"
+          },
+          {
+            "logical_resource_id": "VpcGatewayAttachment",
+            "resource_type": "AWS::EC2::VPCGatewayAttachment",
+            "resource_status": "CREATE_COMPLETE"
+          }
+        ]
+      },
+      "s3": {
+        "bucket_name": "agentic-radar-s4-ad2b348f-<aws-account-id-redacted>-ap-southeast-1",
+        "tags": {
+          "status": "captured",
+          "values": {
+            "Project": "agentic-radar-s4-ad2b348f",
+            "aws:cloudformation:stack-name": "AgenticRadarS4AD2B348F",
+            "aws:cloudformation:logical-id": "DataBucket",
+            "ManagedBy": "CDK-CloudFormation",
+            "aws:cloudformation:stack-id": "<aws-arn-redacted>"
+          }
+        },
+        "object_count_current": 3,
+        "object_version_count": 3,
+        "delete_marker_count": 0,
+        "total_size_bytes": 188,
+        "list_pages": 1
+      },
+      "ec2": {
+        "instance_id": "i-0f09f7e67fcc6849f",
+        "state": "running",
+        "instance_type": "t3.micro",
+        "launch_time": "2026-07-31T07:58:59+00:00",
+        "tags": {
+          "aws:cloudformation:stack-id": "<aws-arn-redacted>",
+          "aws:cloudformation:logical-id": "TestInstance",
+          "Name": "agentic-radar-s4-ad2b348f-test-client",
+          "aws:cloudformation:stack-name": "AgenticRadarS4AD2B348F"
+        }
+      }
+    },
+    "collection_errors": []
+  },
+  "validation": {
+    "rows": [
+      [
+        "Skill 4 validation",
+        "PoC 可由人類授權啟動"
+      ],
+      [
+        "CloudFormation",
+        "CloudFormation 建立完成"
+      ],
+      [
+        "自動化驗證",
+        "已驗證, 已驗證, Success"
+      ],
+      [
+        "AWS Console review",
+        "已確認"
+      ],
+      [
+        "Console / 資源盤點證據",
+        "已截圖並經人類確認（1 張）"
+      ],
+      [
+        "cleanup",
+        "已驗證"
+      ]
+    ]
+  },
+  "resource_inventory": {
+    "status": "not_recorded",
+    "note": "此 run 沒有記錄 CloudFormation 資源盤點。"
+  },
+  "permission_surface": {
+    "status": "not_recorded",
+    "note": "此 run 未記錄實際使用的 IAM action。"
+  },
+  "stage_timings": {
+    "schema_version": "pipeline.timings.v1",
+    "rows": [
+      {
+        "stage": "S1",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S2",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S3",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S4",
+        "status": "not_recorded"
+      },
+      {
+        "stage": "S5",
+        "status": "not_recorded"
+      }
+    ],
+    "machine_seconds_total": 0.0,
+    "human_wait_seconds_total": 0.0,
+    "human_share": null,
+    "time_to_first_success_seconds": null,
+    "cross_host_stages": [],
+    "measurement_note": "",
+    "reading_note": "machine 是程式耗時，human 是卡在人工關卡的等待。兩者分開呈現：若 human 遠大於 machine，瓶頸在決策流程而不在工具。"
+  },
+  "verified_facts": [
+    "官方來源已記錄：https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+    "Skill 3 加權分已依固定 rubric 計算：4.4",
+    "PoC 成本估算報價單已建立：POC-QUOTE-C4ECB392A212，預期 USD 0.04719。",
+    "CloudFormation stack 已達 CREATE_COMPLETE。",
+    "AWS Console review 已以 1 張截圖透過 GUI 或對話交由具名人員確認。",
+    "cleanup 前即時用量快照已記錄：已擷取；這是 runtime facts，不是 AWS 帳單。",
+    "Skill 4 自動化驗證已通過：source_to_mount。",
+    "Skill 4 自動化驗證已通過：mount_to_s3。"
+  ],
+  "unknown_or_not_verified": [
+    "報價單是依公開牌價與明列用量假設產生的預估；本流程不進行預估與實際帳務成本比對，金額未經任何 AWS 帳務資料驗證。",
+    "Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。"
+  ],
+  "future_work": [
+    "把下一輪 PoC 從「資源能建立」推進到「S3 Files 是否能支撐真實檔案型工作負載，而不只是證明 EC2 可以 mount」；先外部搜尋 S3 Files + EC2 mount + S3 bucket synchronization 的實務限制，再只挑一個會改變導入判斷的情境重跑。",
+    "補一個邊界測試：測同步延遲、POSIX 權限、mount target/AZ 配置錯誤、以及 S3 API 與檔案操作交錯時的一致性。成功標準要能被 log、resource inventory 或應用輸出證明，不要只看 Console 畫面。",
+    "把搜尋結果整理成一張「值得做 / 不值得做」判斷卡：新找到的證據、它改變哪個假設、下一輪最小 PoC 要測什麼、仍不能宣稱什麼。"
+  ],
+  "reviewer_questions": [
+    "這篇新聞提到的新功能，最適合改善哪一個真實使用者流程？現有流程的 baseline 是什麼？",
+    "Skill 1 到 Skill 5 的每個結論分別由哪個 artifact 支撐？哪些只是推論或待驗證？",
+    "報價單中哪一項最貴？預期情境中最高的是 EC2 t3.micro Linux on-demand（USD 0.0264）；當 hours x USD/instance-hour 增加時，這項費用會上升；什麼實際使用情境會讓它增加？",
+    "PoC 會建立哪些 AWS 資源？人類是否已確認這些資源、Region、成本上限與 cleanup 範圍？",
+    "這次 PoC 只驗證功能可行，還是也驗證效能、可靠性、權限治理與可維運性？",
+    "報價單的計費方式與公式是否正確反映這個 recipe 會建立的每一項資源？有沒有漏算的常駐或用量型費用？"
+  ],
+  "external_research": {
+    "status": "search_required",
+    "claim_boundary": "以下是建議外部搜尋方向，不是已驗證結論；採用前必須把找到的來源補回 S1/S2/S3 artifacts。",
+    "directions": [
+      {
+        "direction": "找出真正值得測的使用情境",
+        "query": "S3 Files EC2 mount workload migration NFS S3 bucket architecture",
+        "why": "避免下一輪只是重跑官方 demo；要找到一個貼近使用者流程、資料型態或治理限制的場景。",
+        "useful_evidence": "官方範例、架構圖、限制說明、customer story 或 workshop，能指出資料流、使用者、成功標準與限制。"
+      },
+      {
+        "direction": "查部署與權限邊界",
+        "query": "S3 Files IAM access point mount target VPC security group permissions",
+        "why": "Skill 4 真正有價值的是證明帳號、Region、IAM、網路與 cleanup 邊界可控。",
+        "useful_evidence": "明確列出 IAM action、resource policy、network path、Region 支援、quota 或 rollback/cleanup 方法的文件。"
+      },
+      {
+        "direction": "查成本和失敗模式",
+        "query": "S3 Files pricing troubleshooting consistency latency mount failure",
+        "why": "下一輪 PoC 應該測最可能讓決策翻盤的成本或可靠性風險。",
+        "useful_evidence": "定價頁、pricing example、troubleshooting guide、service quota、known limitation 或監控指標。"
+      }
+    ],
+    "after_search_action": "把搜尋結果拆成三類：可直接補強 Skill 4 recipe、只適合列為 reviewer question、以及會讓本候選暫停的 blocker。"
+  },
+  "related_articles_and_examples": {
+    "status": "articles_and_examples_required",
+    "claim_boundary": "此節把已取得來源與待外搜文章分開；待外搜項目不是已驗證結論，找到來源後必須回填到 S1/S2/S3 才能升級為證據。",
+    "articles": [
+      {
+        "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog 原始來源文章",
+        "url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+        "type": "已取得來源",
+        "why_it_matters": "這是本次 S1-S5 證據鏈的起點，只能支持原文已明確寫出的主張。",
+        "next_role": "預言者雷達"
+      },
+      {
+        "title": "S3 Files 官方實作文件或 workshop",
+        "url": "",
+        "query": "S3 Files EC2 mount workload migration NFS S3 bucket architecture",
+        "type": "待外部搜尋",
+        "why_it_matters": "補足原始新聞沒有講清楚的部署步驟、架構限制與操作條件。",
+        "next_role": "架構師 / 驗證者"
+      },
+      {
+        "title": "S3 Files 權限、治理與 rollback 案例",
+        "url": "",
+        "query": "S3 Files IAM access point mount target VPC security group permissions",
+        "type": "待外部搜尋",
+        "why_it_matters": "判斷它能不能從展示型 PoC 進到受控導入，尤其是 IAM、Region、cleanup 與回復策略。",
+        "next_role": "治理者 / 驗證者"
+      }
+    ],
+    "application_examples": [
+      {
+        "scenario": "把既有 EC2 檔案讀寫工作負載接到 S3 bucket",
+        "how_it_uses_candidate": "用 S3 Files mount 方式讓應用程式先維持檔案系統介面，再觀察同步、延遲與一致性限制。",
+        "decision_it_changes": "決定下一輪要測真實檔案操作情境，不只是證明 EC2 可以 mount。",
+        "next_role": "驗證者"
+      },
+      {
+        "scenario": "資料湖前處理或批次匯入暫存區",
+        "how_it_uses_candidate": "讓工具用檔案介面寫入資料，再回到 S3 bucket 做後續分析或治理。",
+        "decision_it_changes": "判斷 S3 Files 適合過渡型整合，還是應直接改寫成原生 S3 API。",
+        "next_role": "架構師"
+      }
+    ]
+  },
+  "related_topics": [
+    "S3 Files 官方 developer guide / administration guide",
+    "S3 Files pricing、quota、Region support",
+    "S3 Files IAM/resource policy/security best practices",
+    "S3 Files troubleshooting、known limitations、rollback/cleanup",
+    "S3 Files 與本 PoC 的整合模式",
+    "S3 與本 PoC 的整合模式",
+    "EC2 與本 PoC 的整合模式",
+    "EFS 與本 PoC 的整合模式"
+  ],
+  "stage_evidence": [
+    {
+      "stage": "S1 Scan",
+      "status": "scanned_with_gaps",
+      "evidence": "candidate_count=1；external_fetch=是；source=https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/"
+    },
+    {
+      "stage": "S2 Compare",
+      "status": "ready_for_human_shortlist",
+      "evidence": "candidate_count=1；linked_evidence=7；region=新加坡區域可用"
+    },
+    {
+      "stage": "S3 Evaluate",
+      "status": "evaluated",
+      "evidence": "score=4.4 / 5；quote=POC-QUOTE-C4ECB392A212；recommend_poc=是"
+    },
+    {
+      "stage": "S4 Validate",
+      "status": "poc_ready_for_manual_start",
+      "evidence": "runtime=清除已驗證；cloudformation=CloudFormation 建立完成；checks=已驗證, 已驗證, Success"
+    },
+    {
+      "stage": "S4 Cleanup",
+      "status": "verified",
+      "evidence": "cleanup=已驗證；usage_snapshot=已擷取"
+    },
+    {
+      "stage": "S5 Report",
+      "status": "final",
+      "evidence": "report_type=最終報告；cost_basis=公開牌價預估（未與帳務比對）"
+    }
+  ],
+  "funnel": {
+    "s1_candidates": 1,
+    "s2_candidates": 1,
+    "s2_region_verified": 1,
+    "s3_evaluated": 1,
+    "s4_validated": 1
+  },
+  "evidence_ledger": [
+    {
+      "claim": "候選技術的公開來源",
+      "type": "source-backed fact",
+      "status": "recorded",
+      "source": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/"
+    },
+    {
+      "claim": "recipe",
+      "type": "runtime evidence",
+      "status": "s3_files_cdk",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "source_to_mount",
+      "type": "runtime evidence",
+      "status": "verified",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "mount_to_s3",
+      "type": "runtime evidence",
+      "status": "verified",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "ssm_status",
+      "type": "runtime evidence",
+      "status": "Success",
+      "source": "S4 runtime artifact"
+    },
+    {
+      "claim": "Infrastructure Composer Console review",
+      "type": "human-reviewed screenshot evidence",
+      "status": "confirmed",
+      "source": "S4 Console review evidence (1 screenshot metadata records)"
+    },
+    {
+      "claim": "PoC 成本估算",
+      "type": "public list-price estimate",
+      "status": "estimated",
+      "source": "POC-QUOTE-C4ECB392A212"
+    }
+  ],
+  "human_summary": {
+    "headline": "本次受控 PoC 已完成、已人工確認，並已清除資源。",
+    "main_discovery": "S3 Files 在本次帳號與地區中可以被建立，且 EC2 掛載點和 S3 bucket 之間能做最小讀寫驗證。",
+    "business_meaning": "這代表它不只是新聞功能，而是有機會讓需要檔案介面的工作負載共用 S3 資料；下一步要判斷它是否撐得住真實檔案型工作負載。",
+    "main_limit": "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+    "readiness_rows": [
+      {
+        "question": "我們的 AWS 帳號可以建立這個 PoC 嗎？",
+        "answer": "可以，已成功建立本次 PoC 所需資源。",
+        "evidence": "CloudFormation 建立完成。"
+      },
+      {
+        "question": "指定地區可以使用嗎？",
+        "answer": "可以，本次使用 ap-southeast-1。",
+        "evidence": "同一地區完成部署與驗證。"
+      },
+      {
+        "question": "權限夠不夠？",
+        "answer": "夠，至少足以完成本次最小 PoC。",
+        "evidence": "資源建立成功，且核心驗證通過。"
+      },
+      {
+        "question": "資源有沒有收乾淨？",
+        "answer": "已清除並回查。",
+        "evidence": "CloudFormation stack 已刪除；測試 bucket 已先清空；清除範圍符合本次測試前綴。"
+      }
+    ],
+    "completed_work": [
+      "整理官方來源，確認這個功能想解決的技術問題。",
+      "用固定評分準則完成 Skill 3 評估，分數為 4.4 / 5。",
+      "用公開價格建立小型 PoC 成本估算：預期約 USD 0.04719，核准上限 USD 0.20。",
+      "在 ap-southeast-1 建立受控 PoC 環境。",
+      "跑完核心驗證：S3 內的物件可以從 EC2 掛載點讀到；從掛載點寫入的檔案可以回到 S3；EC2 測試指令可以透過受控方式執行成功。",
+      "完成 AWS Console 人工確認。",
+      "完成受控清除，避免測試資源繼續產生成本。"
+    ],
+    "poc_findings": [
+      "S3 內的物件可以從 EC2 掛載點讀到",
+      "從掛載點寫入的檔案可以回到 S3",
+      "EC2 測試指令可以透過受控方式執行成功"
+    ],
+    "cost_summary": "預期約 USD 0.04719，核准上限 USD 0.20",
+    "cleanup_summary": "已清除並回查。",
+    "limits": [
+      "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+      "這次只證明最小 PoC 路徑可行，尚未測效能、可靠性、長時間運作或多人使用。",
+      "尚未證明同步延遲、POSIX 權限、一致性與錯誤復原是否符合真實工作負載。",
+      "預估成本不是 AWS 帳單，不能拿來宣稱實際花費。"
+    ],
+    "next_steps": [
+      "補一個小型真實工作負載測試：多檔案讀寫、同步延遲、權限錯誤與掛載失敗復原。",
+      "外部查 S3 Files 的限制、定價與 troubleshooting，判斷它適合檔案共享、資料湖前處理，還是只適合展示型 PoC。"
+    ]
+  },
+  "markdown": "# Skill 5 PoC 結案報告：Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog\n\n## 一眼看重點\n\n- 結論：本次受控 PoC 已完成、已人工確認，並已清除資源。\n- 做完發現：S3 Files 在本次帳號與地區中可以被建立，且 EC2 掛載點和 S3 bucket 之間能做最小讀寫驗證。\n- 對公司的意義：這代表它不只是新聞功能，而是有機會讓需要檔案介面的工作負載共用 S3 資料；下一步要判斷它是否撐得住真實檔案型工作負載。\n- 現在不能宣稱：這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。\n\n## 帳號、地區、權限能不能用\n\n| 問題 | 結論 | 證據 |\n| --- | --- | --- |\n| 我們的 AWS 帳號可以建立這個 PoC 嗎？ | 可以，已成功建立本次 PoC 所需資源。 | CloudFormation 建立完成。 |\n| 指定地區可以使用嗎？ | 可以，本次使用 ap-southeast-1。 | 同一地區完成部署與驗證。 |\n| 權限夠不夠？ | 夠，至少足以完成本次最小 PoC。 | 資源建立成功，且核心驗證通過。 |\n| 資源有沒有收乾淨？ | 已清除並回查。 | CloudFormation stack 已刪除；測試 bucket 已先清空；清除範圍符合本次測試前綴。 |\n\n## 我實際做完了什麼\n\n- 整理官方來源，確認這個功能想解決的技術問題。\n- 用固定評分準則完成 Skill 3 評估，分數為 4.4 / 5。\n- 用公開價格建立小型 PoC 成本估算：預期約 USD 0.04719，核准上限 USD 0.20。\n- 在 ap-southeast-1 建立受控 PoC 環境。\n- 跑完核心驗證：S3 內的物件可以從 EC2 掛載點讀到；從掛載點寫入的檔案可以回到 S3；EC2 測試指令可以透過受控方式執行成功。\n- 完成 AWS Console 人工確認。\n- 完成受控清除，避免測試資源繼續產生成本。\n\n## 這次 PoC 證明了什麼\n\n- S3 內的物件可以從 EC2 掛載點讀到\n- 從掛載點寫入的檔案可以回到 S3\n- EC2 測試指令可以透過受控方式執行成功\n\n## 成本與清除狀態\n\n- 預估成本：預期約 USD 0.04719，核准上限 USD 0.20\n- 成本性質：這是部署前用公開價格估算，不是 AWS 帳單。\n- 清除狀態：已清除並回查。\n- 價格來源：AWS 官方公開定價頁。\n\n## 還不能拿來宣稱的事\n\n- 這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。\n- 這次只證明最小 PoC 路徑可行，尚未測效能、可靠性、長時間運作或多人使用。\n- 尚未證明同步延遲、POSIX 權限、一致性與錯誤復原是否符合真實工作負載。\n- 預估成本不是 AWS 帳單，不能拿來宣稱實際花費。\n\n## 下一步要補的決策證據\n\n- 補一個小型真實工作負載測試：多檔案讀寫、同步延遲、權限錯誤與掛載失敗復原。\n- 外部查 S3 Files 的限制、定價與 troubleshooting，判斷它適合檔案共享、資料湖前處理，還是只適合展示型 PoC。\n\n## 相關文章與應用實例\n\n- 證據邊界：此節把已取得來源與待外搜文章分開；待外搜項目不是已驗證結論，找到來源後必須回填到 S1/S2/S3 才能升級為證據。\n\n### 相關文章\n\n- Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog 原始來源文章（已取得來源）：https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/\n  - 為什麼要看：這是本次 S1-S5 證據鏈的起點，只能支持原文已明確寫出的主張。\n  - 會交給誰用：預言者雷達\n- S3 Files 官方實作文件或 workshop（待外部搜尋）：搜尋：`S3 Files EC2 mount workload migration NFS S3 bucket architecture`\n  - 為什麼要看：補足原始新聞沒有講清楚的部署步驟、架構限制與操作條件。\n  - 會交給誰用：架構師 / 驗證者\n- S3 Files 權限、治理與 rollback 案例（待外部搜尋）：搜尋：`S3 Files IAM access point mount target VPC security group permissions`\n  - 為什麼要看：判斷它能不能從展示型 PoC 進到受控導入，尤其是 IAM、Region、cleanup 與回復策略。\n  - 會交給誰用：治理者 / 驗證者\n\n### 應用實例\n\n- 把既有 EC2 檔案讀寫工作負載接到 S3 bucket\n  - 怎麼用在本案例：用 S3 Files mount 方式讓應用程式先維持檔案系統介面，再觀察同步、延遲與一致性限制。\n  - 會改變的判斷：決定下一輪要測真實檔案操作情境，不只是證明 EC2 可以 mount。\n  - 下一個角色：驗證者\n- 資料湖前處理或批次匯入暫存區\n  - 怎麼用在本案例：讓工具用檔案介面寫入資料，再回到 S3 bucket 做後續分析或治理。\n  - 會改變的判斷：判斷 S3 Files 適合過渡型整合，還是應直接改寫成原生 S3 API。\n  - 下一個角色：架構師\n\n## 官方來源\n\n- https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/\n",
+  "gui_model": {
+    "header": {
+      "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+      "source_url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "report_type": "final",
+      "report_type_label": "最終報告",
+      "conclusion": {
+        "status": "validated_and_cleaned",
+        "text": "實際 PoC 已通過自動化驗證與 Infrastructure Composer 截圖人工確認，cleanup 回查也已完成。"
+      },
+      "news_summary": {
+        "status": "source_backed",
+        "text": "新聞指出：Amazon S3 Files makes S3 buckets accessible as high-performance file systems on AWS compute resources, eliminating the tradeoff between object storage benefits and interactive file capabilities while enabling seamless data sharing with ~1ms latencies."
+      },
+      "human_summary": {
+        "headline": "本次受控 PoC 已完成、已人工確認，並已清除資源。",
+        "main_discovery": "S3 Files 在本次帳號與地區中可以被建立，且 EC2 掛載點和 S3 bucket 之間能做最小讀寫驗證。",
+        "business_meaning": "這代表它不只是新聞功能，而是有機會讓需要檔案介面的工作負載共用 S3 資料；下一步要判斷它是否撐得住真實檔案型工作負載。",
+        "main_limit": "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+        "readiness_rows": [
+          {
+            "question": "我們的 AWS 帳號可以建立這個 PoC 嗎？",
+            "answer": "可以，已成功建立本次 PoC 所需資源。",
+            "evidence": "CloudFormation 建立完成。"
+          },
+          {
+            "question": "指定地區可以使用嗎？",
+            "answer": "可以，本次使用 ap-southeast-1。",
+            "evidence": "同一地區完成部署與驗證。"
+          },
+          {
+            "question": "權限夠不夠？",
+            "answer": "夠，至少足以完成本次最小 PoC。",
+            "evidence": "資源建立成功，且核心驗證通過。"
+          },
+          {
+            "question": "資源有沒有收乾淨？",
+            "answer": "已清除並回查。",
+            "evidence": "CloudFormation stack 已刪除；測試 bucket 已先清空；清除範圍符合本次測試前綴。"
+          }
+        ],
+        "completed_work": [
+          "整理官方來源，確認這個功能想解決的技術問題。",
+          "用固定評分準則完成 Skill 3 評估，分數為 4.4 / 5。",
+          "用公開價格建立小型 PoC 成本估算：預期約 USD 0.04719，核准上限 USD 0.20。",
+          "在 ap-southeast-1 建立受控 PoC 環境。",
+          "跑完核心驗證：S3 內的物件可以從 EC2 掛載點讀到；從掛載點寫入的檔案可以回到 S3；EC2 測試指令可以透過受控方式執行成功。",
+          "完成 AWS Console 人工確認。",
+          "完成受控清除，避免測試資源繼續產生成本。"
+        ],
+        "poc_findings": [
+          "S3 內的物件可以從 EC2 掛載點讀到",
+          "從掛載點寫入的檔案可以回到 S3",
+          "EC2 測試指令可以透過受控方式執行成功"
+        ],
+        "cost_summary": "預期約 USD 0.04719，核准上限 USD 0.20",
+        "cleanup_summary": "已清除並回查。",
+        "limits": [
+          "這不是正式生產環境驗證，不能宣稱可直接導入公司正式系統。",
+          "這次只證明最小 PoC 路徑可行，尚未測效能、可靠性、長時間運作或多人使用。",
+          "尚未證明同步延遲、POSIX 權限、一致性與錯誤復原是否符合真實工作負載。",
+          "預估成本不是 AWS 帳單，不能拿來宣稱實際花費。"
+        ],
+        "next_steps": [
+          "補一個小型真實工作負載測試：多檔案讀寫、同步延遲、權限錯誤與掛載失敗復原。",
+          "外部查 S3 Files 的限制、定價與 troubleshooting，判斷它適合檔案共享、資料湖前處理，還是只適合展示型 PoC。"
+        ]
+      }
+    },
+    "score": {
+      "weighted_score": 4.4,
+      "dimensions": {
+        "technical_value": 4,
+        "adoption_prerequisites": 4,
+        "verifiability": 5,
+        "risk_and_stop_conditions": 5
+      }
+    },
+    "architecture_and_significance": {
+      "status": "not_recorded",
+      "note": "此 run 的 S1 artifact 沒有 explanation 區塊。"
+    },
+    "cost_quote": {
+      "schema_version": "poc.cost-quote.v2",
+      "quote_id": "POC-QUOTE-C4ECB392A212",
+      "run_id": "direct-url-20260731-f1baf62f",
+      "candidate_id": "S1-65801FA11243",
+      "candidate_title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog",
+      "generated_at": "2026-07-31T07:47:21.951420+00:00",
+      "valid_until": "2026-08-07",
+      "currency": "USD",
+      "target_region": "ap-southeast-1",
+      "quote_kind": "non_binding_public_price_estimate",
+      "estimation_method": "pre_deployment_cost_estimation",
+      "rate_card_source": "static_public_rate_card",
+      "live_pricing_api_used": false,
+      "formal_procurement_quote_ready": false,
+      "disclaimer": "這是 PoC 前的非正式公開牌價估算，用於 Skill 3 審查與 Skill 4 小額上限控管。它不是 AWS 帳單、正式採購報價，也未套用稅務、折扣、credits、Free Tier 或公司私有價格。",
+      "status": "estimated",
+      "confidence": "medium",
+      "pricing_confidence": "high",
+      "pricing_level": "Level A registered recipe",
+      "recipe": "s3_files_cdk",
+      "pricing_basis": "已登錄 S3 Files CDK PoC recipe；用固定低/中/高用量和公開牌價試算。",
+      "price_snapshot_date": "2026-07-30",
+      "scenarios": {
+        "low": {
+          "scenario": "low",
+          "label": "低用量",
+          "assumptions": {
+            "hours": 1,
+            "active_gb": 0.02,
+            "write_gb": 0.02,
+            "export_read_gb": 0.02,
+            "small_read_gb": 0.02,
+            "import_write_gb": 0.02,
+            "tier1_requests": 30,
+            "tier2_requests": 60
+          },
+          "line_items": [
+            {
+              "rate_key": "ec2_t3_micro",
+              "item": "EC2 t3.micro Linux on-demand",
+              "rate_usd": 0.0132,
+              "rate_unit": "USD/instance-hour",
+              "quantity": 1,
+              "quantity_unit": "hours",
+              "formula": "hours x USD/instance-hour",
+              "subtotal_usd": 0.0132,
+              "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+              "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "ebs_gp3",
+              "item": "EBS gp3 storage",
+              "rate_usd": 0.096,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.010958904109589041,
+              "quantity_unit": "GB-month",
+              "formula": "8 GiB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 0.001052,
+              "source_url": "https://aws.amazon.com/ebs/pricing/",
+              "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_files_storage",
+              "item": "S3 Files active storage",
+              "rate_usd": 0.36,
+              "rate_unit": "USD/GB-month",
+              "quantity": 2.7397260273972603e-05,
+              "quantity_unit": "GB-month",
+              "formula": "active GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 1e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_write",
+              "item": "S3 Files write access",
+              "rate_usd": 0.06,
+              "rate_unit": "USD/GB",
+              "quantity": 0.02,
+              "quantity_unit": "GB",
+              "formula": "write GB x USD/GB",
+              "subtotal_usd": 0.0012,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_export_read",
+              "item": "S3 Files export/read access",
+              "rate_usd": 0.03,
+              "rate_unit": "USD/GB",
+              "quantity": 0.02,
+              "quantity_unit": "GB",
+              "formula": "export/read GB x USD/GB",
+              "subtotal_usd": 0.0006,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_small_read",
+              "item": "S3 Files small read access",
+              "rate_usd": 0.03,
+              "rate_unit": "USD/GB",
+              "quantity": 0.02,
+              "quantity_unit": "GB",
+              "formula": "small-read GB x USD/GB",
+              "subtotal_usd": 0.0006,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_import_write",
+              "item": "S3 Files import/write access",
+              "rate_usd": 0.06,
+              "rate_unit": "USD/GB",
+              "quantity": 0.02,
+              "quantity_unit": "GB",
+              "formula": "import/write GB x USD/GB",
+              "subtotal_usd": 0.0012,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_standard_storage",
+              "item": "S3 Standard storage",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 2.7397260273972603e-05,
+              "quantity_unit": "GB-month",
+              "formula": "stored GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 1e-06,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier1_request",
+              "item": "S3 PUT/COPY/POST/LIST requests",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 30,
+              "quantity_unit": "requests",
+              "formula": "request count x USD/request",
+              "subtotal_usd": 0.00015,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier2_request",
+              "item": "S3 GET requests",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 60,
+              "quantity_unit": "requests",
+              "formula": "request count x USD/request",
+              "subtotal_usd": 2.4e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            }
+          ],
+          "total_usd": 0.018037,
+          "display_total_usd": "0.02"
+        },
+        "expected": {
+          "scenario": "expected",
+          "label": "預期用量",
+          "assumptions": {
+            "hours": 2,
+            "active_gb": 0.1,
+            "write_gb": 0.1,
+            "export_read_gb": 0.1,
+            "small_read_gb": 0.1,
+            "import_write_gb": 0.1,
+            "tier1_requests": 100,
+            "tier2_requests": 200
+          },
+          "line_items": [
+            {
+              "rate_key": "ec2_t3_micro",
+              "item": "EC2 t3.micro Linux on-demand",
+              "rate_usd": 0.0132,
+              "rate_unit": "USD/instance-hour",
+              "quantity": 2,
+              "quantity_unit": "hours",
+              "formula": "hours x USD/instance-hour",
+              "subtotal_usd": 0.0264,
+              "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+              "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "ebs_gp3",
+              "item": "EBS gp3 storage",
+              "rate_usd": 0.096,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.021917808219178082,
+              "quantity_unit": "GB-month",
+              "formula": "8 GiB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 0.002104,
+              "source_url": "https://aws.amazon.com/ebs/pricing/",
+              "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_files_storage",
+              "item": "S3 Files active storage",
+              "rate_usd": 0.36,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.000273972602739726,
+              "quantity_unit": "GB-month",
+              "formula": "active GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 9.9e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_write",
+              "item": "S3 Files write access",
+              "rate_usd": 0.06,
+              "rate_unit": "USD/GB",
+              "quantity": 0.1,
+              "quantity_unit": "GB",
+              "formula": "write GB x USD/GB",
+              "subtotal_usd": 0.006,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_export_read",
+              "item": "S3 Files export/read access",
+              "rate_usd": 0.03,
+              "rate_unit": "USD/GB",
+              "quantity": 0.1,
+              "quantity_unit": "GB",
+              "formula": "export/read GB x USD/GB",
+              "subtotal_usd": 0.003,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_small_read",
+              "item": "S3 Files small read access",
+              "rate_usd": 0.03,
+              "rate_unit": "USD/GB",
+              "quantity": 0.1,
+              "quantity_unit": "GB",
+              "formula": "small-read GB x USD/GB",
+              "subtotal_usd": 0.003,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_import_write",
+              "item": "S3 Files import/write access",
+              "rate_usd": 0.06,
+              "rate_unit": "USD/GB",
+              "quantity": 0.1,
+              "quantity_unit": "GB",
+              "formula": "import/write GB x USD/GB",
+              "subtotal_usd": 0.006,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_standard_storage",
+              "item": "S3 Standard storage",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.000273972602739726,
+              "quantity_unit": "GB-month",
+              "formula": "stored GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 7e-06,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier1_request",
+              "item": "S3 PUT/COPY/POST/LIST requests",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 100,
+              "quantity_unit": "requests",
+              "formula": "request count x USD/request",
+              "subtotal_usd": 0.0005,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier2_request",
+              "item": "S3 GET requests",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 200,
+              "quantity_unit": "requests",
+              "formula": "request count x USD/request",
+              "subtotal_usd": 8e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            }
+          ],
+          "total_usd": 0.04719,
+          "display_total_usd": "0.05"
+        },
+        "high": {
+          "scenario": "high",
+          "label": "高用量",
+          "assumptions": {
+            "hours": 4,
+            "active_gb": 0.5,
+            "write_gb": 0.5,
+            "export_read_gb": 0.5,
+            "small_read_gb": 0.5,
+            "import_write_gb": 0.5,
+            "tier1_requests": 500,
+            "tier2_requests": 1000
+          },
+          "line_items": [
+            {
+              "rate_key": "ec2_t3_micro",
+              "item": "EC2 t3.micro Linux on-demand",
+              "rate_usd": 0.0132,
+              "rate_unit": "USD/instance-hour",
+              "quantity": 4,
+              "quantity_unit": "hours",
+              "formula": "hours x USD/instance-hour",
+              "subtotal_usd": 0.0528,
+              "source_url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+              "source_basis": "AWS public EC2 price file, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "ebs_gp3",
+              "item": "EBS gp3 storage",
+              "rate_usd": 0.096,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.043835616438356165,
+              "quantity_unit": "GB-month",
+              "formula": "8 GiB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 0.004208,
+              "source_url": "https://aws.amazon.com/ebs/pricing/",
+              "source_basis": "AWS public EBS pricing, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_files_storage",
+              "item": "S3 Files active storage",
+              "rate_usd": 0.36,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.0027397260273972603,
+              "quantity_unit": "GB-month",
+              "formula": "active GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 0.000986,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_write",
+              "item": "S3 Files write access",
+              "rate_usd": 0.06,
+              "rate_unit": "USD/GB",
+              "quantity": 0.5,
+              "quantity_unit": "GB",
+              "formula": "write GB x USD/GB",
+              "subtotal_usd": 0.03,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_export_read",
+              "item": "S3 Files export/read access",
+              "rate_usd": 0.03,
+              "rate_unit": "USD/GB",
+              "quantity": 0.5,
+              "quantity_unit": "GB",
+              "formula": "export/read GB x USD/GB",
+              "subtotal_usd": 0.015,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_small_read",
+              "item": "S3 Files small read access",
+              "rate_usd": 0.03,
+              "rate_unit": "USD/GB",
+              "quantity": 0.5,
+              "quantity_unit": "GB",
+              "formula": "small-read GB x USD/GB",
+              "subtotal_usd": 0.015,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_files_import_write",
+              "item": "S3 Files import/write access",
+              "rate_usd": 0.06,
+              "rate_unit": "USD/GB",
+              "quantity": 0.5,
+              "quantity_unit": "GB",
+              "formula": "import/write GB x USD/GB",
+              "subtotal_usd": 0.03,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS S3 Files public pricing example rate",
+              "effective_date": "2026-07-30"
+            },
+            {
+              "rate_key": "s3_standard_storage",
+              "item": "S3 Standard storage",
+              "rate_usd": 0.025,
+              "rate_unit": "USD/GB-month",
+              "quantity": 0.0027397260273972603,
+              "quantity_unit": "GB-month",
+              "formula": "stored GB x hours / 730 x USD/GB-month",
+              "subtotal_usd": 6.8e-05,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 Standard storage price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier1_request",
+              "item": "S3 PUT/COPY/POST/LIST requests",
+              "rate_usd": 5e-06,
+              "rate_unit": "USD/request",
+              "quantity": 500,
+              "quantity_unit": "requests",
+              "formula": "request count x USD/request",
+              "subtotal_usd": 0.0025,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            },
+            {
+              "rate_key": "s3_tier2_request",
+              "item": "S3 GET requests",
+              "rate_usd": 4e-07,
+              "rate_unit": "USD/request",
+              "quantity": 1000,
+              "quantity_unit": "requests",
+              "formula": "request count x USD/request",
+              "subtotal_usd": 0.0004,
+              "source_url": "https://aws.amazon.com/s3/pricing/",
+              "source_basis": "AWS public S3 request price snapshot, Asia Pacific (Singapore)",
+              "effective_date": "2026-07-01"
+            }
+          ],
+          "total_usd": 0.150962,
+          "display_total_usd": "0.16"
+        }
+      },
+      "expected_total_usd": 0.04719,
+      "estimated_range_usd": {
+        "low": 0.018037,
+        "expected": 0.04719,
+        "high": 0.150962
+      },
+      "recommended_approval_ceiling_usd": 0.2,
+      "approval_ceiling_basis": "高用量情境往上取到下一個 USD 0.05。",
+      "verified_recipe_facts": [
+        "Registered recipe creates one t3.micro test instance when createTestInstance=true.",
+        "Amazon Linux 2023 public AMI root volume is treated as 8 GiB gp3."
+      ],
+      "zero_direct_charge_resources": [
+        "VPC, subnet, route table, internet gateway, security groups, IAM role, and CloudFormation have no separate hourly line item in this recipe."
+      ],
+      "exclusions": [
+        "Tax, private pricing, Savings Plans, credits, enterprise discounts, and Free Tier are excluded.",
+        "This quote must be regenerated if the public pricing page changes or the quote expires.",
+        "Actual billing must be checked separately after Skill 4, using Billing/Cost Explorer/CUR evidence when attributable.",
+        "Unexpected data transfer, retries, log ingestion, and resources outside the registered recipe are excluded."
+      ],
+      "sources": [
+        {
+          "url": "https://b0.p.awsstatic.com/pricing/2.0/meteredUnitMaps/ec2/USD/current/ec2-ondemand-without-sec-sel/Asia%20Pacific%20(Singapore)/Linux/index.json",
+          "purpose": "AWS public EC2 price file, Asia Pacific (Singapore)"
+        },
+        {
+          "url": "https://aws.amazon.com/ebs/pricing/",
+          "purpose": "AWS public EBS pricing, Asia Pacific (Singapore)"
+        },
+        {
+          "url": "https://aws.amazon.com/s3/pricing/",
+          "purpose": "AWS S3 Files public pricing example rate"
+        },
+        {
+          "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/finding-prices-in-service-price-list-files.html",
+          "purpose": "AWS Price List files/rate card interpretation"
+        }
+      ],
+      "status_label": "已完成估算"
+    },
+    "pre_cleanup_usage_snapshot": {
+      "schema_version": "s4.pre-cleanup-usage-snapshot.v1",
+      "status": "captured",
+      "run_id": "direct-url-20260731-f1baf62f",
+      "captured_at": "2026-07-31T08:05:24.920276+00:00",
+      "source_type": "aws_runtime_facts",
+      "billing_evidence": false,
+      "actual_cost_status": "not_billing_evidence",
+      "rule": "This snapshot records immediately available runtime facts before cleanup. Actual AWS cost still requires attributable Billing, Cost Explorer, or CUR evidence.",
+      "deployment": {
+        "recipe": "s3_files_cdk",
+        "stack_name": "AgenticRadarS4AD2B348F",
+        "resource_prefix": "agentic-radar-s4-ad2b348f",
+        "target_region": "ap-southeast-1"
+      },
+      "timeline": {
+        "deployed_at": "2026-07-31T08:01:06.338317+00:00",
+        "captured_at": "2026-07-31T08:05:24.920276+00:00",
+        "elapsed_seconds": 258
+      },
+      "sections": {
+        "cloudformation": {
+          "stack_status": "CREATE_COMPLETE",
+          "creation_time": "2026-07-31T07:53:00.497000+00:00",
+          "last_updated_time": null,
+          "tags": {},
+          "resource_count": 19,
+          "resources": [
+            {
+              "logical_resource_id": "CDKMetadata",
+              "resource_type": "AWS::CDK::Metadata",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "ClientInstanceProfile",
+              "resource_type": "AWS::IAM::InstanceProfile",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "ClientInstanceRole",
+              "resource_type": "AWS::IAM::Role",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "ClientSecurityGroup",
+              "resource_type": "AWS::EC2::SecurityGroup",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "DataBucket",
+              "resource_type": "AWS::S3::Bucket",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "InternetGateway",
+              "resource_type": "AWS::EC2::InternetGateway",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "MountTargetSecurityGroup",
+              "resource_type": "AWS::EC2::SecurityGroup",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "PublicRoute",
+              "resource_type": "AWS::EC2::Route",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "PublicRouteTable",
+              "resource_type": "AWS::EC2::RouteTable",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "PublicSubnet",
+              "resource_type": "AWS::EC2::Subnet",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "PublicSubnetRouteTableAssociation",
+              "resource_type": "AWS::EC2::SubnetRouteTableAssociation",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "S3FileSystem",
+              "resource_type": "AWS::S3Files::FileSystem",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "S3FilesAccessPoint",
+              "resource_type": "AWS::S3Files::AccessPoint",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "S3FilesBucketAccessRole",
+              "resource_type": "AWS::IAM::Role",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "S3FilesFileSystemPolicy",
+              "resource_type": "AWS::S3Files::FileSystemPolicy",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "S3FilesMountTarget",
+              "resource_type": "AWS::S3Files::MountTarget",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "TestInstance",
+              "resource_type": "AWS::EC2::Instance",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "Vpc",
+              "resource_type": "AWS::EC2::VPC",
+              "resource_status": "CREATE_COMPLETE"
+            },
+            {
+              "logical_resource_id": "VpcGatewayAttachment",
+              "resource_type": "AWS::EC2::VPCGatewayAttachment",
+              "resource_status": "CREATE_COMPLETE"
+            }
+          ]
+        },
+        "s3": {
+          "bucket_name": "agentic-radar-s4-ad2b348f-<aws-account-id-redacted>-ap-southeast-1",
+          "tags": {
+            "status": "captured",
+            "values": {
+              "Project": "agentic-radar-s4-ad2b348f",
+              "aws:cloudformation:stack-name": "AgenticRadarS4AD2B348F",
+              "aws:cloudformation:logical-id": "DataBucket",
+              "ManagedBy": "CDK-CloudFormation",
+              "aws:cloudformation:stack-id": "<aws-arn-redacted>"
+            }
+          },
+          "object_count_current": 3,
+          "object_version_count": 3,
+          "delete_marker_count": 0,
+          "total_size_bytes": 188,
+          "list_pages": 1
+        },
+        "ec2": {
+          "instance_id": "i-0f09f7e67fcc6849f",
+          "state": "running",
+          "instance_type": "t3.micro",
+          "launch_time": "2026-07-31T07:58:59+00:00",
+          "tags": {
+            "aws:cloudformation:stack-id": "<aws-arn-redacted>",
+            "aws:cloudformation:logical-id": "TestInstance",
+            "Name": "agentic-radar-s4-ad2b348f-test-client",
+            "aws:cloudformation:stack-name": "AgenticRadarS4AD2B348F"
+          }
+        }
+      },
+      "collection_errors": [],
+      "status_label": "已擷取"
+    },
+    "resource_inventory": {
+      "status": "not_recorded",
+      "note": "此 run 沒有記錄 CloudFormation 資源盤點。"
+    },
+    "permission_surface": {
+      "status": "not_recorded",
+      "note": "此 run 未記錄實際使用的 IAM action。"
+    },
+    "stage_timings": {
+      "schema_version": "pipeline.timings.v1",
+      "rows": [
+        {
+          "stage": "S1",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S2",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S3",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S4",
+          "status": "not_recorded"
+        },
+        {
+          "stage": "S5",
+          "status": "not_recorded"
+        }
+      ],
+      "machine_seconds_total": 0.0,
+      "human_wait_seconds_total": 0.0,
+      "human_share": null,
+      "time_to_first_success_seconds": null,
+      "cross_host_stages": [],
+      "measurement_note": "",
+      "reading_note": "machine 是程式耗時，human 是卡在人工關卡的等待。兩者分開呈現：若 human 遠大於 machine，瓶頸在決策流程而不在工具。"
+    },
+    "console_review": {
+      "status": "已確認",
+      "screenshot_status": "已截圖並經人類確認（1 張）",
+      "review_evidence_status": "已截圖並經人類確認（1 張）",
+      "evidence_recorded": true,
+      "privacy": "Render review evidence only through an authenticated GUI or the active conversation; Git artifacts retain metadata only."
+    },
+    "validation_checks": [
+      {
+        "label": "Skill 4 validation",
+        "status": "PoC 可由人類授權啟動"
+      },
+      {
+        "label": "CloudFormation",
+        "status": "CloudFormation 建立完成"
+      },
+      {
+        "label": "自動化驗證",
+        "status": "已驗證, 已驗證, Success"
+      },
+      {
+        "label": "AWS Console review",
+        "status": "已確認"
+      },
+      {
+        "label": "Console / 資源盤點證據",
+        "status": "已截圖並經人類確認（1 張）"
+      },
+      {
+        "label": "cleanup",
+        "status": "已驗證"
+      }
+    ],
+    "verified_facts": [
+      "官方來源已記錄：https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+      "Skill 3 加權分已依固定 rubric 計算：4.4",
+      "PoC 成本估算報價單已建立：POC-QUOTE-C4ECB392A212，預期 USD 0.04719。",
+      "CloudFormation stack 已達 CREATE_COMPLETE。",
+      "AWS Console review 已以 1 張截圖透過 GUI 或對話交由具名人員確認。",
+      "cleanup 前即時用量快照已記錄：已擷取；這是 runtime facts，不是 AWS 帳單。",
+      "Skill 4 自動化驗證已通過：source_to_mount。",
+      "Skill 4 自動化驗證已通過：mount_to_s3。"
+    ],
+    "unknown_or_not_verified": [
+      "報價單是依公開牌價與明列用量假設產生的預估；本流程不進行預估與實際帳務成本比對，金額未經任何 AWS 帳務資料驗證。",
+      "Skill 3 的 PoC 判斷只代表公開技術證據與成本/recipe 條件達標；公司工作負載適配性未評估。"
+    ],
+    "future_work": [
+      "把下一輪 PoC 從「資源能建立」推進到「S3 Files 是否能支撐真實檔案型工作負載，而不只是證明 EC2 可以 mount」；先外部搜尋 S3 Files + EC2 mount + S3 bucket synchronization 的實務限制，再只挑一個會改變導入判斷的情境重跑。",
+      "補一個邊界測試：測同步延遲、POSIX 權限、mount target/AZ 配置錯誤、以及 S3 API 與檔案操作交錯時的一致性。成功標準要能被 log、resource inventory 或應用輸出證明，不要只看 Console 畫面。",
+      "把搜尋結果整理成一張「值得做 / 不值得做」判斷卡：新找到的證據、它改變哪個假設、下一輪最小 PoC 要測什麼、仍不能宣稱什麼。"
+    ],
+    "reviewer_questions": [
+      "這篇新聞提到的新功能，最適合改善哪一個真實使用者流程？現有流程的 baseline 是什麼？",
+      "Skill 1 到 Skill 5 的每個結論分別由哪個 artifact 支撐？哪些只是推論或待驗證？",
+      "報價單中哪一項最貴？預期情境中最高的是 EC2 t3.micro Linux on-demand（USD 0.0264）；當 hours x USD/instance-hour 增加時，這項費用會上升；什麼實際使用情境會讓它增加？",
+      "PoC 會建立哪些 AWS 資源？人類是否已確認這些資源、Region、成本上限與 cleanup 範圍？",
+      "這次 PoC 只驗證功能可行，還是也驗證效能、可靠性、權限治理與可維運性？",
+      "報價單的計費方式與公式是否正確反映這個 recipe 會建立的每一項資源？有沒有漏算的常駐或用量型費用？"
+    ],
+    "external_research": {
+      "status": "search_required",
+      "claim_boundary": "以下是建議外部搜尋方向，不是已驗證結論；採用前必須把找到的來源補回 S1/S2/S3 artifacts。",
+      "directions": [
+        {
+          "direction": "找出真正值得測的使用情境",
+          "query": "S3 Files EC2 mount workload migration NFS S3 bucket architecture",
+          "why": "避免下一輪只是重跑官方 demo；要找到一個貼近使用者流程、資料型態或治理限制的場景。",
+          "useful_evidence": "官方範例、架構圖、限制說明、customer story 或 workshop，能指出資料流、使用者、成功標準與限制。"
+        },
+        {
+          "direction": "查部署與權限邊界",
+          "query": "S3 Files IAM access point mount target VPC security group permissions",
+          "why": "Skill 4 真正有價值的是證明帳號、Region、IAM、網路與 cleanup 邊界可控。",
+          "useful_evidence": "明確列出 IAM action、resource policy、network path、Region 支援、quota 或 rollback/cleanup 方法的文件。"
+        },
+        {
+          "direction": "查成本和失敗模式",
+          "query": "S3 Files pricing troubleshooting consistency latency mount failure",
+          "why": "下一輪 PoC 應該測最可能讓決策翻盤的成本或可靠性風險。",
+          "useful_evidence": "定價頁、pricing example、troubleshooting guide、service quota、known limitation 或監控指標。"
+        }
+      ],
+      "after_search_action": "把搜尋結果拆成三類：可直接補強 Skill 4 recipe、只適合列為 reviewer question、以及會讓本候選暫停的 blocker。"
+    },
+    "related_articles_and_examples": {
+      "status": "articles_and_examples_required",
+      "claim_boundary": "此節把已取得來源與待外搜文章分開；待外搜項目不是已驗證結論，找到來源後必須回填到 S1/S2/S3 才能升級為證據。",
+      "articles": [
+        {
+          "title": "Launching S3 Files, making S3 buckets accessible as file systems | AWS News Blog 原始來源文章",
+          "url": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/",
+          "type": "已取得來源",
+          "why_it_matters": "這是本次 S1-S5 證據鏈的起點，只能支持原文已明確寫出的主張。",
+          "next_role": "預言者雷達"
+        },
+        {
+          "title": "S3 Files 官方實作文件或 workshop",
+          "url": "",
+          "query": "S3 Files EC2 mount workload migration NFS S3 bucket architecture",
+          "type": "待外部搜尋",
+          "why_it_matters": "補足原始新聞沒有講清楚的部署步驟、架構限制與操作條件。",
+          "next_role": "架構師 / 驗證者"
+        },
+        {
+          "title": "S3 Files 權限、治理與 rollback 案例",
+          "url": "",
+          "query": "S3 Files IAM access point mount target VPC security group permissions",
+          "type": "待外部搜尋",
+          "why_it_matters": "判斷它能不能從展示型 PoC 進到受控導入，尤其是 IAM、Region、cleanup 與回復策略。",
+          "next_role": "治理者 / 驗證者"
+        }
+      ],
+      "application_examples": [
+        {
+          "scenario": "把既有 EC2 檔案讀寫工作負載接到 S3 bucket",
+          "how_it_uses_candidate": "用 S3 Files mount 方式讓應用程式先維持檔案系統介面，再觀察同步、延遲與一致性限制。",
+          "decision_it_changes": "決定下一輪要測真實檔案操作情境，不只是證明 EC2 可以 mount。",
+          "next_role": "驗證者"
+        },
+        {
+          "scenario": "資料湖前處理或批次匯入暫存區",
+          "how_it_uses_candidate": "讓工具用檔案介面寫入資料，再回到 S3 bucket 做後續分析或治理。",
+          "decision_it_changes": "判斷 S3 Files 適合過渡型整合，還是應直接改寫成原生 S3 API。",
+          "next_role": "架構師"
+        }
+      ]
+    },
+    "related_topics": [
+      "S3 Files 官方 developer guide / administration guide",
+      "S3 Files pricing、quota、Region support",
+      "S3 Files IAM/resource policy/security best practices",
+      "S3 Files troubleshooting、known limitations、rollback/cleanup",
+      "S3 Files 與本 PoC 的整合模式",
+      "S3 與本 PoC 的整合模式",
+      "EC2 與本 PoC 的整合模式",
+      "EFS 與本 PoC 的整合模式"
+    ],
+    "stage_evidence": [
+      {
+        "stage": "S1 Scan",
+        "status": "scanned_with_gaps",
+        "evidence": "candidate_count=1；external_fetch=是；source=https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/"
+      },
+      {
+        "stage": "S2 Compare",
+        "status": "ready_for_human_shortlist",
+        "evidence": "candidate_count=1；linked_evidence=7；region=新加坡區域可用"
+      },
+      {
+        "stage": "S3 Evaluate",
+        "status": "evaluated",
+        "evidence": "score=4.4 / 5；quote=POC-QUOTE-C4ECB392A212；recommend_poc=是"
+      },
+      {
+        "stage": "S4 Validate",
+        "status": "poc_ready_for_manual_start",
+        "evidence": "runtime=清除已驗證；cloudformation=CloudFormation 建立完成；checks=已驗證, 已驗證, Success"
+      },
+      {
+        "stage": "S4 Cleanup",
+        "status": "verified",
+        "evidence": "cleanup=已驗證；usage_snapshot=已擷取"
+      },
+      {
+        "stage": "S5 Report",
+        "status": "final",
+        "evidence": "report_type=最終報告；cost_basis=公開牌價預估（未與帳務比對）"
+      }
+    ],
+    "evidence_ledger": [
+      {
+        "claim": "候選技術的公開來源",
+        "type": "source-backed fact",
+        "status": "recorded",
+        "source": "https://aws.amazon.com/tw/blogs/aws/launching-s3-files-making-s3-buckets-accessible-as-file-systems/"
+      },
+      {
+        "claim": "recipe",
+        "type": "runtime evidence",
+        "status": "s3_files_cdk",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "source_to_mount",
+        "type": "runtime evidence",
+        "status": "verified",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "mount_to_s3",
+        "type": "runtime evidence",
+        "status": "verified",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "ssm_status",
+        "type": "runtime evidence",
+        "status": "Success",
+        "source": "S4 runtime artifact"
+      },
+      {
+        "claim": "Infrastructure Composer Console review",
+        "type": "human-reviewed screenshot evidence",
+        "status": "confirmed",
+        "source": "S4 Console review evidence (1 screenshot metadata records)"
+      },
+      {
+        "claim": "PoC 成本估算",
+        "type": "public list-price estimate",
+        "status": "estimated",
+        "source": "POC-QUOTE-C4ECB392A212"
+      }
+    ],
+    "funnel": {
+      "s1_candidates": 1,
+      "s2_candidates": 1,
+      "s2_region_verified": 1,
+      "s3_evaluated": 1,
+      "s4_validated": 1
+    }
+  }
+}
