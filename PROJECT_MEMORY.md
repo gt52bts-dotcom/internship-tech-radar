@@ -536,6 +536,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - When Cleo asks for the CIP biweekly work journal as a Word file, use the prior DOCX format as the source style: A4 portrait, one-page compact table, basic-info table, three-column progress table, feedback row, and signature line.
 - Keep the Word version concise and outcome-based. Do not paste the full long Markdown biweekly report into the form; compress it into 2-3 bullets per work item and a short reflection/next-priority note.
+- 2026-08-14 status: the 2026-08-03 to 2026-08-14 CIP biweekly Word file was completed and Cleo reported it has been submitted. Do not treat this biweekly journal as pending.
 
 ## 2026-08-14 Lambda And S3 Files Cleanup State
 
