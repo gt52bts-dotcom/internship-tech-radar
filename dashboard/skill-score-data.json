@@ -39,7 +39,7 @@
         "scan": 1,
         "compare": 2,
         "evaluate": 1,
-        "validate": 4,
+        "validate": 3,
         "report": 1
       }
     },
