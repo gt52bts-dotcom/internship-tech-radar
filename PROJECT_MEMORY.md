@@ -107,6 +107,7 @@
 
 - The AI PM presentation was not delivered in the prior team meeting and is rescheduled for the afternoon of 2026-08-19. Do not keep or recreate the obsolete 2026-08-11 15:30 AI PM report task in README.
 - The final cloud technology radar internship presentation date is changed from 2026-08-17 to 2026-08-14. Current title: `《預言者雷達：看見技術的下一步》`. The talk should be planned as a 30-minute presentation excluding Q&A, using the elevator-pitch structure: one clear core claim, then layered evidence, process, deliverables, validation, constraints, and next steps.
+- 2026-08-14 update: Cleo reported that the final `預言者雷達`成果發表 has been completed and received generally positive on-site feedback. Treat this as user-reported presentation feedback unless a formal written or named evaluation is later provided.
 - 2026-08-11 update: Cleo reported that the initial 2026-08-14 final presentation deck has been produced. Treat it as draft-complete and awaiting review/polish; do not claim AI has inspected the actual deck file until the file is provided or explicitly located and reviewed.
 - 2026-08-05 correction: a Claude-produced AI PM deck is draft material only, not a completed deliverable or verified presentation result. Cleo will substantially revise it; do not state that the AI PM presentation, its slide count, speaker notes, or final narrative is complete until Cleo explicitly confirms completion.
 - 既有 AI PM 簡報與 10 分鐘講稿僅為草稿素材；8/11 前須由 Cleo 大幅調整並明確確認可用版本，不能直接宣稱沿用或已完成。
@@ -486,6 +487,7 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 - Cleo explicitly stated that she does not feel suited to PM. Future career-positioning advice should not frame pure PM as the primary fit.
 - When analyzing career direction from work records, prioritize technical/architecture/research-validation roles such as cloud solution architect, AI/cloud engineer, platform/DevOps engineer, solution engineer, technical consultant, or technology researcher. AI PM may still describe the collaboration workflow, but not Cleo's main career identity unless she reopens that direction.
 - Cleo is a communications engineering student about to enter junior year. Career advice should treat her as still exploring, with room to build fundamentals and sample multiple technical directions before locking into a title.
+- When Cleo asks for career or competency analysis, do not over-limit the answer to specific job titles. Start from higher-level transferable competencies, role archetypes, decision style, and growth trajectory, then map to possible roles only as examples.
 
 ## 2026-08-13 Skill 5 Related Articles and Application Examples Rule
 
@@ -521,3 +523,23 @@ Mentor 於 2026-07-24 補充：最終部會實習成果簡報可用電梯簡報�
 
 - After a formal daily log is completed, always update the root `README.md` in the same task so the project homepage reflects the newest daily outcome, Skill scores, cumulative total, current status, and any important pending boundary.
 - Treat the README update as part of the daily-log completion checklist, not as an optional follow-up.
+
+## 2026-08-14 Skill 1 Evidence Boundary Clarification
+
+- Skill 1 must be explained as a two-layer evidence split, not a generic summary step.
+- `可採信證據` means what the original source actually says: supported services, functions, availability, setup method, limits, pricing/region links, official URLs, or other source-backed statements.
+- `待驗證推論` means what AI derives from the source: possible architecture, possible PoC shape, application context, business use case, proof question, or follow-up research question.
+- Skill 2, Skill 3, and Skill 4 depend on this boundary. Do not let official promotional claims, AI-inferred architecture, and verifiable source facts collapse into the same evidence layer.
+- A source can be official and still insufficient for PoC. If implementation details, resource list, IAM/data flow, success criteria, cleanup scope, or registered recipe are missing, AI-generated validation design remains a draft and must not raise verifiability or authorize Skill 4.
+
+## 2026-08-14 CIP Biweekly Word Format
+
+- When Cleo asks for the CIP biweekly work journal as a Word file, use the prior DOCX format as the source style: A4 portrait, one-page compact table, basic-info table, three-column progress table, feedback row, and signature line.
+- Keep the Word version concise and outcome-based. Do not paste the full long Markdown biweekly report into the form; compress it into 2-3 bullets per work item and a short reflection/next-priority note.
+
+## 2026-08-14 Lambda And S3 Files Cleanup State
+
+- Cleo approved cleanup for both the 2026-08-14 Lambda Skill 4 deployment and the 2026-08-13 S3 Files rerun deployment.
+- Both runs were cleaned through `s4-abort --execute` cost-control cleanup because normal Infrastructure Composer screenshot-backed Console review evidence was not completed.
+- Lambda stack `AgenticRadarS4BD3AD967` and S3 Files stack `AgenticRadarS4A9C9B006` no longer exist in CloudFormation in `ap-southeast-1`; run-prefix S3 bucket and IAM role lookups returned no residual resources.
+- Treat both post-cleanup Skill 5 reports as `closed_without_console_review`, not normal actual-PoC final reports. Future final-success runs must complete screenshot-backed Console review before `s4-close --execute`.

@@ -1,5 +1,26 @@
 # AI PM 當日進度暫存
 
+## 2026-08-14 17:00 - 正式日誌統整狀態
+
+- 已將 8/14 暫存證據統整至 Git 正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡；積分為 Scan +1、Compare +0、Evaluate +2、Validate +4、Report +3，總分 +10，累積 178，目標對齊 direct。
+- Lambda 與 8/13 S3 Files rerun 已依 Cleo cleanup 指示完成 run-scoped 成本控制 cleanup 與回查；因未完成正常 Console screenshot close，僅標為 `closed_without_console_review`，不宣稱 normal final。
+- Notion 連線工具在本次環境不可用；Notion 日誌、五筆每日 Skill 積分及內嵌 dashboard 仍待可用連線後補登並回讀。
+
+## 2026-08-14 13:10 - 預言者雷達成果發表完成與雙周誌產出
+
+- Cleo 回報已完成 2026-08-14 預言者雷達成果發表，現場回饋整體正向，大家覺得成果表現不錯；目前標示為使用者回報，待正式評語或具名回饋後再補強為正式證據。
+- 已依 2026-08-03 至 2026-08-14 成果，產出正式雙周誌 `docs/2026CIP-雙周誌-20260803-20260814.md`。
+- 雙周誌採成果與影響、問題與解法、學習成長、下期優先事項整理；未寫成逐日流水帳。
+- 報告保留限制：2026-08-13 S3 Files rerun 已完成部署與 runtime 驗證，但 cleanup 仍等待明確確認，不宣稱該輪已 final。
+
+## 2026-08-14 09:45 - Skill 1 可採信證據／待驗證推論邊界釐清
+
+- Cleo 指出原本 Skill 1 說明不夠清楚：Skill 1 應先把一篇新聞或一批來源拆成兩層，分清楚原文證據與 AI 推論。
+- 已將簡報用 `final-proposal/skill-markdown-20260814/01-Skill1-Scan-掃描來源.md` 改成兩層模型：`可採信證據` 是原文真的說了什麼，例如支援服務、功能、可用性、設定方式、限制或官方連結；`待驗證推論` 是 AI 根據原文推導出的可能架構、PoC 形狀、應用情境或後續問題。
+- 已更新 `radar-redesign/docs/s1-極細註解版.md`，補上 S1 artifact 與後續 S2/S3/S4 的證據邊界：Skill 2 只能把可回查來源當候選證據，Skill 3 不能因 AI 想出驗證設計就提高可驗證性，Skill 4 不能用待驗證推論直接建立 AWS 資源。
+- 已在 `PROJECT_MEMORY.md` 補成長期規則：官方新聞仍可能不足以進 PoC；若缺 implementation details、resource list、IAM/data flow、success criteria、cleanup scope 或 registered recipe，AI 生成的 validation design 仍是 draft，不得升級為已驗證事實。
+- 本次是敘事與規則校正，沒有執行 AWS、Notion、部署、cleanup 或測試。
+
 ## 2026-08-13 17:00 - 正式日誌統整狀態
 
 - 已將 8/13 暫存證據統整至 Git 正式日誌、Skill 積分、dashboard JSON／README、嵌入式 dashboard 與 AI 執行軌跡。當日積分為 Scan +1、Compare +1、Evaluate +3、Validate +3、Report +2，總分 +10，累積 168，目標對齊 direct。
@@ -1390,3 +1411,27 @@
 - 今日總分達上限是因 S3 Files live runtime 驗證、Skill 3 rubric 實質修正、Quick Suite 停止案例校正與 8/14 成果報告素材收斂同日完成；但 Validate 單項只給 +2，因 S3 Files 本輪 cleanup 尚未完成。
 - Notion 日誌頁、五筆 Skill 每日積分與儀表板摘要 / HTML embed 已同步並回讀確認。
 - S3 Files 2026-08-13 PoC resource cleanup 仍等待 Cleo 明確確認，未執行 cleanup。
+
+## 2026-08-14 10:15 - Lambda Skill 4 部署前核准檢查
+
+- Cleo 要求「把 Lambda 的案例也部署一下」。因這會建立 AWS 資源並可能產生成本，依 8/13 新規則先停在 Skill 3 / Skill 4 人工核准點，沒有直接加 `--execute`。
+- 已確認 Lambda 舊 run `direct-url-20260803-51f2781e` 在 2026-08-03 已完成部署、人工 Console 確認與 cleanup verified；今天若執行，會是新的 Skill 4 部署嘗試，不是清理舊資源。
+- 本次採用 2026-08-13 新版 Skill 3 artifact：Lambda 分數 `4.35 / 5`，無 blocker，recipe 已登錄，目標區域 `ap-southeast-1` 可用，預期成本 USD `0.000749`，高情境 USD `0.003387`，建議核准上限 USD `0.05`，報價有效到 2026-08-20。
+- 已產出部署前核准模板與 preflight：`radar-redesign/out/lambda-deploy-request-20260814/s4-approval-template.json` 與 `radar-redesign/out/lambda-deploy-request-20260814/s4-preflight.json`。
+- Preflight 結果為 `awaiting_poc_approval`；唯一未通過項目是 `deployment_authorized=false`。目前沒有建立、修改或清除任何 AWS 資源。
+- 下一步需要 Cleo 明確回覆核准，例如：「我核准 Lambda Skill 4 部署，approved_cost_ceiling_usd=0.05，approved_by=Cleo」，才可產生 authorized approval 並執行 `s4-deploy --execute`。
+
+## 2026-08-14 10:24 - Lambda Skill 4 部署完成，等待 Console review
+
+- Cleo 回覆「可以」，視為核准 Lambda Skill 4 部署；核准人 `Cleo`、成本上限沿用 USD `0.05`。已補齊核准檔 lineage，並將 Region acknowledgment 記入本次 authorized approval。
+- 已執行 `s4-deploy --execute`。本次建立的 CloudFormation stack 為 `AgenticRadarS4BD3AD967`，Region `ap-southeast-1`，resource prefix `agentic-radar-s4-bd3ad967`。
+- Runtime evidence 顯示 `stack_status=CREATE_COMPLETE`，Lambda `S3ObjectStorageMode=REFERENCE` 驗證通過，Lambda invoke 驗證通過。輸出位置：`radar-redesign/out/lambda-deploy-request-20260814/s4-runtime.json`。
+- 已產出 Console review packet：`radar-redesign/out/lambda-deploy-request-20260814/s4-console-review-packet.json`。目前狀態是 `awaiting_console_review`，cleanup 狀態是 `pending_console_review`。
+- 目前未執行 cleanup。依規則，下一步需讓 Cleo 看 AWS Console / Infrastructure Composer 截圖並明確確認後，才能用 `s4-close --execute` 做 run-scoped cleanup 與回查。
+
+## 2026-08-14 13:43 - 雙週工作週誌 Word 版產出
+
+- Cleo 提供 `C:\Users\youhs\Downloads\2026CIP_王冠婷_雙週工作週誌2.docx` 作為版型，要求依該格式產出本期雙週誌 Word 檔。
+- 已建立 `docs/2026CIP_王冠婷_雙週工作週誌3.docx`，沿用參考檔的 A4 直式、一頁、基本資料表、三欄工作進度表、心得回饋列與簽核區格式。
+- 內容聚焦 2026-08-03 至 2026-08-14：預言者雷達成果發表、四案例 Skill 3 / Skill 5 報告整理、成本估算 / human gate / cleanup 邊界修正、下期優先事項。
+- QA：`python-docx` 可重新開啟並抽取所有填入文字；Word COM 可開啟正式檔並回報 1 頁，與參考檔頁數一致；section audit 顯示 A4 直式與邊界維持。Word PDF export 在本機背景自動化會卡住，因此未完成頁面 PNG 渲染。
