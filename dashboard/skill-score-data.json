@@ -39,7 +39,7 @@
         "scan": 1,
         "compare": 2,
         "evaluate": 1,
-        "validate": 3,
+        "validate": 4,
         "report": 1
       }
     },
@@ -259,7 +259,7 @@
         "scan": 1,
         "compare": 0,
         "evaluate": 2,
-        "validate": 3,
+        "validate": 4,
         "report": 3
       }
     }
