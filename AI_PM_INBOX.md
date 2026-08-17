@@ -1,5 +1,14 @@
 # AI PM 當日進度暫存
 
+## 2026-08-17 10:45 - 四張評分表總表依最新工作紀錄更新
+
+- 依 Cleo 要求，根據 7/21 之後到 8/17 的工作紀錄，更新四張評分表與主管快速總覽：`evaluation-forms/README.md`、`cathay-intern-evaluation-form.md`、`cathay-mentor-observation-form.md`、`ntou-internship-effectiveness-questionnaire.md`、`ntou-internship-performance-evaluation.md`、`MENTOR_EVALUATION_PROGRESS.md`、`dashboard/mentor-evaluation-details.md`、`dashboard/README.md` 與主 `README.md`。
+- 更新後國泰實習生評鑑表單建議：積極自發／持續學習 `傑出`、團隊合作 `優異`、創新求變 `傑出`、組織認同 `非常認同`、誠信正直 `是`。
+- 更新後國泰 Mentor 15 項觀察表採 AI 模擬 mentor 口徑：`73 / 75`，平均 `4.87 / 5`；正式分數仍以 mentor 最終填寫為準。
+- 更新後學校成效問卷中，實習生工作項目多數可準備為 `非常滿意`；學校成績考核表採 AI 模擬實習機構主管評分 `96 / 100`，保守區間 `94-96`，正式成績仍由實習機構主管填寫。
+- 本次上修依據包含：8/14 `預言者雷達`成果分享完成、8/3-8/14 雙週誌已交出、協理逐字稿回饋肯定五個 Skill 專案方向、mentor-skill 評價指出流程治理與停止判斷成熟度、Lambda / S3 Files cleanup 回查與明確證據邊界。仍保留限制：公司內部環境採用、正式成本效益、正式書面主管回饋與正式聘用意願尚未驗證。
+- 已同步更新 Notion `Cleo｜主管評分儀表板` 與 `Cleo｜主管評分表細則與回覆` 頁首摘要，並回讀確認 2026-08-17 最新評分內容已出現；舊的 7/21 區塊保留為歷史紀錄。
+
 ## 2026-08-17 10:20 - 協理回饋證據邊界：預言者專案，不是 AI PM
 
 - Cleo 提供 2026-08-14 `預言者雷達`成果分享會議逐字稿中擷取的協理回饋，並明確提醒：這段回饋是對 AI 技術雷達 / 五個 Skill `預言者`專案的評價，沒有提到 AI PM，兩者不可混用。

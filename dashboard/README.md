@@ -15,19 +15,19 @@
 | [主管評分表細則與回覆（Notion）](https://app.notion.com/p/3a49d9fba316814e923ad82718952a71) | Notion 版主管評分細則頁。 |
 | [Mentor 評分細則](./mentor-evaluation-details.md) | 依證據整理四大項目與 Mentor 15 項觀察。 |
 
-目前主管評分建議：四大項目平均 `4.5 / 5`；AI 模擬 Mentor 15 項平均 `4.40 / 5`。正式分數仍以 mentor 最終填寫為準。
+目前主管評分建議（2026-08-17 更新）：四大項目平均 `4.875 / 5`；AI 模擬 Mentor 15 項平均 `4.87 / 5`（73 / 75）；學校成績考核表 AI 模擬主管評分 `96 / 100`。正式分數仍以主管／mentor 最終填寫為準。
 
 ## 累積分數
 
-截至 2026-08-13，嚴格審核後累積總分為 `168`。8/10 與 8/11 已依 Cleo 回饋下修：素材整理、時間回查與簡報草稿不得重複灌入多個 Skill；沒有 live PoC、AWS 資源建立或新測試時，Validate 不給高分。8/13 採計 S3 Files 重新跑到 cleanup 前、Quick Suite 可驗證性修正、Skill 3 評分準則更新與四案例新版細節評分。每日總分最高 10 分。
+截至 2026-08-14，嚴格審核後累積總分為 `178`。8/14 採計成果發表、Skill 1 證據邊界修正、Lambda 部署前 human gate、Lambda / S3 Files 成本控制 cleanup 回查與雙週誌交付；因 8/13-8/14 cleanup 採 `closed_without_console_review`，不宣稱 normal final。每日總分最高 10 分。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
-| Skill 1 - Scan | 26 | 已能以 AWS 官方 URL、RSS、動態分類、正式發布證據與新聞解釋層取得可驗證候選。 |
+| Skill 1 - Scan | 27 | 已能以 AWS 官方 URL、RSS、動態分類、正式發布證據與新聞解釋層取得可驗證候選，並區分可採信證據與待驗證推論。 |
 | Skill 2 - Compare | 23 | 已能用官方補充來源比較候選、部署前提與適用限制，並整理成功 / 停止案例差異。 |
-| Skill 3 - Evaluate | 37 | 已把成本、權限、安全、PoC proof question、五構面通用 rubric、權重與否決門檻納入判斷。 |
-| Skill 4 - Validate | 46 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並補上 recipe、成本模型、資源盤點與清除規則。 |
-| Skill 5 - Report | 36 | 已能產出結案／階段性報告、成本邊界、交接包與主管可讀成果提案素材。 |
+| Skill 3 - Evaluate | 39 | 已把成本、權限、安全、PoC proof question、五構面通用 rubric、權重與否決門檻納入判斷。 |
+| Skill 4 - Validate | 50 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並補上 recipe、成本模型、資源盤點與清除規則；新 run 若缺 screenshot close 必須標示限制。 |
+| Skill 5 - Report | 39 | 已能產出結案／階段性報告、成本邊界、交接包、雙週誌與主管可讀成果提案素材。 |
 
 ## 每日趨勢
 
@@ -62,11 +62,11 @@
 
 ## 今日判定
 
-2026-08-13 的可計分成果是 S3 Files 重新跑到 cleanup 前、Quick Suite 可驗證性評分修正、Skill 3 可控制性與權重說明修正、四案例新版細節評分，以及 8/14 成果報告素材收斂；累積分數為 168。S3 Files runtime 驗證已通過，但 cleanup 尚待 Cleo 明確確認，因此 Validate 單項只給 +2。
+2026-08-14 的可計分成果是完成成果發表與雙週誌、修正 Skill 1 證據邊界、完成 Lambda 部署前決策與人工核准鏈、清除 Lambda 與 S3 Files 保留資源並回查。限制是兩個 cleanup 後報告只能標為 `closed_without_console_review`，不可稱為正常 Console-reviewed final。
 
 ## 相關檔案
 
-- [最新正式日誌](../logs/daily/work-log-2026-08-13.md)
+- [最新正式日誌](../logs/daily/work-log-2026-08-14.md)
 - [8/5 校正日誌](../logs/daily/work-log-2026-08-05.md)
 - [8/4 正式日誌](../logs/daily/work-log-2026-08-04.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)

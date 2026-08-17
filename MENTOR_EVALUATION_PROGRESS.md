@@ -1,6 +1,6 @@
 # 主管評分表自評追蹤
 
-更新日期：2026-07-21  
+更新日期：2026-08-17  
 用途：依實習主管評分表項目，從每日工作日誌、AI PM inbox、Git 產出與驗證證據中追蹤可支持的自評依據。正式成績仍以主管評分為準；若使用者要求，可另列「AI 模擬 mentor 評分」作為表單準備。
 
 Notion 入口：`Cleo｜主管評分自評儀表板`  
@@ -25,37 +25,37 @@ GitHub 評分表集合：`evaluation-forms/README.md`
 
 | 項目 | 目前自評 | 判斷依據 | 補強方向 |
 |---|---:|---|---|
-| 組織認同／組織承諾 | 4 | 能依 mentor 方向調整專案主線，完成部會自我介紹與雙週誌，並把 Git／Notion／dashboard 作為公司相容的交付紀錄。 | 補更多部門活動、主管回饋或跨部門互動證據。 |
-| 盡責 | 5 | 7/16 手動 Step Functions、7/17 CloudFormation、7/20 S3 Files 評估都留下可回驗證據；遇到 AWS 權限、handler、API key、S3 路徑等問題有持續排查與收斂。 | 維持「未驗證不宣稱」與清楚 next step。 |
-| 團隊合作 | 4 | 除了 mentor 對齊、主動回報、文件同步與依回饋調整方向外，7/23 共融活動時與 11 位實習生共進午餐並建立交流；平日中午也固定和其他 IT 部門實習生一起用餐，持續認識彼此的工作情境。 | 將跨實習生交流轉成可分享的學習或合作成果。 |
-| 創新求變 | 5 | 建立 AI PM、Skill 積分、Evidence Ledger、Human Review Gate、Decision Layer、evaluation harness、互動儀表板等方法，能把 AI 工具整合進可驗證工作流程。 | 補公司環境或主管實際採用後的成效證據。 |
+| 組織認同／組織承諾 | 5 | 完成 8/14 `預言者雷達`成果分享與 CIP 雙週誌，能配合公司相容的 Git／Notion／README 紀錄、敏感資訊不入檔、成本／授權 gate 與公司環境限制不外推；協理回饋也指出後續可朝公司內部環境與同仁帳號使用延伸。 | 補正式書面主管回饋、公司內部環境導入條件或 8/20 後續活動紀錄。 |
+| 盡責 | 5 | 長期留下可回查證據；8/13-8/14 Lambda 與 S3 Files PoC cleanup 已回查，且誠實標示 `closed_without_console_review`，不把未完成 Console review 的結果寫成正常 final。 | 維持「未驗證不宣稱」，下一步補服務化提案與可重現啟動方式。 |
+| 團隊合作 | 4.5 | 除 mentor 對齊、主動回報、文件同步與依回饋調整方向外，已參與共融活動與實習生交流，並能把協理／mentor-skill 回饋分清楚放入對應專案。因單位只有一個實習職缺，正式跨團隊共同交付證據仍較少。 | 若表單只能填整數，建議填 `4` 或對應 `優異`；後續補正式會議互動、主管交辦協調或跨單位同步證據。 |
+| 創新求變 | 5 | 建立 `預言者雷達`五個 Skill、受控 PoC、Evidence Ledger、Human Review Gate、成本估算、cleanup 規則、AI PM、Skill 積分與 dashboard；協理回饋肯定此方向不同於一般 GPT 零散提問，且有內部推廣潛力。 | 補公司內部環境落地、一次分析成本與可量化效益。 |
 
-四大項目目前平均：`4.5 / 5`
+四大項目目前平均：`4.875 / 5`
 
 ## Mentor實習生狀況觀察表（15項）
 
 使用者要求改成「假設 AI 是 mentor 來評分」。因此本表新增 AI 模擬 mentor 評分，作為表單準備與補強提醒；正式分數仍以 mentor 最後填寫為準。
 
-AI 模擬 mentor 目前平均：`4.40 / 5`（66 / 15）
+AI 模擬 mentor 目前平均：`4.87 / 5`（73 / 75）
 
 完整逐項評分與補強方向：`evaluation-forms/cathay-mentor-observation-form.md`
 
 ## 目前建議填表分數
 
-- 四大項目目前平均：`4.5 / 5`。這只適用於上方四大項目自評。
-- Mentor 15 項行為觀察：AI 模擬 mentor 平均 `4.40 / 5`；正式分數仍以 mentor 最終評分為準。
-- 若表單只能填整數：四大項目可保守以 `4 / 5` 為底，有明確主管口頭佐證時再爭取 `5 / 5`。
-- 最需要補強的不是技術能力，而是「主管實際滿意度、正式採用後效果、可被主管引用的成果說明」這三類外部證據。
+- 四大項目目前平均：`4.875 / 5`。這只適用於上方四大項目自評。
+- Mentor 15 項行為觀察：AI 模擬 mentor 平均 `4.87 / 5`；正式分數仍以 mentor 最終評分為準。
+- 若表單只能填整數：組織認同、盡責、創新求變可爭取 `5 / 5`；團隊合作建議保守填 `4 / 5` 或對應 `優異`，除非主管願意把 mentor 對齊與文件同步視為主要團隊合作證據。
+- 最需要補強的不是技術能力，而是「正式書面主管回饋、公司內部環境落地條件、一次分析成本與可量化效益」這三類外部證據。
 
 ## 第二張表單：實習生表現評核
 
 | 表單項目 | 建議評等 | 優點摘要 | 可改善處 |
 |---|---|---|---|
-| 積極自發、持續學習 | 優異 | 能主動發現問題、查證資料、排查 AWS／CLI／部署問題，並把結果整理成可驗證成果。 | 將探索成果更快對應到主管期待或部門需求。 |
-| 團隊合作 | 良好 | 除 mentor 對齊、主動回報與文件同步外，也主動融入實習生社群：7/23 共融活動與 11 位實習生共進午餐，平日中午持續與其他 IT 部門實習生交流。 | 將交流經驗沉澱為可分享的合作或學習成果。 |
-| 創新求變 | 優異 | 將 AI PM、Skill 積分、Evidence Ledger、Human Review Gate、Decision Layer 與 evaluation harness 整合成可追蹤流程。 | 補公司環境實際採用後的成效證據。 |
-| 組織認同 | 認同 | 遵守 Git／Notion 同步、17:00 日誌統整、密鑰不入檔與 private repository 等規範。 | 補更多部門活動參與與公司文化連結證據。 |
-| 誠信正直 | 是 | 持續區分已驗證、待驗證與估算結果；不記錄或提交 API key、AWS credentials、secret value。 | 持續在對外報告與 final proposal 保留驗證狀態標籤。 |
+| 積極自發、持續學習 | 傑出 | 主動把模糊 AI 技術雷達題目拆成五個 Skill，完成案例、PoC、成果發表與服務化缺口整理。 | 將下一步服務化提案補上成本效益與內部環境條件。 |
+| 團隊合作 | 優異 | 能依 mentor／主管回饋調整方向，主動回報限制，並把不同來源回饋放入正確證據邊界；也有實習生活動交流。 | 補正式跨同事共同交付或主管交辦協調案例。 |
+| 創新求變 | 傑出 | 將 AI 技術雷達做成五個 Skill、受控 PoC 與證據治理流程，並建立 AI PM 與 dashboard 追蹤機制。 | 補公司環境實際採用後的量化成效。 |
+| 組織認同 | 非常認同 | 遵守 Git／Notion 同步、17:00 日誌統整、密鑰不入檔、授權與成本 gate，並把成果下一步連到公司內部環境。 | 補正式公司端導入條件或主管書面回饋。 |
+| 誠信正直 | 是 | 持續區分已驗證、使用者回報、mentor 觀點、協理回饋、估算與待公司環境驗證；不提交敏感資訊。 | 持續在對外報告保留驗證狀態標籤。 |
 
 可直接貼入第二張表單的完整文字整理於 `dashboard/mentor-evaluation-details.md`。
 Notion 版細則頁同步保存在 `Cleo｜主管評分表細則與回覆`。
@@ -69,11 +69,12 @@ Notion 版細則頁同步保存在 `Cleo｜主管評分表細則與回覆`。
 
 ## 可引用證據
 
-- `SKILL_PROGRESS.md`：截至 2026-07-22，五個 Skill 累積 61 分（每日總分最高 10 分的新口徑）。
+- `SKILL_PROGRESS.md`：截至 2026-08-14，五個 Skill 累積 178 分（每日總分最高 10 分的新口徑）。
 - `logs/daily/work-log-2026-07-16.md`：公司帳戶手動 Step Functions 全流程跑通。
 - `logs/daily/work-log-2026-07-17.md`：CloudFormation 部署與 `company-cfn-001` 成功。
-- `logs/daily/work-log-2026-07-20.md`：S3 Files 新聞截斷測試、CLI 查證、CloudFormation template validation。
-- `final-proposal/7-17成果素材.md`、`final-proposal/demo-checklist.md`：final proposal 與 demo 證據。
+- `logs/daily/work-log-2026-08-14.md`：成果發表、雙週誌交出、Lambda / S3 Files cleanup 回查與限制標示。
+- `AI_PM_INBOX.md`：8/17 協理回饋、mentor-skill 評價與 8/19 AI PM 草稿整理。
+- `final-proposal/2026-08-19-AI-PM科會分享-Markdown草稿.md`：AI PM 分享文字草稿與證據邊界示範。
 - `dashboard/README.md`、`dashboard/skill-score-data.json`：可攜式 Skill 分數儀表板。
 - `dashboard/mentor-evaluation-details.md`：主管可讀的評分細則與第二張表單回覆。
 - `evaluation-forms/README.md`：評分表集合入口。
