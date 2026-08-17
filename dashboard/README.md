@@ -1,8 +1,8 @@
 # Cleo Skill 積分儀表板
 
-## 2026-08-14 同步摘要
+## 2026-08-17 同步摘要
 
-本日新增 Scan +1、Compare +0、Evaluate +2、Validate +4、Report +3，累積 178 分。Lambda 與 S3 Files 受控 PoC 已完成 runtime 驗證及成本控制 cleanup 回查，但未完成正常 Console screenshot close；只可標為 `closed_without_console_review`，不宣稱 normal final。Skill 1 已補上「可採信證據／待驗證推論」邊界，避免將 AI 推論誤作可部署事實。
+本日新增 Scan +0、Compare +0、Evaluate +0、Validate +0、Report +2，累積 180 分。完成 8/19 AI PM 使用分享畫面文字、評分表校正、證據邊界整理與已完成待辦收斂；沒有新增 AWS、PoC 或測試，因此不重複計入前四個 Skill。
 
 > GitHub 是專案共同紀錄來源。此頁整理主管可讀入口、五個 Skill 累積分數與每日趨勢；正式日誌仍以每日工作日誌為準。
 
@@ -19,7 +19,7 @@
 
 ## 累積分數
 
-截至 2026-08-14，嚴格審核後累積總分為 `178`。8/14 採計成果發表、Skill 1 證據邊界修正、Lambda 部署前 human gate、Lambda / S3 Files 成本控制 cleanup 回查與雙週誌交付；因 8/13-8/14 cleanup 採 `closed_without_console_review`，不宣稱 normal final。每日總分最高 10 分。
+截至 2026-08-17，嚴格審核後累積總分為 `180`。8/17 僅採計 AI PM 使用分享與評分表的報告／交接價值；不把既有成果、行政完成或未驗證的正式回饋重複算入技術 Skill。每日總分最高 10 分。
 
 | Skill | 累積分數 | 狀態 |
 |---|---:|---|
@@ -27,7 +27,7 @@
 | Skill 2 - Compare | 23 | 已能用官方補充來源比較候選、部署前提與適用限制，並整理成功 / 停止案例差異。 |
 | Skill 3 - Evaluate | 39 | 已把成本、權限、安全、PoC proof question、五構面通用 rubric、權重與否決門檻納入判斷。 |
 | Skill 4 - Validate | 50 | 已完成多次 CLI / CloudFormation / AWS 實機 PoC，並補上 recipe、成本模型、資源盤點與清除規則；新 run 若缺 screenshot close 必須標示限制。 |
-| Skill 5 - Report | 39 | 已能產出結案／階段性報告、成本邊界、交接包、雙週誌與主管可讀成果提案素材。 |
+| Skill 5 - Report | 41 | 已能產出結案／階段性報告、成本邊界、交接包、雙週誌、主管可讀成果提案與 AI PM 使用分享素材。 |
 
 ## 每日趨勢
 
@@ -57,16 +57,17 @@
 | 2026-08-13 | 1 | 1 | 3 | 2 | 3 | 10 |
 
 | 2026-08-14 | 1 | 0 | 2 | 4 | 3 | 10 |
+| 2026-08-17 | 0 | 0 | 0 | 0 | 2 | 2 |
 
-| **2026-08-14 累積** | **27** | **23** | **39** | **50** | **39** | **178** |
+| **2026-08-17 累積** | **27** | **23** | **39** | **50** | **41** | **180** |
 
 ## 今日判定
 
-2026-08-14 的可計分成果是完成成果發表與雙週誌、修正 Skill 1 證據邊界、完成 Lambda 部署前決策與人工核准鏈、清除 Lambda 與 S3 Files 保留資源並回查。限制是兩個 cleanup 後報告只能標為 `closed_without_console_review`，不可稱為正常 Console-reviewed final。
+2026-08-17 的可計分成果是完成 8/19 AI PM 使用分享畫面文字、評分表校正、回饋證據邊界與待辦收斂；沒有新增 AWS、PoC 或測試。此日僅間接支援五 Skill 專案，避免把既有成果重複加分。
 
 ## 相關檔案
 
-- [最新正式日誌](../logs/daily/work-log-2026-08-14.md)
+- [最新正式日誌](../logs/daily/work-log-2026-08-17.md)
 - [8/5 校正日誌](../logs/daily/work-log-2026-08-05.md)
 - [8/4 正式日誌](../logs/daily/work-log-2026-08-04.md)
 - [Skill 積分明細](../SKILL_PROGRESS.md)

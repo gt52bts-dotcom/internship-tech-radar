@@ -95,7 +95,9 @@ const scoreData=[
   {date:'2026-08-10',scores:{scan:1,compare:1,evaluate:2,validate:1,report:1}},
   {date:'2026-08-11',scores:{scan:1,compare:1,evaluate:1,validate:0,report:2}},
   {date:'2026-08-12',scores:{scan:0,compare:0,evaluate:1,validate:1,report:2}},
-  {date:'2026-08-13',scores:{scan:1,compare:1,evaluate:3,validate:2,report:3}}
+  {date:'2026-08-13',scores:{scan:1,compare:1,evaluate:3,validate:2,report:3}},
+  {date:'2026-08-14',scores:{scan:1,compare:0,evaluate:2,validate:4,report:3}},
+  {date:'2026-08-17',scores:{scan:0,compare:0,evaluate:0,validate:0,report:2}}
 ];
 const fmt=n=>Number(n.toFixed(2)).toString();
 const total=d=>skills.reduce((s,k)=>s+(d.scores[k.id]||0),0);
