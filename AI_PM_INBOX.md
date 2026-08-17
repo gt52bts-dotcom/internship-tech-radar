@@ -1,5 +1,11 @@
 # AI PM 當日進度暫存
 
+## 2026-08-17 13:24 - 學校成效問卷專業知識與技能下修
+
+- Cleo 指出學校 `學生校外實習成效問卷（實習機構）` 中 `專業知識與技能` 原先建議填 `非常滿意` 過高，自己覺得只能填到 `滿意`。
+- AI PM 判定此修正合理：雖然已完成五個 Skill、AWS 官方案例評估、受控 PoC、成本估算、cleanup 邊界與主管可讀報告，但目前仍是隔離測試環境與實習專案成果，尚未完成公司正式環境驗證或內部採用。
+- 已同步更新 `evaluation-forms/ntou-internship-effectiveness-questionnaire.md`、`evaluation-forms/README.md` 與 `MENTOR_EVALUATION_PROGRESS.md`，避免學校滿意度表單寫得過滿。
+
 ## 2026-08-17 10:43 - 8/19 AI PM Markdown 改為投影片畫面內容
 
 - 依 Cleo 最新要求，檢視舊版未發表 AI PM 簡報 `C:\Users\youhs\Downloads\從聊天視窗到專案同事_科會簡報.pptx.pptx` 的 28 頁內容，只取其資訊需求與證據類型，不沿用原文或原敘事。
