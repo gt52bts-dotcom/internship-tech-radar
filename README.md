@@ -29,6 +29,7 @@ flowchart LR
 
 | 日期 | 今日主軸 |
 |---|---|
+| [8/17](./logs/daily/work-log-2026-08-17.md) | 整理 8/19 AI PM 使用分享、校正評分表與證據邊界，清除已完成待辦；嚴格評分 2 分。 |
 | [8/14](./logs/daily/work-log-2026-08-14.md) | 完成預言者雷達成果發表、雙週誌 Word 版、Lambda 受控部署與 Lambda / S3 Files 成本控制 cleanup；嚴格評分 10 分。 |
 | [8/13](./logs/daily/work-log-2026-08-13.md) | 重跑 S3 Files 預言者流程到 cleanup 前，修正 Skill 3 可驗證性與可控制性準則，依新版權重重評四案例；嚴格評分 10 分。 |
 | [8/12](./logs/daily/work-log-2026-08-12.md) | 修正 Skill 5 報告可讀性與 Future work，整理五份 Skill 中文閱讀版，補上 Skill 3 評分準則與四案例對照；嚴格評分 4 分。 |
@@ -66,7 +67,7 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-截至 2026-08-14，改採硬審核口徑後累積分數 178 分。每日五個 Skill 加總最高 10 分；2026-08-14 採計成果發表、Lambda 受控部署、Lambda / S3 Files run-scoped cleanup、cleanup 後 Skill 5 報告與雙週誌。兩個 cleanup 均已回查，但因缺 screenshot-backed Console review，只能標示為成本控制結案。
+截至 2026-08-17，改採硬審核口徑後累積分數 180 分。每日五個 Skill 加總最高 10 分；8/17 只採計 AI PM 使用分享、評分表校正、證據邊界與待辦收斂的報告價值，沒有新增 AWS、PoC 或測試。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
@@ -74,7 +75,7 @@ flowchart LR
 | Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 23 |
 | Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 39 |
 | Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 50 |
-| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 39 |
+| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 41 |
 
 ## 最終發表驗證衝刺
 
