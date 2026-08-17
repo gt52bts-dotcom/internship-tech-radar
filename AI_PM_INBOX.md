@@ -1,5 +1,12 @@
 # AI PM 當日進度暫存
 
+## 2026-08-17 09:52 - Mentor-skill 評價轉入 AI PM 優先順序
+
+- Cleo 提供一份 mentor 以自訓 mentor skill 產生的 2026-08-14 成果報告品質評估。AI PM 判定：此文件可作為 mentor 觀點回饋與下一步能力缺口參考，但不可當成 AWS 部署、cleanup、成本、測試或正式評分的獨立驗證。
+- 回饋核心：Cleo 已展現流程治理、證據／風險意識、停止案例判斷與非技術受眾溝通能力；下一步不是再做更多 PoC，而是把 `預言者雷達` 轉成可衡量、可採用的服務化提案。
+- 新的能力缺口：定義適用來源與排除規則、單次分析 AI token／雲端成本與成本上限、可量測效益、安全與內部環境邊界、Skill 3 停止條件、PoC 核准與 cleanup 證據、Git commit／啟動方式、可重跑案例與失敗回報方式。
+- AI PM 優先順序調整：2026-08-19 AI PM 科會報告仍是最近硬期限；mentor 建議的一頁式 `預言者雷達服務化提案` 暫列為 8/19 後的下一個 mentor review gate，除非 Cleo 指定更早期限。AI 可以協助整理架構與檢查，但結論與取捨需由 Cleo 親自決定。
+
 ## 2026-08-14 17:00 - 正式日誌統整狀態
 
 - 已將 8/14 暫存證據統整至 Git 正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡；積分為 Scan +1、Compare +0、Evaluate +2、Validate +4、Report +3，總分 +10，累積 178，目標對齊 direct。
