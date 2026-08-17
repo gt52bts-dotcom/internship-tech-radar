@@ -1,5 +1,13 @@
 # AI PM 當日進度暫存
 
+## 2026-08-17 10:43 - 8/19 AI PM Markdown 改為投影片畫面內容
+
+- 依 Cleo 最新要求，檢視舊版未發表 AI PM 簡報 `C:\Users\youhs\Downloads\從聊天視窗到專案同事_科會簡報.pptx.pptx` 的 28 頁內容，只取其資訊需求與證據類型，不沿用原文或原敘事。
+- 已重寫 `final-proposal/2026-08-19-AI-PM科會分享-Markdown草稿.md`：主題維持 `第37個未解事件`，但改成案件 / 懸疑風格的投影片畫面文字，約 15 頁主線加 2 頁備用頁。
+- 本版已刪除前版口說段落，不再替 Cleo 寫口說內容；每頁只保留 `畫面文字`、`頁面用途` 與 `素材建議`。
+- 新版內容依 Cleo 指定順序整理：四張評分表的麻煩感、待辦清單與輕重緩急、每天白話互動與指令轉譯、證據 / 完成條件 / 檢核點、個人化修正與自訂模板、mentor skill 逐字稿評估視角，以及 AI PM 作為 Cleo 與 mentor 橋樑的感性收尾。
+- 已保留證據邊界：協理逐字稿回饋屬於 `預言者雷達` 五個 Skill 專案，不放入 AI PM 成效頁當作 AI PM 回饋；mentor skill 評價只作為 mentor 觀點品質評估，不當成正式人事評分或 AWS 技術驗證。
+
 ## 2026-08-17 10:45 - 四張評分表總表依最新工作紀錄更新
 
 - 依 Cleo 要求，根據 7/21 之後到 8/17 的工作紀錄，更新四張評分表與主管快速總覽：`evaluation-forms/README.md`、`cathay-intern-evaluation-form.md`、`cathay-mentor-observation-form.md`、`ntou-internship-effectiveness-questionnaire.md`、`ntou-internship-performance-evaluation.md`、`MENTOR_EVALUATION_PROGRESS.md`、`dashboard/mentor-evaluation-details.md`、`dashboard/README.md` 與主 `README.md`。
