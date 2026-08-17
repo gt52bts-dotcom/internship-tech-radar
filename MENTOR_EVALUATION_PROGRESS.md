@@ -75,7 +75,7 @@ Notion 版細則頁同步保存在 `Cleo｜主管評分表細則與回覆`。
 - `logs/daily/work-log-2026-07-17.md`：CloudFormation 部署與 `company-cfn-001` 成功。
 - `logs/daily/work-log-2026-08-14.md`：成果發表、雙週誌交出、Lambda / S3 Files cleanup 回查與限制標示。
 - `AI_PM_INBOX.md`：8/17 協理回饋、mentor-skill 評價與 8/19 AI PM 草稿整理。
-- `final-proposal/2026-08-19-AI-PM科會分享-Markdown草稿.md`：AI PM 分享文字草稿與證據邊界示範。
+- `final-proposal/2026-08-19-AI-PM使用分享-Markdown草稿.md`：AI PM 使用分享文字草稿與證據邊界示範。
 - `dashboard/README.md`、`dashboard/skill-score-data.json`：可攜式 Skill 分數儀表板。
 - `dashboard/mentor-evaluation-details.md`：主管可讀的評分細則與第二張表單回覆。
 - `evaluation-forms/README.md`：評分表集合入口。
