@@ -29,7 +29,7 @@ flowchart LR
 
 | 日期 | 今日主軸 |
 |---|---|
-| [8/18](./logs/daily/work-log-2026-08-18.md) | 完成 8/19 AI PM 使用分享簡報，並把後續日誌口徑改成輕鬆、簡短記錄當天做了什麼。 |
+| [8/18](./logs/daily/work-log-2026-08-18.md) | 完成 8/19 AI PM 使用分享簡報，並補上 AI 競賽 Token 消耗控制流程圖；後續日誌改成輕鬆短記。 |
 | [8/17](./logs/daily/work-log-2026-08-17.md) | 整理 8/19 AI PM 使用分享、校正評分表與證據邊界，清除已完成待辦；成果發表後收尾，不再計入 Skill 分數。 |
 | [8/14](./logs/daily/work-log-2026-08-14.md) | 完成預言者雷達成果發表、雙週誌 Word 版、Lambda 受控部署與 Lambda / S3 Files 成本控制 cleanup；嚴格評分 10 分。 |
 | [8/13](./logs/daily/work-log-2026-08-13.md) | 重跑 S3 Files 預言者流程到 cleanup 前，修正 Skill 3 可驗證性與可控制性準則，依新版權重重評四案例；嚴格評分 10 分。 |
