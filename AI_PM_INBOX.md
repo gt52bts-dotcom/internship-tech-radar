@@ -2,9 +2,9 @@
 
 ## 2026-08-17 17:00 - 正式日誌統整狀態
 
-- 已將 8/17 暫存證據統整至 Git 正式日誌、Skill 積分、dashboard JSON／README 與 AI 執行軌跡；積分為 Scan +0、Compare +0、Evaluate +0、Validate +0、Report +2，總分 +2，累積 180，目標對齊 supporting。
-- 本日只採計 AI PM 使用分享、評分表校正、證據邊界與待辦收斂的報告／交接價值；沒有新增 AWS、PoC、部署、cleanup 或測試，不重複灌入前四個 Skill。
-- Notion 已更新既有 8/17 日誌頁、建立五筆每日 Skill 積分明細並更新內嵌 dashboard；已回讀確認日誌積分為 0／0／0／0／2、五筆明細完整、dashboard 顯示累積 180。Git commit／push 僅在 scoped diff 與敏感資訊檢查通過後執行。
+- 2026-08-18 更正：8/17 屬於 `預言者雷達` 成果發表後收尾，不再保留 Skill 進度評分。原本的 Scan +0、Compare +0、Evaluate +0、Validate +0、Report +2 與累積 180 已從 Git 分數紀錄與 dashboard 移除；歷史累積回到 2026-08-14 的 178。
+- 本日正式日誌重點是 AI PM 使用分享、評分表校正、證據邊界與待辦收斂；沒有新增 AWS、PoC、部署、cleanup 或測試，也不計入五個 Skill 進度分數。
+- Notion 曾於 8/17 建立五筆每日 Skill 積分明細；2026-08-18 需依 Cleo 更正刪除或標示不採計，避免 Notion 端仍顯示 8/17 分數。
 
 ## 2026-08-17 15:45 - 修正 8/19 AI PM 會議性質
 
@@ -1507,6 +1507,13 @@
 ## 2026-08-18 08:45 - 成果發表後停止 Skill 進度計分
 
 - Cleo 明確更新日誌規則：`預言者雷達` 已完成暑假一開始設定的目標，也已完成成果發表；從現在開始的日誌不用再管五個 Skill 的專案進度積分。
-- 已將規則寫入 `PROJECT_MEMORY.md`：2026-08-17 以前的 Skill 分數、dashboard 與 `SKILL_PROGRESS.md` 保留為歷史追蹤；2026-08-18 起新的正式日誌改寫成果、證據、目標對齊與下一步，不再每日累加 Scan / Compare / Evaluate / Validate / Report 分數。
+- 已將規則寫入 `PROJECT_MEMORY.md`：原先先把 2026-08-17 以前的 Skill 分數保留為歷史追蹤；Cleo 隨後更正 8/17 也應刪除評分，因此歷史積分應以 2026-08-14 成果發表日為最後計分日。
 - 已同步更新 `templates/每日實習日誌模板.md`、Notion 欄位規則說明、`README.md`、`dashboard/README.md` 與 `SKILL_PROGRESS.md`，避免後續正式日誌或首頁又沿用舊的計分模板。
 - 已更新兩個 active 的 17:00 automation：`17-00-skill` 與 `17-20`。兩者都改為正式日誌統整但不再自動更新 Skill 分數、Skill dashboard 或 Notion Skill 積分。
+
+## 2026-08-18 09:13 - 刪除 8/17 Skill 評分
+
+- Cleo 進一步更正：昨天 2026-08-17 的評分也應該刪除，因為 `預言者雷達` 已完成成果發表，8/17 屬於收尾。
+- 已更新 Git 內 `logs/daily/work-log-2026-08-17.md`、`SKILL_PROGRESS.md`、`README.md`、`dashboard/README.md`、`dashboard/skill-score-data.json`、`dashboard/notion-skill-dashboard.html`、`PROJECT_MEMORY.md` 與模板欄位規則；8/17 不再有 Report +2，歷史累積回到 2026-08-14 的 178。
+- 已更新 Notion：8/17 主日誌頁五個積分欄位改為 0；五筆 2026-08-17 Skill 每日明細改成「不採計」且積分為 0；Notion Skill 儀表板頁改為最後計分日 2026-08-14、累積 178，並移除舊的 8/17 HTML embed。
+- 已再次更新兩個 17:00 automation，使 prompt 明確寫成 2026-08-14 是最後計分日、2026-08-17 起不再計分。

@@ -29,7 +29,7 @@ flowchart LR
 
 | 日期 | 今日主軸 |
 |---|---|
-| [8/17](./logs/daily/work-log-2026-08-17.md) | 整理 8/19 AI PM 使用分享、校正評分表與證據邊界，清除已完成待辦；嚴格評分 2 分。 |
+| [8/17](./logs/daily/work-log-2026-08-17.md) | 整理 8/19 AI PM 使用分享、校正評分表與證據邊界，清除已完成待辦；成果發表後收尾，不再計入 Skill 分數。 |
 | [8/14](./logs/daily/work-log-2026-08-14.md) | 完成預言者雷達成果發表、雙週誌 Word 版、Lambda 受控部署與 Lambda / S3 Files 成本控制 cleanup；嚴格評分 10 分。 |
 | [8/13](./logs/daily/work-log-2026-08-13.md) | 重跑 S3 Files 預言者流程到 cleanup 前，修正 Skill 3 可驗證性與可控制性準則，依新版權重重評四案例；嚴格評分 10 分。 |
 | [8/12](./logs/daily/work-log-2026-08-12.md) | 修正 Skill 5 報告可讀性與 Future work，整理五份 Skill 中文閱讀版，補上 Skill 3 評分準則與四案例對照；嚴格評分 4 分。 |
@@ -67,7 +67,7 @@ flowchart LR
 - [互動儀錶板 README](./dashboard/README.md)
 - [可嵌入 dashboard HTML](./dashboard/cleo-skill-dashboard.html)
 
-Skill 進度分數已於 2026-08-17 結止並凍結為歷史追蹤。Cleo 已確認 `預言者雷達` 在暑假初期設定的目標已完成，且 2026-08-14 已完成成果發表；2026-08-18 起新的每日誌不再計算五個 Skill 進度積分。
+Skill 進度分數已於 2026-08-14 成果發表後結止並凍結為歷史追蹤。Cleo 已確認 `預言者雷達` 在暑假初期設定的目標已完成；2026-08-17 起的收尾日誌不再計算五個 Skill 進度積分。
 
 | Skill | 說明 | 累積分數 |
 |---|---|---:|
@@ -75,7 +75,7 @@ Skill 進度分數已於 2026-08-17 結止並凍結為歷史追蹤。Cleo 已確
 | Skill 2｜比較 | 候選技術比較、部署方式與限制對照 | 23 |
 | Skill 3｜評估 | 評分邏輯、風險、成本與可行性判斷 | 39 |
 | Skill 4｜驗證 | 部署驗證、權限驗證、錯誤排查 | 50 |
-| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 41 |
+| Skill 5｜報告 | 報告、教學書、dashboard、週誌 | 39 |
 
 ## 最終發表驗證衝刺
 
