@@ -1503,3 +1503,10 @@
 - 已建立 `docs/2026CIP_王冠婷_雙週工作週誌3.docx`，沿用參考檔的 A4 直式、一頁、基本資料表、三欄工作進度表、心得回饋列與簽核區格式。
 - 內容聚焦 2026-08-03 至 2026-08-14：預言者雷達成果發表、四案例 Skill 3 / Skill 5 報告整理、成本估算 / human gate / cleanup 邊界修正、下期優先事項。
 - QA：`python-docx` 可重新開啟並抽取所有填入文字；Word COM 可開啟正式檔並回報 1 頁，與參考檔頁數一致；section audit 顯示 A4 直式與邊界維持。Word PDF export 在本機背景自動化會卡住，因此未完成頁面 PNG 渲染。
+
+## 2026-08-18 08:45 - 成果發表後停止 Skill 進度計分
+
+- Cleo 明確更新日誌規則：`預言者雷達` 已完成暑假一開始設定的目標，也已完成成果發表；從現在開始的日誌不用再管五個 Skill 的專案進度積分。
+- 已將規則寫入 `PROJECT_MEMORY.md`：2026-08-17 以前的 Skill 分數、dashboard 與 `SKILL_PROGRESS.md` 保留為歷史追蹤；2026-08-18 起新的正式日誌改寫成果、證據、目標對齊與下一步，不再每日累加 Scan / Compare / Evaluate / Validate / Report 分數。
+- 已同步更新 `templates/每日實習日誌模板.md`、Notion 欄位規則說明、`README.md`、`dashboard/README.md` 與 `SKILL_PROGRESS.md`，避免後續正式日誌或首頁又沿用舊的計分模板。
+- 已更新兩個 active 的 17:00 automation：`17-00-skill` 與 `17-20`。兩者都改為正式日誌統整但不再自動更新 Skill 分數、Skill dashboard 或 Notion Skill 積分。
