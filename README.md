@@ -29,6 +29,7 @@ flowchart LR
 
 | 日期 | 今日主軸 |
 |---|---|
+| [8/18](./logs/daily/work-log-2026-08-18.md) | 確認預言者雷達的 Skill 積分止於 8/14 成果發表；後續收尾日誌改以成果、證據與下一步記錄，不再計分。 |
 | [8/17](./logs/daily/work-log-2026-08-17.md) | 整理 8/19 AI PM 使用分享、校正評分表與證據邊界，清除已完成待辦；成果發表後收尾，不再計入 Skill 分數。 |
 | [8/14](./logs/daily/work-log-2026-08-14.md) | 完成預言者雷達成果發表、雙週誌 Word 版、Lambda 受控部署與 Lambda / S3 Files 成本控制 cleanup；嚴格評分 10 分。 |
 | [8/13](./logs/daily/work-log-2026-08-13.md) | 重跑 S3 Files 預言者流程到 cleanup 前，修正 Skill 3 可驗證性與可控制性準則，依新版權重重評四案例；嚴格評分 10 分。 |
