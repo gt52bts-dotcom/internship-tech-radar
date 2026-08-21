@@ -1556,3 +1556,8 @@
 - 已更新 Git 內 `logs/daily/work-log-2026-08-17.md`、`SKILL_PROGRESS.md`、`README.md`、`dashboard/README.md`、`dashboard/skill-score-data.json`、`dashboard/notion-skill-dashboard.html`、`PROJECT_MEMORY.md` 與模板欄位規則；8/17 不再有 Report +2，歷史累積回到 2026-08-14 的 178。
 - 已更新 Notion：8/17 主日誌頁五個積分欄位改為 0；五筆 2026-08-17 Skill 每日明細改成「不採計」且積分為 0；Notion Skill 儀表板頁改為最後計分日 2026-08-14、累積 178，並移除舊的 8/17 HTML embed。
 - 已再次更新兩個 17:00 automation，使 prompt 明確寫成 2026-08-14 是最後計分日、2026-08-17 起不再計分。
+# 2026-08-21 14:50 - 國泰實習生評鑑表單主要理由精簡
+
+- 依 Cleo 要求，將 `evaluation-forms/cathay-intern-evaluation-form.md` 中「國泰｜實習生評鑑表單」的五項主要理由改為 25 字內版本，方便直接貼入表單。
+- 目前建議評等維持：積極自發／持續學習 `傑出`、團隊合作 `優異`、創新求變 `傑出`、組織認同 `非常認同`、誠信正直 `是`。
+- 本次只更新表單文字與 17:00 前 inbox 證據，不更動正式日誌。
