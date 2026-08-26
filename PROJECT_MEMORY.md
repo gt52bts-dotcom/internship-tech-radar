@@ -2,6 +2,10 @@
 
 ## Terminology Rule
 
+## Daily Log Preference (2026-08-26)
+
+- Cleo no longer needs the `主管評分表自評` section in formal daily internship logs. Omit it from all future logs and the daily-log template. Existing historical logs retain their original content; do not revise them unless Cleo asks for a historical correction.
+
 - To avoid ambiguity, refer to the project stage as `Skill 3` or `S3 Evaluate`, never bare `S3`. Refer to the AWS service as `Amazon S3` or `S3 bucket`. Use `Skill 3 evaluation artifact` rather than `S3 artifact` in user-facing explanations. CLI command and code identifiers remain unchanged.
 
 ## GUI Interaction Preference
