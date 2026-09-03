@@ -6,6 +6,12 @@
 
 - Cleo no longer needs the `主管評分表自評` section in formal daily internship logs. Omit it from all future logs and the daily-log template. Existing historical logs retain their original content; do not revise them unless Cleo asks for a historical correction.
 
+- 2026-09-03 Cleo clarified that September logs no longer need the past internship-period template and should not include mentor decision sections unless she explicitly provides mentor-related content. Write these as light personal logs in Traditional Chinese, preserving concrete life, reading, school administration, applications, and exercise details.
+
+- 2026-09-03 reading/writing preference: Cleo likes Liu Tzu-chieh's narrative style in 《化城》〈旅伴〉: travel-memory fragments, concrete daily details, conversational lightness, humor, emotional restraint, and a relationship ending shown through accumulated scenes rather than direct explanation. When writing personal reading logs, analyze style and feeling from the provided text/images instead of treating images as mere attachments.
+
+- 2026-09-03 writing correction: Cleo dislikes generic AI-sounding evaluative phrasing such as `文風很輕、很會聊天，但其實很準`. For future personal logs, do not label prose with broad praise. Use concrete scenes, movement, sensory details, pauses, and emotional turns to show why the writing works. Draw only on high-level narrative qualities from Liu Tzu-chieh's writing; do not produce a direct style imitation.
+
 - To avoid ambiguity, refer to the project stage as `Skill 3` or `S3 Evaluate`, never bare `S3`. Refer to the AWS service as `Amazon S3` or `S3 bucket`. Use `Skill 3 evaluation artifact` rather than `S3 artifact` in user-facing explanations. CLI command and code identifiers remain unchanged.
 
 ## GUI Interaction Preference
@@ -156,6 +162,7 @@
 - 2026-09-02 Cleo 更新近期 AI PM 待辦：2026-09-08（二）12:00 到延平大樓 712 和高教授討論專題；2026-09-08（二）19:00-21:00 線上參加 `AWS Educate 9th 雲端校園大使招募說明會`；2026-09-09（三）上午投遞 AWS 校園大使履歷；2026-09-09（三）19:00 射箭，可穿薄長袖。AWS 校園大使投遞前仍需確認履歷與作品集主軸凸顯國泰人壽雲端技術發展部雲端應用開發科、AI 驅動的 AWS PoC 雷達、AI PM、雲端 / AI / 技術推廣經驗。舊的 2026-08-21 投遞期限不再作 active deadline。
 - 2026-08-28 Cleo 回報上午已完成 mentor 離職 / 交接事項盤點；`README.md` 近期待辦已移除此項，正式日誌待 17:00 後統整。
 - 2026-08-28 Cleo 回報 FinTech 國際校園大使推薦信用印審查已完成；`README.md` 近期待辦已移除此項。
+- 2026-09-02 Cleo 回報已完成 FinTech 校園大使投遞；目前只可記為已投遞，不宣稱錄取、面試、補件或主辦單位回覆。
 - 2026-08-30 Cleo 補記：2026-08-29 已完成 ASML 校園大使投遞；目前只可記為已投遞，不宣稱錄取、面試或主辦單位回饋。
 - 2026-08-31 Cleo 回報已完成 CIP 集團結訓典禮與國泰黑客松「步步公億走」提案報告；組別獲得第一名與 4,000 元禮券，Cleo 是主講者之一，主講 AI 在個人化推播系統中的角色、程式化節省 token、動態滾動更新、測試相容性、ESG 城市足跡與「起來嗨!」提醒功能。此為 Cleo 回報與同儕回饋素材；正式書面評審評語尚未取得。
 - 2026-08-31 final proposal 成長素材：mentor 古永忠曾分享將重複步驟程式化以減少 AI token 消耗，啟發 Cleo 用在黑客松提案；mentor 也提醒 AI 時代創意與快速執行的重要性。這可作為「公司 / mentor 如何幫助 Cleo 成長」的具體前後差異證據。
